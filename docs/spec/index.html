@@ -41,16 +41,48 @@
   </div>
 </header>
 
-<main class="wrap ref-main">
-  <h1 data-t="title">Field reference</h1>
-  <p class="lead" data-t="lead">Every field of OTE Spec v0.2. This page is generated from the JSON Schemas, so it cannot drift from what the validator actually enforces.</p>
+<main class="ref-main">
+  <div class="wrap ref-intro">
+    <h1 data-t="title">Field reference</h1>
+    <p class="lead" data-t="lead">Every field of OTE Spec v0.2. This page is generated from the JSON Schemas, so it cannot drift from what the validator actually enforces.</p>
 
-  <div class="cta-row">
-    <a class="btn btn-ghost" href="https://github.com/OpenTechEvents/opentechevents-spec/blob/main/spec/v0.2/README.md" data-t="rules">Rules a validator can't check</a>
-    <a class="btn btn-ghost" href="../schema/v0.2/event.schema.json" data-t="raw">Raw JSON Schema</a>
+    <div class="cta-row">
+      <a class="btn btn-ghost" href="https://github.com/OpenTechEvents/opentechevents-spec/blob/main/spec/v0.2/README.md" data-t="rules">Rules a validator can't check</a>
+      <a class="btn btn-ghost" href="../schema/v0.2/event.schema.json" data-t="raw">Raw JSON Schema</a>
+    </div>
   </div>
 
-  <div id="reference"></div>
+  <div class="wrap ref-layout">
+    <!-- Table of contents: built from the same model as the fields, so it can't fall out of sync. -->
+    <aside class="ref-side">
+      <button type="button" class="toc-toggle" id="toc-toggle" aria-expanded="false" aria-controls="toc-panel">
+        <span data-t="tocTitle">On this page</span>
+        <span class="toc-chevron" aria-hidden="true"></span>
+      </button>
+      <nav class="toc-panel" id="toc-panel" aria-labelledby="toc-toggle"></nav>
+    </aside>
+
+    <div class="ref-body">
+      <!-- Sticky: keeps "where am I" and "find a field" reachable from anywhere in the page. -->
+      <div class="ref-toolbar">
+        <a class="toolbar-here" id="toolbar-here" href="#event" hidden><code></code></a>
+        <div class="toolbar-search">
+          <input type="search" id="field-search" autocomplete="off" spellcheck="false"
+                 data-t-placeholder="searchPlaceholder" placeholder="Filter fields…"
+                 data-t-aria="searchLabel" aria-label="Filter fields">
+          <kbd class="search-hint" aria-hidden="true">/</kbd>
+        </div>
+        <label class="req-toggle">
+          <input type="checkbox" id="only-required">
+          <span class="req-long" data-t="onlyRequired">Only required</span>
+          <span class="req-short" data-t="onlyRequiredShort">Req.</span>
+        </label>
+      </div>
+      <p class="ref-count" id="ref-count" role="status" aria-live="polite"></p>
+
+      <div id="reference"></div>
+    </div>
+  </div>
 </main>
 
 <footer class="site-footer">
