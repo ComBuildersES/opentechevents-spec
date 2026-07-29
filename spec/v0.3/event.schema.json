@@ -170,6 +170,52 @@
             }
           ]
         },
+        "offers": {
+          "description": "What it costs to attend, and where to register. A list: tiered pricing (early bird, student, patron) is one entry each, and a free event is a single entry with price 0. Absent means UNKNOWN, never free — saying free is what price 0 is for.",
+          "$ref": "#/$defs/offers",
+          "examples": [
+            [
+              {
+                "price": 0,
+                "url": "https://rustmadrid.example/meetups/2026-06#registro"
+              }
+            ],
+            [
+              {
+                "name": "Early bird",
+                "price": 35,
+                "currency": "EUR",
+                "url": "https://devfest-levante.example/2026/entradas",
+                "availability": "sold-out",
+                "closesAt": "2026-07-31T23:59:59+02:00"
+              },
+              {
+                "name": "General",
+                "price": 45,
+                "currency": "EUR",
+                "url": "https://devfest-levante.example/2026/entradas",
+                "availability": "in-stock"
+              }
+            ]
+          ]
+        },
+        "cfp": {
+          "description": "The event's open call for proposals — talks, workshops, papers. The one field of the spec with no equivalent in ANY of the three destination formats: it exists because 'which conferences are accepting proposals right now' is a question only the publisher can answer, and today it is answered by scraping.",
+          "$ref": "#/$defs/cfp",
+          "examples": [
+            {
+              "url": "https://devfest-levante.example/2026/cfp",
+              "closesAt": "2026-07-15T23:59:59+02:00"
+            },
+            {
+              "url": "https://devfest-levante.example/2026/cfp",
+              "opensAt": "2026-05-01T00:00:00+02:00",
+              "closesAt": "2026-07-15T23:59:59+02:00",
+              "coversTravel": true,
+              "coversAccommodation": true
+            }
+          ]
+        },
         "tags": {
           "description": "Free-form topic tags. Maps to iCal CATEGORIES and schema.org keywords. A controlled vocabulary may layer on top later; the field itself stays free. No default: absent means unknown.",
           "type": "array",
@@ -318,7 +364,7 @@
       ]
     },
     "instant": {
-      "description": "An absolute point in time, WITH offset or Z. Used for metadata (when data was fetched), never for when an event happens.",
+      "description": "An absolute point in time, WITH offset or Z. Used for metadata (when data was fetched) and for deadlines (when a sale or a call closes) — never for when an event happens, which is wall clock plus timezone.",
       "type": "string",
       "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})$"
     },
@@ -550,6 +596,165 @@
           "examples": [
             "ES",
             "US"
+          ]
+        }
+      }
+    },
+    "offers": {
+      "description": "Ways of attending, with their price. A list because an event may sell several kinds of ticket, and because the answer to \"is it free?\" has to survive an event that is free for students and paid for everyone else.",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/offer"
+      }
+    },
+    "offer": {
+      "description": "One way of attending: a price, a place to get it, or both. Maps 1:1 onto a schema.org Offer, which is what Google reads to show a price. It models the ticket, not the ticketing: no capacity, no seats left, no per-ticket registration state.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "What this ticket is called (\"General admission\", \"Estudiantes\"). Worth writing when there is more than one offer, noise when there is only one.",
+          "type": "string",
+          "minLength": 1,
+          "examples": [
+            "General admission",
+            "Estudiantes"
+          ]
+        },
+        "price": {
+          "description": "Amount per attendee, in `currency`. 0 means free — and it is the ONLY way to say free: an absent offers list means the price is unknown. A number, never text: no currency symbol, no thousands separator, no range and no \"desde\", because the whole reason to publish a price as data is that someone can filter and compare on it. A price that cannot be written as one number is several offers.",
+          "type": "number",
+          "minimum": 0,
+          "examples": [
+            0,
+            45,
+            12.5
+          ]
+        },
+        "currency": {
+          "description": "ISO 4217 alpha-3 code, uppercase (EUR, USD, MXN). Required whenever `price` is above 0, and pointless at 0: free is free in every currency, and emitting one there is how Luma ends up publishing a currency for a meetup that costs nothing.",
+          "type": "string",
+          "pattern": "^[A-Z]{3}$",
+          "examples": [
+            "EUR",
+            "USD"
+          ]
+        },
+        "url": {
+          "description": "Where to buy the ticket or register for this particular offer. Distinct from the event's own url: that page describes the event, this one is where money or a seat changes hands. Omit it when registration happens on the event page itself.",
+          "type": "string",
+          "format": "uri",
+          "pattern": "^https?://",
+          "examples": [
+            "https://devfest-levante.example/2026/entradas"
+          ]
+        },
+        "availability": {
+          "description": "Whether this offer can still be taken. NO DEFAULT: absent means unknown, never available — a stale feed that keeps claiming in-stock is worse than one that says nothing. Only the two states an attendee can act on are modelled.",
+          "enum": [
+            "in-stock",
+            "sold-out"
+          ],
+          "examples": [
+            "in-stock",
+            "sold-out"
+          ]
+        },
+        "opensAt": {
+          "description": "When this offer goes on sale. An INSTANT, with offset or Z — unlike the event's own dates, which are wall clock: a sale opening is a moment a button starts working, not an hour on a poster.",
+          "$ref": "#/$defs/instant",
+          "examples": [
+            "2026-05-01T10:00:00+02:00"
+          ]
+        },
+        "closesAt": {
+          "description": "When this offer stops being available. An INSTANT, with offset or Z, for the same reason as opensAt — and because \"23:59\" without an offset is the classic deadline bug.",
+          "$ref": "#/$defs/instant",
+          "examples": [
+            "2026-07-31T23:59:59+02:00"
+          ]
+        }
+      },
+      "anyOf": [
+        {
+          "description": "An offer must carry a price or a link — ideally both. One with neither says nothing that omitting the whole list does not already say, the same rule location follows with venue and onlineUrl.",
+          "required": [
+            "price"
+          ]
+        },
+        {
+          "required": [
+            "url"
+          ]
+        }
+      ],
+      "allOf": [
+        {
+          "description": "A non-zero amount without a currency is not a price: 45 is a different thing in EUR, USD and MXN, and a consumer that has to guess will guess its own.",
+          "if": {
+            "type": "object",
+            "required": [
+              "price"
+            ],
+            "properties": {
+              "price": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              }
+            }
+          },
+          "then": {
+            "type": "object",
+            "required": [
+              "currency"
+            ]
+          }
+        }
+      ]
+    },
+    "cfp": {
+      "description": "An open call for proposals. One per event: unlike organizers, no real producer publishes more than one — the CFP directories that exist (confs.tech, developers.events, Sessionize) all model exactly one link and one deadline. Deliberately small: it says where to submit and until when, not what a submission looks like.",
+      "type": "object",
+      "required": [
+        "url"
+      ],
+      "properties": {
+        "url": {
+          "description": "Where proposals are submitted — the form, or the page describing the call. Required: a CFP nobody can find is not a call, and this is the one piece of it that survives export to every format, inside the text.",
+          "type": "string",
+          "format": "uri",
+          "pattern": "^https?://",
+          "examples": [
+            "https://devfest-levante.example/2026/cfp"
+          ]
+        },
+        "opensAt": {
+          "description": "When the call starts accepting proposals. An INSTANT, with offset or Z. Absent means it is already open — a call that has not opened yet is announced, not published.",
+          "$ref": "#/$defs/instant",
+          "examples": [
+            "2026-05-01T00:00:00+02:00"
+          ]
+        },
+        "closesAt": {
+          "description": "Deadline for proposals. An INSTANT, with offset or Z, never a bare \"23:59\": which midnight it is is the whole question, and \"anywhere on Earth\" is a real answer (-12:00) that a wall-clock field could not express. Absent means unknown, not open forever — and it is what a consumer needs to answer \"which CFPs are open right now\".",
+          "$ref": "#/$defs/instant",
+          "examples": [
+            "2026-07-15T23:59:59+02:00",
+            "2026-07-15T23:59:59-12:00"
+          ]
+        },
+        "coversTravel": {
+          "description": "Whether the event covers a selected speaker's travel. NO DEFAULT: absent means unknown, never false. It is here and \"call for sponsors\" is not because this is what a speaker filters on before deciding whether they can afford to submit.",
+          "type": "boolean",
+          "examples": [
+            true
+          ]
+        },
+        "coversAccommodation": {
+          "description": "Whether the event covers a selected speaker's accommodation. Same rule as coversTravel: absent means unknown.",
+          "type": "boolean",
+          "examples": [
+            true
           ]
         }
       }

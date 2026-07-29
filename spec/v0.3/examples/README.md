@@ -7,8 +7,8 @@ Todos **se validan en CI** contra [`../event.schema.json`](../event.schema.json)
 | [`event-minimal.json`](event-minimal.json) | Lo mínimo que la spec exige. Nada más. |
 | [`event-from-ics.json`](event-from-ics.json) | Evento **importado de un `.ics`**: sin `url`, sin `image` —iCalendar casi nunca la trae—, con `source` y **sin `attendanceMode`** — porque iCalendar no sabe expresarlo, y callarse es más honesto que inventar. Muestra los campos que la v0.2 añadió desde iCal: `tags` (← `CATEGORIES`), `location.geo` (← `GEO`) y `updatedAt` (← `LAST-MODIFIED`). |
 | [`event-all-day.json`](event-all-day.json) | Evento de **varios días completos**: `startDate`/`endDate` como fechas, sin hora. |
-| [`event-meetup.json`](event-meetup.json) | Meetup híbrido, con `image` (el mismo cartel en tres recortes) y una extensión (ver abajo). |
-| [`event-conference-cfp.json`](event-conference-cfp.json) | Conferencia con **CFP abierto** y precio, ambos como extensiones. |
+| [`event-meetup.json`](event-meetup.json) | Meetup híbrido, con `image` (el mismo cartel en tres recortes), `offers` con `price: 0` —así se dice «gratis»— y una extensión (ver abajo). |
+| [`event-conference-cfp.json`](event-conference-cfp.json) | Conferencia con **tres tipos de entrada** (`offers`, uno ya agotado) y **CFP abierto** (`cfp`), ambos normativos desde la v0.3. |
 | [`event-co-organized.json`](event-co-organized.json) | **Tres organizadores** —dos comunidades y una persona— y un campo de **vocabulario externo con prefijo** (`combuilders:communityId`). |
 | [`event-online.json`](event-online.json) | Evento **solo online**: `location` con `onlineUrl` y sin sede física, más `partOf` de una serie semanal. |
 | [`event-hackathon.json`](event-hackathon.json) | **Hackathon** continuo de fin de semana: cruza la medianoche y por eso **no** lleva `partOf` — es un evento, no dos sesiones. |
@@ -20,15 +20,16 @@ Todos **se validan en CI** contra [`../event.schema.json`](../event.schema.json)
 
 ## Campos en discusión (extensiones)
 
-`event-meetup.json` y `event-conference-cfp.json` usan campos que **NO forman parte de la v0.3**:
+`event-meetup.json` y `event-recurring.json` usan campos que **NO forman parte de la v0.3**:
 
 | Campo | Estado |
 | --- | --- |
-| `cfp` | 🗣️ En discusión — [issue #5](https://github.com/OpenTechEvents/opentechevents-spec/issues/5) |
-| `offers` (precio, aforo, registro) | 🗣️ En discusión |
+| `capacity` (aforo, en `event-meetup.json`) | 🗣️ En discusión — [issue #5](https://github.com/OpenTechEvents/opentechevents-spec/issues/5). Se quedó fuera de `offers` a propósito: es estado de la taquilla, no de la entrada. |
 | `ics:rrule` (en `event-recurring.json`) | 🔗 **Vocabulario externo**, con prefijo. La regla original del `.ics`, guardada para poder hacer round-trip. **Informativa**: las ocurrencias ya vienen expandidas, así que nadie tiene que evaluarla. |
 
-> `image` **ya es normativo desde la v0.3**, y como lista (`image[]`, no una cadena). Entró por esta misma vía: lo emiten las cinco fuentes estudiadas y Google lo pide. Si lo emitías como cadena suelta, migra a lista.
+> `offers` y `cfp` **ya son normativos desde la v0.3**, y con otra forma de la que tenían aquí como propuesta: `offers` es una **lista** (varios tipos de entrada) sin `isFree` —lo gratis es `price: 0`— y sin `capacity`; `cfp` ya no lleva `timezone`, porque sus fechas límite son **instantes con offset**. Si los emitías con la forma antigua, migra: ver [`offers`](../README.md#offers-cuánto-cuesta-y-dónde-se-saca-la-entrada) y [`cfp`](../README.md#cfp-la-convocatoria-de-charlas--y-el-primer-campo-que-no-viaja-a-ninguna-parte).
+>
+> `image` **también es normativo desde la v0.3**, y como lista (`image[]`, no una cadena). Entró por esta misma vía: lo emiten las cinco fuentes estudiadas y Google lo pide. Si lo emitías como cadena suelta, migra a lista.
 >
 > `tags` **ya es normativo desde la v0.2** (mapea a `CATEGORIES` de iCal). Entró justo por esta vía: un campo que un consumidor real —el agregador— ya usaba. Ver el [CHANGELOG](../../../CHANGELOG.md).
 >

@@ -70,7 +70,7 @@
     },
     "min": {
       "title": "The minimum is genuinely minimal",
-      "body": "A valid event needs little more than a name, a start date, a time zone and where it happens. Optional modules — CFP, speakers, price, accessibility — cover the rest when you need them.",
+      "body": "A valid event needs little more than a name, a start date, a time zone and where it happens. Optional fields — price and tickets, call for proposals, images, series — cover the rest when you need them.",
       "caveat": "Careful, because we'd rather be straight with you: that draft — the core fields and the optional modules alike — has not been agreed yet. It's there to show the shape of the thing and to open the debate, and it will change. What we're asking you to adopt today is the idea, and to come and break it before it sets.",
       "b1": "Plain JSON. No SDK, no account, no server required — a static file is enough.",
       "b2": "Designed to map cleanly onto RSS, iCalendar and schema.org/Event.",

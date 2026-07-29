@@ -32,15 +32,16 @@
     {
       "file": "event-meetup.json",
       "cases": ["meetup", "hybrid"],
-      "fields": ["event.attendanceMode", "event.location", "event.location.address", "event.location.geo", "event.image", "event.tags", "event.updatedAt"],
+      "fields": ["event.attendanceMode", "event.location", "event.location.address", "event.location.geo", "event.image", "event.offers", "event.tags", "event.updatedAt"],
       "title": "Hybrid meetup, with everything you'd normally want",
-      "summary": "A venue and a joining URL at once, topics, coordinates, a poster — and one field that is not part of the spec yet.",
+      "summary": "A venue and a joining URL at once, topics, coordinates, a poster, a free ticket — and one field that is not part of the spec yet.",
       "points": [
         "`location` and `attendanceMode` answer different questions: `location` is observable fact (is there a venue? is there a URL?), `attendanceMode` is the organiser's intent. If they disagree, `attendanceMode` wins.",
         "`venue` and `address` are the same place said twice on purpose: `venue` is the one string iCal and RSS can print, `address` is the five parts a schema.org `PostalAddress` needs — and Google validates them one by one.",
         "`updatedAt` is what lets a consumer sync incrementally — it is iCal's `LAST-MODIFIED`, not `DTSTAMP`.",
         "`image` lists the SAME poster in three crops, most useful first: several sizes of one image, not a gallery. Only the first survives iCal.",
-        "`offers` is NOT in v0.3. The document is valid anyway: the schemas do not forbid extra fields, on purpose. That is how the spec grows — through fields someone already uses, which is exactly how `image` got in."
+        "`offers` with a single `price: 0` is how a free event says so. Leaving `offers` out does NOT mean free — it means the price is unknown, which is a different claim.",
+        "`capacity` is NOT in v0.3. The document is valid anyway: the schemas do not forbid extra fields, on purpose. That is how the spec grows — through fields someone already uses, which is exactly how `image` and `offers` got in."
       ]
     },
     {
@@ -106,13 +107,14 @@
     {
       "file": "event-conference-cfp.json",
       "cases": ["conference"],
-      "fields": ["event.tags", "event.languages", "event.status"],
-      "title": "Conference with an open call for papers",
-      "summary": "The most requested thing that v0.3 still does not model — shown as the extension it currently is.",
+      "fields": ["event.offers", "event.offers[].price", "event.offers[].availability", "event.cfp", "event.cfp.closesAt", "event.cfp.coversTravel"],
+      "title": "Conference with tickets and an open call for papers",
+      "summary": "Three ticket tiers and a call for proposals — the two things people search a conference for, and neither of them was in v0.2.",
       "points": [
-        "`cfp` and `offers` are proposals, not spec. Written without a prefix, they are candidates for the core: if enough people use them, they get standardised.",
-        "No generalist standard models a CFP, so on export it degrades to text or a URL.",
-        "If you publish these fields, say so in the issue. Real use is the argument that moves a field into the core; a request with no case behind it is not."
+        "Tiered pricing is several `offers`, not one with a range: a price you cannot write as a single number is more than one offer. `availability` says which tier is already gone.",
+        "The student tier is `price: 0` and no `currency` — free is free in every currency, and asking for one there is how a free meetup ends up publishing a US dollar amount.",
+        "The deadlines carry an offset, unlike the event's own dates. A CFP closing at \"23:59\" is the classic bug: which midnight is the entire question, and \"anywhere on Earth\" is a real answer (`-12:00`).",
+        "`cfp` has no equivalent in schema.org, iCal or RSS — it degrades to text on export. It is in the core anyway because \"which conferences are accepting proposals right now\" is a question only the publisher can answer, and today it is answered by scraping."
       ]
     },
     {

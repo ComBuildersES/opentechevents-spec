@@ -26,13 +26,14 @@
     },
     "event-meetup.json": {
       "title": "Meetup híbrido, con todo lo que se suele querer",
-      "summary": "Sede y URL de conexión a la vez, temáticas, coordenadas, un cartel — y un campo que todavía no es de la spec.",
+      "summary": "Sede y URL de conexión a la vez, temáticas, coordenadas, un cartel, entrada gratuita — y un campo que todavía no es de la spec.",
       "points": [
         "`location` y `attendanceMode` responden preguntas distintas: `location` son hechos observables (¿hay sede?, ¿hay URL?), `attendanceMode` es la intención de quien organiza. Si se contradicen, manda `attendanceMode`.",
         "`venue` y `address` son el mismo sitio dicho dos veces, y a propósito: `venue` es la única cadena que iCal y RSS saben imprimir; `address` son las cinco partes que necesita un `PostalAddress` de schema.org — y Google las valida una a una.",
         "`updatedAt` es lo que permite sincronizar de forma incremental: es el `LAST-MODIFIED` de iCal, no el `DTSTAMP`.",
         "`image` lleva EL MISMO cartel en tres recortes, el más útil primero: varios tamaños de una imagen, no una galería. A iCal solo llega el primero.",
-        "`offers` NO está en la v0.3. El documento es válido igualmente: los schemas no prohíben campos adicionales, a propósito. Es la vía por la que la spec crece — campos que alguien ya usa de verdad, que es justo por donde entró `image`."
+        "`offers` con un único `price: 0` es como se dice que un evento es gratis. Omitir `offers` NO significa gratis: significa que el precio se desconoce, que es otra afirmación.",
+        "`capacity` NO está en la v0.3. El documento es válido igualmente: los schemas no prohíben campos adicionales, a propósito. Es la vía por la que la spec crece — campos que alguien ya usa de verdad, que es justo por donde entraron `image` y `offers`."
       ]
     },
     "event-recurring.json": {
@@ -81,12 +82,13 @@
       ]
     },
     "event-conference-cfp.json": {
-      "title": "Conferencia con CFP abierto",
-      "summary": "Lo más pedido de todo lo que la v0.3 todavía no modela, mostrado como la extensión que hoy es.",
+      "title": "Conferencia con entradas y CFP abierto",
+      "summary": "Tres tipos de entrada y una convocatoria de charlas: las dos cosas por las que se busca una conferencia, y ninguna estaba en la v0.2.",
       "points": [
-        "`cfp` y `offers` son propuestas, no spec. Al ir sin prefijo son candidatos a núcleo: si le hacen falta a bastante gente, se estandarizan.",
-        "Ningún estándar generalista modela un CFP, así que al exportar se degrada a texto o a una URL.",
-        "Si publicas estos campos, dilo en el issue. El uso real es el argumento que mueve un campo al núcleo; una petición sin caso detrás, no."
+        "Varios precios son varias `offers`, no una con un rango: un precio que no se puede escribir con un solo número es más de una oferta. `availability` dice cuál se ha agotado ya.",
+        "La entrada de estudiantes lleva `price: 0` y ninguna `currency` — lo gratis es gratis en cualquier moneda, y exigirla ahí es como un meetup gratuito acaba publicando un importe en dólares.",
+        "Las fechas límite llevan offset, a diferencia de las fechas del propio evento. Un CFP que cierra a las «23:59» es el bug clásico: qué medianoche es exactamente la pregunta, y «anywhere on Earth» es una respuesta real (`-12:00`).",
+        "`cfp` no tiene equivalente en schema.org, iCal ni RSS: al exportar se degrada a texto. Está en el núcleo igualmente porque «qué conferencias aceptan propuestas ahora mismo» solo lo puede contestar quien publica, y hoy se contesta scrapeando."
       ]
     },
     "event-co-organized.json": {

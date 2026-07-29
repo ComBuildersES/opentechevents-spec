@@ -147,6 +147,7 @@
         "event.location.address",
         "event.location.geo",
         "event.image",
+        "event.offers",
         "event.tags",
         "event.updatedAt"
       ],
@@ -155,8 +156,8 @@
         "es": "Meetup híbrido, con todo lo que se suele querer"
       },
       "summary": {
-        "en": "A venue and a joining URL at once, topics, coordinates, a poster — and one field that is not part of the spec yet.",
-        "es": "Sede y URL de conexión a la vez, temáticas, coordenadas, un cartel — y un campo que todavía no es de la spec."
+        "en": "A venue and a joining URL at once, topics, coordinates, a poster, a free ticket — and one field that is not part of the spec yet.",
+        "es": "Sede y URL de conexión a la vez, temáticas, coordenadas, un cartel, entrada gratuita — y un campo que todavía no es de la spec."
       },
       "points": {
         "en": [
@@ -164,17 +165,19 @@
           "`venue` and `address` are the same place said twice on purpose: `venue` is the one string iCal and RSS can print, `address` is the five parts a schema.org `PostalAddress` needs — and Google validates them one by one.",
           "`updatedAt` is what lets a consumer sync incrementally — it is iCal's `LAST-MODIFIED`, not `DTSTAMP`.",
           "`image` lists the SAME poster in three crops, most useful first: several sizes of one image, not a gallery. Only the first survives iCal.",
-          "`offers` is NOT in v0.3. The document is valid anyway: the schemas do not forbid extra fields, on purpose. That is how the spec grows — through fields someone already uses, which is exactly how `image` got in."
+          "`offers` with a single `price: 0` is how a free event says so. Leaving `offers` out does NOT mean free — it means the price is unknown, which is a different claim.",
+          "`capacity` is NOT in v0.3. The document is valid anyway: the schemas do not forbid extra fields, on purpose. That is how the spec grows — through fields someone already uses, which is exactly how `image` and `offers` got in."
         ],
         "es": [
           "`location` y `attendanceMode` responden preguntas distintas: `location` son hechos observables (¿hay sede?, ¿hay URL?), `attendanceMode` es la intención de quien organiza. Si se contradicen, manda `attendanceMode`.",
           "`venue` y `address` son el mismo sitio dicho dos veces, y a propósito: `venue` es la única cadena que iCal y RSS saben imprimir; `address` son las cinco partes que necesita un `PostalAddress` de schema.org — y Google las valida una a una.",
           "`updatedAt` es lo que permite sincronizar de forma incremental: es el `LAST-MODIFIED` de iCal, no el `DTSTAMP`.",
           "`image` lleva EL MISMO cartel en tres recortes, el más útil primero: varios tamaños de una imagen, no una galería. A iCal solo llega el primero.",
-          "`offers` NO está en la v0.3. El documento es válido igualmente: los schemas no prohíben campos adicionales, a propósito. Es la vía por la que la spec crece — campos que alguien ya usa de verdad, que es justo por donde entró `image`."
+          "`offers` con un único `price: 0` es como se dice que un evento es gratis. Omitir `offers` NO significa gratis: significa que el precio se desconoce, que es otra afirmación.",
+          "`capacity` NO está en la v0.3. El documento es válido igualmente: los schemas no prohíben campos adicionales, a propósito. Es la vía por la que la spec crece — campos que alguien ya usa de verdad, que es justo por donde entraron `image` y `offers`."
         ]
       },
-      "source": "{\n  \"specVersion\": \"0.3.0\",\n  \"id\": \"https://rustmadrid.example/meetups/2026-06\",\n  \"url\": \"https://rustmadrid.example/meetups/2026-06\",\n  \"name\": \"Rust Madrid — Meetup de junio\",\n  \"description\": \"Charlas sobre WASM y tooling de Rust.\\n\\n18:30 Puertas · 19:00 Charlas · 20:30 Networking\",\n  \"image\": [\n    \"https://rustmadrid.example/img/2026-06-16x9.png\",\n    \"https://rustmadrid.example/img/2026-06-4x3.png\",\n    \"https://rustmadrid.example/img/2026-06-1x1.png\"\n  ],\n  \"organizers\": [\n    {\n      \"name\": \"Rust Madrid\",\n      \"url\": \"https://rustmadrid.example\"\n    }\n  ],\n  \"startDate\": \"2026-06-26T19:00:00\",\n  \"endDate\": \"2026-06-26T21:00:00\",\n  \"timezone\": \"Europe/Madrid\",\n  \"attendanceMode\": \"hybrid\",\n  \"location\": {\n    \"venue\": \"Campus Madrid, Calle de Moreno Nieto 2, Madrid\",\n    \"address\": {\n      \"street\": \"Calle de Moreno Nieto 2\",\n      \"locality\": \"Madrid\",\n      \"region\": \"Comunidad de Madrid\",\n      \"postalCode\": \"28005\",\n      \"country\": \"ES\"\n    },\n    \"onlineUrl\": \"https://meet.example/rust-madrid\",\n    \"geo\": {\n      \"lat\": 40.4081,\n      \"lon\": -3.7188\n    }\n  },\n  \"tags\": [\n    \"rust\",\n    \"wasm\"\n  ],\n  \"languages\": [\n    \"es\"\n  ],\n  \"status\": \"scheduled\",\n  \"license\": \"CC-BY-4.0\",\n  \"updatedAt\": \"2026-06-10T18:00:00Z\",\n  \"offers\": {\n    \"isFree\": true,\n    \"registrationUrl\": \"https://rustmadrid.example/meetups/2026-06#registro\",\n    \"capacity\": 80\n  }\n}",
+      "source": "{\n  \"specVersion\": \"0.3.0\",\n  \"id\": \"https://rustmadrid.example/meetups/2026-06\",\n  \"url\": \"https://rustmadrid.example/meetups/2026-06\",\n  \"name\": \"Rust Madrid — Meetup de junio\",\n  \"description\": \"Charlas sobre WASM y tooling de Rust.\\n\\n18:30 Puertas · 19:00 Charlas · 20:30 Networking\",\n  \"image\": [\n    \"https://rustmadrid.example/img/2026-06-16x9.png\",\n    \"https://rustmadrid.example/img/2026-06-4x3.png\",\n    \"https://rustmadrid.example/img/2026-06-1x1.png\"\n  ],\n  \"organizers\": [\n    {\n      \"name\": \"Rust Madrid\",\n      \"url\": \"https://rustmadrid.example\"\n    }\n  ],\n  \"startDate\": \"2026-06-26T19:00:00\",\n  \"endDate\": \"2026-06-26T21:00:00\",\n  \"timezone\": \"Europe/Madrid\",\n  \"attendanceMode\": \"hybrid\",\n  \"location\": {\n    \"venue\": \"Campus Madrid, Calle de Moreno Nieto 2, Madrid\",\n    \"address\": {\n      \"street\": \"Calle de Moreno Nieto 2\",\n      \"locality\": \"Madrid\",\n      \"region\": \"Comunidad de Madrid\",\n      \"postalCode\": \"28005\",\n      \"country\": \"ES\"\n    },\n    \"onlineUrl\": \"https://meet.example/rust-madrid\",\n    \"geo\": {\n      \"lat\": 40.4081,\n      \"lon\": -3.7188\n    }\n  },\n  \"offers\": [\n    {\n      \"price\": 0,\n      \"url\": \"https://rustmadrid.example/meetups/2026-06#registro\"\n    }\n  ],\n  \"tags\": [\n    \"rust\",\n    \"wasm\"\n  ],\n  \"languages\": [\n    \"es\"\n  ],\n  \"status\": \"scheduled\",\n  \"license\": \"CC-BY-4.0\",\n  \"updatedAt\": \"2026-06-10T18:00:00Z\",\n  \"capacity\": 80\n}",
       "lines": {
         "event.specVersion": [
           2
@@ -251,32 +254,32 @@
         "event.location": [
           22
         ],
-        "event.tags": [
-          37
+        "event.offers[].price": [
+          39
         ],
-        "event.languages": [
-          41
-        ],
-        "event.status": [
-          44
-        ],
-        "event.license": [
-          45
-        ],
-        "event.updatedAt": [
-          46
-        ],
-        "event.offers.isFree": [
-          48
-        ],
-        "event.offers.registrationUrl": [
-          49
-        ],
-        "event.offers.capacity": [
-          50
+        "event.offers[].url": [
+          40
         ],
         "event.offers": [
+          37
+        ],
+        "event.tags": [
+          43
+        ],
+        "event.languages": [
           47
+        ],
+        "event.status": [
+          50
+        ],
+        "event.license": [
+          51
+        ],
+        "event.updatedAt": [
+          52
+        ],
+        "event.capacity": [
+          53
         ]
       }
     },
@@ -953,31 +956,36 @@
         "conference"
       ],
       "fields": [
-        "event.tags",
-        "event.languages",
-        "event.status"
+        "event.offers",
+        "event.offers[].price",
+        "event.offers[].availability",
+        "event.cfp",
+        "event.cfp.closesAt",
+        "event.cfp.coversTravel"
       ],
       "title": {
-        "en": "Conference with an open call for papers",
-        "es": "Conferencia con CFP abierto"
+        "en": "Conference with tickets and an open call for papers",
+        "es": "Conferencia con entradas y CFP abierto"
       },
       "summary": {
-        "en": "The most requested thing that v0.3 still does not model — shown as the extension it currently is.",
-        "es": "Lo más pedido de todo lo que la v0.3 todavía no modela, mostrado como la extensión que hoy es."
+        "en": "Three ticket tiers and a call for proposals — the two things people search a conference for, and neither of them was in v0.2.",
+        "es": "Tres tipos de entrada y una convocatoria de charlas: las dos cosas por las que se busca una conferencia, y ninguna estaba en la v0.2."
       },
       "points": {
         "en": [
-          "`cfp` and `offers` are proposals, not spec. Written without a prefix, they are candidates for the core: if enough people use them, they get standardised.",
-          "No generalist standard models a CFP, so on export it degrades to text or a URL.",
-          "If you publish these fields, say so in the issue. Real use is the argument that moves a field into the core; a request with no case behind it is not."
+          "Tiered pricing is several `offers`, not one with a range: a price you cannot write as a single number is more than one offer. `availability` says which tier is already gone.",
+          "The student tier is `price: 0` and no `currency` — free is free in every currency, and asking for one there is how a free meetup ends up publishing a US dollar amount.",
+          "The deadlines carry an offset, unlike the event's own dates. A CFP closing at \"23:59\" is the classic bug: which midnight is the entire question, and \"anywhere on Earth\" is a real answer (`-12:00`).",
+          "`cfp` has no equivalent in schema.org, iCal or RSS — it degrades to text on export. It is in the core anyway because \"which conferences are accepting proposals right now\" is a question only the publisher can answer, and today it is answered by scraping."
         ],
         "es": [
-          "`cfp` y `offers` son propuestas, no spec. Al ir sin prefijo son candidatos a núcleo: si le hacen falta a bastante gente, se estandarizan.",
-          "Ningún estándar generalista modela un CFP, así que al exportar se degrada a texto o a una URL.",
-          "Si publicas estos campos, dilo en el issue. El uso real es el argumento que mueve un campo al núcleo; una petición sin caso detrás, no."
+          "Varios precios son varias `offers`, no una con un rango: un precio que no se puede escribir con un solo número es más de una oferta. `availability` dice cuál se ha agotado ya.",
+          "La entrada de estudiantes lleva `price: 0` y ninguna `currency` — lo gratis es gratis en cualquier moneda, y exigirla ahí es como un meetup gratuito acaba publicando un importe en dólares.",
+          "Las fechas límite llevan offset, a diferencia de las fechas del propio evento. Un CFP que cierra a las «23:59» es el bug clásico: qué medianoche es exactamente la pregunta, y «anywhere on Earth» es una respuesta real (`-12:00`).",
+          "`cfp` no tiene equivalente en schema.org, iCal ni RSS: al exportar se degrada a texto. Está en el núcleo igualmente porque «qué conferencias aceptan propuestas ahora mismo» solo lo puede contestar quien publica, y hoy se contesta scrapeando."
         ]
       },
-      "source": "{\n  \"specVersion\": \"0.3.0\",\n  \"id\": \"https://devfest-levante.example/2026\",\n  \"url\": \"https://devfest-levante.example/2026\",\n  \"name\": \"DevFest Levante 2026\",\n  \"description\": \"Conferencia de desarrollo del sureste, edición 2026. Dos días, tres tracks.\",\n  \"image\": [\n    \"https://devfest-levante.example/img/2026-16x9.png\"\n  ],\n  \"organizers\": [\n    {\n      \"name\": \"GDG Levante\",\n      \"url\": \"https://gdglevante.example\"\n    }\n  ],\n  \"startDate\": \"2026-10-16\",\n  \"endDate\": \"2026-10-17\",\n  \"timezone\": \"Europe/Madrid\",\n  \"attendanceMode\": \"in-person\",\n  \"location\": {\n    \"venue\": \"Las Naves, Carrer de Joan Verdeguer 16, València\",\n    \"address\": {\n      \"street\": \"Carrer de Joan Verdeguer 16\",\n      \"locality\": \"València\",\n      \"region\": \"Comunitat Valenciana\",\n      \"postalCode\": \"46024\",\n      \"country\": \"ES\"\n    }\n  },\n  \"tags\": [\n    \"cloud\",\n    \"ai\",\n    \"web\"\n  ],\n  \"languages\": [\n    \"es\",\n    \"en\"\n  ],\n  \"status\": \"scheduled\",\n  \"license\": \"CC-BY-4.0\",\n  \"updatedAt\": \"2026-05-04T09:00:00Z\",\n  \"cfp\": {\n    \"url\": \"https://devfest-levante.example/2026/cfp\",\n    \"opensAt\": \"2026-05-01T00:00:00\",\n    \"closesAt\": \"2026-07-15T23:59:59\",\n    \"timezone\": \"Europe/Madrid\",\n    \"coversTravel\": true,\n    \"coversAccommodation\": true\n  },\n  \"offers\": {\n    \"isFree\": false,\n    \"price\": 45,\n    \"currency\": \"EUR\",\n    \"registrationUrl\": \"https://devfest-levante.example/2026/entradas\"\n  }\n}",
+      "source": "{\n  \"specVersion\": \"0.3.0\",\n  \"id\": \"https://devfest-levante.example/2026\",\n  \"url\": \"https://devfest-levante.example/2026\",\n  \"name\": \"DevFest Levante 2026\",\n  \"description\": \"Conferencia de desarrollo del sureste, edición 2026. Dos días, tres tracks.\",\n  \"image\": [\n    \"https://devfest-levante.example/img/2026-16x9.png\"\n  ],\n  \"organizers\": [\n    {\n      \"name\": \"GDG Levante\",\n      \"url\": \"https://gdglevante.example\"\n    }\n  ],\n  \"startDate\": \"2026-10-16\",\n  \"endDate\": \"2026-10-17\",\n  \"timezone\": \"Europe/Madrid\",\n  \"attendanceMode\": \"in-person\",\n  \"location\": {\n    \"venue\": \"Las Naves, Carrer de Joan Verdeguer 16, València\",\n    \"address\": {\n      \"street\": \"Carrer de Joan Verdeguer 16\",\n      \"locality\": \"València\",\n      \"region\": \"Comunitat Valenciana\",\n      \"postalCode\": \"46024\",\n      \"country\": \"ES\"\n    }\n  },\n  \"offers\": [\n    {\n      \"name\": \"Early bird\",\n      \"price\": 35,\n      \"currency\": \"EUR\",\n      \"url\": \"https://devfest-levante.example/2026/entradas\",\n      \"availability\": \"sold-out\",\n      \"closesAt\": \"2026-06-30T23:59:59+02:00\"\n    },\n    {\n      \"name\": \"General\",\n      \"price\": 45,\n      \"currency\": \"EUR\",\n      \"url\": \"https://devfest-levante.example/2026/entradas\",\n      \"availability\": \"in-stock\",\n      \"opensAt\": \"2026-07-01T00:00:00+02:00\"\n    },\n    {\n      \"name\": \"Estudiantes\",\n      \"price\": 0,\n      \"url\": \"https://devfest-levante.example/2026/entradas#estudiantes\",\n      \"availability\": \"in-stock\"\n    }\n  ],\n  \"cfp\": {\n    \"url\": \"https://devfest-levante.example/2026/cfp\",\n    \"opensAt\": \"2026-05-01T00:00:00+02:00\",\n    \"closesAt\": \"2026-07-15T23:59:59+02:00\",\n    \"coversTravel\": true,\n    \"coversAccommodation\": true\n  },\n  \"tags\": [\n    \"cloud\",\n    \"ai\",\n    \"web\"\n  ],\n  \"languages\": [\n    \"es\",\n    \"en\"\n  ],\n  \"status\": \"scheduled\",\n  \"license\": \"CC-BY-4.0\",\n  \"updatedAt\": \"2026-05-04T09:00:00Z\"\n}",
       "lines": {
         "event.specVersion": [
           2
@@ -1042,56 +1050,71 @@
         "event.location": [
           20
         ],
-        "event.tags": [
-          30
-        ],
-        "event.languages": [
-          35
-        ],
-        "event.status": [
-          39
-        ],
-        "event.license": [
-          40
-        ],
-        "event.updatedAt": [
-          41
-        ],
-        "event.cfp.url": [
-          43
-        ],
-        "event.cfp.opensAt": [
-          44
-        ],
-        "event.cfp.closesAt": [
-          45
-        ],
-        "event.cfp.timezone": [
-          46
-        ],
-        "event.cfp.coversTravel": [
-          47
-        ],
-        "event.cfp.coversAccommodation": [
+        "event.offers[].name": [
+          32,
+          40,
           48
         ],
-        "event.cfp": [
+        "event.offers[].price": [
+          33,
+          41,
+          49
+        ],
+        "event.offers[].currency": [
+          34,
           42
         ],
-        "event.offers.isFree": [
+        "event.offers[].url": [
+          35,
+          43,
+          50
+        ],
+        "event.offers[].availability": [
+          36,
+          44,
           51
         ],
-        "event.offers.price": [
-          52
+        "event.offers[].closesAt": [
+          37
         ],
-        "event.offers.currency": [
-          53
-        ],
-        "event.offers.registrationUrl": [
-          54
+        "event.offers[].opensAt": [
+          45
         ],
         "event.offers": [
-          50
+          30
+        ],
+        "event.cfp.url": [
+          55
+        ],
+        "event.cfp.opensAt": [
+          56
+        ],
+        "event.cfp.closesAt": [
+          57
+        ],
+        "event.cfp.coversTravel": [
+          58
+        ],
+        "event.cfp.coversAccommodation": [
+          59
+        ],
+        "event.cfp": [
+          54
+        ],
+        "event.tags": [
+          61
+        ],
+        "event.languages": [
+          66
+        ],
+        "event.status": [
+          70
+        ],
+        "event.license": [
+          71
+        ],
+        "event.updatedAt": [
+          72
         ]
       }
     },
@@ -2015,7 +2038,7 @@
       {
         "file": "event-meetup.json",
         "lines": [
-          45
+          51
         ]
       },
       {
@@ -2045,7 +2068,7 @@
       {
         "file": "event-conference-cfp.json",
         "lines": [
-          40
+          71
         ]
       },
       {
@@ -3158,11 +3181,57 @@
         ]
       }
     ],
-    "event.tags": [
+    "event.offers[].price": [
+      {
+        "file": "event-meetup.json",
+        "lines": [
+          39
+        ]
+      },
+      {
+        "file": "event-conference-cfp.json",
+        "lines": [
+          33,
+          41,
+          49
+        ]
+      }
+    ],
+    "event.offers[].url": [
+      {
+        "file": "event-meetup.json",
+        "lines": [
+          40
+        ]
+      },
+      {
+        "file": "event-conference-cfp.json",
+        "lines": [
+          35,
+          43,
+          50
+        ]
+      }
+    ],
+    "event.offers": [
       {
         "file": "event-meetup.json",
         "lines": [
           37
+        ]
+      },
+      {
+        "file": "event-conference-cfp.json",
+        "lines": [
+          30
+        ]
+      }
+    ],
+    "event.tags": [
+      {
+        "file": "event-meetup.json",
+        "lines": [
+          43
         ]
       },
       {
@@ -3200,7 +3269,7 @@
       {
         "file": "event-conference-cfp.json",
         "lines": [
-          30
+          61
         ]
       },
       {
@@ -3234,7 +3303,7 @@
       {
         "file": "event-meetup.json",
         "lines": [
-          41
+          47
         ]
       },
       {
@@ -3272,7 +3341,7 @@
       {
         "file": "event-conference-cfp.json",
         "lines": [
-          35
+          66
         ]
       },
       {
@@ -3306,7 +3375,7 @@
       {
         "file": "event-meetup.json",
         "lines": [
-          44
+          50
         ]
       },
       {
@@ -3336,7 +3405,7 @@
       {
         "file": "event-conference-cfp.json",
         "lines": [
-          39
+          70
         ]
       },
       {
@@ -3350,7 +3419,7 @@
       {
         "file": "event-meetup.json",
         "lines": [
-          46
+          52
         ]
       },
       {
@@ -3388,7 +3457,7 @@
       {
         "file": "event-conference-cfp.json",
         "lines": [
-          41
+          72
         ]
       },
       {
@@ -3418,53 +3487,11 @@
         ]
       }
     ],
-    "event.offers.isFree": [
+    "event.capacity": [
       {
         "file": "event-meetup.json",
         "lines": [
-          48
-        ]
-      },
-      {
-        "file": "event-conference-cfp.json",
-        "lines": [
-          51
-        ]
-      }
-    ],
-    "event.offers.registrationUrl": [
-      {
-        "file": "event-meetup.json",
-        "lines": [
-          49
-        ]
-      },
-      {
-        "file": "event-conference-cfp.json",
-        "lines": [
-          54
-        ]
-      }
-    ],
-    "event.offers.capacity": [
-      {
-        "file": "event-meetup.json",
-        "lines": [
-          50
-        ]
-      }
-    ],
-    "event.offers": [
-      {
-        "file": "event-meetup.json",
-        "lines": [
-          47
-        ]
-      },
-      {
-        "file": "event-conference-cfp.json",
-        "lines": [
-          50
+          53
         ]
       }
     ],
@@ -3742,23 +3769,44 @@
         ]
       }
     ],
-    "event.cfp.url": [
+    "event.offers[].name": [
       {
         "file": "event-conference-cfp.json",
         "lines": [
-          43
+          32,
+          40,
+          48
         ]
       }
     ],
-    "event.cfp.opensAt": [
+    "event.offers[].currency": [
       {
         "file": "event-conference-cfp.json",
         "lines": [
-          44
+          34,
+          42
         ]
       }
     ],
-    "event.cfp.closesAt": [
+    "event.offers[].availability": [
+      {
+        "file": "event-conference-cfp.json",
+        "lines": [
+          36,
+          44,
+          51
+        ]
+      }
+    ],
+    "event.offers[].closesAt": [
+      {
+        "file": "event-conference-cfp.json",
+        "lines": [
+          37
+        ]
+      }
+    ],
+    "event.offers[].opensAt": [
       {
         "file": "event-conference-cfp.json",
         "lines": [
@@ -3766,11 +3814,27 @@
         ]
       }
     ],
-    "event.cfp.timezone": [
+    "event.cfp.url": [
       {
         "file": "event-conference-cfp.json",
         "lines": [
-          46
+          55
+        ]
+      }
+    ],
+    "event.cfp.opensAt": [
+      {
+        "file": "event-conference-cfp.json",
+        "lines": [
+          56
+        ]
+      }
+    ],
+    "event.cfp.closesAt": [
+      {
+        "file": "event-conference-cfp.json",
+        "lines": [
+          57
         ]
       }
     ],
@@ -3778,7 +3842,7 @@
       {
         "file": "event-conference-cfp.json",
         "lines": [
-          47
+          58
         ]
       }
     ],
@@ -3786,7 +3850,7 @@
       {
         "file": "event-conference-cfp.json",
         "lines": [
-          48
+          59
         ]
       }
     ],
@@ -3794,23 +3858,7 @@
       {
         "file": "event-conference-cfp.json",
         "lines": [
-          42
-        ]
-      }
-    ],
-    "event.offers.price": [
-      {
-        "file": "event-conference-cfp.json",
-        "lines": [
-          52
-        ]
-      }
-    ],
-    "event.offers.currency": [
-      {
-        "file": "event-conference-cfp.json",
-        "lines": [
-          53
+          54
         ]
       }
     ],

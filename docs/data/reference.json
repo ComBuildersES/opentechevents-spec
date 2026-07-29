@@ -415,6 +415,226 @@
           }
         },
         {
+          "path": "offers",
+          "type": "object[]",
+          "required": false,
+          "recommended": false,
+          "examples": [
+            [
+              {
+                "price": 0,
+                "url": "https://rustmadrid.example/meetups/2026-06#registro"
+              }
+            ],
+            [
+              {
+                "name": "Early bird",
+                "price": 35,
+                "currency": "EUR",
+                "url": "https://devfest-levante.example/2026/entradas",
+                "availability": "sold-out",
+                "closesAt": "2026-07-31T23:59:59+02:00"
+              },
+              {
+                "name": "General",
+                "price": 45,
+                "currency": "EUR",
+                "url": "https://devfest-levante.example/2026/entradas",
+                "availability": "in-stock"
+              }
+            ]
+          ],
+          "description": {
+            "en": "What it costs to attend, and where to register. A list: tiered pricing (early bird, student, patron) is one entry each, and a free event is a single entry with price 0. Absent means UNKNOWN, never free — saying free is what price 0 is for.",
+            "es": "Cuánto cuesta asistir y dónde registrarse. Es una lista: cada tipo de entrada (early bird, estudiantes, patrocinio) es una entrada, y un evento gratuito es una sola entrada con `price` 0. Ausente significa DESCONOCIDO, nunca gratis — decir «gratis» es lo que hace `price: 0`."
+          }
+        },
+        {
+          "path": "offers[].name",
+          "type": "string",
+          "required": false,
+          "recommended": false,
+          "examples": [
+            "General admission",
+            "Estudiantes"
+          ],
+          "description": {
+            "en": "What this ticket is called (\"General admission\", \"Estudiantes\"). Worth writing when there is more than one offer, noise when there is only one.",
+            "es": "Cómo se llama esta entrada («General admission», «Estudiantes»). Merece la pena escribirlo cuando hay más de una oferta; es ruido cuando solo hay una."
+          }
+        },
+        {
+          "path": "offers[].price",
+          "type": "number",
+          "required": false,
+          "recommended": false,
+          "examples": [
+            0,
+            45,
+            12.5
+          ],
+          "description": {
+            "en": "Amount per attendee, in `currency`. 0 means free — and it is the ONLY way to say free: an absent offers list means the price is unknown. A number, never text: no currency symbol, no thousands separator, no range and no \"desde\", because the whole reason to publish a price as data is that someone can filter and compare on it. A price that cannot be written as one number is several offers.",
+            "es": "Importe por asistente, en `currency`. 0 significa gratis — y es la ÚNICA forma de decirlo: una lista `offers` ausente significa que el precio se desconoce. Es un número, nunca texto: sin símbolo de moneda, sin separador de miles, sin rangos ni «desde», porque la razón de publicar un precio como dato es que alguien pueda filtrar y comparar con él. Un precio que no se puede escribir con un número son varias ofertas."
+          }
+        },
+        {
+          "path": "offers[].currency",
+          "type": "string",
+          "required": false,
+          "recommended": false,
+          "examples": [
+            "EUR",
+            "USD"
+          ],
+          "description": {
+            "en": "ISO 4217 alpha-3 code, uppercase (EUR, USD, MXN). Required whenever `price` is above 0, and pointless at 0: free is free in every currency, and emitting one there is how Luma ends up publishing a currency for a meetup that costs nothing.",
+            "es": "Código ISO 4217 alfa-3, en mayúsculas (`EUR`, `USD`, `MXN`). Obligatorio siempre que `price` sea mayor que 0, e innecesario cuando es 0: lo gratis es gratis en cualquier moneda, y emitirla ahí es como Luma acaba publicando una divisa para un meetup que no cuesta nada."
+          }
+        },
+        {
+          "path": "offers[].url",
+          "type": "string (uri)",
+          "required": false,
+          "recommended": false,
+          "examples": [
+            "https://devfest-levante.example/2026/entradas"
+          ],
+          "description": {
+            "en": "Where to buy the ticket or register for this particular offer. Distinct from the event's own url: that page describes the event, this one is where money or a seat changes hands. Omit it when registration happens on the event page itself.",
+            "es": "Dónde se compra la entrada o se hace el registro de ESTA oferta. Distinta de la `url` del evento: esa página lo describe, esta es donde cambia de manos el dinero o la plaza. Se omite cuando el registro ocurre en la propia página del evento."
+          }
+        },
+        {
+          "path": "offers[].availability",
+          "type": "enum: in-stock | sold-out",
+          "required": false,
+          "recommended": false,
+          "examples": [
+            "in-stock",
+            "sold-out"
+          ],
+          "description": {
+            "en": "Whether this offer can still be taken. NO DEFAULT: absent means unknown, never available — a stale feed that keeps claiming in-stock is worse than one that says nothing. Only the two states an attendee can act on are modelled.",
+            "es": "Si esta oferta se puede coger todavía. SIN VALOR POR DEFECTO: ausente significa desconocido, nunca disponible — un feed desactualizado que sigue afirmando `in-stock` es peor que uno que no dice nada. Solo se modelan los dos estados sobre los que quien asiste puede actuar."
+          }
+        },
+        {
+          "path": "offers[].opensAt",
+          "type": "string",
+          "required": false,
+          "recommended": false,
+          "examples": [
+            "2026-05-01T10:00:00+02:00"
+          ],
+          "description": {
+            "en": "When this offer goes on sale. An INSTANT, with offset or Z — unlike the event's own dates, which are wall clock: a sale opening is a moment a button starts working, not an hour on a poster.",
+            "es": "Cuándo sale a la venta esta oferta. Es un INSTANTE, con offset o `Z`, a diferencia de las fechas del evento, que son de reloj de pared: una venta que se abre es el momento en que un botón empieza a funcionar, no una hora en un cartel."
+          }
+        },
+        {
+          "path": "offers[].closesAt",
+          "type": "string",
+          "required": false,
+          "recommended": false,
+          "examples": [
+            "2026-07-31T23:59:59+02:00"
+          ],
+          "description": {
+            "en": "When this offer stops being available. An INSTANT, with offset or Z, for the same reason as opensAt — and because \"23:59\" without an offset is the classic deadline bug.",
+            "es": "Cuándo deja de estar disponible esta oferta. Es un INSTANTE, con offset o `Z`, por lo mismo que `opensAt` — y porque un «23:59» sin offset es el bug clásico de las fechas límite."
+          }
+        },
+        {
+          "path": "cfp",
+          "type": "object",
+          "required": false,
+          "recommended": false,
+          "examples": [
+            {
+              "url": "https://devfest-levante.example/2026/cfp",
+              "closesAt": "2026-07-15T23:59:59+02:00"
+            },
+            {
+              "url": "https://devfest-levante.example/2026/cfp",
+              "opensAt": "2026-05-01T00:00:00+02:00",
+              "closesAt": "2026-07-15T23:59:59+02:00",
+              "coversTravel": true,
+              "coversAccommodation": true
+            }
+          ],
+          "description": {
+            "en": "The event's open call for proposals — talks, workshops, papers. The one field of the spec with no equivalent in ANY of the three destination formats: it exists because 'which conferences are accepting proposals right now' is a question only the publisher can answer, and today it is answered by scraping.",
+            "es": "La convocatoria abierta de propuestas del evento — charlas, talleres, papers. Es el único campo de la spec sin equivalente en NINGUNO de los tres formatos de destino: existe porque «qué conferencias están aceptando propuestas ahora mismo» es una pregunta que solo puede contestar quien publica, y hoy se contesta scrapeando."
+          }
+        },
+        {
+          "path": "cfp.url",
+          "type": "string (uri)",
+          "required": true,
+          "recommended": false,
+          "examples": [
+            "https://devfest-levante.example/2026/cfp"
+          ],
+          "description": {
+            "en": "Where proposals are submitted — the form, or the page describing the call. Required: a CFP nobody can find is not a call, and this is the one piece of it that survives export to every format, inside the text.",
+            "es": "Dónde se envían las propuestas: el formulario, o la página que describe la convocatoria. Obligatorio: un CFP que nadie puede encontrar no es una convocatoria, y es la única parte que sobrevive a la exportación a cualquier formato, dentro del texto."
+          }
+        },
+        {
+          "path": "cfp.opensAt",
+          "type": "string",
+          "required": false,
+          "recommended": false,
+          "examples": [
+            "2026-05-01T00:00:00+02:00"
+          ],
+          "description": {
+            "en": "When the call starts accepting proposals. An INSTANT, with offset or Z. Absent means it is already open — a call that has not opened yet is announced, not published.",
+            "es": "Cuándo empieza a aceptar propuestas. Es un INSTANTE, con offset o `Z`. Ausente significa que ya está abierta: una convocatoria que aún no ha abierto está anunciada, no publicada."
+          }
+        },
+        {
+          "path": "cfp.closesAt",
+          "type": "string",
+          "required": false,
+          "recommended": true,
+          "examples": [
+            "2026-07-15T23:59:59+02:00",
+            "2026-07-15T23:59:59-12:00"
+          ],
+          "description": {
+            "en": "Deadline for proposals. An INSTANT, with offset or Z, never a bare \"23:59\": which midnight it is is the whole question, and \"anywhere on Earth\" is a real answer (-12:00) that a wall-clock field could not express. Absent means unknown, not open forever — and it is what a consumer needs to answer \"which CFPs are open right now\".",
+            "es": "Fecha límite para enviar propuestas. Es un INSTANTE, con offset o `Z`, nunca un «23:59» pelado: qué medianoche es exactamente la pregunta, y «anywhere on Earth» es una respuesta real (`-12:00`) que un campo de reloj de pared no podría expresar. Ausente significa desconocido, no «abierto para siempre» — y es lo que un consumidor necesita para responder «qué CFPs están abiertos ahora»."
+          }
+        },
+        {
+          "path": "cfp.coversTravel",
+          "type": "boolean",
+          "required": false,
+          "recommended": false,
+          "examples": [
+            true
+          ],
+          "description": {
+            "en": "Whether the event covers a selected speaker's travel. NO DEFAULT: absent means unknown, never false. It is here and \"call for sponsors\" is not because this is what a speaker filters on before deciding whether they can afford to submit.",
+            "es": "Si el evento cubre el viaje de quien sea seleccionado. SIN VALOR POR DEFECTO: ausente significa desconocido, nunca `false`. Está aquí, y «call for sponsors» no, porque esto es lo que filtra quien da charlas antes de decidir si se puede permitir enviar una propuesta."
+          }
+        },
+        {
+          "path": "cfp.coversAccommodation",
+          "type": "boolean",
+          "required": false,
+          "recommended": false,
+          "examples": [
+            true
+          ],
+          "description": {
+            "en": "Whether the event covers a selected speaker's accommodation. Same rule as coversTravel: absent means unknown.",
+            "es": "Si el evento cubre el alojamiento de quien sea seleccionado. Misma regla que `coversTravel`: ausente significa desconocido."
+          }
+        },
+        {
           "path": "tags",
           "type": "string[]",
           "required": false,

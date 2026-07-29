@@ -2,7 +2,7 @@
 
 > ✅ **La especificación vigente es [`v0.3/`](v0.3/)** — schemas ejecutables, prosa normativa y ejemplos validados en CI. La [`v0.1/`](v0.1/) y la [`v0.2/`](v0.2/) quedan congeladas. Qué cambió: [CHANGELOG](../CHANGELOG.md).
 >
-> ⚠️ **Los documentos de esta carpeta (`data-model.md`, `feed.md`, `examples/`) son el boceto ANTERIOR**, generado por IA para abrir el debate. Se conservan por su valor histórico y por las ideas que aún no han entrado en la spec (cfp, speakers, offers…). **No son normativos y no deben implementarse.**
+> ⚠️ **Los documentos de esta carpeta (`data-model.md`, `feed.md`, `examples/`) son el boceto ANTERIOR**, generado por IA para abrir el debate. Se conservan por su valor histórico y por las ideas que aún no han entrado en la spec (speakers, promotion, governance…). **No son normativos y no deben implementarse.**
 
 > ⚠️ **Borrador inicial generado por IA, sin revisión humana todavía.**
 > Este contenido es un **boceto propuesto** cuyo único objetivo es **ilustrar la idea** y servir de punto de partida para la discusión. No es una especificación acordada ni estable: nombres, campos y decisiones cambiarán tras la revisión de la comunidad.

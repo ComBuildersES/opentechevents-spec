@@ -28,17 +28,16 @@
     "onlineUrl": "https://meet.example/rust-madrid",
     "geo": { "lat": 40.4081, "lon": -3.7188 }
   },
+  "offers": [
+    { "price": 0, "url": "https://rustmadrid.example/meetups/2026-06#registro" }
+  ],
   "tags": ["rust", "wasm"],
   "languages": ["es"],
   "status": "scheduled",
   "license": "CC-BY-4.0",
   "updatedAt": "2026-06-10T18:00:00Z",
 
-  "_comment_extensions": "Lo que sigue NO está en la v0.3: son campos EN DISCUSIÓN (issue #5). El schema no prohíbe campos adicionales, así que este documento es válido igualmente y un consumidor puede ignorarlos sin miedo. Si los usas y te sirven, dilo en el issue: la spec crece con campos que alguien ya usa de verdad. Así entró `image` en la v0.3.",
+  "_comment_extensions": "El aforo (`capacity`) NO está en la v0.3: es un campo EN DISCUSIÓN (issue #5). El schema no prohíbe campos adicionales, así que este documento es válido igualmente y un consumidor puede ignorarlo sin miedo. Si lo usas y te sirve, dilo en el issue: la spec crece con campos que alguien ya usa de verdad. Así entraron `image` y `offers`.",
 
-  "offers": {
-    "isFree": true,
-    "registrationUrl": "https://rustmadrid.example/meetups/2026-06#registro",
-    "capacity": 80
-  }
+  "capacity": 80
 }

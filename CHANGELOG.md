@@ -13,7 +13,7 @@ versión nueva**: los documentos `0.1.0` siguen validando contra `spec/v0.1/`.
 
 ## [0.3.0] — 2026-07-29
 
-Cuatro campos nuevos y dos valores nuevos de `status`, todo **opcional y
+Seis campos nuevos y dos valores nuevos de `status`, todo **opcional y
 retrocompatible** (por eso MINOR): un documento `0.2.0` válido, con solo cambiar
 `specVersion` a `"0.3.0"`, sigue siendo válido.
 
@@ -130,6 +130,76 @@ descubrir y seguir.
     tiene una excepción conocida: quien importa un `.ics` solo tiene `LOCATION`,
     una línea de texto libre sin partes. Mismo caso que `image`.
 
+- **`offers`** (`array`, mín. 1) en el **evento**: qué cuesta asistir y dónde
+  registrarse. Cada entrada: `name`, `price`, `currency`, `url`, `availability`
+  (`in-stock` \| `sold-out`), `opensAt` y `closesAt`, con al menos `price` o
+  `url` presente.
+  - **Ausente significa DESCONOCIDO, nunca gratis.** Decir «gratis» tiene una
+    forma, y es `price: 0`. Un consumidor que lea «sin `offers` = gratis»
+    convierte en gratuita toda conferencia de pago cuyo exportador no mapeó el
+    precio.
+  - **Es una lista** porque el precio de un evento casi nunca es un número:
+    early bird, general, estudiantes. Por eso **no hay rangos ni «desde 45 €»** —
+    `price` es un **número**, sin símbolo ni separador de miles: un precio que no
+    cabe en un número **son varias ofertas**, y como texto no se puede filtrar ni
+    comparar, que es lo único por lo que merece la pena publicarlo como dato.
+  - **`currency` (ISO 4217 alfa-3) es obligatoria en cuanto `price` pasa de 0**, y
+    sobra cuando es 0 — lo gratis es gratis en cualquier moneda. Es exactamente
+    cómo Luma acaba emitiendo `"price": 0, "priceCurrency": "usd"` para una sesión
+    que no cuesta nada. El schema lo expresa con un `if`/`then`.
+  - **`availability` no tiene valor por defecto**: ausente = desconocido. Un feed
+    desactualizado que sigue afirmando `in-stock` es peor que uno callado, porque
+    manda a alguien a una taquilla cerrada.
+  - **Entra porque ya existe ahí fuera**: tres de las cinco fuentes estudiadas
+    (Luma, Guild y el ejemplo canónico de Google) emiten `offers` con esta misma
+    forma, y Google lo **muestra** en el rich result de `Event`.
+  - **Sin `isFree`** (estaba en el boceto anterior): redundante con `price: 0`, y
+    dos formas de afirmar lo mismo son dos formas de contradecirse. Sin `capacity`
+    ni plazas restantes: eso es **taquilla**, no entrada. `registrationUrl` pasa a
+    llamarse `url` — el objeto ya se llama oferta.
+  - Traducción: `Offer` de schema.org **1:1** (`currency` → `priceCurrency`,
+    `opensAt`/`closesAt` → `validFrom`/`validThrough`, `availability` → las URLs
+    `InStock`/`SoldOut`). En **iCal y RSS/Atom no hay nada**: RFC 5545 no modela
+    precio. Va a la `DESCRIPTION` o al cuerpo del ítem.
+
+- **`cfp`** (`object`) en el **evento**: la convocatoria de propuestas. `url`
+  obligatoria; `opensAt`, `closesAt`, `coversTravel` y `coversAccommodation`
+  opcionales.
+  - **Es el único campo de la spec sin equivalente en ninguno de los tres
+    destinos**, y entra igualmente — por el otro lado del tubo. «¿Qué conferencias
+    aceptan propuestas ahora mismo?» es una de las preguntas que este proyecto
+    existe para contestar, y hoy se contesta **scrapeando**: confs.tech,
+    developers.events o CFP Land mantienen a mano justo estos dos datos, enlace y
+    fecha límite. El productor existe; publica en HTML, no en JSON-LD. OTE no es
+    solo un formato de exportación: es también donde puede vivir un dato que los
+    otros tres no saben nombrar.
+  - **Un objeto, no una lista**, al contrario que `organizers`: allí Luma **ya
+    emite** varios, aquí ningún productor real publica dos convocatorias por
+    evento. Si el caso aparece, ensanchar objeto → lista rompe y llegará con su
+    versión; no se paga hoy por un caso hipotético.
+  - **`coversTravel` y `coversAccommodation` no tienen valor por defecto**:
+    ausente = desconocido, nunca `false`. Están porque son lo que se filtra antes
+    de decidir si uno puede permitirse enviar una propuesta.
+  - **`closesAt` entra en el perfil recomendado, de forma condicional** (solo si
+    hay `cfp`): sin fecha límite, un consumidor ve un enlace y no sabe si cerró en
+    marzo. `offers` y `cfp` **no** son recomendados en sí: la mayoría de eventos no
+    tiene convocatoria, y el precio no siempre se puede recuperar de la fuente.
+  - **Sin `timezone` propio** (lo tenía el boceto anterior): sus fechas son
+    instantes con offset, ver abajo.
+  - Traducción: **nada en schema.org, nada en iCal, nada en RSS/Atom.** Se
+    degrada a texto en la `DESCRIPTION` o en el cuerpo del ítem, o a un
+    `X-OTE-CFP-URL`.
+
+- **Fechas límite como INSTANTES** (`cfp.opensAt`, `cfp.closesAt`,
+  `offers[].opensAt`, `offers[].closesAt`): exigen offset o `Z`, a diferencia de
+  `startDate`/`endDate`, que son reloj de pared. No es una incoherencia: un evento
+  le pasa a la gente **en un sitio**, y una fecha límite es **un botón que deja de
+  funcionar**, que ocurre a la vez en Madrid y en Bogotá. El caso que lo zanja es
+  *anywhere on Earth*: un CFP que cierra AoE lo hace en **UTC-12**, que no es la
+  zona del evento ni la de nadie que lo organice, y con reloj de pared +
+  `timezone` no se puede expresar. Un `"23:59"` pelado es el bug clásico de las
+  convocatorias.
+
 - **Dos valores nuevos de `status`: `moved-online` y `tentative`.** El enum pasa a
   ser `scheduled` (por defecto), `tentative`, `cancelled`, `postponed`,
   `rescheduled`, `moved-online`. Añadir valores a un enum no invalida ningún
@@ -188,8 +258,8 @@ descubrir y seguir.
     salida.
 
 - **Política de extensiones con prefijo**, en el README de la spec. Se distinguen
-  dos tipos de campo adicional: **candidato a núcleo** (sin prefijo: `cfp`,
-  `offers`) y **vocabulario externo** (con prefijo: `combuilders:communityId`).
+  dos tipos de campo adicional: **candidato a núcleo** (sin prefijo: `capacity`,
+  `sponsors`) y **vocabulario externo** (con prefijo: `combuilders:communityId`).
   - **Compromiso normativo: OTE no acuñará jamás un nombre de campo que contenga
     `:`.** Es una reserva de espacio de nombres — un campo con prefijo no puede
     colisionar con uno del núcleo, hoy ni en la v1.0.
@@ -232,6 +302,16 @@ descubrir y seguir.
   `rescheduled` antes de moverse. Ninguna de las fuentes estudiadas la emite, y
   `updatedAt` ya dice que el dato cambió. Entra como candidata a núcleo (campo sin
   prefijo) el día que alguien la use de verdad.
+- **Aforo y estado de la venta** (`maximumAttendeeCapacity`, plazas restantes,
+  códigos de descuento, inscripción única de un evento multi-parte). Guild sí
+  emite el aforo, así que es un candidato razonable — pero el resto es **estado
+  de la taquilla**: cambia solo, caduca en minutos y un fichero JSON regenerado
+  cada noche no lo puede sostener. `offers` describe **la entrada**, no la venta.
+  El aforo entra hoy como extensión sin prefijo (ver
+  [`event-meetup.json`](spec/v0.3/examples/event-meetup.json)).
+- **Ponentes (`speakers` / `performer`) y agenda.** Siguen fuera: `cfp` modela la
+  convocatoria, no lo que sale de ella. Meter a un ponente en `organizers`
+  corrompe el dato para todo el que lo consuma.
 - **`organizers[].logo`, `organizers[].sameAs`.** Sobrecargan el campo sin que
   ningún consumidor los pida todavía.
 - **`organizers[].id` / `linking.communityId`.** Se valoró un identificador
@@ -272,7 +352,14 @@ descubrir y seguir.
   `https://opentechevents.org/schema/v0.3/{event,feed}.schema.json`. Las URLs de
   `v0.1` y `v0.2` siguen sirviéndose sin cambios.
 - **Exportadores a schema.org:** `organizers` → `organizer` (array), con `@type`
-  `Organization` o `Person` según `type`.
+  `Organization` o `Person` según `type`. `offers` → `offers` (array de `Offer`),
+  con `currency` → `priceCurrency` y `availability` → la URL
+  `https://schema.org/InStock` o `SoldOut`. `cfp` no tiene destino: menciónalo en
+  `description` si quieres que un humano lo vea.
+- **Quien emitía `cfp` u `offers` como extensión** (estaban en los ejemplos desde
+  la v0.1): ya son normativos, y con otra forma. `offers` pasa a **lista**, sin
+  `isFree` (usa `price: 0`) y sin `capacity` (extensión); `registrationUrl` se
+  llama ahora `url`. `cfp` pierde su `timezone`: las fechas límite llevan offset.
 - **Exportadores a Atom / RSS:** Atom → un `<author>` por entrada, con `<name>` y
   `<uri>`. RSS 2.0 → `<dc:creator>`, **no** `<author>`: el `<author>` de RSS 2.0
   exige un email que OTE no modela.

@@ -51,6 +51,26 @@
       }
     },
     {
+      "description": "cfp.closesAt is recommended once there IS a call for proposals, and meaningless otherwise. The reason cfp exists is the question 'which conferences are accepting proposals right now', and without a deadline nobody can answer it: a consumer sees a link and cannot tell whether it closed last March. The warning is actionable by definition — whoever opened the call knows when it closes.",
+      "if": {
+        "type": "object",
+        "required": [
+          "cfp"
+        ]
+      },
+      "then": {
+        "type": "object",
+        "properties": {
+          "cfp": {
+            "type": "object",
+            "required": [
+              "closesAt"
+            ]
+          }
+        }
+      }
+    },
+    {
       "description": "endDate is recommended only for a timed event: without it a calendar client invents a duration. For an all-day event its absence already means 'ends the day it starts', which is almost always right — so asking for it there would be noise, and a warning nobody can act on is a warning that gets ignored.",
       "if": {
         "type": "object",

@@ -70,7 +70,7 @@
     },
     "min": {
       "title": "El mínimo es de verdad mínimo",
-      "body": "Un evento válido necesita poco más que un nombre, una fecha de inicio, una zona horaria y dónde ocurre. Los módulos opcionales —CFP, ponentes, precio, accesibilidad— cubren el resto cuando los necesitas.",
+      "body": "Un evento válido necesita poco más que un nombre, una fecha de inicio, una zona horaria y dónde ocurre. Los campos opcionales —precio y entradas, convocatoria de charlas, imágenes, series— cubren el resto cuando los necesitas.",
       "caveat": "Ojo, porque preferimos decírtelo de frente: ese borrador —tanto los campos del núcleo como los módulos opcionales— todavía no está acordado. Está ahí para enseñar la pinta que tiene la cosa y abrir el debate, y va a cambiar. Lo que te pedimos que adoptes hoy es la idea, y que vengas a romperla antes de que cuaje.",
       "b1": "JSON plano. Sin SDK, sin cuenta, sin servidor: basta con un archivo estático.",
       "b2": "Diseñada para mapearse limpiamente a RSS, iCalendar y schema.org/Event.",

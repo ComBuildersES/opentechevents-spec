@@ -131,8 +131,11 @@ El criterio **no** es «estaría bien tenerlo»: es **qué se rompe en los tres 
 | `organizers` | A quién sigues y de quién te fías. Sin él, un feed de agregador atribuye todo a quien agrega. |
 | `updatedAt` | Es lo que hace posible **la suscripción**: sin él, un consumidor no puede sincronizar de forma incremental y tiene que releerlo todo cada vez. |
 | `endDate` | Solo si `startDate` lleva hora: sin él el cliente de calendario se inventa la duración. En un evento de todo el día su ausencia ya significa «acaba el día que empieza», y avisar ahí sería ruido. |
+| `cfp.closesAt` | **Solo si hay `cfp`.** Sin fecha límite, la pregunta que el campo existe para responder —¿sigue abierto?— se queda sin respuesta, y un consumidor ve un enlace que pudo cerrar hace meses. Accionable por definición: quien abre una convocatoria sabe cuándo la cierra. |
 
-`location.address` es **la única recomendación anidada y la única condicional junto a `endDate`**: solo se pide cuando hay `location.venue`, porque a un evento online pedirle código postal es un aviso que nadie puede atender. El perfil lo expresa con un `if`/`then`, no con prosa, así que un checker cualquiera lo aplica sin saber nada de esta página.
+`location.address` y `cfp.closesAt` son **las dos recomendaciones anidadas, y las dos condicionales junto a `endDate`**: solo se piden cuando existe el campo padre, porque a un evento online pedirle código postal —o a un meetup una fecha límite de CFP— es un aviso que nadie puede atender. El perfil lo expresa con un `if`/`then`, no con prosa, así que un checker cualquiera lo aplica sin saber nada de esta página.
+
+**`offers` y `cfp` no son recomendados**, y no es un descuido. `cfp` porque la inmensa mayoría de los eventos no tiene convocatoria: avisar de su ausencia sería avisar a cada meetup de que no es una conferencia. `offers` porque el aviso no es accionable de forma fiable — un exportador de `.ics` no tiene el precio en ninguna parte, y ninguna de las cinco fuentes estudiadas lo emite de forma universal. Recomendar es prometer que **quien publica puede arreglarlo**; donde no se puede, un aviso solo enseña a ignorar los avisos.
 
 El perfil del feed es corto a propósito ([`feed.recommended.schema.json`](feed.recommended.schema.json)): `url` y `description`. Casi toda la calidad de un feed está en sus eventos, y un checker aplica el perfil de evento a cada uno por separado —  **con la herencia ya resuelta**, o todo evento de un feed comunitario avisaría por unos `organizers` que el feed ya declaró.
 
@@ -155,6 +158,7 @@ specVersion                                    ← contra qué versión se valid
 id, url, name, description, image, organizers  ← qué es y quién lo hace
 startDate, endDate, timezone                   ← cuándo
 attendanceMode, location                       ← ¿puedo ir?
+offers, cfp                                    ← ¿cuánto cuesta, y puedo participar?
 tags, languages                                ← ¿me interesa?
 status, partOf                                 ← qué le ha pasado, y de qué forma parte
 license, source, updatedAt                     ← datos sobre el dato
@@ -210,7 +214,7 @@ Solo `id` es obligatorio. `name` y `url` evitan que un consumidor tenga que reso
 - **`series`** — ocurrencias independientes que comparten identidad: el meetup de junio y el de julio. Cada una se anuncia, se asiste y se cancela por separado.
 - **`multipart`** — partes de **un solo evento** repartido en fechas no consecutivas: un study jam de tres sesiones en sábados no consecutivos, con una sola inscripción. Las partes no son eventos independientes aunque tengan fecha propia.
 
-Lo que `multipart` **no** arregla es «una sola inscripción»: eso no es una fecha, es registro/entradas, y la v0.3 no lo modela. No lo resuelvas deformando el campo de tiempo.
+Lo que `multipart` **no** arregla es «una sola inscripción»: eso no es una fecha. `offers` describe el precio y el registro **de cada documento**, no una inscripción compartida entre las partes — y la v0.3 no la modela. No lo resuelvas deformando el campo de tiempo.
 
 ⚠️ **Un evento multi-parte NO se expresa con un `startDate` en la primera parte y un `endDate` en la última.** `startDate: "2026-03-07"` + `endDate: "2026-03-21"` afirma un evento continuo de quince días — falso en los tres destinos, y en el calendario de quien se suscriba ocupa dos semanas enteras. Tres partes, tres documentos.
 
@@ -422,6 +426,95 @@ La excepción conocida es quien importa un `.ics`: **iCalendar casi nunca trae i
 
 Que el MIME no esté es la misma clase de decisión que el email de `organizers`: se puede derivar razonablemente en el exportador, y exigirlo en el schema obligaría a quien importa a inventárselo.
 
+### `offers`: cuánto cuesta, y dónde se saca la entrada
+
+Nuevo en la v0.3. Opcional, y **una lista**:
+
+```json
+"offers": [
+  { "name": "Early bird", "price": 35, "currency": "EUR", "url": "https://…/entradas", "availability": "sold-out", "closesAt": "2026-06-30T23:59:59+02:00" },
+  { "name": "General",    "price": 45, "currency": "EUR", "url": "https://…/entradas", "availability": "in-stock" },
+  { "name": "Estudiantes","price": 0,  "url": "https://…/entradas#estudiantes" }
+]
+```
+
+Un meetup gratuito es **una sola entrada**:
+
+```json
+"offers": [{ "price": 0, "url": "https://rustmadrid.example/meetups/2026-06#registro" }]
+```
+
+**Ausente significa desconocido, no gratis.** Es la misma regla que `attendanceMode`, y aquí duele igual: un consumidor que interprete «sin `offers` = gratis» convierte en gratuita cualquier conferencia de pago cuyo exportador no mapeó el precio. Decir «gratis» tiene una forma, y es `price: 0`.
+
+**Es una lista porque el precio de un evento casi nunca es un número.** Early bird, general, estudiantes, empresa: son ofertas distintas, con fechas y disponibilidad distintas. Por eso **no hay rangos ni «desde 45 €»**: un precio que no se puede escribir con un solo número **son varias ofertas**, y escribirlo como texto rompe lo único por lo que merece la pena publicarlo como dato — que alguien pueda **filtrar y comparar**. `price` es un número, sin símbolo de moneda y sin separador de miles.
+
+**`currency` es obligatoria en cuanto `price` pasa de 0**, y sobra cuando es 0. Lo gratis es gratis en cualquier moneda, y exigirla ahí es exactamente cómo Luma acaba publicando `"price": 0, "priceCurrency": "usd"` para una sesión semanal de Rust en Girona: una divisa inventada para un dato que no la necesita. Al revés, un `45` sin moneda no es un precio: es un número que cada consumidor leerá en la suya. Es la misma decisión que `country` en `address` — código ISO (4217 aquí, alfa-3 en mayúsculas), no nombre.
+
+**`availability` tiene dos valores, `in-stock` y `sold-out`, y no tiene valor por defecto.** Son los dos estados sobre los que quien asiste puede actuar. Ausente significa desconocido, y eso es deliberado: **un feed desactualizado que sigue afirmando `in-stock` es peor que uno que se calla**, porque manda a alguien a una página de entradas agotadas. Quien no mantenga el dato al día, que lo omita.
+
+**`opensAt` y `closesAt` son INSTANTES, con offset o `Z`** — a diferencia de `startDate`, que es reloj de pared. No es una incoherencia: una venta que abre es **el momento en que un botón empieza a funcionar**, no una hora en un cartel. [Detalle abajo, junto al mismo caso en el CFP](#fechas-límite-por-qué-llevan-offset-y-startdate-no).
+
+**Lo que `offers` no modela**, y no por olvido: **aforo** (`maximumAttendeeCapacity`, que Guild sí emite), **plazas restantes**, códigos de descuento, cuotas por equipo, y la **inscripción única** de un evento multi-parte. Todo eso es *ticketing*: estado que cambia solo, que caduca en minutos y que un fichero JSON publicado cada noche no puede sostener. `offers` describe **la entrada, no la taquilla**. Si necesitas aforo hoy, ponlo como extensión sin prefijo (ver [`examples/event-meetup.json`](examples/event-meetup.json)) y dilo en el issue.
+
+**Por qué no hay `isFree`.** Estaba en el boceto anterior, y es redundante: `price: 0` ya lo dice. Dos formas de afirmar lo mismo son dos formas de contradecirse — `{"isFree": true, "price": 45}` es un documento que valida y no significa nada —, y obliga a todo consumidor a decidir cuál gana. Por lo mismo, `registrationUrl` se llama aquí `url`: el objeto ya se llama «oferta».
+
+Entra por la vía de siempre: de las cinco fuentes estudiadas ([`research/findings/json-ld-event-platforms.md`](../../research/findings/json-ld-event-platforms.md)), **tres emiten `offers`** —Luma, Guild y el ejemplo canónico de Google—, con la forma `price` + `priceCurrency` + `availability` + `url` que aquí se copia casi tal cual. Y es un campo que Google **muestra** en el rich result de `Event`.
+
+**Traducción a los tres formatos de destino, incluida la pérdida:**
+
+| Destino | Mapeo | Pérdida |
+| --- | --- | --- |
+| **schema.org** | `offers` (array de `Offer`): `price` → `price`, `currency` → `priceCurrency`, `url` → `url`, `availability` → `https://schema.org/InStock` \| `SoldOut`, `opensAt` → `validFrom`, `closesAt` → `validThrough`, `name` → `name` | Ninguna. Es 1:1 con el término que Google lee hoy; las propuestas más recientes de «participation offer» no las emite ningún productor real, así que se mapea a lo que se consume. |
+| **iCal** | Nada nativo | **Total.** [RFC 5545](https://www.rfc-editor.org/rfc/rfc5545) no modela precio ni entradas: no hay propiedad donde ponerlo. Un exportador puede llevarlo a la `DESCRIPTION` («Entrada general: 45 €») o a un `X-OTE-PRICE`, y quien no lo entienda ve el evento entero igual. |
+| **RSS / Atom** | Nada nativo: va dentro del texto del ítem | **Toda la estructura.** Un canal de anuncios que no dice el precio en el cuerpo está ocultando lo primero que se pregunta. |
+
+Que solo schema.org lo reciba estructurado es aceptable porque **la pérdida es inocua**: un cliente de calendario que ignora el precio sigue mostrando un evento correcto. Es la misma regla que `partOf` — un campo de identidad o de contexto que se ignora deja datos incompletos; uno de tiempo que se ignora deja datos falsos.
+
+### `cfp`: la convocatoria de charlas — y el primer campo que no viaja a ninguna parte
+
+Nuevo en la v0.3. Opcional, **un objeto**, y solo `url` es obligatoria:
+
+```json
+"cfp": {
+  "url": "https://devfest-levante.example/2026/cfp",
+  "opensAt": "2026-05-01T00:00:00+02:00",
+  "closesAt": "2026-07-15T23:59:59+02:00",
+  "coversTravel": true,
+  "coversAccommodation": true
+}
+```
+
+**Es el único campo de la spec sin equivalente en ninguno de los tres destinos.** schema.org no tiene término para una convocatoria de propuestas, iCalendar tampoco, y RSS/Atom menos. Al exportar se degrada a texto, y punto. Así que hay que justificar por qué entra igualmente, porque el listón de esta spec es «lo emite alguien de verdad» y aquí ningún productor de JSON-LD lo emite.
+
+Entra por **el otro lado del tubo**: el del consumidor. «¿Qué conferencias están aceptando propuestas ahora mismo?» es una de las preguntas que este proyecto existe para contestar, y hoy se contesta **scrapeando**: confs.tech, developers.events, CFP Land y demás listados mantienen a mano —o a base de raspar webs— exactamente estos dos datos, enlace y fecha límite. Que no haya un `Offer` de schema.org detrás no significa que no haya productores: significa que los productores lo publican **en HTML**, y que quien lo quiere estructurado tiene que adivinarlo. OTE no es solo un formato de exportación a otros tres formatos; es también el sitio donde puede vivir un dato que los otros tres no saben nombrar. `cfp` es el primer campo que ejerce eso, y conviene decirlo en voz alta: **su valor está dentro del ecosistema OTE, no en la traducción**.
+
+**`closesAt` es [recomendado](#válido-no-es-lo-mismo-que-útil-los-campos-recomendados) en cuanto hay `cfp`.** Sin fecha límite, un consumidor ve un enlace y no puede saber si cerró en marzo — y la pregunta que el campo existe para responder («¿está abierto?») se queda sin responder. El aviso es accionable por definición: quien abrió la convocatoria sabe cuándo cierra. Es la segunda recomendación condicional de la spec, junto a `location.address`.
+
+**Un objeto, no una lista** — al contrario que `organizers` e `image`. La razón es la misma en los tres casos, aplicada a los hechos: `organizers` nace lista porque Luma **ya emite** varios; aquí ningún productor real publica dos convocatorias por evento, y los directorios de CFP que existen modelan exactamente **un enlace y una fecha**. Si aparecen de verdad los casos que se imaginan (charlas y talleres con plazos distintos), ensanchar objeto → lista es un cambio que rompe y llegará con su versión. No se paga hoy por un caso hipotético.
+
+**`coversTravel` y `coversAccommodation` son booleanos sin valor por defecto**: ausente significa **desconocido**, nunca `false`. Están aquí, y «call for sponsors» o «call for volunteers» no, porque son **lo que se filtra antes de decidir si puedes permitirte enviar una propuesta**: para quien da charlas fuera de su ciudad, esa casilla decide si la convocatoria le concierne.
+
+**Lo que `cfp` no modela**: tracks, formatos y duraciones, estado de la revisión, si es ciega, cuotas de diversidad o el resultado. Nada de eso lo tiene un directorio de eventos: lo tiene la plataforma de CFP, que ya es Sessionize o Pretalx, y a la que precisamente apunta `url`.
+
+#### Fechas límite: por qué llevan offset, y `startDate` no
+
+`cfp.opensAt`, `cfp.closesAt`, `offers[].opensAt` y `offers[].closesAt` son **instantes**: exigen offset (`+02:00`) o `Z`. Las fechas del evento, no. Parece una incoherencia y es justo lo contrario:
+
+- **Un evento le pasa a la gente en un sitio.** «El 16 de octubre a las 9:00» es la hora del cartel, y quien esté ahí la lee tal cual. Por eso es reloj de pared, y por eso `timezone` la contextualiza.
+- **Una fecha límite es un botón que deja de funcionar.** No la vive nadie en ninguna sede: la viven a la vez alguien en Madrid y alguien en Bogotá, y lo único que importa es el instante exacto.
+
+Y hay un caso que zanja la discusión: **«anywhere on Earth»**. Un CFP que cierra AoE cierra a las 23:59 **en UTC-12**, que no es la zona del evento ni la de nadie que lo organice. Con reloj de pared + `timezone` del evento no se puede expresar; con offset se escribe `"2026-07-15T23:59:59-12:00"` y se acabó. Un `"23:59"` pelado es el bug clásico de las convocatorias — qué medianoche es literalmente toda la pregunta.
+
+El precio es que Google, en su ejemplo canónico, emite `"validFrom": "2024-05-21T12:00"` **sin** offset. Un exportador de OTE emite el instante completo, que es un superconjunto: nada se pierde, y lo que llega es menos ambiguo que el ejemplo.
+
+**Traducción a los tres formatos de destino, incluida la pérdida:**
+
+| Destino | Mapeo | Pérdida |
+| --- | --- | --- |
+| **schema.org** | Ninguno | **Total.** No hay término. Un exportador puede mencionar la convocatoria en `description`; Google no la va a entender de ninguna forma. |
+| **iCal** | Ninguno | **Total.** Ni `URL` (ya la ocupa la del evento) ni nada equivalente. Degrádalo a `DESCRIPTION` o a un `X-OTE-CFP-URL`. |
+| **RSS / Atom** | Nada nativo: va dentro del texto del ítem | **Toda la estructura**, y aquí sí conviene compensarla: un feed de anuncios que no dice «CFP abierto hasta el 15 de julio» en el cuerpo está callándose la razón por la que mucha gente lo lee. |
+
 ## El feed
 
 Obligatorio: `specVersion`, `title`, `license`, `updatedAt`, `events`.
@@ -436,7 +529,7 @@ El feed es un **formato de intercambio, no una API**: sin paginación, sin filtr
 
 ## Extensiones
 
-Los schemas **no prohíben campos adicionales**. Si tu comunidad necesita `cfp` u `offers` hoy, ponlos: tu documento sigue siendo válido. Es la vía por la que la spec debe crecer — **campos que alguien ya usa de verdad**, no campos que imaginamos que hará falta usar. Así entró `tags` en la v0.2, y así entraron `organizers` e `image` en la v0.3.
+Los schemas **no prohíben campos adicionales**. Si tu comunidad necesita `sponsors` o `capacity` hoy, ponlos: tu documento sigue siendo válido. Es la vía por la que la spec debe crecer — **campos que alguien ya usa de verdad**, no campos que imaginamos que hará falta usar. Así entró `tags` en la v0.2, y así entraron `organizers`, `image`, `offers` y `cfp` en la v0.3.
 
 Cuando un campo se estandarice, se le dará un significado normativo. Hasta entonces, un consumidor puede ignorarlos sin miedo.
 
@@ -446,7 +539,7 @@ Bajo «campo adicional» conviven dos cosas muy distintas, y confundirlas se pag
 
 | | Qué es | Cómo se escribe | Ejemplo |
 | --- | --- | --- | --- |
-| **Candidato a núcleo** | Un campo genérico que **aspira a ser de OTE**. Lo usas hoy porque te hace falta; si a más gente le hace falta, se estandariza. | **Sin prefijo** | `cfp`, `offers`, `sponsors` |
+| **Candidato a núcleo** | Un campo genérico que **aspira a ser de OTE**. Lo usas hoy porque te hace falta; si a más gente le hace falta, se estandariza. | **Sin prefijo** | `capacity`, `sponsors`, `speakers` |
 | **Vocabulario externo** | Un campo cuyo significado **lo define otro proyecto** y que nunca será de OTE, porque no le pertenece. | **Con prefijo `proyecto:campo`** | `combuilders:communityId` |
 
 **Compromiso de la spec: OTE no acuñará jamás un nombre de campo que contenga `:`.** Es una reserva de espacio de nombres, y es lo que hace segura la segunda fila: un campo con prefijo **no puede colisionar** con un campo del núcleo, hoy ni en la v1.0. Un campo sin prefijo sí puede — y el día que OTE estandarice ese nombre, tu significado local desaparece bajo el normativo. Elige en consecuencia: sin prefijo estás proponiendo, con prefijo estás integrando.
@@ -469,7 +562,7 @@ OTE no sabe qué significa `combuilders:communityId` y no le hace falta saberlo.
 
 ## Lo que la v0.3 no resuelve
 
-Deduplicación entre fuentes, sincronización, publicación automática en plataformas, modelado de ponentes/agenda/patrocinadores, entradas y registro, CFP.
+Deduplicación entre fuentes, sincronización, publicación automática en plataformas, modelado de ponentes/agenda/patrocinadores, y **la taquilla**: aforo, plazas restantes, códigos de descuento e inscripción única de un evento multi-parte. `offers` describe **la entrada**, no el estado de la venta; `cfp` describe **la convocatoria**, no la revisión de propuestas.
 
 El objetivo es describir **el evento**, no el registro en una base de datos.
 

@@ -24,26 +24,40 @@
       "country": "ES"
     }
   },
+  "offers": [
+    {
+      "name": "Early bird",
+      "price": 35,
+      "currency": "EUR",
+      "url": "https://devfest-levante.example/2026/entradas",
+      "availability": "sold-out",
+      "closesAt": "2026-06-30T23:59:59+02:00"
+    },
+    {
+      "name": "General",
+      "price": 45,
+      "currency": "EUR",
+      "url": "https://devfest-levante.example/2026/entradas",
+      "availability": "in-stock",
+      "opensAt": "2026-07-01T00:00:00+02:00"
+    },
+    {
+      "name": "Estudiantes",
+      "price": 0,
+      "url": "https://devfest-levante.example/2026/entradas#estudiantes",
+      "availability": "in-stock"
+    }
+  ],
+  "cfp": {
+    "url": "https://devfest-levante.example/2026/cfp",
+    "opensAt": "2026-05-01T00:00:00+02:00",
+    "closesAt": "2026-07-15T23:59:59+02:00",
+    "coversTravel": true,
+    "coversAccommodation": true
+  },
   "tags": ["cloud", "ai", "web"],
   "languages": ["es", "en"],
   "status": "scheduled",
   "license": "CC-BY-4.0",
-  "updatedAt": "2026-05-04T09:00:00Z",
-
-  "_comment_extensions": "Campos EN DISCUSIÓN (issue #5), no normativos en la v0.3. El documento es válido igualmente porque el schema no prohíbe campos adicionales. El CFP es el caso que más se pide: si lo necesitas, dilo en el issue.",
-
-  "cfp": {
-    "url": "https://devfest-levante.example/2026/cfp",
-    "opensAt": "2026-05-01T00:00:00",
-    "closesAt": "2026-07-15T23:59:59",
-    "timezone": "Europe/Madrid",
-    "coversTravel": true,
-    "coversAccommodation": true
-  },
-  "offers": {
-    "isFree": false,
-    "price": 45,
-    "currency": "EUR",
-    "registrationUrl": "https://devfest-levante.example/2026/entradas"
-  }
+  "updatedAt": "2026-05-04T09:00:00Z"
 }
