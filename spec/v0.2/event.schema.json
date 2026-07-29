@@ -94,7 +94,7 @@
           ]
         },
         "license": {
-          "description": "License of THIS DATA, not of the event. SPDX identifier (CC0-1.0, CC-BY-4.0…) or a URL.",
+          "description": "License of THIS DATA, not of the event. SPDX identifier (CC0-1.0, CC-BY-4.0…, full list at https://spdx.org/licenses/) or a URL.",
           "$ref": "#/$defs/license",
           "examples": [
             "CC-BY-4.0",

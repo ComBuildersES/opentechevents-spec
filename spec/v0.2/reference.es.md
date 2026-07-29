@@ -18,7 +18,7 @@ Un evento de una comunidad técnica.
 | `timezone` | string | **sí** | Zona horaria IANA (p. ej. `Europe/Madrid`). Convierte un `startDate` de reloj de pared en un instante inequívoco. En eventos de todo el día contextualiza la fecha: no la desplaza. | `"Europe/Madrid"`<br>`"America/Bogota"`<br>`"UTC"` |
 | `startDate` | string | **sí** | Inicio en hora de reloj de pared: una fecha (`2026-10-15`) para eventos de todo el día, o una fecha-hora local (`2026-10-15T09:00:00`). Nunca lleva offset UTC: eso lo aporta `timezone`. | `"2026-06-11T18:30:00"`<br>`"2026-10-15"` |
 | `endDate` | string | — | Fin en hora de reloj de pared, en la MISMA forma que `startDate` (ambas fechas, o ambas fecha-hora). Si falta, se asume que el evento termina el día que empieza. | `"2026-06-11T20:00:00"`<br>`"2026-10-16"` |
-| `license` | string | **sí** | Licencia de ESTOS DATOS, no del evento. Identificador SPDX (`CC0-1.0`, `CC-BY-4.0`…) o una URL. | `"CC-BY-4.0"`<br>`"CC0-1.0"` |
+| `license` | string | **sí** | Licencia de ESTOS DATOS, no del evento. Identificador SPDX (`CC0-1.0`, `CC-BY-4.0`…, lista completa en https://spdx.org/licenses/) o una URL. | `"CC-BY-4.0"`<br>`"CC0-1.0"` |
 | `location` | object | — | Qué se SABE de dónde ocurre el evento. Pregunta distinta de `attendanceMode`, que declara la intención de quien organiza. | `{"venue":"El Cable, Almería"}`<br>`{"onlineUrl":"https://meet.example/pyalmeria"}`<br>`{"venue":"Campus Madrid, Calle de Moreno Nieto 2, Madrid","onlineUrl":"https://meet.example/rust-madrid"}` |
 | `location.venue` | string | — | Lugar físico, legible por personas. Su presencia significa que el evento tiene sede física. | `"El Cable, Almería"` |
 | `location.onlineUrl` | string (uri) | — | URL para asistir en remoto. Su presencia significa que el evento tiene acceso online. | `"https://meet.example/pyalmeria"` |
@@ -46,7 +46,7 @@ Una colección de eventos OTE publicada en una URL estable. Un formato de interc
 | `title` | string | **sí** | Nombre del feed, legible por personas. | `"Eventos de PyAlmería"` |
 | `description` | string | — | Descripción breve del feed. | `"Meetups mensuales de Python en Almería."` |
 | `url` | string (uri) | — | URL canónica de la comunidad, directorio u organización que publica el feed. | `"https://pyalmeria.example"` |
-| `license` | string | **sí** | Licencia del contenido del feed. Actúa como VALOR POR DEFECTO de todo evento que no declare la suya. Identificador SPDX o URL. | `"CC-BY-4.0"`<br>`"CC0-1.0"` |
+| `license` | string | **sí** | Licencia del contenido del feed. Actúa como VALOR POR DEFECTO de todo evento que no declare la suya. Identificador SPDX (lista completa en https://spdx.org/licenses/) o URL. | `"CC-BY-4.0"`<br>`"CC0-1.0"` |
 | `licenseUrl` | string (uri) | — | URL del texto completo de la licencia. | `"https://creativecommons.org/licenses/by/4.0/"` |
 | `updatedAt` | string | **sí** | Cuándo se generó este feed. | `"2026-07-06T10:00:00Z"` |
 | `events` | object[] | **sí** | Los eventos del feed. Cada uno hereda `specVersion` y `license` del feed salvo que declare los suyos. | — |

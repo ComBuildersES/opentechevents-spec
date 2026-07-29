@@ -44,7 +44,7 @@
       ]
     },
     "license": {
-      "description": "License for the feed's contents. Acts as the DEFAULT for every event that does not declare its own. SPDX identifier or URL.",
+      "description": "License for the feed's contents. Acts as the DEFAULT for every event that does not declare its own. SPDX identifier (full list at https://spdx.org/licenses/) or URL.",
       "$ref": "https://opentechevents.org/schema/v0.2/event.schema.json#/$defs/license",
       "examples": [
         "CC-BY-4.0",

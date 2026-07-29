@@ -126,8 +126,8 @@
             "CC0-1.0"
           ],
           "description": {
-            "en": "License of THIS DATA, not of the event. SPDX identifier (CC0-1.0, CC-BY-4.0…) or a URL.",
-            "es": "Licencia de ESTOS DATOS, no del evento. Identificador SPDX (`CC0-1.0`, `CC-BY-4.0`…) o una URL."
+            "en": "License of THIS DATA, not of the event. SPDX identifier (CC0-1.0, CC-BY-4.0…, full list at https://spdx.org/licenses/) or a URL.",
+            "es": "Licencia de ESTOS DATOS, no del evento. Identificador SPDX (`CC0-1.0`, `CC-BY-4.0`…, lista completa en https://spdx.org/licenses/) o una URL."
           }
         },
         {
@@ -421,8 +421,8 @@
             "CC0-1.0"
           ],
           "description": {
-            "en": "License for the feed's contents. Acts as the DEFAULT for every event that does not declare its own. SPDX identifier or URL.",
-            "es": "Licencia del contenido del feed. Actúa como VALOR POR DEFECTO de todo evento que no declare la suya. Identificador SPDX o URL."
+            "en": "License for the feed's contents. Acts as the DEFAULT for every event that does not declare its own. SPDX identifier (full list at https://spdx.org/licenses/) or URL.",
+            "es": "Licencia del contenido del feed. Actúa como VALOR POR DEFECTO de todo evento que no declare la suya. Identificador SPDX (lista completa en https://spdx.org/licenses/) o URL."
           }
         },
         {
