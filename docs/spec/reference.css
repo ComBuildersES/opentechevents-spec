@@ -59,6 +59,36 @@
   width: 5px; height: 5px; border-radius: 50%; background: var(--accent);
 }
 .toc-list a.toc-recommended::after { background: var(--warn); }
+
+/* A field with subfields folds: the sidebar reads as the ~20 top-level fields, not as every
+   leaf of `location`, `organizers` and `offers` at once. The triangle sits in the indent the
+   depth padding already leaves free, so folding changes nothing about where a name starts. */
+.toc-item { list-style: none; }
+.toc-children { list-style: none; margin: 0; padding: 0; }
+.toc-item.is-collapsed > .toc-children { display: none; }
+.toc-row { position: relative; }
+.toc-branch {
+  position: absolute; left: 0; top: 50%; transform: translateY(-50%);
+  display: flex; align-items: center; justify-content: center;
+  width: 13px; height: 16px; padding: 0; margin-left: -1px;
+  background: none; border: 0; cursor: pointer; color: var(--ink-faint);
+}
+.toc-row[data-depth="1"] .toc-branch { left: 12px; }
+.toc-row[data-depth="2"] .toc-branch { left: 24px; }
+.toc-branch:hover { color: var(--ink); }
+.toc-branch::before {
+  content: ""; width: 5px; height: 5px;
+  border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor;
+  transform: rotate(-45deg) translate(-1px, 1px); transition: transform .12s;
+}
+.toc-branch[aria-expanded="true"]::before { transform: rotate(45deg) translate(-1px, -1px); }
+/* How many fields the fold is hiding — shown only while it hides them. */
+.toc-count {
+  flex: none; padding: 0 2px;
+  font-size: .68rem; color: var(--ink-faint); font-variant-numeric: tabular-nums;
+}
+.toc-item:not(.is-collapsed) > .toc-row .toc-count { visibility: hidden; }
+
 .toc-legend {
   display: flex; align-items: center; gap: 6px;
   margin: 0 0 4px; font-size: .74rem; color: var(--ink-faint);
@@ -229,6 +259,8 @@
     max-height: 55vh; margin-top: 10px; padding: 4px 8px 4px 0;
   }
   .toc-panel .toc-title { display: none; }
+  /* Same indent, a taller hit area: a 16px triangle is not a touch target. */
+  .toc-branch { height: 26px; }
   .ref-body { max-width: none; }
 }
 

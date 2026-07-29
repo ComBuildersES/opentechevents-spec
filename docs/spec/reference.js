@@ -42,6 +42,8 @@
       tocTitle: "On this page",
       tocLegend: "Required in a minimal document",
       tocLegendRecommended: "Recommended: valid without it, but a checker warns",
+      tocExpand: "Show the subfields of {field}",
+      tocCollapse: "Hide the subfields of {field}",
       searchPlaceholder: "Filter fields…",
       searchLabel: "Filter fields",
       count: "Showing {shown} of {total} fields",
@@ -94,6 +96,8 @@
       tocTitle: "En esta página",
       tocLegend: "Obligatorio en un documento mínimo",
       tocLegendRecommended: "Recomendado: válido sin él, pero un checker avisa",
+      tocExpand: "Mostrar los subcampos de {field}",
+      tocCollapse: "Ocultar los subcampos de {field}",
       searchPlaceholder: "Filtrar campos…",
       searchLabel: "Filtrar campos",
       count: "Mostrando {shown} de {total} campos",
@@ -126,6 +130,12 @@
     examples: null,
     examplesState: "idle",
     open: {},
+    // A TOC entry with subfields starts collapsed: the sidebar is a map, and `organizers`,
+    // `location` or `offers` unfolded at once bury the top-level fields under their own detail.
+    // `tocOpen` is what the reader opened by hand and keeps open; `tocShut` is a branch the
+    // reader closed while reading inside it, which must not spring back open on the next frame.
+    tocOpen: {},
+    tocShut: {},
   };
 
   var dom = {
@@ -423,11 +433,101 @@
     });
   }
 
+  /* ---------- table of contents ---------- */
+
+  /** The parent of `location.geo.lat` is `location.geo`; of `organizers[].name`, `organizers`. */
+  function parentPath(path) {
+    var at = path.lastIndexOf(".");
+    return at === -1 ? null : path.slice(0, at).replace(/\[\]$/, "");
+  }
+
+  // The fields arrive flat, in canonical order, so a parent always precedes its children: one
+  // pass is enough to hang each field off its parent. A child whose parent the filter removed
+  // becomes a root of its own — it still has to be reachable.
+  function tocTree(fields) {
+    var roots = [];
+    var byPath = {};
+    fields.forEach(function (f) {
+      var node = { field: f, children: [] };
+      byPath[f.path] = node;
+      var parent = byPath[parentPath(f.path) || ""];
+      (parent ? parent.children : roots).push(node);
+    });
+    return roots;
+  }
+
+  function branchLabel(t, path, open) {
+    return (open ? t.tocCollapse : t.tocExpand).replace("{field}", path);
+  }
+
+  /** Reflect a branch's open/closed state in the DOM. State itself lives in `state.tocOpen`. */
+  function setBranch(button, open) {
+    button.setAttribute("aria-expanded", String(open));
+    button.setAttribute("aria-label", branchLabel(UI[state.lang], button.dataset.path, open));
+    button.closest(".toc-item").classList.toggle("is-collapsed", !open);
+  }
+
+  function tocItems(list, nodes, schema, t, forceOpen) {
+    nodes.forEach(function (node) {
+      var f = node.field;
+      var key = schema.name + "-" + f.path;
+      var item = el("li", "toc-item");
+      var row = el("div", "toc-row");
+      row.dataset.depth = String(f.path.split(".").length - 1);
+
+      var link = el("a", isDocRequired(schema.fields, f) ? "toc-required" : f.recommended ? "toc-recommended" : null);
+      link.appendChild(el("span", null, f.path.split(".").pop()));
+      link.href = "#" + key;
+      link.title = f.path;
+      link.dataset.depth = row.dataset.depth;
+      link.dataset.target = key;
+
+      if (node.children.length) {
+        var open = forceOpen || state.tocOpen[key] === true;
+        item.classList.add("has-children");
+        if (!open) item.classList.add("is-collapsed");
+
+        var branch = el("button", "toc-branch");
+        branch.type = "button";
+        branch.dataset.key = key;
+        branch.dataset.path = f.path;
+        branch.setAttribute("aria-expanded", String(open));
+        branch.setAttribute("aria-label", branchLabel(t, f.path, open));
+        branch.addEventListener("click", function () {
+          var next = item.classList.contains("is-collapsed");
+          state.tocOpen[key] = next;
+          // Closing a branch you are currently reading inside has to stick: the scrollspy would
+          // otherwise re-open it on the very next scroll frame.
+          if (next) delete state.tocShut[key];
+          else state.tocShut[key] = true;
+          setBranch(branch, next);
+        });
+        row.appendChild(branch);
+        // How much is hidden, so the reader can tell a leaf from a folded subtree at a glance.
+        link.appendChild(el("span", "toc-count", String(node.children.length)));
+      }
+
+      row.appendChild(link);
+      item.appendChild(row);
+
+      if (node.children.length) {
+        var sub = el("ul", "toc-children");
+        tocItems(sub, node.children, schema, t, forceOpen);
+        item.appendChild(sub);
+      }
+      list.appendChild(item);
+    });
+  }
+
   function renderToc(t) {
     dom.toc.replaceChildren();
     dom.toc.appendChild(el("p", "toc-title", t.tocTitle));
     dom.toc.appendChild(el("p", "toc-legend", t.tocLegend));
     dom.toc.appendChild(el("p", "toc-legend toc-legend-recommended", t.tocLegendRecommended));
+
+    // A filter that hides its own matches would be useless: while one is active every branch
+    // is open, whatever the reader collapsed before.
+    var forceOpen = Boolean(state.query) || state.onlyRequired;
 
     var any = false;
     state.model.schemas.forEach(function (schema) {
@@ -441,17 +541,7 @@
       group.appendChild(head);
 
       var list = el("ul", "toc-list");
-      fields.forEach(function (f) {
-        var item = document.createElement("li");
-        var link = el("a", isDocRequired(schema.fields, f) ? "toc-required" : f.recommended ? "toc-recommended" : null);
-        link.appendChild(el("span", null, f.path.split(".").pop()));
-        link.href = "#" + schema.name + "-" + f.path;
-        link.title = f.path;
-        link.dataset.depth = String(f.path.split(".").length - 1);
-        link.dataset.target = schema.name + "-" + f.path;
-        item.appendChild(link);
-        list.appendChild(item);
-      });
+      tocItems(list, tocTree(fields), schema, t, forceOpen);
       group.appendChild(list);
       dom.toc.appendChild(group);
     });
@@ -505,6 +595,9 @@
         );
         card.id = schema.name + "-" + f.path;
         card.dataset.depth = String(f.path.split(".").length - 1);
+        // Read back by the scrollspy to unfold the TOC branch you are currently inside.
+        card.dataset.schema = schema.name;
+        card.dataset.path = f.path;
 
         var head = el("div", "field-head");
         head.appendChild(fieldName(f.path));
@@ -592,14 +685,15 @@
     var sections = dom.reference.querySelectorAll(".ref-schema");
     var cards = dom.reference.querySelectorAll(".field");
     var currentSchema = null;
-    var currentField = null;
+    var currentCard = null;
 
     sections.forEach(function (s) {
       if (s.getBoundingClientRect().top <= STICKY_OFFSET) currentSchema = s.id;
     });
     cards.forEach(function (c) {
-      if (c.getBoundingClientRect().top <= STICKY_OFFSET) currentField = c.id;
+      if (c.getBoundingClientRect().top <= STICKY_OFFSET) currentCard = c;
     });
+    var currentField = currentCard && currentCard.id;
     if (!currentSchema && sections.length) currentSchema = sections[0].id;
 
     dom.here.hidden = !currentSchema;
@@ -613,7 +707,27 @@
       else link.removeAttribute("aria-current");
     });
 
-    // Keep the active entry inside the (scrollable) TOC viewport. Scroll the panel by hand:
+    // Reading `location.geo.lat` unfolds `location` and `location.geo` on its own — a highlight
+    // inside a folded branch would mark a place the reader cannot see. Branches the reader did
+    // not open by hand fold back once the reading position leaves them, so the map stays short.
+    var onPath = {};
+    if (currentCard && currentCard.dataset.path) {
+      var parts = currentCard.dataset.path.split(".");
+      for (var i = 0; i < parts.length; i++) {
+        onPath[currentCard.dataset.schema + "-" + parts.slice(0, i + 1).join(".").replace(/\[\]$/, "")] = true;
+      }
+    }
+    var forceOpen = Boolean(state.query) || state.onlyRequired;
+    dom.toc.querySelectorAll(".toc-branch").forEach(function (branch) {
+      var key = branch.dataset.key;
+      if (!onPath[key]) delete state.tocShut[key];
+      var open = forceOpen || state.tocOpen[key] === true ||
+        (Boolean(onPath[key]) && !state.tocShut[key]);
+      if (String(open) !== branch.getAttribute("aria-expanded")) setBranch(branch, open);
+    });
+
+    // Keep the active entry inside the (scrollable) TOC viewport. After the unfolding above,
+    // never before it: an entry that was still hidden has no position worth scrolling to. Scroll the panel by hand:
     // scrollIntoView would also move the document, fighting the reader's own scroll.
     var active = dom.toc.querySelector('.toc-list a[aria-current="true"]');
     if (active) {
