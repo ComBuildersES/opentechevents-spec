@@ -133,11 +133,21 @@
     });
   }
 
-  // Field descriptions come from the schema and may name other fields in `backticks`.
+  // Field descriptions come from the schema and may name other fields in `backticks`
+  // or point at a spec elsewhere with a bare URL — both become real markup here.
   function withCode(text) {
     var frag = document.createDocumentFragment();
     text.split(/`([^`]+)`/).forEach(function (part, i) {
-      frag.appendChild(i % 2 ? el("code", null, part) : document.createTextNode(part));
+      if (i % 2) return frag.appendChild(el("code", null, part));
+      part.split(/(https?:\/\/[^\s)]*[^\s).,;:])/).forEach(function (bit, j) {
+        if (!bit) return;
+        if (j % 2 === 0) return frag.appendChild(document.createTextNode(bit));
+        var a = el("a", "ref-link", bit.replace(/^https?:\/\//, ""));
+        a.href = bit;
+        a.target = "_blank";
+        a.rel = "noopener";
+        frag.appendChild(a);
+      });
     });
     return frag;
   }
