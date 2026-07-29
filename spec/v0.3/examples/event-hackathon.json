@@ -4,6 +4,9 @@
   "url": "https://hackalmeria.example/2026",
   "name": "HackAlmería 2026 — 36 horas de código",
   "description": "Hackathon de fin de semana: se empieza el sábado a las 9:00 y se termina el domingo a las 21:00, sin parar. Comida, café y sitio para dormir incluidos.",
+  "image": [
+    "https://hackalmeria.example/img/2026-cartel.png"
+  ],
   "organizers": [
     { "name": "HackAlmería", "url": "https://hackalmeria.example" },
     { "name": "Universidad de Almería", "url": "https://ual.example" }

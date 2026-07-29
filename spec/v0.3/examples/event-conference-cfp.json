@@ -4,6 +4,9 @@
   "url": "https://devfest-levante.example/2026",
   "name": "DevFest Levante 2026",
   "description": "Conferencia de desarrollo del sureste, edición 2026. Dos días, tres tracks.",
+  "image": [
+    "https://devfest-levante.example/img/2026-16x9.png"
+  ],
   "organizers": [
     { "name": "GDG Levante", "url": "https://gdglevante.example" }
   ],

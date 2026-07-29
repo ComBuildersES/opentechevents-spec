@@ -122,6 +122,7 @@ El criterio **no** es «estaría bien tenerlo»: es **qué se rompe en los tres 
 | --- | --- |
 | `url` | RSS y Atom no tienen otro sitio donde llevar el enlace: la entrada deja de ser pinchable. Es lo que convierte un dato en algo a lo que ir. |
 | `description` | Lo que muestra literalmente todo destino: `DESCRIPTION` en iCal, el cuerpo de la entrada en RSS/Atom, el snippet en schema.org. |
+| `image` | La imagen es lo que hace que el evento **se vea** donde se lista: Google la pide para el `Event` (como recomendada), y es lo único que llena una tarjeta en cualquier interfaz. Además, el aviso es **accionable**: las cinco plataformas estudiadas ya emiten una, así que quien no la manda casi siempre la tiene y no la ha mapeado. |
 | `location` | Google lo exige para el `Event`; en iCal es `LOCATION`. Sin él nadie puede contestar «¿me pilla cerca?». |
 | `attendanceMode` | La primera pregunta de quien busca: ¿puedo ir desde casa? No se deriva de `location` de forma fiable — [por eso son campos distintos](#location-y-attendancemode-no-son-redundantes). |
 | `tags` | **El campo del descubrimiento por interés.** Sin él, filtrar por tema exige adivinar a partir del título. Va a `CATEGORIES` en iCal y a `keywords` en schema.org. |
@@ -169,7 +170,7 @@ La única fecha con offset en toda la spec es `source.retrievedAt` (y `updatedAt
 
 Nuevo en la v0.3, opcional. Y lo primero que hay que decir es lo que **no** es: **no es una regla de recurrencia**.
 
-**Un documento = una ocurrencia. Quien publica expande.** Un meetup mensual no es un documento con una regla: son doce documentos, cada uno con su `id`, sus fechas y su `status`. Un evento que se celebra tres sábados no consecutivos son tres documentos. `partOf` solo dice **de qué conjunto forman parte**:
+**Un documento = una ocurrencia. Quien publica expande.** Un meetup mensual no es un documento con una regla: son doce documentos, cada uno con su `id`, sus fechas y su `status`. Un study jam de tres sesiones en sábados no consecutivos son tres documentos. `partOf` solo dice **de qué conjunto forman parte**:
 
 ```json
 "partOf": {
@@ -184,7 +185,7 @@ Solo `id` es obligatorio. `name` y `url` evitan que un consumidor tenga que reso
 **`type`: `series` o `multipart`** (por defecto `series`). No es decoración: cambia la traducción.
 
 - **`series`** — ocurrencias independientes que comparten identidad: el meetup de junio y el de julio. Cada una se anuncia, se asiste y se cancela por separado.
-- **`multipart`** — partes de **un solo evento** repartido en fechas no consecutivas: un curso en tres sábados, con una inscripción. Las partes no son eventos independientes aunque tengan fecha propia.
+- **`multipart`** — partes de **un solo evento** repartido en fechas no consecutivas: un study jam de tres sesiones en sábados no consecutivos, con una sola inscripción. Las partes no son eventos independientes aunque tengan fecha propia.
 
 Lo que `multipart` **no** arregla es «una sola inscripción»: eso no es una fecha, es registro/entradas, y la v0.3 no lo modela. No lo resuelvas deformando el campo de tiempo.
 
@@ -325,6 +326,41 @@ Los tres son **opcionales** y entraron por la misma razón: el importador de `.i
 
 - **`updatedAt`** — instante (con offset/Z) en que **los datos del evento** cambiaron por última vez. Es el equivalente de `LAST-MODIFIED` de iCal, **no** de `DTSTAMP`: `DTSTAMP` marca *cuándo se generó el fichero* y cambia en cada exportación aunque no haya cambiado nada, así que no sirve para «qué cambió». Su valor está en la **sincronización incremental**: un consumidor que lee el feed a diario filtra por `updatedAt > última_lectura` en vez de recomparar la colección entera. El `updatedAt` del feed dice «algo cambió»; el del evento dice **qué**. Ausente = desconocido, no «nunca cambió».
 
+### `image`: el cartel, y por qué es una lista de cadenas
+
+Nuevo en la v0.3. Opcional —aunque [recomendado](#válido-no-es-lo-mismo-que-útil-los-campos-recomendados)— y **una lista** de URLs `https` **al fichero de imagen**, nunca a una página que lo muestre:
+
+```json
+"image": [
+  "https://rustmadrid.example/img/2026-06-16x9.png",
+  "https://rustmadrid.example/img/2026-06-4x3.png",
+  "https://rustmadrid.example/img/2026-06-1x1.png"
+]
+```
+
+**El orden es significativo**: la primera es la principal, y a menudo la única que un destino puede usar.
+
+**No es una galería.** Las entradas describen **la misma imagen** en distintos recortes o resoluciones — que es exactamente lo que [Google pide](https://developers.google.com/search/docs/appearance/structured-data/event) (1:1, 4:3 y 16:9) y lo que ya emiten Meetup, Luma y Guild. Publicar ahí las fotos de la edición anterior no es inválido, pero degrada en todos los destinos: cada uno se queda con la primera y la trata como el cartel.
+
+Entra por la vía de siempre —**un campo que ya emite todo el mundo**—: de las cinco fuentes estudiadas ([`research/findings/json-ld-event-platforms.md`](../../research/findings/json-ld-event-platforms.md)), **las cinco** emiten `image`, y tres de ellas ya como array.
+
+**Lista de cadenas, no de objetos**, y es una decisión, no un descuido. Un objeto permitiría `alt`, `width` o `caption`; **ningún productor real emite nada de eso** hoy, y añadirlo sería el diseño especulativo que la sección de Extensiones prohíbe. El precio está reconocido: el texto alternativo —que es accesibilidad, no decoración— **no se modela en la v0.3**. Si aparece un productor que lo emita, entra por extensión y se gradúa; ensanchar cadena → objeto es un cambio que rompe, y por eso llegaría con su versión.
+
+**Es un campo [recomendado](#válido-no-es-lo-mismo-que-útil-los-campos-recomendados)**, no obligatorio. Sin él nada deja de validar y nada se rompe en los tres destinos — pero el evento se lista sin cara, y en una interfaz llena de tarjetas eso decide si alguien lo mira. Pesa más el segundo test del perfil: **el aviso es accionable**. Las cinco fuentes estudiadas ya emiten imagen, así que un feed sin `image` casi nunca es un evento sin cartel: es un cartel que no se ha mapeado. Un aviso que quien publica puede arreglar en un minuto es exactamente lo que el perfil existe para dar.
+
+La excepción conocida es quien importa un `.ics`: **iCalendar casi nunca trae imagen** (`IMAGE` es de 2016 y apenas se emite), así que ahí el aviso no es accionable. Se asume, por la misma razón que `url` y `description` siguen siendo recomendados pese a faltar en casi todo `.ics` publicado: el perfil describe **qué le falta al evento**, no a quién culpar de que falte. Ver [`examples/event-from-ics.json`](examples/event-from-ics.json), que avisa exactamente de eso.
+
+**Traducción a los tres formatos de destino, incluida la pérdida:**
+
+| Destino | Mapeo | Pérdida |
+| --- | --- | --- |
+| **schema.org** | `image` (array, tal cual) | Ninguna. Es 1:1 — el array de OTE **es** el que pide Google. |
+| **iCal** | `IMAGE;VALUE=URI;DISPLAY=BADGE:<primera>` ([RFC 7986](https://www.rfc-editor.org/rfc/rfc7986)) | **De la segunda en adelante**: `IMAGE` admite varias, pero los clientes que la soportan enseñan una. Un cliente que ignore la propiedad —la mayoría— ve el evento completo igual. |
+| **RSS 2.0** | `<enclosure url type length>` con la primera, o `<media:content>` | `<enclosure>` **exige `type` y `length`**, que OTE no modela: quien exporte tiene que inferir el MIME por la extensión y hacer un `HEAD` para el tamaño, o usar `media:content`, que no exige ninguno de los dos. |
+| **Atom** | `<link rel="enclosure" href="…" type="…">`, repetible | Ninguna en el número de imágenes; el `type` tiene el mismo problema que en RSS. |
+
+Que el MIME no esté es la misma clase de decisión que el email de `organizers`: se puede derivar razonablemente en el exportador, y exigirlo en el schema obligaría a quien importa a inventárselo.
+
 ## El feed
 
 Obligatorio: `specVersion`, `title`, `license`, `updatedAt`, `events`.
@@ -339,7 +375,7 @@ El feed es un **formato de intercambio, no una API**: sin paginación, sin filtr
 
 ## Extensiones
 
-Los schemas **no prohíben campos adicionales**. Si tu comunidad necesita `image` o `cfp` hoy, ponlos: tu documento sigue siendo válido. Es la vía por la que la spec debe crecer — **campos que alguien ya usa de verdad**, no campos que imaginamos que hará falta usar. Así entró `tags` en la v0.2, y así entró `organizers` en la v0.3.
+Los schemas **no prohíben campos adicionales**. Si tu comunidad necesita `cfp` u `offers` hoy, ponlos: tu documento sigue siendo válido. Es la vía por la que la spec debe crecer — **campos que alguien ya usa de verdad**, no campos que imaginamos que hará falta usar. Así entró `tags` en la v0.2, y así entraron `organizers` e `image` en la v0.3.
 
 Cuando un campo se estandarice, se le dará un significado normativo. Hasta entonces, un consumidor puede ignorarlos sin miedo.
 
@@ -349,7 +385,7 @@ Bajo «campo adicional» conviven dos cosas muy distintas, y confundirlas se pag
 
 | | Qué es | Cómo se escribe | Ejemplo |
 | --- | --- | --- | --- |
-| **Candidato a núcleo** | Un campo genérico que **aspira a ser de OTE**. Lo usas hoy porque te hace falta; si a más gente le hace falta, se estandariza. | **Sin prefijo** | `image`, `cfp`, `offers` |
+| **Candidato a núcleo** | Un campo genérico que **aspira a ser de OTE**. Lo usas hoy porque te hace falta; si a más gente le hace falta, se estandariza. | **Sin prefijo** | `cfp`, `offers`, `sponsors` |
 | **Vocabulario externo** | Un campo cuyo significado **lo define otro proyecto** y que nunca será de OTE, porque no le pertenece. | **Con prefijo `proyecto:campo`** | `combuilders:communityId` |
 
 **Compromiso de la spec: OTE no acuñará jamás un nombre de campo que contenga `:`.** Es una reserva de espacio de nombres, y es lo que hace segura la segunda fila: un campo con prefijo **no puede colisionar** con un campo del núcleo, hoy ni en la v1.0. Un campo sin prefijo sí puede — y el día que OTE estandarice ese nombre, tu significado local desaparece bajo el normativo. Elige en consecuencia: sin prefijo estás proponiendo, con prefijo estás integrando.

@@ -32,13 +32,14 @@
     {
       "file": "event-meetup.json",
       "cases": ["meetup", "hybrid"],
-      "fields": ["event.attendanceMode", "event.location", "event.location.geo", "event.tags", "event.updatedAt"],
+      "fields": ["event.attendanceMode", "event.location", "event.location.geo", "event.image", "event.tags", "event.updatedAt"],
       "title": "Hybrid meetup, with everything you'd normally want",
-      "summary": "A venue and a joining URL at once, topics, coordinates — and two fields that are not part of the spec yet.",
+      "summary": "A venue and a joining URL at once, topics, coordinates, a poster — and one field that is not part of the spec yet.",
       "points": [
         "`location` and `attendanceMode` answer different questions: `location` is observable fact (is there a venue? is there a URL?), `attendanceMode` is the organiser's intent. If they disagree, `attendanceMode` wins.",
         "`updatedAt` is what lets a consumer sync incrementally — it is iCal's `LAST-MODIFIED`, not `DTSTAMP`.",
-        "`image` and `offers` are NOT in v0.3. The document is valid anyway: the schemas do not forbid extra fields, on purpose. That is how the spec grows — through fields someone already uses."
+        "`image` lists the SAME poster in three crops, most useful first: several sizes of one image, not a gallery. Only the first survives iCal.",
+        "`offers` is NOT in v0.3. The document is valid anyway: the schemas do not forbid extra fields, on purpose. That is how the spec grows — through fields someone already uses, which is exactly how `image` got in."
       ]
     },
     {
@@ -74,7 +75,7 @@
       "summary": "Starts Saturday morning, ends Sunday evening, never stops. One event — and deliberately no `partOf`.",
       "points": [
         "A continuous event crossing midnight is exactly what `startDate`/`endDate` are for: both date-times, both in the same form.",
-        "Compare with the multi-part course below. There the dates are NOT continuous, which is why it becomes several documents instead of one.",
+        "Compare with the multi-part study jam below. There the dates are NOT continuous, which is why it becomes several documents instead of one.",
         "Two organisers — the community and its host venue. Order matters: the first is the principal one, and the only one that survives translation to iCal."
       ]
     },
@@ -82,7 +83,7 @@
       "file": "feed-multipart.json",
       "cases": ["multipart", "feed"],
       "fields": ["event.partOf.type", "event.partOf.id", "feed.events"],
-      "title": "One course, three non-consecutive Saturdays",
+      "title": "One study jam, three non-consecutive Saturdays",
       "summary": "The case that tempts everyone into stretching the dates. Three documents, one `partOf` with `type: \"multipart\"`.",
       "points": [
         "Do NOT write `startDate` on the first Saturday and `endDate` on the last: that claims a continuous fifteen-day event and blocks two full weeks in every subscriber's calendar.",

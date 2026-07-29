@@ -41,6 +41,7 @@
       onlyRequiredShort: "Req.",
       tocTitle: "On this page",
       tocLegend: "Required in a minimal document",
+      tocLegendRecommended: "Recommended: valid without it, but a checker warns",
       searchPlaceholder: "Filter fields…",
       searchLabel: "Filter fields",
       count: "Showing {shown} of {total} fields",
@@ -92,6 +93,7 @@
       onlyRequiredShort: "Oblig.",
       tocTitle: "En esta página",
       tocLegend: "Obligatorio en un documento mínimo",
+      tocLegendRecommended: "Recomendado: válido sin él, pero un checker avisa",
       searchPlaceholder: "Filtrar campos…",
       searchLabel: "Filtrar campos",
       count: "Mostrando {shown} de {total} campos",
@@ -425,6 +427,7 @@
     dom.toc.replaceChildren();
     dom.toc.appendChild(el("p", "toc-title", t.tocTitle));
     dom.toc.appendChild(el("p", "toc-legend", t.tocLegend));
+    dom.toc.appendChild(el("p", "toc-legend toc-legend-recommended", t.tocLegendRecommended));
 
     var any = false;
     state.model.schemas.forEach(function (schema) {
@@ -440,7 +443,7 @@
       var list = el("ul", "toc-list");
       fields.forEach(function (f) {
         var item = document.createElement("li");
-        var link = el("a", isDocRequired(schema.fields, f) ? "toc-required" : null);
+        var link = el("a", isDocRequired(schema.fields, f) ? "toc-required" : f.recommended ? "toc-recommended" : null);
         link.appendChild(el("span", null, f.path.split(".").pop()));
         link.href = "#" + schema.name + "-" + f.path;
         link.title = f.path;

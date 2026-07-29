@@ -83,6 +83,26 @@
           }
         },
         {
+          "path": "image",
+          "type": "string[]",
+          "required": false,
+          "recommended": true,
+          "examples": [
+            [
+              "https://rustmadrid.example/img/2026-06-16x9.png"
+            ],
+            [
+              "https://rustmadrid.example/img/2026-06-1x1.png",
+              "https://rustmadrid.example/img/2026-06-4x3.png",
+              "https://rustmadrid.example/img/2026-06-16x9.png"
+            ]
+          ],
+          "description": {
+            "en": "Promotional images of the event: poster, cover, card. A list, in preference order — the first is the primary one, and often the only one a destination can use. Several entries describe the SAME image in different crops or resolutions (Google asks for 1:1, 4:3 and 16:9), not a photo gallery. Absolute https URLs to the image file itself, never to a page showing it.",
+            "es": "Imágenes promocionales del evento: cartel, portada, tarjeta. Es una lista, en orden de preferencia — la primera es la principal, y a menudo la única que un destino puede usar. Varias entradas describen LA MISMA imagen en distintos recortes o resoluciones (Google pide 1:1, 4:3 y 16:9), no una galería de fotos. URLs https absolutas al fichero de imagen, nunca a una página que la muestre."
+          }
+        },
+        {
           "path": "organizers",
           "type": "object[]",
           "required": false,
@@ -209,8 +229,8 @@
             },
             {
               "type": "multipart",
-              "id": "https://pyalmeria.example/cursos/2026-testing",
-              "name": "Curso de testing en Python (3 sábados)"
+              "id": "https://pyalmeria.example/study-jams/2026-testing",
+              "name": "Study Jam de testing en Python (3 sesiones)"
             }
           ],
           "description": {
@@ -228,8 +248,8 @@
             "multipart"
           ],
           "description": {
-            "en": "series: independent occurrences that share an identity (a monthly meetup). multipart: parts of ONE event held on non-consecutive dates (a course over three Saturdays, one registration). Defaults to series, the tolerant choice. It changes the translation: a series becomes schema.org EventSeries, a multi-part event becomes an Event whose parts are its subEvent.",
-            "es": "`series`: ocurrencias independientes que comparten identidad (un meetup mensual). `multipart`: partes de UN SOLO evento celebrado en fechas no consecutivas (un curso en tres sábados, con una inscripción). Por defecto `series`, que es la opción tolerante. Cambia la traducción: una serie se convierte en `EventSeries` de schema.org; un evento multi-parte, en un `Event` cuyas partes son su `subEvent`."
+            "en": "series: independent occurrences that share an identity (a monthly meetup). multipart: parts of ONE event held on non-consecutive dates (a three-session study jam on non-consecutive Saturdays, one registration). Defaults to series, the tolerant choice. It changes the translation: a series becomes schema.org EventSeries, a multi-part event becomes an Event whose parts are its subEvent.",
+            "es": "`series`: ocurrencias independientes que comparten identidad (un meetup mensual). `multipart`: partes de UN SOLO evento celebrado en fechas no consecutivas (un study jam de tres sesiones en sábados no consecutivos, con una sola inscripción). Por defecto `series`, que es la opción tolerante. Cambia la traducción: una serie se convierte en `EventSeries` de schema.org; un evento multi-parte, en un `Event` cuyas partes son su `subEvent`."
           }
         },
         {
@@ -239,7 +259,7 @@
           "recommended": false,
           "examples": [
             "https://rustmadrid.example/meetups",
-            "https://pyalmeria.example/cursos/2026-testing"
+            "https://pyalmeria.example/study-jams/2026-testing"
           ],
           "description": {
             "en": "Stable identifier of the series or multi-part event. Same rules as the event's id: a URI under a domain the publisher controls, minted once. It does NOT have to resolve to an OTE document — it is what lets a consumer group occurrences.",
@@ -253,7 +273,7 @@
           "recommended": false,
           "examples": [
             "Rust Madrid — meetup mensual",
-            "Curso de testing en Python (3 sábados)"
+            "Study Jam de testing en Python (3 sesiones)"
           ],
           "description": {
             "en": "Display name of the series or multi-part event, so a consumer can group occurrences without resolving the id.",

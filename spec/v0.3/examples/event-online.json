@@ -4,6 +4,9 @@
   "url": "https://rustgirona.example/sessions/2026-07-31",
   "name": "Sessió setmanal de codificació — Rust Girona",
   "description": "Cada semana nos juntamos en línea para picar Rust un rato. Canal de voz de Discord; el enlace está en la página del evento.",
+  "image": [
+    "https://rustgirona.example/img/sessio-setmanal.png"
+  ],
   "organizers": [
     { "name": "Rust Girona", "url": "https://rustgirona.example" },
     { "type": "person", "name": "Ivan Fraixedes", "url": "https://ifraixedes.example" }

@@ -51,18 +51,23 @@
 /* Nesting mirrors the dotted path: location → geo → lat. */
 .toc-list a[data-depth="1"] { padding-left: 24px; }
 .toc-list a[data-depth="2"] { padding-left: 36px; }
-/* A dot marks a field a minimal valid document cannot leave out. */
-.toc-list a.toc-required::after {
+/* Two dots, the same two levels the badges use: a field a minimal valid document cannot
+   leave out (accent), and one it can — but then a checker warns (orange). */
+.toc-list a.toc-required::after,
+.toc-list a.toc-recommended::after {
   content: ""; flex: none;
   width: 5px; height: 5px; border-radius: 50%; background: var(--accent);
 }
+.toc-list a.toc-recommended::after { background: var(--warn); }
 .toc-legend {
   display: flex; align-items: center; gap: 6px;
-  margin: 0 0 16px; font-size: .74rem; color: var(--ink-faint);
+  margin: 0 0 4px; font-size: .74rem; color: var(--ink-faint);
 }
+.toc-legend:last-of-type { margin-bottom: 16px; }
 .toc-legend::before {
   content: ""; flex: none; width: 5px; height: 5px; border-radius: 50%; background: var(--accent);
 }
+.toc-legend-recommended::before { background: var(--warn); }
 .toc-empty { color: var(--ink-faint); font-size: .85rem; }
 
 /* ---------- sticky toolbar ---------- */

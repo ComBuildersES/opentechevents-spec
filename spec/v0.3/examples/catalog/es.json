@@ -26,11 +26,12 @@
     },
     "event-meetup.json": {
       "title": "Meetup híbrido, con todo lo que se suele querer",
-      "summary": "Sede y URL de conexión a la vez, temáticas, coordenadas — y dos campos que todavía no son de la spec.",
+      "summary": "Sede y URL de conexión a la vez, temáticas, coordenadas, un cartel — y un campo que todavía no es de la spec.",
       "points": [
         "`location` y `attendanceMode` responden preguntas distintas: `location` son hechos observables (¿hay sede?, ¿hay URL?), `attendanceMode` es la intención de quien organiza. Si se contradicen, manda `attendanceMode`.",
         "`updatedAt` es lo que permite sincronizar de forma incremental: es el `LAST-MODIFIED` de iCal, no el `DTSTAMP`.",
-        "`image` y `offers` NO están en la v0.3. El documento es válido igualmente: los schemas no prohíben campos adicionales, a propósito. Es la vía por la que la spec crece — campos que alguien ya usa de verdad."
+        "`image` lleva EL MISMO cartel en tres recortes, el más útil primero: varios tamaños de una imagen, no una galería. A iCal solo llega el primero.",
+        "`offers` NO está en la v0.3. El documento es válido igualmente: los schemas no prohíben campos adicionales, a propósito. Es la vía por la que la spec crece — campos que alguien ya usa de verdad, que es justo por donde entró `image`."
       ]
     },
     "event-recurring.json": {
@@ -57,12 +58,12 @@
       "summary": "Empieza el sábado por la mañana, acaba el domingo por la tarde, no para. Un evento — y deliberadamente sin `partOf`.",
       "points": [
         "Un evento continuo que cruza la medianoche es justo para lo que están `startDate`/`endDate`: dos fecha-hora, ambas en la misma forma.",
-        "Compáralo con el curso multi-parte de abajo. Allí las fechas NO son continuas, y por eso son varios documentos en vez de uno.",
+        "Compáralo con el study jam multi-parte de abajo. Allí las fechas NO son continuas, y por eso son varios documentos en vez de uno.",
         "Dos organizadores: la comunidad y su anfitrión. El orden importa: el primero es el principal, y el único que sobrevive a la traducción a iCal."
       ]
     },
     "feed-multipart.json": {
-      "title": "Un curso, tres sábados no consecutivos",
+      "title": "Un study jam, tres sesiones en sábados no consecutivos",
       "summary": "El caso que tienta a todo el mundo a estirar las fechas. Tres documentos, un `partOf` con `type: \"multipart\"`.",
       "points": [
         "NO pongas `startDate` en el primer sábado y `endDate` en el último: eso afirma un evento continuo de quince días y bloquea dos semanas enteras en el calendario de quien se suscriba.",

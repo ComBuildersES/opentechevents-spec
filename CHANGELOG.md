@@ -13,7 +13,7 @@ versión nueva**: los documentos `0.1.0` siguen validando contra `spec/v0.1/`.
 
 ## [0.3.0] — 2026-07-29
 
-Dos campos nuevos y dos valores nuevos de `status`, todo **opcional y
+Tres campos nuevos y dos valores nuevos de `status`, todo **opcional y
 retrocompatible** (por eso MINOR): un documento `0.2.0` válido, con solo cambiar
 `specVersion` a `"0.3.0"`, sigue siendo válido.
 
@@ -62,8 +62,8 @@ descubrir y seguir.
   `type` (`series` por defecto, o `multipart`) opcionales.
   - **Es una referencia, no una regla de recurrencia.** La norma que lo acompaña:
     **un documento = una ocurrencia, y quien publica expande**. Un meetup mensual
-    son doce documentos, cada uno con su `id`, sus fechas y su `status`; un curso
-    en tres sábados, tres. `partOf` solo dice a qué conjunto pertenecen.
+    son doce documentos, cada uno con su `id`, sus fechas y su `status`; un study
+    jam en tres sesiones, tres. `partOf` solo dice a qué conjunto pertenecen.
   - **`type` cambia la traducción**, no es decoración: `series` → `EventSeries` de
     schema.org; `multipart` → un `Event` cuyas partes son su `subEvent`. En iCal,
     `RELATED-TO;RELTYPE=PARENT` en ambos casos. En Atom/RSS no hay equivalente y
@@ -77,6 +77,27 @@ descubrir y seguir.
     12 ocurrencias), `id` por ocurrencia (`<id-serie>#<fecha>` si no tiene página
     propia — el equivalente de `RECURRENCE-ID`), y `EXDATE` deja de existir: es
     *no emitir* ese documento, o `status: cancelled` si ya se había publicado.
+
+- **`image`** (`array` de URLs `https`, mín. 1) en el **evento**. Imágenes
+  promocionales: cartel, portada, tarjeta. **El orden es significativo** — la
+  primera es la principal, y a menudo la única que un destino puede usar.
+  - **No es una galería.** Las entradas son **la misma imagen** en distintos
+    recortes o resoluciones, que es lo que pide Google (1:1, 4:3, 16:9) y lo que
+    ya emiten Meetup, Luma y Guild.
+  - **Lista de cadenas, no de objetos**, y por tanto **sin `alt`**: ningún
+    productor real emite texto alternativo, y modelarlo hoy sería diseño
+    especulativo. La pérdida de accesibilidad se reconoce; ensanchar cadena →
+    objeto rompe, así que llegaría con su versión.
+  - Traducción: `image` de schema.org **1:1**; `IMAGE;VALUE=URI` (RFC 7986) en
+    iCal, solo la primera en la práctica; `<enclosure>` o `<media:content>` en
+    RSS y `<link rel="enclosure">` en Atom — donde el `type` (MIME) hay que
+    inferirlo, porque OTE no lo modela.
+  - **Entra en el perfil recomendado.** No rompe nada en los tres destinos, pero
+    el aviso es **accionable**: las cinco fuentes estudiadas ya emiten imagen, así
+    que un feed sin `image` casi nunca es un evento sin cartel — es un cartel sin
+    mapear. Sigue siendo un aviso: nada deja de validar.
+  - Era una **extensión sin prefijo** en los ejemplos desde la v0.1 (como cadena
+    suelta). Se gradúa a núcleo **como lista**: si la emitías como cadena, migra.
 
 - **Dos valores nuevos de `status`: `moved-online` y `tentative`.** El enum pasa a
   ser `scheduled` (por defecto), `tentative`, `cancelled`, `postponed`,
@@ -130,12 +151,14 @@ descubrir y seguir.
     dato que el campo existe para proteger.
   - La referencia de campos pasa a tener tres niveles (`obligatorio`,
     `recomendado`, `opcional`), leídos **de los perfiles**, no escritos a mano.
+    En el índice de la web, un punto naranja marca los recomendados junto al
+    punto de acento que ya marcaba los obligatorios.
     `npm run validate` los reporta como avisos y **nunca** cambia el código de
     salida.
 
 - **Política de extensiones con prefijo**, en el README de la spec. Se distinguen
-  dos tipos de campo adicional: **candidato a núcleo** (sin prefijo: `image`,
-  `cfp`) y **vocabulario externo** (con prefijo: `combuilders:communityId`).
+  dos tipos de campo adicional: **candidato a núcleo** (sin prefijo: `cfp`,
+  `offers`) y **vocabulario externo** (con prefijo: `combuilders:communityId`).
   - **Compromiso normativo: OTE no acuñará jamás un nombre de campo que contenga
     `:`.** Es una reserva de espacio de nombres — un campo con prefijo no puede
     colisionar con uno del núcleo, hoy ni en la v1.0.

@@ -4,6 +4,11 @@
   "url": "https://rustmadrid.example/meetups/2026-06",
   "name": "Rust Madrid — Meetup de junio",
   "description": "Charlas sobre WASM y tooling de Rust.\n\n18:30 Puertas · 19:00 Charlas · 20:30 Networking",
+  "image": [
+    "https://rustmadrid.example/img/2026-06-16x9.png",
+    "https://rustmadrid.example/img/2026-06-4x3.png",
+    "https://rustmadrid.example/img/2026-06-1x1.png"
+  ],
   "organizers": [
     { "name": "Rust Madrid", "url": "https://rustmadrid.example" }
   ],
@@ -22,8 +27,7 @@
   "updatedAt": "2026-06-10T18:00:00Z",
   "license": "CC-BY-4.0",
 
-  "_comment_extensions": "Lo que sigue NO está en la v0.3: son campos EN DISCUSIÓN (issue #5). El schema no prohíbe campos adicionales, así que este documento es válido igualmente y un consumidor puede ignorarlos sin miedo. Si los usas y te sirven, dilo en el issue: la spec crece con campos que alguien ya usa de verdad.",
-  "image": "https://rustmadrid.example/img/2026-06.png",
+  "_comment_extensions": "Lo que sigue NO está en la v0.3: son campos EN DISCUSIÓN (issue #5). El schema no prohíbe campos adicionales, así que este documento es válido igualmente y un consumidor puede ignorarlos sin miedo. Si los usas y te sirven, dilo en el issue: la spec crece con campos que alguien ya usa de verdad. Así entró `image` en la v0.3.",
   "offers": {
     "isFree": true,
     "registrationUrl": "https://rustmadrid.example/meetups/2026-06#registro",

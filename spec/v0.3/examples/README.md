@@ -5,9 +5,9 @@ Todos **se validan en CI** contra [`../event.schema.json`](../event.schema.json)
 | Fichero | Qué ilustra |
 | --- | --- |
 | [`event-minimal.json`](event-minimal.json) | Lo mínimo que la spec exige. Nada más. |
-| [`event-from-ics.json`](event-from-ics.json) | Evento **importado de un `.ics`**: sin `url`, con `source` y **sin `attendanceMode`** — porque iCalendar no sabe expresarlo, y callarse es más honesto que inventar. Muestra los campos que la v0.2 añadió desde iCal: `tags` (← `CATEGORIES`), `location.geo` (← `GEO`) y `updatedAt` (← `LAST-MODIFIED`). |
+| [`event-from-ics.json`](event-from-ics.json) | Evento **importado de un `.ics`**: sin `url`, sin `image` —iCalendar casi nunca la trae—, con `source` y **sin `attendanceMode`** — porque iCalendar no sabe expresarlo, y callarse es más honesto que inventar. Muestra los campos que la v0.2 añadió desde iCal: `tags` (← `CATEGORIES`), `location.geo` (← `GEO`) y `updatedAt` (← `LAST-MODIFIED`). |
 | [`event-all-day.json`](event-all-day.json) | Evento de **varios días completos**: `startDate`/`endDate` como fechas, sin hora. |
-| [`event-meetup.json`](event-meetup.json) | Meetup híbrido, con extensiones (ver abajo). |
+| [`event-meetup.json`](event-meetup.json) | Meetup híbrido, con `image` (el mismo cartel en tres recortes) y una extensión (ver abajo). |
 | [`event-conference-cfp.json`](event-conference-cfp.json) | Conferencia con **CFP abierto** y precio, ambos como extensiones. |
 | [`event-co-organized.json`](event-co-organized.json) | **Tres organizadores** —dos comunidades y una persona— y un campo de **vocabulario externo con prefijo** (`combuilders:communityId`). |
 | [`event-online.json`](event-online.json) | Evento **solo online**: `location` con `onlineUrl` y sin sede física, más `partOf` de una serie semanal. |
@@ -15,7 +15,7 @@ Todos **se validan en CI** contra [`../event.schema.json`](../event.schema.json)
 | [`event-recurring.json`](event-recurring.json) | **Una ocurrencia** de un meetup mensual, con [`partOf`](../README.md#recurrencia-y-eventos-multi-parte-partof). La recurrencia **se expande al publicar**: un documento por edición, nunca una regla dentro del feed. |
 | [`feed.json`](feed.json) | Un **feed de agregador**: sus eventos heredan `specVersion` y `license`, pero **no** `organizers` — el agregador no organiza lo que publica, así que lo omite y cada evento declara el suyo. |
 | [`feed-community.json`](feed-community.json) | Un **feed de comunidad**: `organizers` va en el feed y lo heredan sus eventos. El segundo evento lo declara y **reemplaza** la lista heredada — por eso repite la comunidad del feed. |
-| [`feed-multipart.json`](feed-multipart.json) | Un **evento multi-parte**: un curso en tres sábados no consecutivos, como **tres documentos** con el mismo `partOf` (`type: multipart`). No como un evento de quince días. |
+| [`feed-multipart.json`](feed-multipart.json) | Un **evento multi-parte**: un study jam en tres sesiones, en sábados no consecutivos, como **tres documentos** con el mismo `partOf` (`type: multipart`). No como un evento de quince días. |
 | [`invalid/`](invalid/) | Documentos que **deben ser rechazados**. El CI falla si el validador los acepta: un schema que solo acepta no es un schema. |
 
 ## Campos en discusión (extensiones)
@@ -26,9 +26,10 @@ Todos **se validan en CI** contra [`../event.schema.json`](../event.schema.json)
 | --- | --- |
 | `cfp` | 🗣️ En discusión — [issue #5](https://github.com/OpenTechEvents/opentechevents-spec/issues/5) |
 | `offers` (precio, aforo, registro) | 🗣️ En discusión |
-| `image` | 🗣️ En discusión |
 | `ics:rrule` (en `event-recurring.json`) | 🔗 **Vocabulario externo**, con prefijo. La regla original del `.ics`, guardada para poder hacer round-trip. **Informativa**: las ocurrencias ya vienen expandidas, así que nadie tiene que evaluarla. |
 
+> `image` **ya es normativo desde la v0.3**, y como lista (`image[]`, no una cadena). Entró por esta misma vía: lo emiten las cinco fuentes estudiadas y Google lo pide. Si lo emitías como cadena suelta, migra a lista.
+>
 > `tags` **ya es normativo desde la v0.2** (mapea a `CATEGORIES` de iCal). Entró justo por esta vía: un campo que un consumidor real —el agregador— ya usaba. Ver el [CHANGELOG](../../../CHANGELOG.md).
 >
 > `community` (`{ uri, name }`) estuvo aquí hasta la v0.3 y **lo sustituye [`organizers`](../README.md#organizers-quién-organiza--y-las-tres-cosas-que-no-es)**, ya normativo. Si lo emitías, migra.

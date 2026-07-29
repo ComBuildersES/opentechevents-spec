@@ -18,6 +18,9 @@
 
   "_comment_extensions": "`combuilders:communityId` NO es un campo de OTE: es vocabulario de otro proyecto (un directorio de comunidades), y por eso lleva prefijo. OTE se compromete a no acuñar nunca nombres de campo con `:`, así que no puede colisionar con un campo del núcleo. Un consumidor de OTE lo ignora; el directorio lo lee. Ver la sección «Extensiones» del README.",
 
+  "image": [
+    "https://gdgmadrid.example/img/2026-09-devfest-warmup.png"
+  ],
   "organizers": [
     {
       "name": "GDG Madrid",

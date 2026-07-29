@@ -12,6 +12,7 @@
   "events": [
     {
       "id": "https://rustmadrid.example/meetup/2026-06",
+      "image": ["https://rustmadrid.example/img/2026-06.png"],
       "organizers": [
         { "name": "Rust Madrid", "url": "https://rustmadrid.example" }
       ],
@@ -32,6 +33,7 @@
     },
     {
       "id": "https://coolconf.example/2026/",
+      "image": ["https://coolconf.example/img/2026-16x9.png"],
       "url": "https://coolconf.example/2026/",
       "name": "CoolConf 2026",
       "description": "Conferencia de dos días sobre web, cloud y sistemas.",

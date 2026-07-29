@@ -4,6 +4,9 @@
   "url": "https://rustmadrid.example/meetups/2026-06",
   "name": "Rust Madrid — Meetup de junio",
   "description": "Segundo lunes de cada mes. Esta edición: WASM y tooling.",
+  "image": [
+    "https://rustmadrid.example/img/2026-06.png"
+  ],
   "organizers": [
     { "name": "Rust Madrid", "url": "https://rustmadrid.example" }
   ],

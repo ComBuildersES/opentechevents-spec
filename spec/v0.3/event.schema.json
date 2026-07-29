@@ -67,6 +67,26 @@
             "Charla introductoria a la programación asíncrona en Python, con ejemplos en vivo."
           ]
         },
+        "image": {
+          "description": "Promotional images of the event: poster, cover, card. A list, in preference order — the first is the primary one, and often the only one a destination can use. Several entries describe the SAME image in different crops or resolutions (Google asks for 1:1, 4:3 and 16:9), not a photo gallery. Absolute https URLs to the image file itself, never to a page showing it.",
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uri",
+            "pattern": "^https://"
+          },
+          "minItems": 1,
+          "examples": [
+            [
+              "https://rustmadrid.example/img/2026-06-16x9.png"
+            ],
+            [
+              "https://rustmadrid.example/img/2026-06-1x1.png",
+              "https://rustmadrid.example/img/2026-06-4x3.png",
+              "https://rustmadrid.example/img/2026-06-16x9.png"
+            ]
+          ]
+        },
         "organizers": {
           "description": "Who runs the event — not where the data came from (that is source). A list: co-organised events are the norm, not the exception. Inside a feed, an event that omits it inherits the feed's organizers; declaring it REPLACES the inherited list, it does not add to it.",
           "$ref": "#/$defs/organizers",
@@ -127,8 +147,8 @@
             },
             {
               "type": "multipart",
-              "id": "https://pyalmeria.example/cursos/2026-testing",
-              "name": "Curso de testing en Python (3 sábados)"
+              "id": "https://pyalmeria.example/study-jams/2026-testing",
+              "name": "Study Jam de testing en Python (3 sesiones)"
             }
           ]
         },
@@ -356,7 +376,7 @@
       ],
       "properties": {
         "type": {
-          "description": "series: independent occurrences that share an identity (a monthly meetup). multipart: parts of ONE event held on non-consecutive dates (a course over three Saturdays, one registration). Defaults to series, the tolerant choice. It changes the translation: a series becomes schema.org EventSeries, a multi-part event becomes an Event whose parts are its subEvent.",
+          "description": "series: independent occurrences that share an identity (a monthly meetup). multipart: parts of ONE event held on non-consecutive dates (a three-session study jam on non-consecutive Saturdays, one registration). Defaults to series, the tolerant choice. It changes the translation: a series becomes schema.org EventSeries, a multi-part event becomes an Event whose parts are its subEvent.",
           "enum": [
             "series",
             "multipart"
@@ -374,7 +394,7 @@
           "pattern": "^[a-zA-Z][a-zA-Z0-9+.-]*:",
           "examples": [
             "https://rustmadrid.example/meetups",
-            "https://pyalmeria.example/cursos/2026-testing"
+            "https://pyalmeria.example/study-jams/2026-testing"
           ]
         },
         "name": {
@@ -383,7 +403,7 @@
           "minLength": 1,
           "examples": [
             "Rust Madrid — meetup mensual",
-            "Curso de testing en Python (3 sábados)"
+            "Study Jam de testing en Python (3 sesiones)"
           ]
         },
         "url": {
