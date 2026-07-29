@@ -40,7 +40,7 @@
     "event.attendanceMode": "Qué dice quien organiza que es este evento. SIN VALOR POR DEFECTO: ausente significa desconocido, nunca presencial.",
     "event.languages": "Etiquetas BCP 47, p. ej. `[\"es\",\"en\"]`. Sin valor por defecto: ausente significa desconocido.",
     "event.tags": "Etiquetas temáticas de forma libre. Mapea a `CATEGORIES` de iCal y a `keywords` de schema.org. Más adelante podría superponerse un vocabulario controlado; el campo en sí sigue siendo libre. Sin valor por defecto: ausente significa desconocido.",
-    "event.status": "Un evento cancelado o pospuesto DEBE seguir publicado: borrarlo deja un evento muerto en el calendario de quien se suscribió.",
+    "event.status": "Qué le ha pasado al evento, no al dato. Un evento cancelado, pospuesto o movido a online DEBE seguir publicado: borrarlo deja un evento muerto en el calendario de quien se suscribió. `tentative` significa anunciado pero sin confirmar (el `STATUS:TENTATIVE` de iCal) — existe para que quien importa no tenga que ascender a `scheduled` un evento que nadie ha confirmado, ya que este es el único campo con valor por defecto.",
     "event.source": "Procedencia. Obligatoria cuando el evento se importó o agregó de otro sitio; se omite cuando quien organiza describe su propio evento: es la fuente.",
     "event.source.name": "Nombre de la fuente (p. ej. «Rust Madrid», «Meetup»).",
     "event.source.url": "Enlace a la ficha original, para poder verificar y corregir el dato en origen.",

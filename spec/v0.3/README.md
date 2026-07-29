@@ -161,9 +161,41 @@ Si `location` está presente, debe traer al menos `venue` o `onlineUrl`. Un `loc
 
 ### `status`: un evento cancelado sigue publicado
 
-`scheduled` (por defecto), `cancelled`, `postponed`, `rescheduled`.
+Seis valores, alineados con el enum `eventStatus` de schema.org más el `TENTATIVE` de iCal:
 
-Un evento **cancelado o pospuesto debe seguir en el feed**. Borrarlo en silencio deja a quien se suscribió con un evento muerto en su calendario y sin forma de enterarse. El `status` **es** la forma de enterarse.
+| Valor | Qué afirma |
+| --- | --- |
+| **`scheduled`** *(por defecto)* | Confirmado, en la fecha y el sitio que dice el documento. |
+| **`tentative`** | Anunciado pero **sin confirmar**: falta cerrar fecha, sede o ambas. |
+| **`cancelled`** | No se celebra. Punto. |
+| **`postponed`** | Aplazado **sin fecha nueva todavía**. |
+| **`rescheduled`** | Aplazado **y ya con fecha nueva**, que es la que lleva el documento. |
+| **`moved-online`** | Se mantiene, pero lo que era presencial pasa a ser online. |
+
+Un evento **cancelado, pospuesto o movido debe seguir en el feed**. Borrarlo en silencio deja a quien se suscribió con un evento muerto en su calendario y sin forma de enterarse. El `status` **es** la forma de enterarse.
+
+**`postponed` y `rescheduled` no son sinónimos, y la diferencia está en las fechas del propio documento.** `postponed` conserva las **fechas antiguas** — no te inventes una nueva ni borres `startDate` (es obligatorio): el evento sigue apuntando a un día que ya no vale, y eso es exactamente lo que `postponed` está diciendo. Al confirmar la nueva fecha, se **actualizan** `startDate`/`endDate` y se pasa a `rescheduled`. Como el `id` no cambia, un consumidor actualiza el evento que ya tenía en vez de duplicarlo.
+
+> La v0.3 **no modela la fecha anterior** (el `previousStartDate` de schema.org). No hay productor real que la emita hoy, y `updatedAt` ya dice que algo cambió. Si te hace falta, es candidata a núcleo por la vía de siempre: un campo sin prefijo, en producción, y se gradúa si sobrevive.
+
+**`moved-online` debería traer `location.onlineUrl` y `attendanceMode: "online"`.** Debería, no debe: el schema no lo exige porque el enlace de conexión a menudo no es público todavía (llega por email a quien se registró), y una spec que lo exigiera obligaría a quien importa a inventárselo o a descartar el evento. Si `location.venue` se queda ahí como rastro de dónde iba a ser, no pasa nada: [manda `attendanceMode`](#location-y-attendancemode-no-son-redundantes), y dice `online`.
+
+**Por qué `tentative`, si schema.org no lo tiene.** Porque `status` es el **único campo de la spec con valor por defecto**: ausente significa `scheduled`, no «desconocido». Sin `tentative`, quien importa un `.ics` con `STATUS:TENTATIVE` —que es el estado que emite cualquier calendario para lo que aún no está cerrado— solo puede **ascender el evento a confirmado**, que es afirmar algo que nadie afirmó. Es el mismo argumento por el que `attendanceMode` no tiene valor por defecto: callarse y decir `scheduled` son afirmaciones distintas, y solo una es honesta.
+
+`tentative` describe **el evento**, no la calidad del dato: se usa cuando quien organiza aún no ha cerrado fecha o sede, no cuando quien importa no las tiene claras. Y no es un estado permanente: en cuanto se confirma, se pasa a `scheduled`.
+
+**Traducción a los tres formatos de destino, incluida la pérdida:**
+
+| OTE | schema.org `eventStatus` | iCal `STATUS` | Pérdida |
+| --- | --- | --- | --- |
+| `scheduled` | `EventScheduled` | `CONFIRMED` | Ninguna. |
+| `tentative` | `EventScheduled` | `TENTATIVE` | **En schema.org.** No tiene equivalente: se emite `EventScheduled` y el matiz se pierde. El único que viaja mejor a iCal que a schema.org. |
+| `cancelled` | `EventCancelled` | `CANCELLED` | Ninguna. |
+| `postponed` | `EventPostponed` | `TENTATIVE` | **En iCal**, que no distingue aplazado de sin confirmar. Google sí lee `EventPostponed`. |
+| `rescheduled` | `EventRescheduled` | `CONFIRMED` *(con la fecha nueva)* | Ninguna en las fechas; el hecho de que hubo un cambio se pierde en iCal. |
+| `moved-online` | `EventMovedOnline` + `location` `VirtualLocation` | `CONFIRMED` *(con la URL en `LOCATION`/`URL`)* | **En iCal**, que no distingue una sede online de una física. |
+
+**RSS y Atom no tienen `status` en absoluto.** No hay campo donde ponerlo, así que quien exporte debe llevarlo al **título** de la entrada (`[CANCELADO] Rust Madrid — junio`) o a las primeras líneas del contenido. Un canal de anuncios que anuncia un evento cancelado exactamente igual que uno confirmado es peor que no anunciarlo.
 
 ### `license` y `source`: qué se puede reutilizar, y de dónde salió
 

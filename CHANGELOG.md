@@ -13,8 +13,9 @@ versión nueva**: los documentos `0.1.0` siguen validando contra `spec/v0.1/`.
 
 ## [0.3.0] — 2026-07-29
 
-Dos campos nuevos, **opcionales y retrocompatibles** (por eso MINOR): un documento
-`0.2.0` válido, con solo cambiar `specVersion` a `"0.3.0"`, sigue siendo válido.
+Dos campos nuevos y dos valores nuevos de `status`, todo **opcional y
+retrocompatible** (por eso MINOR): un documento `0.2.0` válido, con solo cambiar
+`specVersion` a `"0.3.0"`, sigue siendo válido.
 
 Entra `organizers` —**quién organiza el evento**— porque era el único hueco del
 núcleo que aparece en **las cuatro** plataformas estudiadas (Meetup, Eventbrite,
@@ -72,6 +73,29 @@ evento multi-parte **sin** meter una regla de recurrencia dentro del feed.
     propia — el equivalente de `RECURRENCE-ID`), y `EXDATE` deja de existir: es
     *no emitir* ese documento, o `status: cancelled` si ya se había publicado.
 
+- **Dos valores nuevos de `status`: `moved-online` y `tentative`.** El enum pasa a
+  ser `scheduled` (por defecto), `tentative`, `cancelled`, `postponed`,
+  `rescheduled`, `moved-online`. Añadir valores a un enum no invalida ningún
+  documento anterior.
+  - **`moved-online`** completa el enum `eventStatus` de schema.org
+    (`EventMovedOnline`), que es el que consume Google. **Debería** —no debe—
+    venir con `location.onlineUrl` y `attendanceMode: "online"`: el schema no lo
+    exige porque el enlace de conexión a menudo no es público todavía, y exigirlo
+    obligaría a quien importa a inventárselo o a descartar el evento. En iCal no
+    hay forma de distinguirlo: se emite `CONFIRMED` con la URL en `LOCATION`.
+  - **`tentative`** no viene de schema.org sino de iCal (`STATUS:TENTATIVE`), que
+    es lo que emite cualquier calendario para lo que aún no está cerrado. Entra
+    porque `status` es **el único campo de la spec con valor por defecto**: sin
+    `tentative`, quien importa un `.ics` solo puede **ascender el evento a
+    `scheduled`**, afirmando algo que nadie afirmó. Mismo argumento que el de
+    `attendanceMode` sin valor por defecto. Al traducir a schema.org se pierde
+    (se emite `EventScheduled`): es el único valor que viaja mejor a iCal.
+  - Se documenta también la diferencia entre **`postponed`** (aplazado, **sin**
+    fecha nueva: el documento conserva las fechas antiguas) y **`rescheduled`**
+    (ya con fecha nueva, que es la que lleva el documento). Y que **RSS/Atom no
+    tienen `status`**: quien exporte debe llevarlo al título de la entrada
+    (`[CANCELADO] …`).
+
 - **Política de extensiones con prefijo**, en el README de la spec. Se distinguen
   dos tipos de campo adicional: **candidato a núcleo** (sin prefijo: `image`,
   `cfp`) y **vocabulario externo** (con prefijo: `combuilders:communityId`).
@@ -113,6 +137,10 @@ evento multi-parte **sin** meter una regla de recurrencia dentro del feed.
   dirección de quien organiza en un feed abierto y rastreable es regalarla a los
   recolectores de spam. La pérdida en iCal es un precio deliberado; degrádalo a
   `X-OTE-ORGANIZER` o a la `DESCRIPTION`.
+- **`previousStartDate`** (schema.org), la fecha que tenía un evento
+  `rescheduled` antes de moverse. Ninguna de las fuentes estudiadas la emite, y
+  `updatedAt` ya dice que el dato cambió. Entra como candidata a núcleo (campo sin
+  prefijo) el día que alguien la use de verdad.
 - **`organizers[].logo`, `organizers[].sameAs`.** Sobrecargan el campo sin que
   ningún consumidor los pida todavía.
 - **`organizers[].id` / `linking.communityId`.** Se valoró un identificador

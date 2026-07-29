@@ -108,8 +108,10 @@ const md = (lang) => {
     lines.push(`| ${t.field} | ${t.type} | ${t.req} | ${t.desc} | ${t.ex} |`, "| --- | --- | :---: | --- | --- |");
     for (const f of schema.fields) {
       const ex = f.examples.map((e) => `\`${JSON.stringify(e)}\``).join("<br>") || "—";
+      // An enum renders as "a | b | c": unescaped, those pipes become table columns.
+      const cell = (s) => String(s).replace(/\|/g, "\\|");
       lines.push(
-        `| \`${f.path}\` | ${f.type} | ${f.required ? `**${t.yes}**` : t.no} | ${f.description[lang]} | ${ex} |`
+        `| \`${f.path}\` | ${cell(f.type)} | ${f.required ? `**${t.yes}**` : t.no} | ${cell(f.description[lang])} | ${cell(ex)} |`
       );
     }
     lines.push("");

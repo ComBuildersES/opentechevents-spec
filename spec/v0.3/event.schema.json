@@ -206,17 +206,20 @@
           ]
         },
         "status": {
-          "description": "A cancelled or postponed event MUST stay published: removing it leaves a dead event in subscribers' calendars.",
+          "description": "What happened to the event, not to the data. An event that is cancelled, postponed or moved online MUST stay published: removing it leaves a dead event in subscribers' calendars. tentative means announced but not confirmed (iCal STATUS:TENTATIVE) — it exists so an importer never has to upgrade an unconfirmed event to scheduled, which is the one value with a default.",
           "enum": [
             "scheduled",
+            "tentative",
             "cancelled",
             "postponed",
-            "rescheduled"
+            "rescheduled",
+            "moved-online"
           ],
           "default": "scheduled",
           "examples": [
             "scheduled",
-            "cancelled"
+            "cancelled",
+            "moved-online"
           ]
         },
         "source": {
