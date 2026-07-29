@@ -1,0 +1,148 @@
+/* Practical examples gallery. Builds on styles.css — only what that file doesn't already have. */
+
+.ex-main { padding-bottom: 90px; }
+
+.ex-intro { padding: 48px 24px 8px; max-width: 900px; }
+.ex-intro .lead { max-width: 40em; }
+
+.ex-promise {
+  margin: 22px 0 0; padding: 14px 16px;
+  border-left: 3px solid var(--ok); border-radius: 0 8px 8px 0;
+  background: #eaf7f1; color: #0b5c41; font-size: .92rem;
+}
+
+/* ---------- filters ---------- */
+
+.ex-controls {
+  position: sticky; top: 64px; z-index: 20;
+  padding-top: 18px; padding-bottom: 12px;
+  background: rgba(255,255,255,.92);
+  backdrop-filter: saturate(180%) blur(12px);
+  border-bottom: 1px solid var(--line);
+}
+.ex-filters { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip {
+  border: 1px solid var(--line); background: #fff; color: var(--ink-soft);
+  font: 600 .84rem/1 var(--sans);
+  padding: 8px 13px; border-radius: 999px; cursor: pointer;
+}
+.chip:hover { border-color: var(--ink-faint); color: var(--ink); }
+.chip.is-active { background: var(--ink); border-color: var(--ink); color: #fff; }
+.chip-count { font-family: var(--mono); font-size: .72rem; opacity: .65; margin-left: 2px; }
+
+.ex-legend {
+  display: flex; align-items: baseline; flex-wrap: wrap; gap: 6px 18px;
+  margin: 12px 0 0; font-size: .8rem; color: var(--ink-faint);
+}
+/* The swatch must never end up on a line of its own, away from the label it colours. */
+.legend-item { display: inline-flex; align-items: baseline; gap: 6px; }
+.legend-swatch { width: 10px; height: 10px; border-radius: 3px; flex: none; }
+.legend-key { background: #7fb3ff; }
+.legend-ext { background: #e0b56b; }
+
+/* ---------- cards ---------- */
+
+.ex-list { padding-top: 34px; display: grid; gap: 30px; }
+
+.ex-card {
+  border: 1px solid var(--line); border-radius: 14px; background: #fff;
+  padding: 26px 26px 28px; scroll-margin-top: 150px;
+  min-width: 0;
+}
+
+.ex-title-row { display: flex; align-items: baseline; gap: 8px; }
+.ex-head h2 { font-size: 1.42rem; margin: 0; }
+.ex-anchor { color: var(--line); font-family: var(--mono); text-decoration: none; }
+.ex-card:hover .ex-anchor { color: var(--ink-faint); }
+.ex-anchor:hover { color: var(--accent); text-decoration: none; }
+
+.ex-badges { display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0 14px; }
+.ex-kind {
+  font: 600 .7rem/1 var(--mono); letter-spacing: .04em; text-transform: uppercase;
+  padding: 5px 9px; border-radius: 999px;
+}
+.ex-kind-event { background: var(--accent-soft); color: var(--accent-ink); }
+.ex-kind-feed { background: #efe6fb; color: #5b3a99; }
+.ex-tag {
+  border: 1px solid var(--line); background: var(--bg-alt); color: var(--ink-soft);
+  font: 600 .74rem/1 var(--sans); padding: 5px 10px; border-radius: 999px; cursor: pointer;
+}
+.ex-tag:hover { border-color: var(--ink-faint); color: var(--ink); }
+
+.ex-summary { color: var(--ink-soft); font-size: 1rem; margin: 0; max-width: 60em; }
+.ex-summary code {
+  font-family: var(--mono); font-size: .84em;
+  background: var(--accent-soft); color: var(--accent-ink);
+  padding: 2px 5px; border-radius: 5px; overflow-wrap: anywhere;
+}
+
+/* Prose left, document right — the explanation should be readable while you scan the JSON. */
+.ex-body { display: grid; grid-template-columns: 1fr 1.05fr; gap: 26px; margin-top: 22px; align-items: start; }
+.ex-body > * { min-width: 0; }
+
+.ex-notes-title {
+  font: 600 .74rem/1 var(--mono); letter-spacing: .07em; text-transform: uppercase;
+  color: var(--ink-faint); margin: 0 0 12px;
+}
+.ex-points { margin: 0; padding-left: 20px; }
+.ex-points li { color: var(--ink-soft); font-size: .93rem; margin-bottom: 10px; }
+.ex-points code {
+  font-family: var(--mono); font-size: .84em;
+  background: var(--accent-soft); color: var(--accent-ink);
+  padding: 2px 5px; border-radius: 5px; overflow-wrap: anywhere;
+}
+
+.ex-fields {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 6px;
+  margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--line);
+}
+.ex-fields-label {
+  font: 600 .7rem/1 var(--mono); letter-spacing: .06em; text-transform: uppercase;
+  color: var(--ink-faint); width: 100%; margin-bottom: 4px;
+}
+.ex-field-link code {
+  font-family: var(--mono); font-size: .78rem;
+  border: 1px solid var(--line); border-radius: 6px; padding: 4px 8px;
+  color: var(--accent-ink); background: #fff; display: inline-block;
+}
+.ex-field-link:hover { text-decoration: none; }
+.ex-field-link:hover code { border-color: var(--accent); background: var(--accent-soft); }
+
+/* ---------- the document itself ---------- */
+
+.ex-card .code-block { position: sticky; top: 160px; }
+.ex-card .code-block pre { max-height: 62vh; overflow: auto; }
+.ex-card .code-block code { font-size: .78rem; }
+
+.ex-actions { margin-left: auto; display: flex; gap: 6px; }
+.ex-btn {
+  border: 1px solid #2e3547; background: #1b2030; color: #b6bfd0;
+  font: 600 .72rem/1 var(--sans); padding: 6px 10px; border-radius: 6px; cursor: pointer;
+}
+.ex-btn:hover { border-color: #4a5265; color: #fff; text-decoration: none; }
+.ex-btn.is-done { border-color: var(--ok); color: #8ee0a8; }
+
+/* ---------- empty state + closing block ---------- */
+
+.ex-empty { padding: 40px 24px; text-align: center; color: var(--ink-soft); }
+.ex-empty .btn { margin-top: 8px; }
+
+.ex-missing {
+  margin-top: 56px; padding: 34px 30px;
+  border: 1px solid var(--line); border-radius: 14px; background: var(--bg-alt);
+}
+.ex-missing h2 { font-size: 1.35rem; }
+.ex-missing p { color: var(--ink-soft); max-width: 56em; }
+.ex-validate { font-size: .88rem; margin: 20px 0 0; }
+
+@media (max-width: 900px) {
+  .ex-body { grid-template-columns: 1fr; }
+  .ex-card .code-block { position: static; }
+  .ex-card .code-block pre { max-height: 52vh; }
+  .ex-controls { position: static; backdrop-filter: none; }
+}
+
+@media (max-width: 560px) {
+  .ex-card { padding: 20px 16px 22px; }
+  .ex-intro { padding-top: 34px; }
+}

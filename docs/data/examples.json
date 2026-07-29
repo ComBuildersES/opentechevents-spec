@@ -1,0 +1,3185 @@
+{
+  "specVersion": "0.3.0",
+  "languages": [
+    "en",
+    "es"
+  ],
+  "cases": [
+    {
+      "id": "meetup",
+      "label": {
+        "en": "Meetups",
+        "es": "Meetups"
+      }
+    },
+    {
+      "id": "conference",
+      "label": {
+        "en": "Conferences",
+        "es": "Conferencias"
+      }
+    },
+    {
+      "id": "hackathon",
+      "label": {
+        "en": "Hackathons",
+        "es": "Hackathones"
+      }
+    },
+    {
+      "id": "online",
+      "label": {
+        "en": "Online",
+        "es": "Online"
+      }
+    },
+    {
+      "id": "hybrid",
+      "label": {
+        "en": "Hybrid",
+        "es": "Híbridos"
+      }
+    },
+    {
+      "id": "recurring",
+      "label": {
+        "en": "Recurring",
+        "es": "Recurrentes"
+      }
+    },
+    {
+      "id": "multipart",
+      "label": {
+        "en": "Multi-part",
+        "es": "Multi-parte"
+      }
+    },
+    {
+      "id": "co-organized",
+      "label": {
+        "en": "Co-organised",
+        "es": "Coorganizados"
+      }
+    },
+    {
+      "id": "imported",
+      "label": {
+        "en": "Imported",
+        "es": "Importados"
+      }
+    },
+    {
+      "id": "feed",
+      "label": {
+        "en": "Feeds",
+        "es": "Feeds"
+      }
+    }
+  ],
+  "examples": [
+    {
+      "file": "event-minimal.json",
+      "kind": "event",
+      "repoUrl": "https://github.com/OpenTechEvents/opentechevents-spec/blob/main/spec/v0.3/examples/event-minimal.json",
+      "cases": [
+        "meetup"
+      ],
+      "fields": [
+        "event.id",
+        "event.name",
+        "event.startDate",
+        "event.timezone",
+        "event.license"
+      ],
+      "title": {
+        "en": "The smallest valid event",
+        "es": "El evento válido más pequeño"
+      },
+      "summary": {
+        "en": "Six lines. This is the whole barrier to entry for a small meetup — everything else is optional.",
+        "es": "Seis líneas. Esta es toda la barrera de entrada para un meetup pequeño: lo demás es opcional."
+      },
+      "points": {
+        "en": [
+          "Only `id`, `name`, `startDate` and `timezone` are required — plus `specVersion` and `license`, which a standalone document cannot inherit from a feed.",
+          "`url` and `description` are strongly recommended and still not required: most published .ics files carry neither, and a spec that demanded them would force importers to drop the event or invent the data.",
+          "`startDate` carries the time on the poster, with no UTC offset. `timezone` is what turns it into an unambiguous instant."
+        ],
+        "es": [
+          "Solo `id`, `name`, `startDate` y `timezone` son obligatorios — más `specVersion` y `license`, que un documento suelto no puede heredar de ningún feed.",
+          "`url` y `description` se recomiendan con fuerza y aun así no se exigen: la mayoría de los `.ics` publicados no traen ninguno de los dos, y una spec que los exigiera obligaría al importador a descartar el evento o a inventarse el dato.",
+          "`startDate` lleva la hora que aparece en el cartel, sin offset UTC. `timezone` es lo que la convierte en un instante inequívoco."
+        ]
+      },
+      "source": "{\n  \"specVersion\": \"0.3.0\",\n  \"id\": \"https://pyalmeria.example/eventos/2026-06-async\",\n  \"name\": \"PyAlmería — Introducción a async/await\",\n  \"startDate\": \"2026-06-11T18:30:00\",\n  \"timezone\": \"Europe/Madrid\",\n  \"license\": \"CC-BY-4.0\"\n}",
+      "lines": {
+        "event.specVersion": [
+          2
+        ],
+        "event.id": [
+          3
+        ],
+        "event.name": [
+          4
+        ],
+        "event.startDate": [
+          5
+        ],
+        "event.timezone": [
+          6
+        ],
+        "event.license": [
+          7
+        ]
+      }
+    },
+    {
+      "file": "event-meetup.json",
+      "kind": "event",
+      "repoUrl": "https://github.com/OpenTechEvents/opentechevents-spec/blob/main/spec/v0.3/examples/event-meetup.json",
+      "cases": [
+        "meetup",
+        "hybrid"
+      ],
+      "fields": [
+        "event.attendanceMode",
+        "event.location",
+        "event.location.geo",
+        "event.tags",
+        "event.updatedAt"
+      ],
+      "title": {
+        "en": "Hybrid meetup, with everything you'd normally want",
+        "es": "Meetup híbrido, con todo lo que se suele querer"
+      },
+      "summary": {
+        "en": "A venue and a joining URL at once, topics, coordinates — and two fields that are not part of the spec yet.",
+        "es": "Sede y URL de conexión a la vez, temáticas, coordenadas — y dos campos que todavía no son de la spec."
+      },
+      "points": {
+        "en": [
+          "`location` and `attendanceMode` answer different questions: `location` is observable fact (is there a venue? is there a URL?), `attendanceMode` is the organiser's intent. If they disagree, `attendanceMode` wins.",
+          "`updatedAt` is what lets a consumer sync incrementally — it is iCal's `LAST-MODIFIED`, not `DTSTAMP`.",
+          "`image` and `offers` are NOT in v0.3. The document is valid anyway: the schemas do not forbid extra fields, on purpose. That is how the spec grows — through fields someone already uses."
+        ],
+        "es": [
+          "`location` y `attendanceMode` responden preguntas distintas: `location` son hechos observables (¿hay sede?, ¿hay URL?), `attendanceMode` es la intención de quien organiza. Si se contradicen, manda `attendanceMode`.",
+          "`updatedAt` es lo que permite sincronizar de forma incremental: es el `LAST-MODIFIED` de iCal, no el `DTSTAMP`.",
+          "`image` y `offers` NO están en la v0.3. El documento es válido igualmente: los schemas no prohíben campos adicionales, a propósito. Es la vía por la que la spec crece — campos que alguien ya usa de verdad."
+        ]
+      },
+      "source": "{\n  \"specVersion\": \"0.3.0\",\n  \"id\": \"https://rustmadrid.example/meetups/2026-06\",\n  \"url\": \"https://rustmadrid.example/meetups/2026-06\",\n  \"name\": \"Rust Madrid — Meetup de junio\",\n  \"description\": \"Charlas sobre WASM y tooling de Rust.\\n\\n18:30 Puertas · 19:00 Charlas · 20:30 Networking\",\n  \"organizers\": [\n    {\n      \"name\": \"Rust Madrid\",\n      \"url\": \"https://rustmadrid.example\"\n    }\n  ],\n  \"startDate\": \"2026-06-26T19:00:00\",\n  \"endDate\": \"2026-06-26T21:00:00\",\n  \"timezone\": \"Europe/Madrid\",\n  \"attendanceMode\": \"hybrid\",\n  \"location\": {\n    \"venue\": \"Campus Madrid, Calle de Moreno Nieto 2, Madrid\",\n    \"onlineUrl\": \"https://meet.example/rust-madrid\",\n    \"geo\": {\n      \"lat\": 40.4081,\n      \"lon\": -3.7188\n    }\n  },\n  \"languages\": [\n    \"es\"\n  ],\n  \"tags\": [\n    \"rust\",\n    \"wasm\"\n  ],\n  \"status\": \"scheduled\",\n  \"updatedAt\": \"2026-06-10T18:00:00Z\",\n  \"license\": \"CC-BY-4.0\",\n  \"image\": \"https://rustmadrid.example/img/2026-06.png\",\n  \"offers\": {\n    \"isFree\": true,\n    \"registrationUrl\": \"https://rustmadrid.example/meetups/2026-06#registro\",\n    \"capacity\": 80\n  }\n}",
+      "lines": {
+        "event.specVersion": [
+          2
+        ],
+        "event.id": [
+          3
+        ],
+        "event.url": [
+          4
+        ],
+        "event.name": [
+          5
+        ],
+        "event.description": [
+          6
+        ],
+        "event.organizers[].name": [
+          9
+        ],
+        "event.organizers[].url": [
+          10
+        ],
+        "event.organizers": [
+          7
+        ],
+        "event.startDate": [
+          13
+        ],
+        "event.endDate": [
+          14
+        ],
+        "event.timezone": [
+          15
+        ],
+        "event.attendanceMode": [
+          16
+        ],
+        "event.location.venue": [
+          18
+        ],
+        "event.location.onlineUrl": [
+          19
+        ],
+        "event.location.geo.lat": [
+          21
+        ],
+        "event.location.geo.lon": [
+          22
+        ],
+        "event.location.geo": [
+          20
+        ],
+        "event.location": [
+          17
+        ],
+        "event.languages": [
+          25
+        ],
+        "event.tags": [
+          28
+        ],
+        "event.status": [
+          32
+        ],
+        "event.updatedAt": [
+          33
+        ],
+        "event.license": [
+          34
+        ],
+        "event.image": [
+          35
+        ],
+        "event.offers.isFree": [
+          37
+        ],
+        "event.offers.registrationUrl": [
+          38
+        ],
+        "event.offers.capacity": [
+          39
+        ],
+        "event.offers": [
+          36
+        ]
+      }
+    },
+    {
+      "file": "event-recurring.json",
+      "kind": "event",
+      "repoUrl": "https://github.com/OpenTechEvents/opentechevents-spec/blob/main/spec/v0.3/examples/event-recurring.json",
+      "cases": [
+        "meetup",
+        "recurring"
+      ],
+      "fields": [
+        "event.partOf",
+        "event.partOf.id",
+        "event.status"
+      ],
+      "title": {
+        "en": "A monthly meetup: one document per occurrence",
+        "es": "Un meetup mensual: un documento por ocurrencia"
+      },
+      "summary": {
+        "en": "This is June's edition, not the series. OTE never puts a recurrence rule in the feed — whoever publishes expands it.",
+        "es": "Esta es la edición de junio, no la serie. OTE nunca mete una regla de recurrencia en el feed: quien publica la expande."
+      },
+      "points": {
+        "en": [
+          "One document = one occurrence. Twelve editions are twelve documents, each with its own `id`, dates and `status`. `partOf` only says which set they belong to.",
+          "That is what makes cancelling August possible: `status: \"cancelled\"` on that occurrence's own document, which stays published so subscribers find out.",
+          "A consumer that ignores `partOf` still sees a complete, correct event. A recurrence rule it ignored would leave it with no dates at all.",
+          "`ics:rrule` is someone else's vocabulary — the prefix says so. The importer keeps it for lossless round-trips; nobody is required to expand it."
+        ],
+        "es": [
+          "Un documento = una ocurrencia. Doce ediciones son doce documentos, cada uno con su `id`, sus fechas y su `status`. `partOf` solo dice a qué conjunto pertenecen.",
+          "Eso es lo que hace posible cancelar agosto: `status: \"cancelled\"` en el documento de ESA ocurrencia, que sigue publicado para que quien se suscribió se entere.",
+          "Quien ignore `partOf` sigue viendo un evento completo y correcto. Una regla de recurrencia ignorada lo dejaría sin fechas.",
+          "`ics:rrule` es vocabulario de otro proyecto — el prefijo lo dice. El importador la guarda para poder volver al `.ics` sin pérdida; nadie está obligado a expandirla."
+        ]
+      },
+      "source": "{\n  \"specVersion\": \"0.3.0\",\n  \"id\": \"https://rustmadrid.example/meetups/2026-06\",\n  \"url\": \"https://rustmadrid.example/meetups/2026-06\",\n  \"name\": \"Rust Madrid — Meetup de junio\",\n  \"description\": \"Segundo lunes de cada mes. Esta edición: WASM y tooling.\",\n  \"organizers\": [\n    {\n      \"name\": \"Rust Madrid\",\n      \"url\": \"https://rustmadrid.example\"\n    }\n  ],\n  \"startDate\": \"2026-06-08T19:00:00\",\n  \"endDate\": \"2026-06-08T21:00:00\",\n  \"timezone\": \"Europe/Madrid\",\n  \"attendanceMode\": \"in-person\",\n  \"location\": {\n    \"venue\": \"Campus Madrid, Calle de Moreno Nieto 2, Madrid\"\n  },\n  \"languages\": [\n    \"es\"\n  ],\n  \"tags\": [\n    \"rust\",\n    \"wasm\"\n  ],\n  \"status\": \"scheduled\",\n  \"license\": \"CC-BY-4.0\",\n  \"partOf\": {\n    \"id\": \"https://rustmadrid.example/meetups\",\n    \"name\": \"Rust Madrid — meetup mensual\",\n    \"url\": \"https://rustmadrid.example/meetups\"\n  },\n  \"ics:rrule\": \"FREQ=MONTHLY;BYDAY=2MO\"\n}",
+      "lines": {
+        "event.specVersion": [
+          2
+        ],
+        "event.id": [
+          3
+        ],
+        "event.url": [
+          4
+        ],
+        "event.name": [
+          5
+        ],
+        "event.description": [
+          6
+        ],
+        "event.organizers[].name": [
+          9
+        ],
+        "event.organizers[].url": [
+          10
+        ],
+        "event.organizers": [
+          7
+        ],
+        "event.startDate": [
+          13
+        ],
+        "event.endDate": [
+          14
+        ],
+        "event.timezone": [
+          15
+        ],
+        "event.attendanceMode": [
+          16
+        ],
+        "event.location.venue": [
+          18
+        ],
+        "event.location": [
+          17
+        ],
+        "event.languages": [
+          20
+        ],
+        "event.tags": [
+          23
+        ],
+        "event.status": [
+          27
+        ],
+        "event.license": [
+          28
+        ],
+        "event.partOf.id": [
+          30
+        ],
+        "event.partOf.name": [
+          31
+        ],
+        "event.partOf.url": [
+          32
+        ],
+        "event.partOf": [
+          29
+        ],
+        "event.ics:rrule": [
+          34
+        ]
+      }
+    },
+    {
+      "file": "event-online.json",
+      "kind": "event",
+      "repoUrl": "https://github.com/OpenTechEvents/opentechevents-spec/blob/main/spec/v0.3/examples/event-online.json",
+      "cases": [
+        "online",
+        "recurring"
+      ],
+      "fields": [
+        "event.attendanceMode",
+        "event.location.onlineUrl",
+        "event.languages"
+      ],
+      "title": {
+        "en": "Online-only session",
+        "es": "Sesión solo online"
+      },
+      "summary": {
+        "en": "No venue, just a joining URL — and a weekly series behind it.",
+        "es": "Sin sede, solo URL de conexión — y una serie semanal detrás."
+      },
+      "points": {
+        "en": [
+          "`location` carries `onlineUrl` and nothing else. An empty `location: {}` is invalid: saying nothing is already done by omitting the field.",
+          "`languages` uses BCP 47 tags. Absent means unknown, never a default.",
+          "Weekly sessions are published the same way monthly ones are: one document per session, grouped by `partOf`."
+        ],
+        "es": [
+          "`location` lleva `onlineUrl` y nada más. Un `location: {}` vacío es inválido: decir nada ya se hace omitiendo el campo.",
+          "`languages` usa etiquetas BCP 47. Ausente significa desconocido, nunca un valor por defecto.",
+          "Las sesiones semanales se publican igual que las mensuales: un documento por sesión, agrupadas por `partOf`."
+        ]
+      },
+      "source": "{\n  \"specVersion\": \"0.3.0\",\n  \"id\": \"https://rustgirona.example/sessions/2026-07-31\",\n  \"url\": \"https://rustgirona.example/sessions/2026-07-31\",\n  \"name\": \"Sessió setmanal de codificació — Rust Girona\",\n  \"description\": \"Cada semana nos juntamos en línea para picar Rust un rato. Canal de voz de Discord; el enlace está en la página del evento.\",\n  \"organizers\": [\n    {\n      \"name\": \"Rust Girona\",\n      \"url\": \"https://rustgirona.example\"\n    },\n    {\n      \"type\": \"person\",\n      \"name\": \"Ivan Fraixedes\",\n      \"url\": \"https://ifraixedes.example\"\n    }\n  ],\n  \"startDate\": \"2026-07-31T18:00:00\",\n  \"endDate\": \"2026-07-31T19:00:00\",\n  \"timezone\": \"Europe/Madrid\",\n  \"attendanceMode\": \"online\",\n  \"location\": {\n    \"onlineUrl\": \"https://discord.example/rust-girona\"\n  },\n  \"languages\": [\n    \"ca\",\n    \"es\"\n  ],\n  \"tags\": [\n    \"rust\",\n    \"pair-programming\"\n  ],\n  \"status\": \"scheduled\",\n  \"license\": \"CC-BY-4.0\",\n  \"partOf\": {\n    \"id\": \"https://rustgirona.example/sessions\",\n    \"name\": \"Sessió setmanal de codificació\",\n    \"url\": \"https://rustgirona.example/sessions\"\n  }\n}",
+      "lines": {
+        "event.specVersion": [
+          2
+        ],
+        "event.id": [
+          3
+        ],
+        "event.url": [
+          4
+        ],
+        "event.name": [
+          5
+        ],
+        "event.description": [
+          6
+        ],
+        "event.organizers[].name": [
+          9,
+          14
+        ],
+        "event.organizers[].url": [
+          10,
+          15
+        ],
+        "event.organizers[].type": [
+          13
+        ],
+        "event.organizers": [
+          7
+        ],
+        "event.startDate": [
+          18
+        ],
+        "event.endDate": [
+          19
+        ],
+        "event.timezone": [
+          20
+        ],
+        "event.attendanceMode": [
+          21
+        ],
+        "event.location.onlineUrl": [
+          23
+        ],
+        "event.location": [
+          22
+        ],
+        "event.languages": [
+          25
+        ],
+        "event.tags": [
+          29
+        ],
+        "event.status": [
+          33
+        ],
+        "event.license": [
+          34
+        ],
+        "event.partOf.id": [
+          36
+        ],
+        "event.partOf.name": [
+          37
+        ],
+        "event.partOf.url": [
+          38
+        ],
+        "event.partOf": [
+          35
+        ]
+      }
+    },
+    {
+      "file": "event-hackathon.json",
+      "kind": "event",
+      "repoUrl": "https://github.com/OpenTechEvents/opentechevents-spec/blob/main/spec/v0.3/examples/event-hackathon.json",
+      "cases": [
+        "hackathon",
+        "co-organized"
+      ],
+      "fields": [
+        "event.startDate",
+        "event.endDate",
+        "event.location.geo"
+      ],
+      "title": {
+        "en": "A hackathon that runs through the night",
+        "es": "Un hackathon que pasa la noche entera"
+      },
+      "summary": {
+        "en": "Starts Saturday morning, ends Sunday evening, never stops. One event — and deliberately no `partOf`.",
+        "es": "Empieza el sábado por la mañana, acaba el domingo por la tarde, no para. Un evento — y deliberadamente sin `partOf`."
+      },
+      "points": {
+        "en": [
+          "A continuous event crossing midnight is exactly what `startDate`/`endDate` are for: both date-times, both in the same form.",
+          "Compare with the multi-part course below. There the dates are NOT continuous, which is why it becomes several documents instead of one.",
+          "Two organisers — the community and its host venue. Order matters: the first is the principal one, and the only one that survives translation to iCal."
+        ],
+        "es": [
+          "Un evento continuo que cruza la medianoche es justo para lo que están `startDate`/`endDate`: dos fecha-hora, ambas en la misma forma.",
+          "Compáralo con el curso multi-parte de abajo. Allí las fechas NO son continuas, y por eso son varios documentos en vez de uno.",
+          "Dos organizadores: la comunidad y su anfitrión. El orden importa: el primero es el principal, y el único que sobrevive a la traducción a iCal."
+        ]
+      },
+      "source": "{\n  \"specVersion\": \"0.3.0\",\n  \"id\": \"https://hackalmeria.example/2026\",\n  \"url\": \"https://hackalmeria.example/2026\",\n  \"name\": \"HackAlmería 2026 — 36 horas de código\",\n  \"description\": \"Hackathon de fin de semana: se empieza el sábado a las 9:00 y se termina el domingo a las 21:00, sin parar. Comida, café y sitio para dormir incluidos.\",\n  \"organizers\": [\n    {\n      \"name\": \"HackAlmería\",\n      \"url\": \"https://hackalmeria.example\"\n    },\n    {\n      \"name\": \"Universidad de Almería\",\n      \"url\": \"https://ual.example\"\n    }\n  ],\n  \"startDate\": \"2026-04-18T09:00:00\",\n  \"endDate\": \"2026-04-19T21:00:00\",\n  \"timezone\": \"Europe/Madrid\",\n  \"attendanceMode\": \"in-person\",\n  \"location\": {\n    \"venue\": \"Escuela de Ingeniería, Universidad de Almería\",\n    \"geo\": {\n      \"lat\": 36.8283,\n      \"lon\": -2.4055\n    }\n  },\n  \"languages\": [\n    \"es\",\n    \"en\"\n  ],\n  \"tags\": [\n    \"hackathon\",\n    \"open-source\",\n    \"ai\"\n  ],\n  \"status\": \"scheduled\",\n  \"updatedAt\": \"2026-02-10T12:00:00Z\",\n  \"license\": \"CC-BY-4.0\"\n}",
+      "lines": {
+        "event.specVersion": [
+          2
+        ],
+        "event.id": [
+          3
+        ],
+        "event.url": [
+          4
+        ],
+        "event.name": [
+          5
+        ],
+        "event.description": [
+          6
+        ],
+        "event.organizers[].name": [
+          9,
+          13
+        ],
+        "event.organizers[].url": [
+          10,
+          14
+        ],
+        "event.organizers": [
+          7
+        ],
+        "event.startDate": [
+          17
+        ],
+        "event.endDate": [
+          18
+        ],
+        "event.timezone": [
+          19
+        ],
+        "event.attendanceMode": [
+          20
+        ],
+        "event.location.venue": [
+          22
+        ],
+        "event.location.geo.lat": [
+          24
+        ],
+        "event.location.geo.lon": [
+          25
+        ],
+        "event.location.geo": [
+          23
+        ],
+        "event.location": [
+          21
+        ],
+        "event.languages": [
+          28
+        ],
+        "event.tags": [
+          32
+        ],
+        "event.status": [
+          37
+        ],
+        "event.updatedAt": [
+          38
+        ],
+        "event.license": [
+          39
+        ]
+      }
+    },
+    {
+      "file": "feed-multipart.json",
+      "kind": "feed",
+      "repoUrl": "https://github.com/OpenTechEvents/opentechevents-spec/blob/main/spec/v0.3/examples/feed-multipart.json",
+      "cases": [
+        "multipart",
+        "feed"
+      ],
+      "fields": [
+        "event.partOf.type",
+        "event.partOf.id",
+        "feed.events"
+      ],
+      "title": {
+        "en": "One course, three non-consecutive Saturdays",
+        "es": "Un curso, tres sábados no consecutivos"
+      },
+      "summary": {
+        "en": "The case that tempts everyone into stretching the dates. Three documents, one `partOf` with `type: \"multipart\"`.",
+        "es": "El caso que tienta a todo el mundo a estirar las fechas. Tres documentos, un `partOf` con `type: \"multipart\"`."
+      },
+      "points": {
+        "en": [
+          "Do NOT write `startDate` on the first Saturday and `endDate` on the last: that claims a continuous fifteen-day event and blocks two full weeks in every subscriber's calendar.",
+          "`type: \"multipart\"` is not decoration — it changes the translation. A series becomes schema.org `EventSeries`; a multi-part event becomes an `Event` whose parts are its `subEvent`.",
+          "What `multipart` does not model is \"one single registration\". That is not a date — it is ticketing, which v0.3 leaves out. Don't fix it by deforming the time fields."
+        ],
+        "es": [
+          "NO pongas `startDate` en el primer sábado y `endDate` en el último: eso afirma un evento continuo de quince días y bloquea dos semanas enteras en el calendario de quien se suscriba.",
+          "`type: \"multipart\"` no es decoración: cambia la traducción. Una serie se convierte en `EventSeries` de schema.org; un evento multi-parte, en un `Event` cuyas partes son su `subEvent`.",
+          "Lo que `multipart` no modela es «una sola inscripción». Eso no es una fecha, es registro y entradas, que la v0.3 deja fuera. No lo arregles deformando los campos de tiempo."
+        ]
+      },
+      "source": "{\n  \"specVersion\": \"0.3.0\",\n  \"title\": \"Eventos de PyAlmería\",\n  \"description\": \"Meetups y formación de Python en Almería.\",\n  \"url\": \"https://pyalmeria.example\",\n  \"license\": \"CC-BY-4.0\",\n  \"updatedAt\": \"2026-02-20T09:00:00Z\",\n  \"organizers\": [\n    {\n      \"name\": \"PyAlmería\",\n      \"url\": \"https://pyalmeria.example\"\n    }\n  ],\n  \"events\": [\n    {\n      \"id\": \"https://pyalmeria.example/cursos/2026-testing/1\",\n      \"url\": \"https://pyalmeria.example/cursos/2026-testing\",\n      \"name\": \"Curso de testing en Python — Sesión 1: pytest desde cero\",\n      \"startDate\": \"2026-03-07T10:00:00\",\n      \"endDate\": \"2026-03-07T14:00:00\",\n      \"timezone\": \"Europe/Madrid\",\n      \"attendanceMode\": \"in-person\",\n      \"location\": {\n        \"venue\": \"El Cable, Almería\"\n      },\n      \"languages\": [\n        \"es\"\n      ],\n      \"tags\": [\n        \"python\",\n        \"testing\"\n      ],\n      \"partOf\": {\n        \"type\": \"multipart\",\n        \"id\": \"https://pyalmeria.example/cursos/2026-testing\",\n        \"name\": \"Curso de testing en Python (3 sábados)\",\n        \"url\": \"https://pyalmeria.example/cursos/2026-testing\"\n      }\n    },\n    {\n      \"id\": \"https://pyalmeria.example/cursos/2026-testing/2\",\n      \"url\": \"https://pyalmeria.example/cursos/2026-testing\",\n      \"name\": \"Curso de testing en Python — Sesión 2: dobles de prueba\",\n      \"startDate\": \"2026-03-14T10:00:00\",\n      \"endDate\": \"2026-03-14T14:00:00\",\n      \"timezone\": \"Europe/Madrid\",\n      \"attendanceMode\": \"in-person\",\n      \"location\": {\n        \"venue\": \"El Cable, Almería\"\n      },\n      \"languages\": [\n        \"es\"\n      ],\n      \"tags\": [\n        \"python\",\n        \"testing\"\n      ],\n      \"partOf\": {\n        \"type\": \"multipart\",\n        \"id\": \"https://pyalmeria.example/cursos/2026-testing\",\n        \"name\": \"Curso de testing en Python (3 sábados)\",\n        \"url\": \"https://pyalmeria.example/cursos/2026-testing\"\n      }\n    },\n    {\n      \"id\": \"https://pyalmeria.example/cursos/2026-testing/3\",\n      \"url\": \"https://pyalmeria.example/cursos/2026-testing\",\n      \"name\": \"Curso de testing en Python — Sesión 3: CI y cobertura\",\n      \"startDate\": \"2026-03-28T10:00:00\",\n      \"endDate\": \"2026-03-28T14:00:00\",\n      \"timezone\": \"Europe/Madrid\",\n      \"attendanceMode\": \"in-person\",\n      \"location\": {\n        \"venue\": \"El Cable, Almería\"\n      },\n      \"languages\": [\n        \"es\"\n      ],\n      \"tags\": [\n        \"python\",\n        \"testing\"\n      ],\n      \"partOf\": {\n        \"type\": \"multipart\",\n        \"id\": \"https://pyalmeria.example/cursos/2026-testing\",\n        \"name\": \"Curso de testing en Python (3 sábados)\",\n        \"url\": \"https://pyalmeria.example/cursos/2026-testing\"\n      }\n    }\n  ]\n}",
+      "lines": {
+        "feed.specVersion": [
+          2
+        ],
+        "feed.title": [
+          3
+        ],
+        "feed.description": [
+          4
+        ],
+        "feed.url": [
+          5
+        ],
+        "feed.license": [
+          6
+        ],
+        "feed.updatedAt": [
+          7
+        ],
+        "event.organizers[].name": [
+          10
+        ],
+        "event.organizers[].url": [
+          11
+        ],
+        "feed.organizers": [
+          8
+        ],
+        "event.id": [
+          16,
+          41,
+          66
+        ],
+        "event.url": [
+          17,
+          42,
+          67
+        ],
+        "event.name": [
+          18,
+          43,
+          68
+        ],
+        "event.startDate": [
+          19,
+          44,
+          69
+        ],
+        "event.endDate": [
+          20,
+          45,
+          70
+        ],
+        "event.timezone": [
+          21,
+          46,
+          71
+        ],
+        "event.attendanceMode": [
+          22,
+          47,
+          72
+        ],
+        "event.location.venue": [
+          24,
+          49,
+          74
+        ],
+        "event.location": [
+          23,
+          48,
+          73
+        ],
+        "event.languages": [
+          26,
+          51,
+          76
+        ],
+        "event.tags": [
+          29,
+          54,
+          79
+        ],
+        "event.partOf.type": [
+          34,
+          59,
+          84
+        ],
+        "event.partOf.id": [
+          35,
+          60,
+          85
+        ],
+        "event.partOf.name": [
+          36,
+          61,
+          86
+        ],
+        "event.partOf.url": [
+          37,
+          62,
+          87
+        ],
+        "event.partOf": [
+          33,
+          58,
+          83
+        ],
+        "feed.events": [
+          14
+        ]
+      }
+    },
+    {
+      "file": "event-all-day.json",
+      "kind": "event",
+      "repoUrl": "https://github.com/OpenTechEvents/opentechevents-spec/blob/main/spec/v0.3/examples/event-all-day.json",
+      "cases": [
+        "conference"
+      ],
+      "fields": [
+        "event.startDate",
+        "event.endDate",
+        "event.timezone"
+      ],
+      "title": {
+        "en": "A two-day conference, all-day form",
+        "es": "Una conferencia de dos días, en forma de día completo"
+      },
+      "summary": {
+        "en": "Dates without times, when the schedule isn't the point yet.",
+        "es": "Fechas sin hora, cuando el horario todavía no es lo relevante."
+      },
+      "points": {
+        "en": [
+          "Both dates use the same form. Mixing (a date for `startDate`, a date-time for `endDate`) is rejected by the schema.",
+          "For all-day events `timezone` contextualises the date — it says which region that day belongs to. It does not shift it, and a consumer must not convert it to another zone."
+        ],
+        "es": [
+          "Ambas fechas usan la misma forma. Mezclar (fecha en `startDate`, fecha-hora en `endDate`) lo rechaza el schema.",
+          "En eventos de todo el día, `timezone` contextualiza la fecha: dice a qué región pertenece ese día. No la desplaza, y un consumidor no debe convertirla a otra zona."
+        ]
+      },
+      "source": "{\n  \"specVersion\": \"0.3.0\",\n  \"id\": \"https://devfest-levante.example/2026\",\n  \"url\": \"https://devfest-levante.example/2026\",\n  \"name\": \"DevFest Levante 2026\",\n  \"description\": \"Conferencia de desarrollo del sureste, edición 2026.\",\n  \"organizers\": [\n    {\n      \"name\": \"GDG Levante\",\n      \"url\": \"https://gdglevante.example\"\n    }\n  ],\n  \"startDate\": \"2026-10-16\",\n  \"endDate\": \"2026-10-17\",\n  \"timezone\": \"Europe/Madrid\",\n  \"attendanceMode\": \"in-person\",\n  \"location\": {\n    \"venue\": \"Las Naves, Valencia\"\n  },\n  \"languages\": [\n    \"es\",\n    \"en\"\n  ],\n  \"status\": \"scheduled\",\n  \"license\": \"CC-BY-4.0\"\n}",
+      "lines": {
+        "event.specVersion": [
+          2
+        ],
+        "event.id": [
+          3
+        ],
+        "event.url": [
+          4
+        ],
+        "event.name": [
+          5
+        ],
+        "event.description": [
+          6
+        ],
+        "event.organizers[].name": [
+          9
+        ],
+        "event.organizers[].url": [
+          10
+        ],
+        "event.organizers": [
+          7
+        ],
+        "event.startDate": [
+          13
+        ],
+        "event.endDate": [
+          14
+        ],
+        "event.timezone": [
+          15
+        ],
+        "event.attendanceMode": [
+          16
+        ],
+        "event.location.venue": [
+          18
+        ],
+        "event.location": [
+          17
+        ],
+        "event.languages": [
+          20
+        ],
+        "event.status": [
+          24
+        ],
+        "event.license": [
+          25
+        ]
+      }
+    },
+    {
+      "file": "event-conference-cfp.json",
+      "kind": "event",
+      "repoUrl": "https://github.com/OpenTechEvents/opentechevents-spec/blob/main/spec/v0.3/examples/event-conference-cfp.json",
+      "cases": [
+        "conference"
+      ],
+      "fields": [
+        "event.tags",
+        "event.languages",
+        "event.status"
+      ],
+      "title": {
+        "en": "Conference with an open call for papers",
+        "es": "Conferencia con CFP abierto"
+      },
+      "summary": {
+        "en": "The most requested thing that v0.3 still does not model — shown as the extension it currently is.",
+        "es": "Lo más pedido de todo lo que la v0.3 todavía no modela, mostrado como la extensión que hoy es."
+      },
+      "points": {
+        "en": [
+          "`cfp` and `offers` are proposals, not spec. Written without a prefix, they are candidates for the core: if enough people use them, they get standardised.",
+          "No generalist standard models a CFP, so on export it degrades to text or a URL.",
+          "If you publish these fields, say so in the issue. Real use is the argument that moves a field into the core; a request with no case behind it is not."
+        ],
+        "es": [
+          "`cfp` y `offers` son propuestas, no spec. Al ir sin prefijo son candidatos a núcleo: si le hacen falta a bastante gente, se estandarizan.",
+          "Ningún estándar generalista modela un CFP, así que al exportar se degrada a texto o a una URL.",
+          "Si publicas estos campos, dilo en el issue. El uso real es el argumento que mueve un campo al núcleo; una petición sin caso detrás, no."
+        ]
+      },
+      "source": "{\n  \"specVersion\": \"0.3.0\",\n  \"id\": \"https://devfest-levante.example/2026\",\n  \"url\": \"https://devfest-levante.example/2026\",\n  \"name\": \"DevFest Levante 2026\",\n  \"description\": \"Conferencia de desarrollo del sureste, edición 2026. Dos días, tres tracks.\",\n  \"organizers\": [\n    {\n      \"name\": \"GDG Levante\",\n      \"url\": \"https://gdglevante.example\"\n    }\n  ],\n  \"startDate\": \"2026-10-16\",\n  \"endDate\": \"2026-10-17\",\n  \"timezone\": \"Europe/Madrid\",\n  \"attendanceMode\": \"in-person\",\n  \"location\": {\n    \"venue\": \"Las Naves, Carrer de Joan Verdeguer 16, València\"\n  },\n  \"languages\": [\n    \"es\",\n    \"en\"\n  ],\n  \"status\": \"scheduled\",\n  \"tags\": [\n    \"cloud\",\n    \"ai\",\n    \"web\"\n  ],\n  \"license\": \"CC-BY-4.0\",\n  \"cfp\": {\n    \"url\": \"https://devfest-levante.example/2026/cfp\",\n    \"opensAt\": \"2026-05-01T00:00:00\",\n    \"closesAt\": \"2026-07-15T23:59:59\",\n    \"timezone\": \"Europe/Madrid\",\n    \"coversTravel\": true,\n    \"coversAccommodation\": true\n  },\n  \"offers\": {\n    \"isFree\": false,\n    \"price\": 45,\n    \"currency\": \"EUR\",\n    \"registrationUrl\": \"https://devfest-levante.example/2026/entradas\"\n  }\n}",
+      "lines": {
+        "event.specVersion": [
+          2
+        ],
+        "event.id": [
+          3
+        ],
+        "event.url": [
+          4
+        ],
+        "event.name": [
+          5
+        ],
+        "event.description": [
+          6
+        ],
+        "event.organizers[].name": [
+          9
+        ],
+        "event.organizers[].url": [
+          10
+        ],
+        "event.organizers": [
+          7
+        ],
+        "event.startDate": [
+          13
+        ],
+        "event.endDate": [
+          14
+        ],
+        "event.timezone": [
+          15
+        ],
+        "event.attendanceMode": [
+          16
+        ],
+        "event.location.venue": [
+          18
+        ],
+        "event.location": [
+          17
+        ],
+        "event.languages": [
+          20
+        ],
+        "event.status": [
+          24
+        ],
+        "event.tags": [
+          25
+        ],
+        "event.license": [
+          30
+        ],
+        "event.cfp.url": [
+          32
+        ],
+        "event.cfp.opensAt": [
+          33
+        ],
+        "event.cfp.closesAt": [
+          34
+        ],
+        "event.cfp.timezone": [
+          35
+        ],
+        "event.cfp.coversTravel": [
+          36
+        ],
+        "event.cfp.coversAccommodation": [
+          37
+        ],
+        "event.cfp": [
+          31
+        ],
+        "event.offers.isFree": [
+          40
+        ],
+        "event.offers.price": [
+          41
+        ],
+        "event.offers.currency": [
+          42
+        ],
+        "event.offers.registrationUrl": [
+          43
+        ],
+        "event.offers": [
+          39
+        ]
+      }
+    },
+    {
+      "file": "event-co-organized.json",
+      "kind": "event",
+      "repoUrl": "https://github.com/OpenTechEvents/opentechevents-spec/blob/main/spec/v0.3/examples/event-co-organized.json",
+      "cases": [
+        "co-organized",
+        "meetup"
+      ],
+      "fields": [
+        "event.organizers",
+        "event.organizers[].type",
+        "event.organizers[].name"
+      ],
+      "title": {
+        "en": "Three organisers, and another project's vocabulary",
+        "es": "Tres organizadores, y vocabulario de otro proyecto"
+      },
+      "summary": {
+        "en": "Two communities and a person — plus a prefixed field that belongs to a community directory, not to OTE.",
+        "es": "Dos comunidades y una persona — más un campo con prefijo que pertenece a un directorio de comunidades, no a OTE."
+      },
+      "points": {
+        "en": [
+          "`organizers` is a list because co-organisation is the norm, not the exception. Order is significant: the first one is the principal.",
+          "`type` defaults to `organization`: a translator has to pick a schema.org `@type` either way, and `Organization` is the tolerant choice.",
+          "`combuilders:communityId` is not an OTE field. OTE promises never to mint a field name containing a colon, so prefixed fields cannot collide with the core — today or at 1.0."
+        ],
+        "es": [
+          "`organizers` es una lista porque la co-organización es lo normal, no la excepción. El orden es significativo: el primero es el principal.",
+          "`type` es `organization` por defecto: al traducir hay que elegir un `@type` de schema.org sí o sí, y `Organization` es la opción tolerante.",
+          "`combuilders:communityId` no es un campo de OTE. OTE se compromete a no acuñar jamás un nombre de campo con dos puntos, así que un campo con prefijo no puede colisionar con el núcleo — hoy ni en la 1.0."
+        ]
+      },
+      "source": "{\n  \"specVersion\": \"0.3.0\",\n  \"id\": \"https://gdgmadrid.example/eventos/2026-09-devfest-warmup\",\n  \"url\": \"https://gdgmadrid.example/eventos/2026-09-devfest-warmup\",\n  \"name\": \"DevFest Warm-up — GDG Madrid × Python Madrid\",\n  \"description\": \"Sesión conjunta de calentamiento para el DevFest, con charla invitada.\",\n  \"startDate\": \"2026-09-24T19:00:00\",\n  \"endDate\": \"2026-09-24T21:00:00\",\n  \"timezone\": \"Europe/Madrid\",\n  \"attendanceMode\": \"in-person\",\n  \"location\": {\n    \"venue\": \"Campus Madrid, Calle de Moreno Nieto 2, Madrid\"\n  },\n  \"languages\": [\n    \"es\"\n  ],\n  \"tags\": [\n    \"python\",\n    \"cloud\"\n  ],\n  \"license\": \"CC-BY-4.0\",\n  \"organizers\": [\n    {\n      \"name\": \"GDG Madrid\",\n      \"url\": \"https://gdgmadrid.example\",\n      \"combuilders:communityId\": \"gdg-madrid\"\n    },\n    {\n      \"name\": \"Python Madrid\",\n      \"url\": \"https://www.meetup.com/python-madrid/\"\n    },\n    {\n      \"type\": \"person\",\n      \"name\": \"Ada Lovelace\",\n      \"url\": \"https://ada.example\"\n    }\n  ]\n}",
+      "lines": {
+        "event.specVersion": [
+          2
+        ],
+        "event.id": [
+          3
+        ],
+        "event.url": [
+          4
+        ],
+        "event.name": [
+          5
+        ],
+        "event.description": [
+          6
+        ],
+        "event.startDate": [
+          7
+        ],
+        "event.endDate": [
+          8
+        ],
+        "event.timezone": [
+          9
+        ],
+        "event.attendanceMode": [
+          10
+        ],
+        "event.location.venue": [
+          12
+        ],
+        "event.location": [
+          11
+        ],
+        "event.languages": [
+          14
+        ],
+        "event.tags": [
+          17
+        ],
+        "event.license": [
+          21
+        ],
+        "event.organizers[].name": [
+          24,
+          29,
+          34
+        ],
+        "event.organizers[].url": [
+          25,
+          30,
+          35
+        ],
+        "event.organizers[].combuilders:communityId": [
+          26
+        ],
+        "event.organizers[].type": [
+          33
+        ],
+        "event.organizers": [
+          22
+        ]
+      }
+    },
+    {
+      "file": "event-from-ics.json",
+      "kind": "event",
+      "repoUrl": "https://github.com/OpenTechEvents/opentechevents-spec/blob/main/spec/v0.3/examples/event-from-ics.json",
+      "cases": [
+        "imported",
+        "meetup"
+      ],
+      "fields": [
+        "event.source",
+        "event.source.license",
+        "event.attendanceMode"
+      ],
+      "title": {
+        "en": "Imported from an .ics file",
+        "es": "Importado de un `.ics`"
+      },
+      "summary": {
+        "en": "What an importer can honestly produce from a calendar file — including what it must leave out.",
+        "es": "Lo que un importador puede producir honestamente desde un fichero de calendario, incluido lo que debe dejar fuera."
+      },
+      "points": {
+        "en": [
+          "No `attendanceMode`, because iCalendar cannot express it. Staying silent and saying `in-person` are different claims, and only one is honest.",
+          "`source` is required when the event was imported or aggregated. It is orthogonal to `organizers`: who runs the event vs. where the data came from.",
+          "`source.license` (what the origin allows) and `license` (what this document allows) are different fields. Declaring a licence does not grant rights the origin never gave."
+        ],
+        "es": [
+          "Sin `attendanceMode`, porque iCalendar no sabe expresarlo. Callarse y decir `in-person` son afirmaciones distintas, y solo una es honesta.",
+          "`source` es obligatoria cuando el evento se importó o agregó. Es ortogonal a `organizers`: quién hace el evento frente a de dónde salieron los datos.",
+          "`source.license` (lo que permite la fuente) y `license` (lo que permite este documento) son campos distintos. Declarar una licencia no concede derechos que la fuente nunca dio."
+        ]
+      },
+      "source": "{\n  \"specVersion\": \"0.3.0\",\n  \"id\": \"https://calendar.example/ics/rust-madrid#a1b2c3d4-uid-from-the-ics\",\n  \"name\": \"Rust Madrid — June meetup\",\n  \"description\": \"Talks on WASM and Rust tooling.\",\n  \"organizers\": [\n    {\n      \"name\": \"Rust Madrid\"\n    }\n  ],\n  \"startDate\": \"2026-06-26T19:00:00\",\n  \"endDate\": \"2026-06-26T21:00:00\",\n  \"timezone\": \"Europe/Madrid\",\n  \"location\": {\n    \"venue\": \"Campus Madrid, Calle de Moreno Nieto 2, Madrid\",\n    \"geo\": {\n      \"lat\": 40.4081,\n      \"lon\": -3.7188\n    }\n  },\n  \"languages\": [\n    \"es\"\n  ],\n  \"tags\": [\n    \"rust\",\n    \"wasm\"\n  ],\n  \"updatedAt\": \"2026-06-10T18:00:00Z\",\n  \"license\": \"CC-BY-4.0\",\n  \"source\": {\n    \"name\": \"Rust Madrid\",\n    \"url\": \"https://calendar.example/ics/rust-madrid\",\n    \"license\": \"CC-BY-4.0\",\n    \"retrievedAt\": \"2026-06-01T05:00:00Z\"\n  }\n}",
+      "lines": {
+        "event.specVersion": [
+          2
+        ],
+        "event.id": [
+          3
+        ],
+        "event.name": [
+          4
+        ],
+        "event.description": [
+          5
+        ],
+        "event.organizers[].name": [
+          8
+        ],
+        "event.organizers": [
+          6
+        ],
+        "event.startDate": [
+          11
+        ],
+        "event.endDate": [
+          12
+        ],
+        "event.timezone": [
+          13
+        ],
+        "event.location.venue": [
+          15
+        ],
+        "event.location.geo.lat": [
+          17
+        ],
+        "event.location.geo.lon": [
+          18
+        ],
+        "event.location.geo": [
+          16
+        ],
+        "event.location": [
+          14
+        ],
+        "event.languages": [
+          21
+        ],
+        "event.tags": [
+          24
+        ],
+        "event.updatedAt": [
+          28
+        ],
+        "event.license": [
+          29
+        ],
+        "event.source.name": [
+          31
+        ],
+        "event.source.url": [
+          32
+        ],
+        "event.source.license": [
+          33
+        ],
+        "event.source.retrievedAt": [
+          34
+        ],
+        "event.source": [
+          30
+        ]
+      }
+    },
+    {
+      "file": "feed-community.json",
+      "kind": "feed",
+      "repoUrl": "https://github.com/OpenTechEvents/opentechevents-spec/blob/main/spec/v0.3/examples/feed-community.json",
+      "cases": [
+        "feed",
+        "co-organized"
+      ],
+      "fields": [
+        "feed.organizers",
+        "feed.license",
+        "feed.events"
+      ],
+      "title": {
+        "en": "A community feed, and how inheritance works",
+        "es": "Un feed de comunidad, y cómo funciona la herencia"
+      },
+      "summary": {
+        "en": "`license` and `organizers` sit on the feed and flow down. One event overrides them — and that override replaces, it does not merge.",
+        "es": "`license` y `organizers` van en el feed y bajan a sus eventos. Un evento los sobrescribe — y esa sobrescritura reemplaza, no fusiona."
+      },
+      "points": {
+        "en": [
+          "Repeating `\"license\": \"CC-BY-4.0\"` in 200 events is noise, not rigour: an event that omits it inherits the feed's.",
+          "An event that declares `organizers` REPLACES the inherited list. With merging there would be no way to remove an inherited organiser.",
+          "That is why the second event repeats the feed's own community next to the guest one: leaving it out would attribute the event to the guest alone."
+        ],
+        "es": [
+          "Repetir `\"license\": \"CC-BY-4.0\"` en 200 eventos es ruido, no rigor: el evento que la omite hereda la del feed.",
+          "El evento que declara `organizers` REEMPLAZA la lista heredada. Con fusión no habría forma de quitar un organizador heredado.",
+          "Por eso el segundo evento repite la comunidad del propio feed junto a la invitada: omitirla atribuiría el evento solo a la invitada."
+        ]
+      },
+      "source": "{\n  \"specVersion\": \"0.3.0\",\n  \"title\": \"Eventos de PyAlmería\",\n  \"description\": \"Meetups mensuales de Python en Almería.\",\n  \"url\": \"https://pyalmeria.example\",\n  \"license\": \"CC-BY-4.0\",\n  \"licenseUrl\": \"https://creativecommons.org/licenses/by/4.0/\",\n  \"updatedAt\": \"2026-07-06T10:00:00Z\",\n  \"organizers\": [\n    {\n      \"name\": \"PyAlmería\",\n      \"url\": \"https://pyalmeria.example\"\n    }\n  ],\n  \"events\": [\n    {\n      \"id\": \"https://pyalmeria.example/eventos/2026-06-async\",\n      \"url\": \"https://pyalmeria.example/eventos/2026-06-async\",\n      \"name\": \"PyAlmería — Introducción a async/await\",\n      \"description\": \"Charla introductoria a la programación asíncrona en Python, con ejemplos en vivo.\",\n      \"startDate\": \"2026-06-11T18:30:00\",\n      \"endDate\": \"2026-06-11T20:30:00\",\n      \"timezone\": \"Europe/Madrid\",\n      \"attendanceMode\": \"in-person\",\n      \"location\": {\n        \"venue\": \"El Cable, Almería\"\n      },\n      \"languages\": [\n        \"es\"\n      ],\n      \"tags\": [\n        \"python\",\n        \"async\"\n      ]\n    },\n    {\n      \"id\": \"https://pyalmeria.example/eventos/2026-07-datos\",\n      \"url\": \"https://pyalmeria.example/eventos/2026-07-datos\",\n      \"name\": \"Noche de datos — PyAlmería × PyData Almería\",\n      \"description\": \"Sesión conjunta con PyData Almería.\",\n      \"startDate\": \"2026-07-09T18:30:00\",\n      \"endDate\": \"2026-07-09T21:00:00\",\n      \"timezone\": \"Europe/Madrid\",\n      \"attendanceMode\": \"hybrid\",\n      \"location\": {\n        \"venue\": \"El Cable, Almería\",\n        \"onlineUrl\": \"https://meet.example/pyalmeria\"\n      },\n      \"languages\": [\n        \"es\"\n      ],\n      \"tags\": [\n        \"python\",\n        \"data\"\n      ],\n      \"organizers\": [\n        {\n          \"name\": \"PyAlmería\",\n          \"url\": \"https://pyalmeria.example\"\n        },\n        {\n          \"name\": \"PyData Almería\",\n          \"url\": \"https://pydata-almeria.example\"\n        }\n      ]\n    }\n  ]\n}",
+      "lines": {
+        "feed.specVersion": [
+          2
+        ],
+        "feed.title": [
+          3
+        ],
+        "feed.description": [
+          4
+        ],
+        "feed.url": [
+          5
+        ],
+        "feed.license": [
+          6
+        ],
+        "feed.licenseUrl": [
+          7
+        ],
+        "feed.updatedAt": [
+          8
+        ],
+        "event.organizers[].name": [
+          11,
+          58,
+          62
+        ],
+        "event.organizers[].url": [
+          12,
+          59,
+          63
+        ],
+        "feed.organizers": [
+          9
+        ],
+        "event.id": [
+          17,
+          37
+        ],
+        "event.url": [
+          18,
+          38
+        ],
+        "event.name": [
+          19,
+          39
+        ],
+        "event.description": [
+          20,
+          40
+        ],
+        "event.startDate": [
+          21,
+          41
+        ],
+        "event.endDate": [
+          22,
+          42
+        ],
+        "event.timezone": [
+          23,
+          43
+        ],
+        "event.attendanceMode": [
+          24,
+          44
+        ],
+        "event.location.venue": [
+          26,
+          46
+        ],
+        "event.location": [
+          25,
+          45
+        ],
+        "event.languages": [
+          28,
+          49
+        ],
+        "event.tags": [
+          31,
+          52
+        ],
+        "event.location.onlineUrl": [
+          47
+        ],
+        "event.organizers": [
+          56
+        ],
+        "feed.events": [
+          15
+        ]
+      }
+    },
+    {
+      "file": "feed.json",
+      "kind": "feed",
+      "repoUrl": "https://github.com/OpenTechEvents/opentechevents-spec/blob/main/spec/v0.3/examples/feed.json",
+      "cases": [
+        "feed",
+        "imported"
+      ],
+      "fields": [
+        "feed.title",
+        "feed.updatedAt",
+        "event.status"
+      ],
+      "title": {
+        "en": "An aggregator feed",
+        "es": "Un feed de agregador"
+      },
+      "summary": {
+        "en": "Someone publishing events they do not organise — the case where getting `organizers` wrong misattributes everything.",
+        "es": "Alguien que publica eventos que no organiza — el caso donde equivocarse con `organizers` atribuye mal todo el feed."
+      },
+      "points": {
+        "en": [
+          "An aggregator feed must OMIT `organizers`: it does not run what it publishes, so every event states its own.",
+          "`feed.title`/`url` name whoever publishes the feed. Never fall back to them for attribution — that is exactly how an aggregator ends up credited for every event it aggregates.",
+          "The cancelled event stays in the feed. Deleting it silently leaves a dead event in subscribers' calendars with no way to find out."
+        ],
+        "es": [
+          "Un feed de agregador debe OMITIR `organizers`: no organiza lo que publica, así que cada evento declara los suyos.",
+          "`feed.title`/`url` nombran a quien publica el feed. Nunca caigas en ellos para atribuir: es exactamente así como un agregador acaba figurando como organizador de todo lo que agrega.",
+          "El evento cancelado sigue en el feed. Borrarlo en silencio deja un evento muerto en el calendario de quien se suscribió, y sin forma de enterarse."
+        ]
+      },
+      "source": "{\n  \"specVersion\": \"0.3.0\",\n  \"title\": \"Open Tech Events Spain\",\n  \"description\": \"Eventos de comunidades técnicas en España.\",\n  \"url\": \"https://opentechevents.org\",\n  \"license\": \"CC-BY-4.0\",\n  \"licenseUrl\": \"https://creativecommons.org/licenses/by/4.0/\",\n  \"updatedAt\": \"2026-07-06T10:00:00Z\",\n  \"events\": [\n    {\n      \"id\": \"https://rustmadrid.example/meetup/2026-06\",\n      \"organizers\": [\n        {\n          \"name\": \"Rust Madrid\",\n          \"url\": \"https://rustmadrid.example\"\n        }\n      ],\n      \"url\": \"https://rustmadrid.example/meetup/2026-06\",\n      \"name\": \"Rust Madrid — June meetup\",\n      \"description\": \"Talks on WASM and Rust tooling.\",\n      \"startDate\": \"2026-06-26T19:00:00\",\n      \"endDate\": \"2026-06-26T21:00:00\",\n      \"timezone\": \"Europe/Madrid\",\n      \"attendanceMode\": \"hybrid\",\n      \"location\": {\n        \"venue\": \"Campus Madrid, Calle de Moreno Nieto 2, Madrid\",\n        \"onlineUrl\": \"https://meet.example/rust-madrid\"\n      },\n      \"languages\": [\n        \"es\"\n      ]\n    },\n    {\n      \"id\": \"https://coolconf.example/2026/\",\n      \"url\": \"https://coolconf.example/2026/\",\n      \"name\": \"CoolConf 2026\",\n      \"organizers\": [\n        {\n          \"name\": \"CoolConf\",\n          \"url\": \"https://coolconf.example\"\n        }\n      ],\n      \"startDate\": \"2026-10-15\",\n      \"endDate\": \"2026-10-16\",\n      \"timezone\": \"Europe/Madrid\",\n      \"attendanceMode\": \"in-person\",\n      \"location\": {\n        \"venue\": \"Valencia, Spain\"\n      },\n      \"status\": \"cancelled\",\n      \"license\": \"CC0-1.0\"\n    }\n  ]\n}",
+      "lines": {
+        "feed.specVersion": [
+          2
+        ],
+        "feed.title": [
+          3
+        ],
+        "feed.description": [
+          4
+        ],
+        "feed.url": [
+          5
+        ],
+        "feed.license": [
+          6
+        ],
+        "feed.licenseUrl": [
+          7
+        ],
+        "feed.updatedAt": [
+          8
+        ],
+        "event.id": [
+          11,
+          34
+        ],
+        "event.organizers[].name": [
+          14,
+          39
+        ],
+        "event.organizers[].url": [
+          15,
+          40
+        ],
+        "event.organizers": [
+          12,
+          37
+        ],
+        "event.url": [
+          18,
+          35
+        ],
+        "event.name": [
+          19,
+          36
+        ],
+        "event.description": [
+          20
+        ],
+        "event.startDate": [
+          21,
+          43
+        ],
+        "event.endDate": [
+          22,
+          44
+        ],
+        "event.timezone": [
+          23,
+          45
+        ],
+        "event.attendanceMode": [
+          24,
+          46
+        ],
+        "event.location.venue": [
+          26,
+          48
+        ],
+        "event.location.onlineUrl": [
+          27
+        ],
+        "event.location": [
+          25,
+          47
+        ],
+        "event.languages": [
+          29
+        ],
+        "event.status": [
+          50
+        ],
+        "event.license": [
+          51
+        ],
+        "feed.events": [
+          9
+        ]
+      }
+    }
+  ],
+  "usage": {
+    "event.specVersion": [
+      {
+        "file": "event-minimal.json",
+        "lines": [
+          2
+        ]
+      },
+      {
+        "file": "event-meetup.json",
+        "lines": [
+          2
+        ]
+      },
+      {
+        "file": "event-recurring.json",
+        "lines": [
+          2
+        ]
+      },
+      {
+        "file": "event-online.json",
+        "lines": [
+          2
+        ]
+      },
+      {
+        "file": "event-hackathon.json",
+        "lines": [
+          2
+        ]
+      },
+      {
+        "file": "event-all-day.json",
+        "lines": [
+          2
+        ]
+      },
+      {
+        "file": "event-conference-cfp.json",
+        "lines": [
+          2
+        ]
+      },
+      {
+        "file": "event-co-organized.json",
+        "lines": [
+          2
+        ]
+      },
+      {
+        "file": "event-from-ics.json",
+        "lines": [
+          2
+        ]
+      }
+    ],
+    "event.id": [
+      {
+        "file": "event-minimal.json",
+        "lines": [
+          3
+        ]
+      },
+      {
+        "file": "event-meetup.json",
+        "lines": [
+          3
+        ]
+      },
+      {
+        "file": "event-recurring.json",
+        "lines": [
+          3
+        ]
+      },
+      {
+        "file": "event-online.json",
+        "lines": [
+          3
+        ]
+      },
+      {
+        "file": "event-hackathon.json",
+        "lines": [
+          3
+        ]
+      },
+      {
+        "file": "feed-multipart.json",
+        "lines": [
+          16,
+          41,
+          66
+        ]
+      },
+      {
+        "file": "event-all-day.json",
+        "lines": [
+          3
+        ]
+      },
+      {
+        "file": "event-conference-cfp.json",
+        "lines": [
+          3
+        ]
+      },
+      {
+        "file": "event-co-organized.json",
+        "lines": [
+          3
+        ]
+      },
+      {
+        "file": "event-from-ics.json",
+        "lines": [
+          3
+        ]
+      },
+      {
+        "file": "feed-community.json",
+        "lines": [
+          17,
+          37
+        ]
+      },
+      {
+        "file": "feed.json",
+        "lines": [
+          11,
+          34
+        ]
+      }
+    ],
+    "event.name": [
+      {
+        "file": "event-minimal.json",
+        "lines": [
+          4
+        ]
+      },
+      {
+        "file": "event-meetup.json",
+        "lines": [
+          5
+        ]
+      },
+      {
+        "file": "event-recurring.json",
+        "lines": [
+          5
+        ]
+      },
+      {
+        "file": "event-online.json",
+        "lines": [
+          5
+        ]
+      },
+      {
+        "file": "event-hackathon.json",
+        "lines": [
+          5
+        ]
+      },
+      {
+        "file": "feed-multipart.json",
+        "lines": [
+          18,
+          43,
+          68
+        ]
+      },
+      {
+        "file": "event-all-day.json",
+        "lines": [
+          5
+        ]
+      },
+      {
+        "file": "event-conference-cfp.json",
+        "lines": [
+          5
+        ]
+      },
+      {
+        "file": "event-co-organized.json",
+        "lines": [
+          5
+        ]
+      },
+      {
+        "file": "event-from-ics.json",
+        "lines": [
+          4
+        ]
+      },
+      {
+        "file": "feed-community.json",
+        "lines": [
+          19,
+          39
+        ]
+      },
+      {
+        "file": "feed.json",
+        "lines": [
+          19,
+          36
+        ]
+      }
+    ],
+    "event.startDate": [
+      {
+        "file": "event-minimal.json",
+        "lines": [
+          5
+        ]
+      },
+      {
+        "file": "event-meetup.json",
+        "lines": [
+          13
+        ]
+      },
+      {
+        "file": "event-recurring.json",
+        "lines": [
+          13
+        ]
+      },
+      {
+        "file": "event-online.json",
+        "lines": [
+          18
+        ]
+      },
+      {
+        "file": "event-hackathon.json",
+        "lines": [
+          17
+        ]
+      },
+      {
+        "file": "feed-multipart.json",
+        "lines": [
+          19,
+          44,
+          69
+        ]
+      },
+      {
+        "file": "event-all-day.json",
+        "lines": [
+          13
+        ]
+      },
+      {
+        "file": "event-conference-cfp.json",
+        "lines": [
+          13
+        ]
+      },
+      {
+        "file": "event-co-organized.json",
+        "lines": [
+          7
+        ]
+      },
+      {
+        "file": "event-from-ics.json",
+        "lines": [
+          11
+        ]
+      },
+      {
+        "file": "feed-community.json",
+        "lines": [
+          21,
+          41
+        ]
+      },
+      {
+        "file": "feed.json",
+        "lines": [
+          21,
+          43
+        ]
+      }
+    ],
+    "event.timezone": [
+      {
+        "file": "event-minimal.json",
+        "lines": [
+          6
+        ]
+      },
+      {
+        "file": "event-meetup.json",
+        "lines": [
+          15
+        ]
+      },
+      {
+        "file": "event-recurring.json",
+        "lines": [
+          15
+        ]
+      },
+      {
+        "file": "event-online.json",
+        "lines": [
+          20
+        ]
+      },
+      {
+        "file": "event-hackathon.json",
+        "lines": [
+          19
+        ]
+      },
+      {
+        "file": "feed-multipart.json",
+        "lines": [
+          21,
+          46,
+          71
+        ]
+      },
+      {
+        "file": "event-all-day.json",
+        "lines": [
+          15
+        ]
+      },
+      {
+        "file": "event-conference-cfp.json",
+        "lines": [
+          15
+        ]
+      },
+      {
+        "file": "event-co-organized.json",
+        "lines": [
+          9
+        ]
+      },
+      {
+        "file": "event-from-ics.json",
+        "lines": [
+          13
+        ]
+      },
+      {
+        "file": "feed-community.json",
+        "lines": [
+          23,
+          43
+        ]
+      },
+      {
+        "file": "feed.json",
+        "lines": [
+          23,
+          45
+        ]
+      }
+    ],
+    "event.license": [
+      {
+        "file": "event-minimal.json",
+        "lines": [
+          7
+        ]
+      },
+      {
+        "file": "event-meetup.json",
+        "lines": [
+          34
+        ]
+      },
+      {
+        "file": "event-recurring.json",
+        "lines": [
+          28
+        ]
+      },
+      {
+        "file": "event-online.json",
+        "lines": [
+          34
+        ]
+      },
+      {
+        "file": "event-hackathon.json",
+        "lines": [
+          39
+        ]
+      },
+      {
+        "file": "event-all-day.json",
+        "lines": [
+          25
+        ]
+      },
+      {
+        "file": "event-conference-cfp.json",
+        "lines": [
+          30
+        ]
+      },
+      {
+        "file": "event-co-organized.json",
+        "lines": [
+          21
+        ]
+      },
+      {
+        "file": "event-from-ics.json",
+        "lines": [
+          29
+        ]
+      },
+      {
+        "file": "feed.json",
+        "lines": [
+          51
+        ]
+      }
+    ],
+    "event.url": [
+      {
+        "file": "event-meetup.json",
+        "lines": [
+          4
+        ]
+      },
+      {
+        "file": "event-recurring.json",
+        "lines": [
+          4
+        ]
+      },
+      {
+        "file": "event-online.json",
+        "lines": [
+          4
+        ]
+      },
+      {
+        "file": "event-hackathon.json",
+        "lines": [
+          4
+        ]
+      },
+      {
+        "file": "feed-multipart.json",
+        "lines": [
+          17,
+          42,
+          67
+        ]
+      },
+      {
+        "file": "event-all-day.json",
+        "lines": [
+          4
+        ]
+      },
+      {
+        "file": "event-conference-cfp.json",
+        "lines": [
+          4
+        ]
+      },
+      {
+        "file": "event-co-organized.json",
+        "lines": [
+          4
+        ]
+      },
+      {
+        "file": "feed-community.json",
+        "lines": [
+          18,
+          38
+        ]
+      },
+      {
+        "file": "feed.json",
+        "lines": [
+          18,
+          35
+        ]
+      }
+    ],
+    "event.description": [
+      {
+        "file": "event-meetup.json",
+        "lines": [
+          6
+        ]
+      },
+      {
+        "file": "event-recurring.json",
+        "lines": [
+          6
+        ]
+      },
+      {
+        "file": "event-online.json",
+        "lines": [
+          6
+        ]
+      },
+      {
+        "file": "event-hackathon.json",
+        "lines": [
+          6
+        ]
+      },
+      {
+        "file": "event-all-day.json",
+        "lines": [
+          6
+        ]
+      },
+      {
+        "file": "event-conference-cfp.json",
+        "lines": [
+          6
+        ]
+      },
+      {
+        "file": "event-co-organized.json",
+        "lines": [
+          6
+        ]
+      },
+      {
+        "file": "event-from-ics.json",
+        "lines": [
+          5
+        ]
+      },
+      {
+        "file": "feed-community.json",
+        "lines": [
+          20,
+          40
+        ]
+      },
+      {
+        "file": "feed.json",
+        "lines": [
+          20
+        ]
+      }
+    ],
+    "event.organizers[].name": [
+      {
+        "file": "event-meetup.json",
+        "lines": [
+          9
+        ]
+      },
+      {
+        "file": "event-recurring.json",
+        "lines": [
+          9
+        ]
+      },
+      {
+        "file": "event-online.json",
+        "lines": [
+          9,
+          14
+        ]
+      },
+      {
+        "file": "event-hackathon.json",
+        "lines": [
+          9,
+          13
+        ]
+      },
+      {
+        "file": "feed-multipart.json",
+        "lines": [
+          10
+        ]
+      },
+      {
+        "file": "event-all-day.json",
+        "lines": [
+          9
+        ]
+      },
+      {
+        "file": "event-conference-cfp.json",
+        "lines": [
+          9
+        ]
+      },
+      {
+        "file": "event-co-organized.json",
+        "lines": [
+          24,
+          29,
+          34
+        ]
+      },
+      {
+        "file": "event-from-ics.json",
+        "lines": [
+          8
+        ]
+      },
+      {
+        "file": "feed-community.json",
+        "lines": [
+          11,
+          58,
+          62
+        ]
+      },
+      {
+        "file": "feed.json",
+        "lines": [
+          14,
+          39
+        ]
+      }
+    ],
+    "event.organizers[].url": [
+      {
+        "file": "event-meetup.json",
+        "lines": [
+          10
+        ]
+      },
+      {
+        "file": "event-recurring.json",
+        "lines": [
+          10
+        ]
+      },
+      {
+        "file": "event-online.json",
+        "lines": [
+          10,
+          15
+        ]
+      },
+      {
+        "file": "event-hackathon.json",
+        "lines": [
+          10,
+          14
+        ]
+      },
+      {
+        "file": "feed-multipart.json",
+        "lines": [
+          11
+        ]
+      },
+      {
+        "file": "event-all-day.json",
+        "lines": [
+          10
+        ]
+      },
+      {
+        "file": "event-conference-cfp.json",
+        "lines": [
+          10
+        ]
+      },
+      {
+        "file": "event-co-organized.json",
+        "lines": [
+          25,
+          30,
+          35
+        ]
+      },
+      {
+        "file": "feed-community.json",
+        "lines": [
+          12,
+          59,
+          63
+        ]
+      },
+      {
+        "file": "feed.json",
+        "lines": [
+          15,
+          40
+        ]
+      }
+    ],
+    "event.organizers": [
+      {
+        "file": "event-meetup.json",
+        "lines": [
+          7
+        ]
+      },
+      {
+        "file": "event-recurring.json",
+        "lines": [
+          7
+        ]
+      },
+      {
+        "file": "event-online.json",
+        "lines": [
+          7
+        ]
+      },
+      {
+        "file": "event-hackathon.json",
+        "lines": [
+          7
+        ]
+      },
+      {
+        "file": "event-all-day.json",
+        "lines": [
+          7
+        ]
+      },
+      {
+        "file": "event-conference-cfp.json",
+        "lines": [
+          7
+        ]
+      },
+      {
+        "file": "event-co-organized.json",
+        "lines": [
+          22
+        ]
+      },
+      {
+        "file": "event-from-ics.json",
+        "lines": [
+          6
+        ]
+      },
+      {
+        "file": "feed-community.json",
+        "lines": [
+          56
+        ]
+      },
+      {
+        "file": "feed.json",
+        "lines": [
+          12,
+          37
+        ]
+      }
+    ],
+    "event.endDate": [
+      {
+        "file": "event-meetup.json",
+        "lines": [
+          14
+        ]
+      },
+      {
+        "file": "event-recurring.json",
+        "lines": [
+          14
+        ]
+      },
+      {
+        "file": "event-online.json",
+        "lines": [
+          19
+        ]
+      },
+      {
+        "file": "event-hackathon.json",
+        "lines": [
+          18
+        ]
+      },
+      {
+        "file": "feed-multipart.json",
+        "lines": [
+          20,
+          45,
+          70
+        ]
+      },
+      {
+        "file": "event-all-day.json",
+        "lines": [
+          14
+        ]
+      },
+      {
+        "file": "event-conference-cfp.json",
+        "lines": [
+          14
+        ]
+      },
+      {
+        "file": "event-co-organized.json",
+        "lines": [
+          8
+        ]
+      },
+      {
+        "file": "event-from-ics.json",
+        "lines": [
+          12
+        ]
+      },
+      {
+        "file": "feed-community.json",
+        "lines": [
+          22,
+          42
+        ]
+      },
+      {
+        "file": "feed.json",
+        "lines": [
+          22,
+          44
+        ]
+      }
+    ],
+    "event.attendanceMode": [
+      {
+        "file": "event-meetup.json",
+        "lines": [
+          16
+        ]
+      },
+      {
+        "file": "event-recurring.json",
+        "lines": [
+          16
+        ]
+      },
+      {
+        "file": "event-online.json",
+        "lines": [
+          21
+        ]
+      },
+      {
+        "file": "event-hackathon.json",
+        "lines": [
+          20
+        ]
+      },
+      {
+        "file": "feed-multipart.json",
+        "lines": [
+          22,
+          47,
+          72
+        ]
+      },
+      {
+        "file": "event-all-day.json",
+        "lines": [
+          16
+        ]
+      },
+      {
+        "file": "event-conference-cfp.json",
+        "lines": [
+          16
+        ]
+      },
+      {
+        "file": "event-co-organized.json",
+        "lines": [
+          10
+        ]
+      },
+      {
+        "file": "feed-community.json",
+        "lines": [
+          24,
+          44
+        ]
+      },
+      {
+        "file": "feed.json",
+        "lines": [
+          24,
+          46
+        ]
+      }
+    ],
+    "event.location.venue": [
+      {
+        "file": "event-meetup.json",
+        "lines": [
+          18
+        ]
+      },
+      {
+        "file": "event-recurring.json",
+        "lines": [
+          18
+        ]
+      },
+      {
+        "file": "event-hackathon.json",
+        "lines": [
+          22
+        ]
+      },
+      {
+        "file": "feed-multipart.json",
+        "lines": [
+          24,
+          49,
+          74
+        ]
+      },
+      {
+        "file": "event-all-day.json",
+        "lines": [
+          18
+        ]
+      },
+      {
+        "file": "event-conference-cfp.json",
+        "lines": [
+          18
+        ]
+      },
+      {
+        "file": "event-co-organized.json",
+        "lines": [
+          12
+        ]
+      },
+      {
+        "file": "event-from-ics.json",
+        "lines": [
+          15
+        ]
+      },
+      {
+        "file": "feed-community.json",
+        "lines": [
+          26,
+          46
+        ]
+      },
+      {
+        "file": "feed.json",
+        "lines": [
+          26,
+          48
+        ]
+      }
+    ],
+    "event.location.onlineUrl": [
+      {
+        "file": "event-meetup.json",
+        "lines": [
+          19
+        ]
+      },
+      {
+        "file": "event-online.json",
+        "lines": [
+          23
+        ]
+      },
+      {
+        "file": "feed-community.json",
+        "lines": [
+          47
+        ]
+      },
+      {
+        "file": "feed.json",
+        "lines": [
+          27
+        ]
+      }
+    ],
+    "event.location.geo.lat": [
+      {
+        "file": "event-meetup.json",
+        "lines": [
+          21
+        ]
+      },
+      {
+        "file": "event-hackathon.json",
+        "lines": [
+          24
+        ]
+      },
+      {
+        "file": "event-from-ics.json",
+        "lines": [
+          17
+        ]
+      }
+    ],
+    "event.location.geo.lon": [
+      {
+        "file": "event-meetup.json",
+        "lines": [
+          22
+        ]
+      },
+      {
+        "file": "event-hackathon.json",
+        "lines": [
+          25
+        ]
+      },
+      {
+        "file": "event-from-ics.json",
+        "lines": [
+          18
+        ]
+      }
+    ],
+    "event.location.geo": [
+      {
+        "file": "event-meetup.json",
+        "lines": [
+          20
+        ]
+      },
+      {
+        "file": "event-hackathon.json",
+        "lines": [
+          23
+        ]
+      },
+      {
+        "file": "event-from-ics.json",
+        "lines": [
+          16
+        ]
+      }
+    ],
+    "event.location": [
+      {
+        "file": "event-meetup.json",
+        "lines": [
+          17
+        ]
+      },
+      {
+        "file": "event-recurring.json",
+        "lines": [
+          17
+        ]
+      },
+      {
+        "file": "event-online.json",
+        "lines": [
+          22
+        ]
+      },
+      {
+        "file": "event-hackathon.json",
+        "lines": [
+          21
+        ]
+      },
+      {
+        "file": "feed-multipart.json",
+        "lines": [
+          23,
+          48,
+          73
+        ]
+      },
+      {
+        "file": "event-all-day.json",
+        "lines": [
+          17
+        ]
+      },
+      {
+        "file": "event-conference-cfp.json",
+        "lines": [
+          17
+        ]
+      },
+      {
+        "file": "event-co-organized.json",
+        "lines": [
+          11
+        ]
+      },
+      {
+        "file": "event-from-ics.json",
+        "lines": [
+          14
+        ]
+      },
+      {
+        "file": "feed-community.json",
+        "lines": [
+          25,
+          45
+        ]
+      },
+      {
+        "file": "feed.json",
+        "lines": [
+          25,
+          47
+        ]
+      }
+    ],
+    "event.languages": [
+      {
+        "file": "event-meetup.json",
+        "lines": [
+          25
+        ]
+      },
+      {
+        "file": "event-recurring.json",
+        "lines": [
+          20
+        ]
+      },
+      {
+        "file": "event-online.json",
+        "lines": [
+          25
+        ]
+      },
+      {
+        "file": "event-hackathon.json",
+        "lines": [
+          28
+        ]
+      },
+      {
+        "file": "feed-multipart.json",
+        "lines": [
+          26,
+          51,
+          76
+        ]
+      },
+      {
+        "file": "event-all-day.json",
+        "lines": [
+          20
+        ]
+      },
+      {
+        "file": "event-conference-cfp.json",
+        "lines": [
+          20
+        ]
+      },
+      {
+        "file": "event-co-organized.json",
+        "lines": [
+          14
+        ]
+      },
+      {
+        "file": "event-from-ics.json",
+        "lines": [
+          21
+        ]
+      },
+      {
+        "file": "feed-community.json",
+        "lines": [
+          28,
+          49
+        ]
+      },
+      {
+        "file": "feed.json",
+        "lines": [
+          29
+        ]
+      }
+    ],
+    "event.tags": [
+      {
+        "file": "event-meetup.json",
+        "lines": [
+          28
+        ]
+      },
+      {
+        "file": "event-recurring.json",
+        "lines": [
+          23
+        ]
+      },
+      {
+        "file": "event-online.json",
+        "lines": [
+          29
+        ]
+      },
+      {
+        "file": "event-hackathon.json",
+        "lines": [
+          32
+        ]
+      },
+      {
+        "file": "feed-multipart.json",
+        "lines": [
+          29,
+          54,
+          79
+        ]
+      },
+      {
+        "file": "event-conference-cfp.json",
+        "lines": [
+          25
+        ]
+      },
+      {
+        "file": "event-co-organized.json",
+        "lines": [
+          17
+        ]
+      },
+      {
+        "file": "event-from-ics.json",
+        "lines": [
+          24
+        ]
+      },
+      {
+        "file": "feed-community.json",
+        "lines": [
+          31,
+          52
+        ]
+      }
+    ],
+    "event.status": [
+      {
+        "file": "event-meetup.json",
+        "lines": [
+          32
+        ]
+      },
+      {
+        "file": "event-recurring.json",
+        "lines": [
+          27
+        ]
+      },
+      {
+        "file": "event-online.json",
+        "lines": [
+          33
+        ]
+      },
+      {
+        "file": "event-hackathon.json",
+        "lines": [
+          37
+        ]
+      },
+      {
+        "file": "event-all-day.json",
+        "lines": [
+          24
+        ]
+      },
+      {
+        "file": "event-conference-cfp.json",
+        "lines": [
+          24
+        ]
+      },
+      {
+        "file": "feed.json",
+        "lines": [
+          50
+        ]
+      }
+    ],
+    "event.updatedAt": [
+      {
+        "file": "event-meetup.json",
+        "lines": [
+          33
+        ]
+      },
+      {
+        "file": "event-hackathon.json",
+        "lines": [
+          38
+        ]
+      },
+      {
+        "file": "event-from-ics.json",
+        "lines": [
+          28
+        ]
+      }
+    ],
+    "event.image": [
+      {
+        "file": "event-meetup.json",
+        "lines": [
+          35
+        ]
+      }
+    ],
+    "event.offers.isFree": [
+      {
+        "file": "event-meetup.json",
+        "lines": [
+          37
+        ]
+      },
+      {
+        "file": "event-conference-cfp.json",
+        "lines": [
+          40
+        ]
+      }
+    ],
+    "event.offers.registrationUrl": [
+      {
+        "file": "event-meetup.json",
+        "lines": [
+          38
+        ]
+      },
+      {
+        "file": "event-conference-cfp.json",
+        "lines": [
+          43
+        ]
+      }
+    ],
+    "event.offers.capacity": [
+      {
+        "file": "event-meetup.json",
+        "lines": [
+          39
+        ]
+      }
+    ],
+    "event.offers": [
+      {
+        "file": "event-meetup.json",
+        "lines": [
+          36
+        ]
+      },
+      {
+        "file": "event-conference-cfp.json",
+        "lines": [
+          39
+        ]
+      }
+    ],
+    "event.partOf.id": [
+      {
+        "file": "event-recurring.json",
+        "lines": [
+          30
+        ]
+      },
+      {
+        "file": "event-online.json",
+        "lines": [
+          36
+        ]
+      },
+      {
+        "file": "feed-multipart.json",
+        "lines": [
+          35,
+          60,
+          85
+        ]
+      }
+    ],
+    "event.partOf.name": [
+      {
+        "file": "event-recurring.json",
+        "lines": [
+          31
+        ]
+      },
+      {
+        "file": "event-online.json",
+        "lines": [
+          37
+        ]
+      },
+      {
+        "file": "feed-multipart.json",
+        "lines": [
+          36,
+          61,
+          86
+        ]
+      }
+    ],
+    "event.partOf.url": [
+      {
+        "file": "event-recurring.json",
+        "lines": [
+          32
+        ]
+      },
+      {
+        "file": "event-online.json",
+        "lines": [
+          38
+        ]
+      },
+      {
+        "file": "feed-multipart.json",
+        "lines": [
+          37,
+          62,
+          87
+        ]
+      }
+    ],
+    "event.partOf": [
+      {
+        "file": "event-recurring.json",
+        "lines": [
+          29
+        ]
+      },
+      {
+        "file": "event-online.json",
+        "lines": [
+          35
+        ]
+      },
+      {
+        "file": "feed-multipart.json",
+        "lines": [
+          33,
+          58,
+          83
+        ]
+      }
+    ],
+    "event.ics:rrule": [
+      {
+        "file": "event-recurring.json",
+        "lines": [
+          34
+        ]
+      }
+    ],
+    "event.organizers[].type": [
+      {
+        "file": "event-online.json",
+        "lines": [
+          13
+        ]
+      },
+      {
+        "file": "event-co-organized.json",
+        "lines": [
+          33
+        ]
+      }
+    ],
+    "feed.specVersion": [
+      {
+        "file": "feed-multipart.json",
+        "lines": [
+          2
+        ]
+      },
+      {
+        "file": "feed-community.json",
+        "lines": [
+          2
+        ]
+      },
+      {
+        "file": "feed.json",
+        "lines": [
+          2
+        ]
+      }
+    ],
+    "feed.title": [
+      {
+        "file": "feed-multipart.json",
+        "lines": [
+          3
+        ]
+      },
+      {
+        "file": "feed-community.json",
+        "lines": [
+          3
+        ]
+      },
+      {
+        "file": "feed.json",
+        "lines": [
+          3
+        ]
+      }
+    ],
+    "feed.description": [
+      {
+        "file": "feed-multipart.json",
+        "lines": [
+          4
+        ]
+      },
+      {
+        "file": "feed-community.json",
+        "lines": [
+          4
+        ]
+      },
+      {
+        "file": "feed.json",
+        "lines": [
+          4
+        ]
+      }
+    ],
+    "feed.url": [
+      {
+        "file": "feed-multipart.json",
+        "lines": [
+          5
+        ]
+      },
+      {
+        "file": "feed-community.json",
+        "lines": [
+          5
+        ]
+      },
+      {
+        "file": "feed.json",
+        "lines": [
+          5
+        ]
+      }
+    ],
+    "feed.license": [
+      {
+        "file": "feed-multipart.json",
+        "lines": [
+          6
+        ]
+      },
+      {
+        "file": "feed-community.json",
+        "lines": [
+          6
+        ]
+      },
+      {
+        "file": "feed.json",
+        "lines": [
+          6
+        ]
+      }
+    ],
+    "feed.updatedAt": [
+      {
+        "file": "feed-multipart.json",
+        "lines": [
+          7
+        ]
+      },
+      {
+        "file": "feed-community.json",
+        "lines": [
+          8
+        ]
+      },
+      {
+        "file": "feed.json",
+        "lines": [
+          8
+        ]
+      }
+    ],
+    "feed.organizers": [
+      {
+        "file": "feed-multipart.json",
+        "lines": [
+          8
+        ]
+      },
+      {
+        "file": "feed-community.json",
+        "lines": [
+          9
+        ]
+      }
+    ],
+    "event.partOf.type": [
+      {
+        "file": "feed-multipart.json",
+        "lines": [
+          34,
+          59,
+          84
+        ]
+      }
+    ],
+    "feed.events": [
+      {
+        "file": "feed-multipart.json",
+        "lines": [
+          14
+        ]
+      },
+      {
+        "file": "feed-community.json",
+        "lines": [
+          15
+        ]
+      },
+      {
+        "file": "feed.json",
+        "lines": [
+          9
+        ]
+      }
+    ],
+    "event.cfp.url": [
+      {
+        "file": "event-conference-cfp.json",
+        "lines": [
+          32
+        ]
+      }
+    ],
+    "event.cfp.opensAt": [
+      {
+        "file": "event-conference-cfp.json",
+        "lines": [
+          33
+        ]
+      }
+    ],
+    "event.cfp.closesAt": [
+      {
+        "file": "event-conference-cfp.json",
+        "lines": [
+          34
+        ]
+      }
+    ],
+    "event.cfp.timezone": [
+      {
+        "file": "event-conference-cfp.json",
+        "lines": [
+          35
+        ]
+      }
+    ],
+    "event.cfp.coversTravel": [
+      {
+        "file": "event-conference-cfp.json",
+        "lines": [
+          36
+        ]
+      }
+    ],
+    "event.cfp.coversAccommodation": [
+      {
+        "file": "event-conference-cfp.json",
+        "lines": [
+          37
+        ]
+      }
+    ],
+    "event.cfp": [
+      {
+        "file": "event-conference-cfp.json",
+        "lines": [
+          31
+        ]
+      }
+    ],
+    "event.offers.price": [
+      {
+        "file": "event-conference-cfp.json",
+        "lines": [
+          41
+        ]
+      }
+    ],
+    "event.offers.currency": [
+      {
+        "file": "event-conference-cfp.json",
+        "lines": [
+          42
+        ]
+      }
+    ],
+    "event.organizers[].combuilders:communityId": [
+      {
+        "file": "event-co-organized.json",
+        "lines": [
+          26
+        ]
+      }
+    ],
+    "event.source.name": [
+      {
+        "file": "event-from-ics.json",
+        "lines": [
+          31
+        ]
+      }
+    ],
+    "event.source.url": [
+      {
+        "file": "event-from-ics.json",
+        "lines": [
+          32
+        ]
+      }
+    ],
+    "event.source.license": [
+      {
+        "file": "event-from-ics.json",
+        "lines": [
+          33
+        ]
+      }
+    ],
+    "event.source.retrievedAt": [
+      {
+        "file": "event-from-ics.json",
+        "lines": [
+          34
+        ]
+      }
+    ],
+    "event.source": [
+      {
+        "file": "event-from-ics.json",
+        "lines": [
+          30
+        ]
+      }
+    ],
+    "feed.licenseUrl": [
+      {
+        "file": "feed-community.json",
+        "lines": [
+          7
+        ]
+      },
+      {
+        "file": "feed.json",
+        "lines": [
+          7
+        ]
+      }
+    ]
+  }
+}

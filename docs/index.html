@@ -35,6 +35,7 @@
     <nav class="nav">
       <a href="/#spec" data-nav="spec" data-i18n="nav.spec">How it works</a>
       <a href="/#adopt" data-nav="adopt" data-i18n="nav.adopt">Adopt it</a>
+      <a href="/examples/" data-nav="examples" data-i18n="nav.examples">Examples</a>
       <a href="/spec/" data-nav="reference" data-i18n="nav.reference">Reference</a>
       <a href="/developers/" data-nav="developers" data-i18n="nav.developers">Developers</a>
       <a href="/#tools" data-nav="tools" data-i18n="nav.tools">Tools</a>
@@ -63,13 +64,22 @@
         <p class="hero-note"><span data-i18n="hero.note">No platform to sign up for. No tool to install: a file you publish, or a link in your site's &lt;head&gt;.</span> <a href="#shortcut" data-i18n="hero.shortcut">Already use Meetup, Luma, Eventbrite…? We'll help you import it without leaving it →</a></p>
       </div>
 
-      <figure class="hero-code">
-        <figcaption><span class="dot"></span><span class="dot"></span><span class="dot"></span> <code>events.json</code></figcaption>
-        <pre data-ote="event"><code>{
+      <div class="hero-samples">
+        <div class="code-tabs" role="tablist" data-i18n-aria="hero.tabsLabel" aria-label="Example type">
+          <button type="button" class="code-tab is-active" role="tab" id="tab-meetup"
+                  aria-selected="true" aria-controls="sample-meetup" data-i18n="hero.tabMeetup">Meetup</button>
+          <button type="button" class="code-tab" role="tab" id="tab-conference"
+                  aria-selected="false" aria-controls="sample-conference" data-i18n="hero.tabConference">Conference</button>
+        </div>
+
+        <figure class="hero-code" id="sample-meetup" role="tabpanel" aria-labelledby="tab-meetup">
+          <figcaption><span class="dot"></span><span class="dot"></span><span class="dot"></span> <code>events.json</code></figcaption>
+          <pre data-ote="event"><code>{
   <k>"specVersion"</k>: <s>"0.3.0"</s>,
   <k>"id"</k>: <s>"https://pyalmeria.example/2026-06-async"</s>,
   <k>"url"</k>: <s>"https://pyalmeria.example/2026-06-async"</s>,
   <k>"name"</k>: <s>"PyAlmería — Intro to async/await"</s>,
+  <k>"organizers"</k>: [{ <k>"name"</k>: <s>"PyAlmería"</s> }],
   <k>"startDate"</k>: <s>"2026-06-11T18:30:00"</s>,
   <k>"timezone"</k>: <s>"Europe/Madrid"</s>,
   <k>"attendanceMode"</k>: <s>"hybrid"</s>,
@@ -79,10 +89,35 @@
     <k>"geo"</k>: { <k>"lat"</k>: 36.8381, <k>"lon"</k>: -2.4597 }
   },
   <k>"tags"</k>: [<s>"python"</s>, <s>"async"</s>],
-  <k>"updatedAt"</k>: <s>"2026-06-05T09:00:00Z"</s>,
+  <k>"partOf"</k>: { <k>"id"</k>: <s>"https://pyalmeria.example/meetups"</s> },
   <k>"license"</k>: <s>"CC-BY-4.0"</s>
 }</code></pre>
-      </figure>
+        </figure>
+
+        <figure class="hero-code" id="sample-conference" role="tabpanel" aria-labelledby="tab-conference" hidden>
+          <figcaption><span class="dot"></span><span class="dot"></span><span class="dot"></span> <code>events.json</code></figcaption>
+          <pre data-ote="event"><code>{
+  <k>"specVersion"</k>: <s>"0.3.0"</s>,
+  <k>"id"</k>: <s>"https://devfest-levante.example/2026"</s>,
+  <k>"url"</k>: <s>"https://devfest-levante.example/2026"</s>,
+  <k>"name"</k>: <s>"DevFest Levante 2026"</s>,
+  <k>"organizers"</k>: [{
+    <k>"name"</k>: <s>"GDG Levante"</s>,
+    <k>"url"</k>: <s>"https://gdglevante.example"</s>
+  }],
+  <k>"startDate"</k>: <s>"2026-10-16"</s>,
+  <k>"endDate"</k>: <s>"2026-10-17"</s>,
+  <k>"timezone"</k>: <s>"Europe/Madrid"</s>,
+  <k>"attendanceMode"</k>: <s>"in-person"</s>,
+  <k>"location"</k>: { <k>"venue"</k>: <s>"Las Naves, Valencia"</s> },
+  <k>"languages"</k>: [<s>"es"</s>, <s>"en"</s>],
+  <k>"tags"</k>: [<s>"cloud"</s>, <s>"ai"</s>, <s>"web"</s>],
+  <k>"license"</k>: <s>"CC-BY-4.0"</s>
+}</code></pre>
+        </figure>
+
+        <p class="hero-code-link"><a href="/examples/" data-i18n="hero.exploreExamples">Explore an example for every case: recurring, online, hybrid, multi-part, hackathons, co-organised… →</a></p>
+      </div>
     </div>
   </section>
 
@@ -187,10 +222,10 @@
             <span class="doc-name" data-i18n="docs.d2.title">Feed format</span>
             <span class="doc-desc" data-i18n="docs.d2.body">How to group several events into a feed: metadata, pagination, licence and discovery.</span>
           </a>
-          <a class="doc-card" href="https://github.com/OpenTechEvents/opentechevents-spec/tree/main/spec/v0.3/examples">
+          <a class="doc-card" href="/examples/">
             <span class="doc-icon">📄</span>
-            <span class="doc-name" data-i18n="docs.d3.title">Examples</span>
-            <span class="doc-desc" data-i18n="docs.d3.body">Complete documents to copy: a minimal event, a meetup, a conference with an open CFP, and a full feed.</span>
+            <span class="doc-name" data-i18n="docs.d3.title">Practical examples</span>
+            <span class="doc-desc" data-i18n="docs.d3.body">Complete documents to copy, one per real case: small and recurring meetups, conferences, online and hybrid events, multi-part events, hackathons, co-organised events and feeds.</span>
           </a>
           <a class="doc-card" href="https://github.com/OpenTechEvents/opentechevents-spec/tree/main/research">
             <span class="doc-icon">🔬</span>
@@ -300,7 +335,7 @@
           <p data-i18n="adopt.s3.body">Open an issue with your feed URL. We'll validate it and list your community on this page; and as aggregators come online, they'll start picking up your events.</p>
           <div class="cta-row">
             <a class="btn btn-primary" href="/register/" data-i18n="adopt.s3.cta">Register my feed</a>
-            <a class="btn btn-ghost" href="https://github.com/OpenTechEvents/opentechevents-spec/tree/main/spec/v0.3/examples" data-i18n="adopt.s3.cta2">Copy a working example</a>
+            <a class="btn btn-ghost" href="/examples/" data-i18n="adopt.s3.cta2">Copy a working example</a>
           </div>
         </li>
       </ol>

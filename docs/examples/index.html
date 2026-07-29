@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OTE Spec — practical examples</title>
+<meta name="description" content="Complete, validated OTE documents for every real case: small meetups, recurring meetups, conferences, online and hybrid events, multi-part events, hackathons, co-organised events and feeds.">
+<link rel="canonical" href="https://opentechevents.org/examples/">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://opentechevents.org/examples/">
+<meta property="og:title" content="OTE Spec — practical examples">
+<meta property="og:description" content="Complete, validated OTE documents for every real case: meetups, conferences, recurring and multi-part events, hackathons and feeds.">
+<link rel="stylesheet" href="../styles.css">
+<link rel="stylesheet" href="examples.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📅</text></svg>">
+</head>
+<body>
+
+<a class="skip" href="#main" data-t="skip">Skip to content</a>
+
+<div class="draft-bar">
+  <div class="wrap">
+    <span class="draft-pill" data-t="pill">Draft 0.x</span>
+    <span data-t="draft">Fields can still change, be renamed or be dropped.</span>
+    <a href="https://github.com/OpenTechEvents/opentechevents-spec/issues/5" data-t="follow">Follow the discussion</a>
+  </div>
+</div>
+
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a class="brand" href="/">
+      <span class="brand-mark">OTE</span>
+      <span class="brand-name">OpenTechEvents</span>
+    </a>
+    <nav class="nav">
+      <a href="/#spec" data-nav="spec" data-t="navSpec">How it works</a>
+      <a href="/#adopt" data-nav="adopt" data-t="navAdopt">Adopt it</a>
+      <a href="/examples/" data-nav="examples" aria-current="page" data-t="navExamples">Examples</a>
+      <a href="/spec/" data-nav="reference" data-t="navReference">Reference</a>
+      <a href="/developers/" data-nav="developers" data-t="navDevelopers">Developers</a>
+      <a href="/#tools" data-nav="tools" data-t="navTools">Tools</a>
+      <a class="nav-repo" href="https://github.com/OpenTechEvents/opentechevents-spec">GitHub</a>
+    </nav>
+    <div class="lang" role="group" aria-label="Language">
+      <button type="button" data-lang="en">EN</button>
+      <button type="button" data-lang="es">ES</button>
+    </div>
+  </div>
+</header>
+
+<main id="main" class="ex-main">
+  <div class="wrap ex-intro">
+    <p class="eyebrow" data-t="eyebrow">Practical examples · OTE Spec v0.3</p>
+    <h1 data-t="title">One example per real case</h1>
+    <p class="lead" data-t="lead">The reference tells you what each field is. This page shows you whole documents: what a small meetup looks like, what changes when it repeats every month, and what to do with a course spread over three Saturdays. Copy any of them.</p>
+
+    <p class="ex-promise" data-t="promise">Every document here is read straight from the repository and validated in CI against the JSON Schemas. If one stopped validating, the build would fail — so what you copy is what the validator accepts.</p>
+
+    <div class="cta-row">
+      <a class="btn btn-ghost" href="/spec/" data-t="ctaReference">Field reference</a>
+      <a class="btn btn-ghost" href="https://github.com/OpenTechEvents/opentechevents-spec/blob/main/spec/v0.3/README.md" data-t="ctaRules">Rules a validator can't check</a>
+    </div>
+  </div>
+
+  <div class="wrap ex-controls">
+    <div class="ex-filters" id="ex-filters" role="group" data-t-aria="filterLabel" aria-label="Filter examples by case"></div>
+    <p class="ex-legend">
+      <span class="legend-item"><span class="legend-swatch legend-key" aria-hidden="true"></span><span data-t="legendCore">OTE field</span></span>
+      <span class="legend-item"><span class="legend-swatch legend-ext" aria-hidden="true"></span><span data-t="legendExt">Prefixed field: someone else's vocabulary, never OTE's</span></span>
+    </p>
+  </div>
+
+  <div class="wrap ex-list" id="ex-list"></div>
+
+  <div class="wrap ex-empty" id="ex-empty" hidden>
+    <p data-t="noMatch">No example covers that case yet.</p>
+    <button type="button" class="btn btn-ghost" id="ex-reset" data-t="showAll">Show all</button>
+  </div>
+
+  <div class="wrap ex-missing">
+    <h2 data-t="missingTitle">Your case isn't here</h2>
+    <p data-t="missingBody">Then it's a gap in the examples, or a gap in the spec — and both are worth an issue. Describe how your community runs the event and what you couldn't express; a real case is what moves this spec forward.</p>
+    <div class="cta-row">
+      <a class="btn btn-primary" href="https://github.com/OpenTechEvents/opentechevents-spec/issues/new?title=%5BExample%5D%20" data-t="missingCta">Ask for an example</a>
+      <a class="btn btn-ghost" href="https://github.com/OpenTechEvents/opentechevents-spec/tree/main/spec/v0.3/examples" data-t="missingCta2">All examples on GitHub</a>
+    </div>
+    <p class="ex-validate" data-t="validate">Validate your own document before opening the issue: <code>npm install &amp;&amp; npm run validate -- my-feed.json</code></p>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap footer-inner">
+    <p class="footer-note" data-t="footerNote">Every example is validated in CI. Draft specification — fields may change.</p>
+    <nav class="footer-links">
+      <a href="../">opentechevents.org</a>
+      <a href="/spec/" data-t="navReference">Reference</a>
+      <a href="https://github.com/OpenTechEvents/opentechevents-spec">GitHub</a>
+    </nav>
+  </div>
+</footer>
+
+<script src="../json-code.js"></script>
+<script src="examples.js"></script>
+</body>
+</html>

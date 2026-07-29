@@ -1,0 +1,29 @@
+{
+  "specVersion": "0.3.0",
+  "id": "https://rustgirona.example/sessions/2026-07-31",
+  "url": "https://rustgirona.example/sessions/2026-07-31",
+  "name": "Sessió setmanal de codificació — Rust Girona",
+  "description": "Cada semana nos juntamos en línea para picar Rust un rato. Canal de voz de Discord; el enlace está en la página del evento.",
+  "organizers": [
+    { "name": "Rust Girona", "url": "https://rustgirona.example" },
+    { "type": "person", "name": "Ivan Fraixedes", "url": "https://ifraixedes.example" }
+  ],
+  "startDate": "2026-07-31T18:00:00",
+  "endDate": "2026-07-31T19:00:00",
+  "timezone": "Europe/Madrid",
+
+  "_comment_online": "Evento solo online. `location` trae `onlineUrl` y NADA de sede física — no hay `venue` que poner, y `location: {}` sería inválido. `attendanceMode: online` no es redundante con eso: `location` son hechos observables (hay URL de conexión), `attendanceMode` es la intención de quien organiza. Si se contradicen, manda `attendanceMode`.",
+
+  "attendanceMode": "online",
+  "location": { "onlineUrl": "https://discord.example/rust-girona" },
+  "languages": ["ca", "es"],
+  "tags": ["rust", "pair-programming"],
+  "status": "scheduled",
+  "license": "CC-BY-4.0",
+
+  "partOf": {
+    "id": "https://rustgirona.example/sessions",
+    "name": "Sessió setmanal de codificació",
+    "url": "https://rustgirona.example/sessions"
+  }
+}

@@ -75,6 +75,11 @@
       if (typeof value === 'string') node.innerHTML = value;
     });
 
+    document.querySelectorAll('[data-i18n-aria]').forEach(function (node) {
+      var value = get(state.dict, node.getAttribute('data-i18n-aria'));
+      if (typeof value === 'string') node.setAttribute('aria-label', value);
+    });
+
     document.querySelectorAll('.lang button').forEach(function (btn) {
       btn.setAttribute('aria-pressed', String(btn.dataset.lang === state.lang));
     });
@@ -287,6 +292,35 @@
     }, { rootMargin: '-64px 0px -55% 0px' });
 
     sections.forEach(function (section) { observer.observe(section); });
+  })();
+
+  /* Hero samples: a meetup and a conference. One event does not show what the format covers,
+     and two stacked snippets would push the whole page down. */
+  (function heroTabs() {
+    var tabs = Array.prototype.slice.call(document.querySelectorAll('.code-tab'));
+    if (!tabs.length) return;
+
+    function select(tab) {
+      tabs.forEach(function (other) {
+        var on = other === tab;
+        other.classList.toggle('is-active', on);
+        other.setAttribute('aria-selected', String(on));
+        document.getElementById(other.getAttribute('aria-controls')).hidden = !on;
+      });
+    }
+
+    tabs.forEach(function (tab, i) {
+      tab.addEventListener('click', function () { select(tab); });
+      // Arrow keys are how a tablist is expected to work once it has focus.
+      tab.addEventListener('keydown', function (e) {
+        var step = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
+        if (!step) return;
+        e.preventDefault();
+        var next = tabs[(i + step + tabs.length) % tabs.length];
+        select(next);
+        next.focus();
+      });
+    });
   })();
 
   document.querySelectorAll('.tools-filters .chip').forEach(function (chip) {

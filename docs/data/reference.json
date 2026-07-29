@@ -185,6 +185,78 @@
           }
         },
         {
+          "path": "partOf",
+          "type": "object",
+          "required": false,
+          "examples": [
+            {
+              "id": "https://rustmadrid.example/meetups",
+              "name": "Rust Madrid — meetup mensual",
+              "url": "https://rustmadrid.example/meetups"
+            },
+            {
+              "type": "multipart",
+              "id": "https://pyalmeria.example/cursos/2026-testing",
+              "name": "Curso de testing en Python (3 sábados)"
+            }
+          ],
+          "description": {
+            "en": "The series or multi-part event this document is one occurrence of. A REFERENCE, never a recurrence rule: OTE does not generate dates: whoever publishes expands the recurrence into one document per occurrence, each with its own id, dates and status. A consumer that ignores this field still sees complete, correct events.",
+            "es": "La serie o el evento multi-parte del que este documento es UNA ocurrencia. Es una REFERENCIA, nunca una regla de recurrencia: OTE no genera fechas — quien publica expande la recurrencia en un documento por ocurrencia, cada uno con su `id`, sus fechas y su `status`. Un consumidor que ignore este campo sigue viendo eventos completos y correctos."
+          }
+        },
+        {
+          "path": "partOf.type",
+          "type": "enum: series | multipart",
+          "required": false,
+          "examples": [
+            "series",
+            "multipart"
+          ],
+          "description": {
+            "en": "series: independent occurrences that share an identity (a monthly meetup). multipart: parts of ONE event held on non-consecutive dates (a course over three Saturdays, one registration). Defaults to series, the tolerant choice. It changes the translation: a series becomes schema.org EventSeries, a multi-part event becomes an Event whose parts are its subEvent.",
+            "es": "`series`: ocurrencias independientes que comparten identidad (un meetup mensual). `multipart`: partes de UN SOLO evento celebrado en fechas no consecutivas (un curso en tres sábados, con una inscripción). Por defecto `series`, que es la opción tolerante. Cambia la traducción: una serie se convierte en `EventSeries` de schema.org; un evento multi-parte, en un `Event` cuyas partes son su `subEvent`."
+          }
+        },
+        {
+          "path": "partOf.id",
+          "type": "string (uri)",
+          "required": true,
+          "examples": [
+            "https://rustmadrid.example/meetups",
+            "https://pyalmeria.example/cursos/2026-testing"
+          ],
+          "description": {
+            "en": "Stable identifier of the series or multi-part event. Same rules as the event's id: a URI under a domain the publisher controls, minted once. It does NOT have to resolve to an OTE document — it is what lets a consumer group occurrences.",
+            "es": "Identificador estable de la serie o del evento multi-parte. Mismas reglas que el `id` del evento: una URI bajo un dominio que controle quien publica, acuñada una vez. NO tiene por qué resolver a un documento OTE — es lo que permite a un consumidor agrupar las ocurrencias."
+          }
+        },
+        {
+          "path": "partOf.name",
+          "type": "string",
+          "required": false,
+          "examples": [
+            "Rust Madrid — meetup mensual",
+            "Curso de testing en Python (3 sábados)"
+          ],
+          "description": {
+            "en": "Display name of the series or multi-part event, so a consumer can group occurrences without resolving the id.",
+            "es": "Nombre de la serie o del evento multi-parte, para que un consumidor pueda agrupar sin resolver el `id`."
+          }
+        },
+        {
+          "path": "partOf.url",
+          "type": "string (uri)",
+          "required": false,
+          "examples": [
+            "https://rustmadrid.example/meetups"
+          ],
+          "description": {
+            "en": "Page describing the series or the multi-part event as a whole.",
+            "es": "Página que describe la serie o el evento multi-parte en conjunto."
+          }
+        },
+        {
           "path": "license",
           "type": "string",
           "required": true,

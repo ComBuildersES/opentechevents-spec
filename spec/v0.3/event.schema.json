@@ -116,6 +116,22 @@
             "2026-10-16"
           ]
         },
+        "partOf": {
+          "description": "The series or multi-part event this document is one occurrence of. A REFERENCE, never a recurrence rule: OTE does not generate dates: whoever publishes expands the recurrence into one document per occurrence, each with its own id, dates and status. A consumer that ignores this field still sees complete, correct events.",
+          "$ref": "#/$defs/partOf",
+          "examples": [
+            {
+              "id": "https://rustmadrid.example/meetups",
+              "name": "Rust Madrid — meetup mensual",
+              "url": "https://rustmadrid.example/meetups"
+            },
+            {
+              "type": "multipart",
+              "id": "https://pyalmeria.example/cursos/2026-testing",
+              "name": "Curso de testing en Python (3 sábados)"
+            }
+          ]
+        },
         "license": {
           "description": "License of THIS DATA, not of the event. SPDX identifier (CC0-1.0, CC-BY-4.0…, full list at https://spdx.org/licenses/) or a URL.",
           "$ref": "#/$defs/license",
@@ -325,6 +341,55 @@
           "examples": [
             "https://pyalmeria.example",
             "https://www.meetup.com/pyalmeria/"
+          ]
+        }
+      }
+    },
+    "partOf": {
+      "description": "A reference to the whole this occurrence belongs to. Identity only — no dates: the occurrence already carries them.",
+      "type": "object",
+      "required": [
+        "id"
+      ],
+      "properties": {
+        "type": {
+          "description": "series: independent occurrences that share an identity (a monthly meetup). multipart: parts of ONE event held on non-consecutive dates (a course over three Saturdays, one registration). Defaults to series, the tolerant choice. It changes the translation: a series becomes schema.org EventSeries, a multi-part event becomes an Event whose parts are its subEvent.",
+          "enum": [
+            "series",
+            "multipart"
+          ],
+          "default": "series",
+          "examples": [
+            "series",
+            "multipart"
+          ]
+        },
+        "id": {
+          "description": "Stable identifier of the series or multi-part event. Same rules as the event's id: a URI under a domain the publisher controls, minted once. It does NOT have to resolve to an OTE document — it is what lets a consumer group occurrences.",
+          "type": "string",
+          "format": "uri",
+          "pattern": "^[a-zA-Z][a-zA-Z0-9+.-]*:",
+          "examples": [
+            "https://rustmadrid.example/meetups",
+            "https://pyalmeria.example/cursos/2026-testing"
+          ]
+        },
+        "name": {
+          "description": "Display name of the series or multi-part event, so a consumer can group occurrences without resolving the id.",
+          "type": "string",
+          "minLength": 1,
+          "examples": [
+            "Rust Madrid — meetup mensual",
+            "Curso de testing en Python (3 sábados)"
+          ]
+        },
+        "url": {
+          "description": "Page describing the series or the multi-part event as a whole.",
+          "type": "string",
+          "format": "uri",
+          "pattern": "^https?://",
+          "examples": [
+            "https://rustmadrid.example/meetups"
           ]
         }
       }

@@ -14,6 +14,7 @@
   "nav": {
     "spec": "How it works",
     "adopt": "Adopt it",
+    "examples": "Examples",
     "reference": "Reference",
     "developers": "Developers",
     "tools": "Tools"
@@ -25,7 +26,11 @@
     "ctaPrimary": "Adopt the spec",
     "ctaSecondary": "See the format",
     "note": "No platform to sign up for. No tool to install: a file you publish, or a link in your site's &lt;head&gt;.",
-    "shortcut": "Already use Meetup, Luma, Eventbrite…? We'll help you import it without leaving it →"
+    "shortcut": "Already use Meetup, Luma, Eventbrite…? We'll help you import it without leaving it →",
+    "tabsLabel": "Example type",
+    "tabMeetup": "Meetup",
+    "tabConference": "Conference",
+    "exploreExamples": "Explore an example for every case: recurring, online, hybrid, multi-part, hackathons, co-organised… →"
   },
   "problem": {
     "title": "You already know the problem",
@@ -87,8 +92,8 @@
       "body": "How to group several events into a feed: metadata, pagination, licence and discovery."
     },
     "d3": {
-      "title": "Examples",
-      "body": "Complete documents to copy: a minimal event, a meetup, a conference with an open CFP, and a full feed."
+      "title": "Practical examples",
+      "body": "Complete documents to copy, one per real case: small and recurring meetups, conferences, online and hybrid events, multi-part events, hackathons, co-organised events and feeds."
     },
     "d4": {
       "title": "Research",

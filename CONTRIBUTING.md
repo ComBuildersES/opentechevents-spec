@@ -37,6 +37,7 @@ Un cambio en la spec **no es solo editar un `.md`**. La v0.1 tiene cuatro piezas
 | El schema ejecutable | `spec/v0.1/event.schema.json` / `feed.schema.json` |
 | La prosa normativa (lo que un validador no puede comprobar) | `spec/v0.1/README.md` |
 | Los ejemplos, incluidos los que **deben fallar** | `spec/v0.1/examples/` y `examples/invalid/` |
+| La ficha del ejemplo en la galería de la web (EN + traducciones) | `spec/<versión>/examples/catalog/` → `npm run build-examples` |
 | Las copias publicadas (los `$id` deben resolver) | `docs/schema/` → `npm run publish-schemas` |
 
 Antes de enviar: `npm run validate`. **Si el cambio no viene con un ejemplo que lo demuestre, no está terminado** — y si relaja una regla, quita el ejemplo de `invalid/` que ya no debe fallar.
@@ -94,8 +95,9 @@ Inglés y español. Hay **dos sitios distintos**, y no se mezclan:
 | --- | --- |
 | Los textos de la web | [`docs/i18n/`](docs/i18n/) — ver [`docs/README.md`](docs/README.md) |
 | Las descripciones de los campos de la spec | [`spec/v0.1/i18n/`](spec/v0.1/i18n/) |
+| Las fichas de la galería de ejemplos | [`spec/v0.3/examples/catalog/`](spec/v0.3/examples/catalog/) |
 
-Las `description` **dentro de los schemas se quedan en inglés**: viajan en el paquete npm hacia implementadores de todo el mundo. Las traducciones van aparte, indexadas por campo, y `npm run validate` **falla si falta alguna**. Tras traducir: `npm run build-reference` regenera `reference.<idioma>.md` y la página de referencia.
+Las `description` **dentro de los schemas se quedan en inglés**: viajan en el paquete npm hacia implementadores de todo el mundo. Las traducciones van aparte, indexadas por campo, y `npm run validate` **falla si falta alguna**. Tras traducir: `npm run build-reference` regenera `reference.<idioma>.md` y la página de referencia, y `npm run build-examples` regenera la galería de <https://opentechevents.org/examples/>.
 
 ## Pull requests
 
@@ -106,6 +108,7 @@ Para cualquier cosa que toque **la especificación**, abre antes un issue. Un PR
 - Una rama por cambio, desde `main`.
 - Mensajes de commit en imperativo; si sigues [Conventional Commits](https://www.conventionalcommits.org/), mejor.
 - Explica **el porqué** en la descripción del PR. El qué ya se ve en el diff.
+- Si **añades un ejemplo**, catalógalo en `spec/<versión>/examples/catalog/en.json` (y tradúcelo): el CI falla si un ejemplo no está catalogado o si le falta una traducción. La galería de la web lee el JSON **del propio fichero validado**, así que no puede enseñar un documento inválido.
 - Si tocas los **schemas o los ejemplos**, ejecuta `npm run validate` antes de enviar. El CI lo hace igualmente y **falla si un ejemplo deja de validar** — es lo que impide que la spec y sus ejemplos se separen (ya pasó una vez).
 - Si añades o cambias un schema, `npm run publish-schemas` copia la versión publicada a `docs/schema/` (las URLs de los `$id` deben resolver). El validador comprueba que no se hayan separado.
 - Si tocas la **web**, levántala en local con `npm run dev` (→ <http://localhost:8000>) y comprueba que no rompes nada.

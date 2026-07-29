@@ -154,9 +154,11 @@ for (const version of VERSIONS) {
   }
 }
 
-// Chaining this in package.json would break `npm run validate -- my-feed.json`: npm appends the
+// Chaining these in package.json would break `npm run validate -- my-feed.json`: npm appends the
 // arguments to the END of the script string, so they would land on the wrong command.
-const reference = spawnSync(process.execPath, ["scripts/build-reference.mjs", "--check"], { stdio: "inherit" });
+const generated = ["scripts/build-reference.mjs", "scripts/build-examples.mjs"]
+  .map((script) => spawnSync(process.execPath, [script, "--check"], { stdio: "inherit" }))
+  .filter((run) => run.status).length;
 
-console.log(failures || reference.status ? `\n${failures + (reference.status ? 1 : 0)} failure(s)` : "\nAll examples validate.");
-process.exit(failures || reference.status ? 1 : 0);
+console.log(failures || generated ? `\n${failures + generated} failure(s)` : "\nAll examples validate.");
+process.exit(failures || generated ? 1 : 0);

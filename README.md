@@ -52,6 +52,8 @@ Una vez estabilizada la especificación, el objetivo es construir un ecosistema 
 
 👉 **[OTE Spec v0.3](spec/v0.3/README.md)** — schemas ejecutables (JSON Schema 2020-12), prosa normativa y ejemplos validados en CI. Las [v0.1](spec/v0.1/README.md) y [v0.2](spec/v0.2/README.md) quedan congeladas; qué cambió, en el [CHANGELOG](CHANGELOG.md).
 
+📄 **[Ejemplos prácticos](https://opentechevents.org/examples/)** — un documento entero por cada caso real: meetups pequeños y recurrentes, conferencias, eventos online e híbridos, multi-parte, hackathones, coorganizados y feeds. Todos salen de [`spec/v0.3/examples/`](spec/v0.3/examples/) y se validan en CI, así que se copian tal cual.
+
 ```bash
 npm install @opentechevents/schema
 ```

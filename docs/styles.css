@@ -160,10 +160,29 @@ a:hover { text-decoration: underline; }
   white-space: pre; display: block;
 }
 .code-block-sm code { font-size: .76rem; }
+
+/* Hero samples: one tab per kind of event, because "a meetup" and "a conference" are the two
+   questions people arrive with. */
+.hero-samples { min-width: 0; }
+.code-tabs { display: flex; gap: 6px; margin-bottom: 10px; }
+.code-tab {
+  border: 1px solid var(--line); background: #fff; color: var(--ink-soft);
+  font: 600 .82rem/1 var(--sans); padding: 8px 14px; border-radius: 999px; cursor: pointer;
+}
+.code-tab:hover { border-color: var(--ink-faint); color: var(--ink); }
+.code-tab.is-active { background: var(--ink); border-color: var(--ink); color: #fff; }
+.hero-code-link { margin: 12px 0 0; font-size: .88rem; line-height: 1.5; }
 k { color: #7fb3ff; }
 s { color: #8ee0a8; text-decoration: none; }
 c { color: #6f7787; font-style: italic; }
 t { color: #e08a6b; }
+
+/* Documents rendered by json-code.js (examples gallery, field reference) add two more token
+   kinds, and address themselves by line so a field can be pointed at inside a whole document. */
+.tok-ext { color: #e0b56b; }
+.tok-lit { color: #d9a2e8; }
+.code-line { display: block; }
+.code-line.is-hit { background: rgba(127,179,255,.15); box-shadow: inset 2px 0 0 #7fb3ff; }
 
 /* ---------- sections ---------- */
 .section { padding: 84px 0; }

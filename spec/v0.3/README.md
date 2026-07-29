@@ -95,6 +95,57 @@ Mezclar (`startDate` fecha, `endDate` fecha-hora) es inválido. Si `endDate` fal
 
 La única fecha con offset en toda la spec es `source.retrievedAt` (y `updatedAt` en el feed): son metadatos, instantes reales, no cosas que le pasan a la gente en un sitio.
 
+### Recurrencia y eventos multi-parte: `partOf`
+
+Nuevo en la v0.3, opcional. Y lo primero que hay que decir es lo que **no** es: **no es una regla de recurrencia**.
+
+**Un documento = una ocurrencia. Quien publica expande.** Un meetup mensual no es un documento con una regla: son doce documentos, cada uno con su `id`, sus fechas y su `status`. Un evento que se celebra tres sábados no consecutivos son tres documentos. `partOf` solo dice **de qué conjunto forman parte**:
+
+```json
+"partOf": {
+  "id": "https://rustmadrid.example/meetups",
+  "name": "Rust Madrid — meetup mensual",
+  "url": "https://rustmadrid.example/meetups"
+}
+```
+
+Solo `id` es obligatorio. `name` y `url` evitan que un consumidor tenga que resolver el `id` para poder agrupar. El `id` sigue las mismas reglas que el del evento (URI bajo un dominio propio, acuñado una vez) y **no tiene por qué resolver** a un documento OTE.
+
+**`type`: `series` o `multipart`** (por defecto `series`). No es decoración: cambia la traducción.
+
+- **`series`** — ocurrencias independientes que comparten identidad: el meetup de junio y el de julio. Cada una se anuncia, se asiste y se cancela por separado.
+- **`multipart`** — partes de **un solo evento** repartido en fechas no consecutivas: un curso en tres sábados, con una inscripción. Las partes no son eventos independientes aunque tengan fecha propia.
+
+Lo que `multipart` **no** arregla es «una sola inscripción»: eso no es una fecha, es registro/entradas, y la v0.3 no lo modela. No lo resuelvas deformando el campo de tiempo.
+
+⚠️ **Un evento multi-parte NO se expresa con un `startDate` en la primera parte y un `endDate` en la última.** `startDate: "2026-03-07"` + `endDate: "2026-03-21"` afirma un evento continuo de quince días — falso en los tres destinos, y en el calendario de quien se suscriba ocupa dos semanas enteras. Tres partes, tres documentos.
+
+**Traducción a los tres formatos, incluida la pérdida:**
+
+| Destino | Mapeo | Pérdida |
+| --- | --- | --- |
+| **schema.org** | `superEvent` → `EventSeries` (`series`) o `Event` (`multipart`, con las partes como su `subEvent`) | Ninguna en el modelo. Google **no lee** `superEvent`, pero tampoco lo necesita: ya recibe una ocurrencia por documento, que es exactamente lo que pide. |
+| **iCal** | `RELATED-TO;RELTYPE=PARENT:<id>` en cada `VEVENT` | Soporte desigual entre clientes: quien no lo entienda ve N eventos correctos. Nunca `RRULE`: la expansión ya ocurrió. |
+| **Atom / RSS** | Sin equivalente — se ignora | Total, e **inocua**: la entrada sigue describiendo un evento con su fecha real. |
+
+Que degrade a *ignorado* en los tres es justamente el diseño. Un campo de fechas que se ignora produce datos falsos; un campo de identidad que se ignora produce datos incompletos. Solo el segundo es aceptable.
+
+#### Por qué no `eventSchedule` de schema.org
+
+Se valoró sustituir `timezone` + `startDate` + `endDate` por un `eventSchedule` al estilo de schema.org (`repeatFrequency`, `byDay`, `scheduleTimezone`…). Se descarta, por cuatro razones:
+
+1. **Mete un motor de expansión dentro de un fichero.** El feed es un formato de intercambio, no una API: el consumidor lee, no calcula. Con una regla, todo consumidor —incluido el script de treinta líneas que pinta un listado— pasa a necesitar aritmética de calendario: DST, `exceptDate`, series infinitas, semántica de `"2MO"`. Es la razón de que toda librería de iCal pese lo que pesa.
+2. **RSS/Atom no pueden expresarla.** No modelan recurrencia. Quien exporte tiene que expandir igualmente: la expansión ocurre siempre, y la única pregunta es **quién** la hace. Que la haga quien publica —una vez, con el dato delante— y no cada consumidor por su cuenta, cada uno con su bug.
+3. **Rompe reglas que esta spec ya tiene.** Un `id` estable no sobrevive a N ocurrencias bajo un mismo documento (haría falta un equivalente de `RECURRENCE-ID`), y `status: cancelled` deja de ser expresable por ocurrencia sin inventar excepciones y sobrescrituras. Cancelar **la sesión de agosto** volvería a ser imposible: exactamente el problema que `status` existe para resolver.
+4. **No hay productor real.** De las cinco fuentes estudiadas ([`research/findings/json-ld-event-platforms.md`](../../research/findings/json-ld-event-platforms.md)) —Meetup, Eventbrite, Luma, Guild y el ejemplo canónico de Google— **ninguna** emite `eventSchedule`. Todas emiten fecha plana por ocurrencia, incluida la sesión *semanal* de Luma, que es recurrente de verdad. Y Google, que es quien consume schema.org a escala, pide explícitamente un `Event` por fecha. Adoptarlo sería el diseño especulativo que la sección de Extensiones prohíbe.
+
+#### Reglas para quien expande
+
+- **Series infinitas: horizonte acotado.** Un `RRULE` sin `UNTIL` ni `COUNT` no se puede expandir entero. Expande un horizonte razonable —**12 meses o las próximas 12 ocurrencias** es la recomendación— y vuelve a publicar al regenerar el feed. Un feed no es un calendario perpetuo.
+- **`id` por ocurrencia.** Si la ocurrencia tiene página propia, su URL. Si no, `<id-de-la-serie>/<fecha>` o `<id-de-la-serie>#<fecha>` — que es, literalmente, lo que `RECURRENCE-ID` hace en iCal. Lo que no vale es reutilizar el `id` de la serie en las doce: un consumidor las colapsaría en un solo evento.
+- **Las excepciones ya no son excepciones.** Tras expandir, `EXDATE` es *no emitir ese documento* y una ocurrencia movida es *un documento con otra fecha*. Si ya se publicó y luego se cae, `status: cancelled` — no borrarlo.
+- **Guardar la regla original es opcional, y con prefijo.** Si tu importador quiere no perderla para poder hacer round-trip, `"ics:rrule": "FREQ=MONTHLY;BYDAY=2MO"` es vocabulario externo (ver [Extensiones](#extensiones)): informativo, y **ningún consumidor de OTE está obligado a expandirlo**. Si sobrevive al uso real, se graduará.
+
 ### `location` y `attendanceMode` no son redundantes
 
 Responden a preguntas distintas:

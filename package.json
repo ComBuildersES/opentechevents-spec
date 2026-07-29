@@ -47,6 +47,7 @@
     "dev": "node scripts/serve.mjs",
     "validate": "node scripts/validate.mjs",
     "build-reference": "node scripts/build-reference.mjs",
+    "build-examples": "node scripts/build-examples.mjs",
     "publish-schemas": "mkdir -p docs/schema/v0.1 docs/schema/v0.2 docs/schema/v0.3 && cp spec/v0.1/event.schema.json spec/v0.1/feed.schema.json docs/schema/v0.1/ && cp spec/v0.2/event.schema.json spec/v0.2/feed.schema.json docs/schema/v0.2/ && cp spec/v0.3/event.schema.json spec/v0.3/feed.schema.json docs/schema/v0.3/",
     "prepublishOnly": "npm run validate"
   },
