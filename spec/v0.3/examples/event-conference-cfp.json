@@ -24,6 +24,8 @@
       "country": "ES"
     }
   },
+  "tags": ["cloud", "ai", "web"],
+  "languages": ["es", "en"],
   "offers": [
     {
       "name": "Early bird",
@@ -55,8 +57,6 @@
     "coversTravel": true,
     "coversAccommodation": true
   },
-  "tags": ["cloud", "ai", "web"],
-  "languages": ["es", "en"],
   "status": "scheduled",
   "license": "CC-BY-4.0",
   "updatedAt": "2026-05-04T09:00:00Z"

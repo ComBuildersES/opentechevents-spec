@@ -170,6 +170,43 @@
             }
           ]
         },
+        "tags": {
+          "description": "Free-form topic tags. Maps to iCal CATEGORIES and schema.org keywords. A controlled vocabulary may layer on top later; the field itself stays free. No default: absent means unknown.",
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "minItems": 1,
+          "examples": [
+            [
+              "rust",
+              "wasm"
+            ],
+            [
+              "python",
+              "async"
+            ]
+          ]
+        },
+        "languages": {
+          "description": "BCP 47 tags, e.g. [\"es\",\"en\"]. No default: absent means unknown.",
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Za-z]{2,3}(-[A-Za-z0-9]{2,8})*$"
+          },
+          "minItems": 1,
+          "examples": [
+            [
+              "es"
+            ],
+            [
+              "es",
+              "en"
+            ]
+          ]
+        },
         "offers": {
           "description": "What it costs to attend, and where to register. A list: tiered pricing (early bird, student, patron) is one entry each, and a free event is a single entry with price 0. Absent means UNKNOWN, never free — saying free is what price 0 is for.",
           "$ref": "#/$defs/offers",
@@ -214,43 +251,6 @@
               "coversTravel": true,
               "coversAccommodation": true
             }
-          ]
-        },
-        "tags": {
-          "description": "Free-form topic tags. Maps to iCal CATEGORIES and schema.org keywords. A controlled vocabulary may layer on top later; the field itself stays free. No default: absent means unknown.",
-          "type": "array",
-          "items": {
-            "type": "string",
-            "minLength": 1
-          },
-          "minItems": 1,
-          "examples": [
-            [
-              "rust",
-              "wasm"
-            ],
-            [
-              "python",
-              "async"
-            ]
-          ]
-        },
-        "languages": {
-          "description": "BCP 47 tags, e.g. [\"es\",\"en\"]. No default: absent means unknown.",
-          "type": "array",
-          "items": {
-            "type": "string",
-            "pattern": "^[A-Za-z]{2,3}(-[A-Za-z0-9]{2,8})*$"
-          },
-          "minItems": 1,
-          "examples": [
-            [
-              "es"
-            ],
-            [
-              "es",
-              "en"
-            ]
           ]
         },
         "status": {

@@ -23,34 +23,6 @@
       ]
     },
     {
-      "description": "location.address is recommended once there IS a physical venue, and meaningless otherwise. A venue given only as free text becomes a schema.org Place whose address is a string: schema.org accepts it, Google's Event rich result does not validate it, and four of the five platforms studied already emit the five PostalAddress subfields. The warning is actionable — whoever runs the event knows its address — with one known exception: an importer reading a .ics has only LOCATION, which has no parts. Same trade-off as image, and the same answer: the profile says what the event is missing, not who is to blame.",
-      "if": {
-        "type": "object",
-        "required": [
-          "location"
-        ],
-        "properties": {
-          "location": {
-            "type": "object",
-            "required": [
-              "venue"
-            ]
-          }
-        }
-      },
-      "then": {
-        "type": "object",
-        "properties": {
-          "location": {
-            "type": "object",
-            "required": [
-              "address"
-            ]
-          }
-        }
-      }
-    },
-    {
       "description": "cfp.closesAt is recommended once there IS a call for proposals, and meaningless otherwise. The reason cfp exists is the question 'which conferences are accepting proposals right now', and without a deadline nobody can answer it: a consumer sees a link and cannot tell whether it closed last March. The warning is actionable by definition — whoever opened the call knows when it closes.",
       "if": {
         "type": "object",

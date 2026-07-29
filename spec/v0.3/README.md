@@ -124,7 +124,6 @@ El criterio **no** es «estaría bien tenerlo»: es **qué se rompe en los tres 
 | `description` | Lo que muestra literalmente todo destino: `DESCRIPTION` en iCal, el cuerpo de la entrada en RSS/Atom, el snippet en schema.org. |
 | `image` | La imagen es lo que hace que el evento **se vea** donde se lista: Google la pide para el `Event` (como recomendada), y es lo único que llena una tarjeta en cualquier interfaz. Además, el aviso es **accionable**: las cinco plataformas estudiadas ya emiten una, así que quien no la manda casi siempre la tiene y no la ha mapeado. |
 | `location` | Google lo exige para el `Event`; en iCal es `LOCATION`. Sin él nadie puede contestar «¿me pilla cerca?». |
-| `location.address` | **Solo si hay sede física** (`location.venue`). Sin las partes, la dirección viaja a schema.org como texto suelto y el rich result de `Event` de Google no la valida: [detalle abajo](#locationaddress-la-dirección-que-se-valida-por-partes). Cuatro de las cinco plataformas estudiadas ya la emiten por partes, así que el aviso es accionable — salvo importando un `.ics`, que no las tiene. |
 | `attendanceMode` | La primera pregunta de quien busca: ¿puedo ir desde casa? No se deriva de `location` de forma fiable — [por eso son campos distintos](#location-y-attendancemode-no-son-redundantes). |
 | `tags` | **El campo del descubrimiento por interés.** Sin él, filtrar por tema exige adivinar a partir del título. Va a `CATEGORIES` en iCal y a `keywords` en schema.org. |
 | `languages` | Un evento en un idioma que no hablas es ruido, y no es el título quien lo dice. |
@@ -133,9 +132,11 @@ El criterio **no** es «estaría bien tenerlo»: es **qué se rompe en los tres 
 | `endDate` | Solo si `startDate` lleva hora: sin él el cliente de calendario se inventa la duración. En un evento de todo el día su ausencia ya significa «acaba el día que empieza», y avisar ahí sería ruido. |
 | `cfp.closesAt` | **Solo si hay `cfp`.** Sin fecha límite, la pregunta que el campo existe para responder —¿sigue abierto?— se queda sin respuesta, y un consumidor ve un enlace que pudo cerrar hace meses. Accionable por definición: quien abre una convocatoria sabe cuándo la cierra. |
 
-`location.address` y `cfp.closesAt` son **las dos recomendaciones anidadas, y las dos condicionales junto a `endDate`**: solo se piden cuando existe el campo padre, porque a un evento online pedirle código postal —o a un meetup una fecha límite de CFP— es un aviso que nadie puede atender. El perfil lo expresa con un `if`/`then`, no con prosa, así que un checker cualquiera lo aplica sin saber nada de esta página.
+`cfp.closesAt` es **la única recomendación anidada, y la única condicional junto a `endDate`**: solo se pide cuando existe el campo padre, porque a un meetup pedirle una fecha límite de CFP es un aviso que nadie puede atender. El perfil lo expresa con un `if`/`then`, no con prosa, así que un checker cualquiera lo aplica sin saber nada de esta página.
 
-**`offers` y `cfp` no son recomendados**, y no es un descuido. `cfp` porque la inmensa mayoría de los eventos no tiene convocatoria: avisar de su ausencia sería avisar a cada meetup de que no es una conferencia. `offers` porque el aviso no es accionable de forma fiable — un exportador de `.ics` no tiene el precio en ninguna parte, y ninguna de las cinco fuentes estudiadas lo emite de forma universal. Recomendar es prometer que **quien publica puede arreglarlo**; donde no se puede, un aviso solo enseña a ignorar los avisos.
+**Lo recomendado es `location`, no `location.address`.** Qué hace falta saber del sitio depende del tipo de evento: a uno online la dirección postal no le aplica, y a un meetup en un bar el nombre del bar es todo lo que hay y todo lo que hace falta. `address` es lo que necesita quien exporta a schema.org para que Google valide la dirección por partes ([detalle abajo](#locationaddress-la-dirección-que-se-valida-por-partes)), y es una mejora real cuando se tiene — pero un aviso que la mitad de los eventos no puede atender es un aviso que enseña a ignorar los avisos.
+
+**`offers` y `cfp` tampoco son recomendados**, y no es un descuido. `cfp` porque la inmensa mayoría de los eventos no tiene convocatoria: avisar de su ausencia sería avisar a cada meetup de que no es una conferencia. `offers` porque el aviso no es accionable de forma fiable — un exportador de `.ics` no tiene el precio en ninguna parte, y ninguna de las cinco fuentes estudiadas lo emite de forma universal. Recomendar es prometer que **quien publica puede arreglarlo**; donde no se puede, un aviso solo enseña a ignorar los avisos.
 
 El perfil del feed es corto a propósito ([`feed.recommended.schema.json`](feed.recommended.schema.json)): `url` y `description`. Casi toda la calidad de un feed está en sus eventos, y un checker aplica el perfil de evento a cada uno por separado —  **con la herencia ya resuelta**, o todo evento de un feed comunitario avisaría por unos `organizers` que el feed ya declaró.
 
@@ -158,8 +159,8 @@ specVersion                                    ← contra qué versión se valid
 id, url, name, description, image, organizers  ← qué es y quién lo hace
 startDate, endDate, timezone                   ← cuándo
 attendanceMode, location                       ← ¿puedo ir?
-offers, cfp                                    ← ¿cuánto cuesta, y puedo participar?
 tags, languages                                ← ¿me interesa?
+offers, cfp                                    ← ¿cuánto cuesta, y puedo participar?
 status, partOf                                 ← qué le ha pasado, y de qué forma parte
 license, source, updatedAt                     ← datos sobre el dato
 ```
@@ -488,7 +489,7 @@ Nuevo en la v0.3. Opcional, **un objeto**, y solo `url` es obligatoria:
 
 Entra por **el otro lado del tubo**: el del consumidor. «¿Qué conferencias están aceptando propuestas ahora mismo?» es una de las preguntas que este proyecto existe para contestar, y hoy se contesta **scrapeando**: confs.tech, developers.events, CFP Land y demás listados mantienen a mano —o a base de raspar webs— exactamente estos dos datos, enlace y fecha límite. Que no haya un `Offer` de schema.org detrás no significa que no haya productores: significa que los productores lo publican **en HTML**, y que quien lo quiere estructurado tiene que adivinarlo. OTE no es solo un formato de exportación a otros tres formatos; es también el sitio donde puede vivir un dato que los otros tres no saben nombrar. `cfp` es el primer campo que ejerce eso, y conviene decirlo en voz alta: **su valor está dentro del ecosistema OTE, no en la traducción**.
 
-**`closesAt` es [recomendado](#válido-no-es-lo-mismo-que-útil-los-campos-recomendados) en cuanto hay `cfp`.** Sin fecha límite, un consumidor ve un enlace y no puede saber si cerró en marzo — y la pregunta que el campo existe para responder («¿está abierto?») se queda sin responder. El aviso es accionable por definición: quien abrió la convocatoria sabe cuándo cierra. Es la segunda recomendación condicional de la spec, junto a `location.address`.
+**`closesAt` es [recomendado](#válido-no-es-lo-mismo-que-útil-los-campos-recomendados) en cuanto hay `cfp`.** Sin fecha límite, un consumidor ve un enlace y no puede saber si cerró en marzo — y la pregunta que el campo existe para responder («¿está abierto?») se queda sin responder. El aviso es accionable por definición: quien abrió la convocatoria sabe cuándo cierra. Es la otra recomendación condicional de la spec, junto a `endDate`.
 
 **Un objeto, no una lista** — al contrario que `organizers` e `image`. La razón es la misma en los tres casos, aplicada a los hechos: `organizers` nace lista porque Luma **ya emite** varios; aquí ningún productor real publica dos convocatorias por evento, y los directorios de CFP que existen modelan exactamente **un enlace y una fecha**. Si aparecen de verdad los casos que se imaginan (charlas y talleres con plazos distintos), ensanchar objeto → lista es un cambio que rompe y llegará con su versión. No se paga hoy por un caso hipotético.
 

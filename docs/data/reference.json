@@ -276,7 +276,7 @@
           "path": "location.address",
           "type": "object",
           "required": false,
-          "recommended": true,
+          "recommended": false,
           "examples": [
             {
               "street": "Calle de Moreno Nieto 2",
@@ -412,6 +412,45 @@
           "description": {
             "en": "Longitude in decimal degrees.",
             "es": "Longitud en grados decimales."
+          }
+        },
+        {
+          "path": "tags",
+          "type": "string[]",
+          "required": false,
+          "recommended": true,
+          "examples": [
+            [
+              "rust",
+              "wasm"
+            ],
+            [
+              "python",
+              "async"
+            ]
+          ],
+          "description": {
+            "en": "Free-form topic tags. Maps to iCal CATEGORIES and schema.org keywords. A controlled vocabulary may layer on top later; the field itself stays free. No default: absent means unknown.",
+            "es": "Etiquetas temáticas de forma libre. Mapea a `CATEGORIES` de iCal y a `keywords` de schema.org. Más adelante podría superponerse un vocabulario controlado; el campo en sí sigue siendo libre. Sin valor por defecto: ausente significa desconocido."
+          }
+        },
+        {
+          "path": "languages",
+          "type": "string[]",
+          "required": false,
+          "recommended": true,
+          "examples": [
+            [
+              "es"
+            ],
+            [
+              "es",
+              "en"
+            ]
+          ],
+          "description": {
+            "en": "BCP 47 tags, e.g. [\"es\",\"en\"]. No default: absent means unknown.",
+            "es": "Etiquetas BCP 47, p. ej. `[\"es\",\"en\"]`. Sin valor por defecto: ausente significa desconocido."
           }
         },
         {
@@ -632,45 +671,6 @@
           "description": {
             "en": "Whether the event covers a selected speaker's accommodation. Same rule as coversTravel: absent means unknown.",
             "es": "Si el evento cubre el alojamiento de quien sea seleccionado. Misma regla que `coversTravel`: ausente significa desconocido."
-          }
-        },
-        {
-          "path": "tags",
-          "type": "string[]",
-          "required": false,
-          "recommended": true,
-          "examples": [
-            [
-              "rust",
-              "wasm"
-            ],
-            [
-              "python",
-              "async"
-            ]
-          ],
-          "description": {
-            "en": "Free-form topic tags. Maps to iCal CATEGORIES and schema.org keywords. A controlled vocabulary may layer on top later; the field itself stays free. No default: absent means unknown.",
-            "es": "Etiquetas temáticas de forma libre. Mapea a `CATEGORIES` de iCal y a `keywords` de schema.org. Más adelante podría superponerse un vocabulario controlado; el campo en sí sigue siendo libre. Sin valor por defecto: ausente significa desconocido."
-          }
-        },
-        {
-          "path": "languages",
-          "type": "string[]",
-          "required": false,
-          "recommended": true,
-          "examples": [
-            [
-              "es"
-            ],
-            [
-              "es",
-              "en"
-            ]
-          ],
-          "description": {
-            "en": "BCP 47 tags, e.g. [\"es\",\"en\"]. No default: absent means unknown.",
-            "es": "Etiquetas BCP 47, p. ej. `[\"es\",\"en\"]`. Sin valor por defecto: ausente significa desconocido."
           }
         },
         {

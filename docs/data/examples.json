@@ -177,7 +177,7 @@
           "`capacity` NO está en la v0.3. El documento es válido igualmente: los schemas no prohíben campos adicionales, a propósito. Es la vía por la que la spec crece — campos que alguien ya usa de verdad, que es justo por donde entraron `image` y `offers`."
         ]
       },
-      "source": "{\n  \"specVersion\": \"0.3.0\",\n  \"id\": \"https://rustmadrid.example/meetups/2026-06\",\n  \"url\": \"https://rustmadrid.example/meetups/2026-06\",\n  \"name\": \"Rust Madrid — Meetup de junio\",\n  \"description\": \"Charlas sobre WASM y tooling de Rust.\\n\\n18:30 Puertas · 19:00 Charlas · 20:30 Networking\",\n  \"image\": [\n    \"https://rustmadrid.example/img/2026-06-16x9.png\",\n    \"https://rustmadrid.example/img/2026-06-4x3.png\",\n    \"https://rustmadrid.example/img/2026-06-1x1.png\"\n  ],\n  \"organizers\": [\n    {\n      \"name\": \"Rust Madrid\",\n      \"url\": \"https://rustmadrid.example\"\n    }\n  ],\n  \"startDate\": \"2026-06-26T19:00:00\",\n  \"endDate\": \"2026-06-26T21:00:00\",\n  \"timezone\": \"Europe/Madrid\",\n  \"attendanceMode\": \"hybrid\",\n  \"location\": {\n    \"venue\": \"Campus Madrid, Calle de Moreno Nieto 2, Madrid\",\n    \"address\": {\n      \"street\": \"Calle de Moreno Nieto 2\",\n      \"locality\": \"Madrid\",\n      \"region\": \"Comunidad de Madrid\",\n      \"postalCode\": \"28005\",\n      \"country\": \"ES\"\n    },\n    \"onlineUrl\": \"https://meet.example/rust-madrid\",\n    \"geo\": {\n      \"lat\": 40.4081,\n      \"lon\": -3.7188\n    }\n  },\n  \"offers\": [\n    {\n      \"price\": 0,\n      \"url\": \"https://rustmadrid.example/meetups/2026-06#registro\"\n    }\n  ],\n  \"tags\": [\n    \"rust\",\n    \"wasm\"\n  ],\n  \"languages\": [\n    \"es\"\n  ],\n  \"status\": \"scheduled\",\n  \"license\": \"CC-BY-4.0\",\n  \"updatedAt\": \"2026-06-10T18:00:00Z\",\n  \"capacity\": 80\n}",
+      "source": "{\n  \"specVersion\": \"0.3.0\",\n  \"id\": \"https://rustmadrid.example/meetups/2026-06\",\n  \"url\": \"https://rustmadrid.example/meetups/2026-06\",\n  \"name\": \"Rust Madrid — Meetup de junio\",\n  \"description\": \"Charlas sobre WASM y tooling de Rust.\\n\\n18:30 Puertas · 19:00 Charlas · 20:30 Networking\",\n  \"image\": [\n    \"https://rustmadrid.example/img/2026-06-16x9.png\",\n    \"https://rustmadrid.example/img/2026-06-4x3.png\",\n    \"https://rustmadrid.example/img/2026-06-1x1.png\"\n  ],\n  \"organizers\": [\n    {\n      \"name\": \"Rust Madrid\",\n      \"url\": \"https://rustmadrid.example\"\n    }\n  ],\n  \"startDate\": \"2026-06-26T19:00:00\",\n  \"endDate\": \"2026-06-26T21:00:00\",\n  \"timezone\": \"Europe/Madrid\",\n  \"attendanceMode\": \"hybrid\",\n  \"location\": {\n    \"venue\": \"Campus Madrid, Calle de Moreno Nieto 2, Madrid\",\n    \"address\": {\n      \"street\": \"Calle de Moreno Nieto 2\",\n      \"locality\": \"Madrid\",\n      \"region\": \"Comunidad de Madrid\",\n      \"postalCode\": \"28005\",\n      \"country\": \"ES\"\n    },\n    \"onlineUrl\": \"https://meet.example/rust-madrid\",\n    \"geo\": {\n      \"lat\": 40.4081,\n      \"lon\": -3.7188\n    }\n  },\n  \"tags\": [\n    \"rust\",\n    \"wasm\"\n  ],\n  \"languages\": [\n    \"es\"\n  ],\n  \"offers\": [\n    {\n      \"price\": 0,\n      \"url\": \"https://rustmadrid.example/meetups/2026-06#registro\"\n    }\n  ],\n  \"status\": \"scheduled\",\n  \"license\": \"CC-BY-4.0\",\n  \"updatedAt\": \"2026-06-10T18:00:00Z\",\n  \"capacity\": 80\n}",
       "lines": {
         "event.specVersion": [
           2
@@ -254,20 +254,20 @@
         "event.location": [
           22
         ],
-        "event.offers[].price": [
-          39
-        ],
-        "event.offers[].url": [
-          40
-        ],
-        "event.offers": [
+        "event.tags": [
           37
         ],
-        "event.tags": [
-          43
-        ],
         "event.languages": [
+          41
+        ],
+        "event.offers[].price": [
+          46
+        ],
+        "event.offers[].url": [
           47
+        ],
+        "event.offers": [
+          44
         ],
         "event.status": [
           50
@@ -985,7 +985,7 @@
           "`cfp` no tiene equivalente en schema.org, iCal ni RSS: al exportar se degrada a texto. Está en el núcleo igualmente porque «qué conferencias aceptan propuestas ahora mismo» solo lo puede contestar quien publica, y hoy se contesta scrapeando."
         ]
       },
-      "source": "{\n  \"specVersion\": \"0.3.0\",\n  \"id\": \"https://devfest-levante.example/2026\",\n  \"url\": \"https://devfest-levante.example/2026\",\n  \"name\": \"DevFest Levante 2026\",\n  \"description\": \"Conferencia de desarrollo del sureste, edición 2026. Dos días, tres tracks.\",\n  \"image\": [\n    \"https://devfest-levante.example/img/2026-16x9.png\"\n  ],\n  \"organizers\": [\n    {\n      \"name\": \"GDG Levante\",\n      \"url\": \"https://gdglevante.example\"\n    }\n  ],\n  \"startDate\": \"2026-10-16\",\n  \"endDate\": \"2026-10-17\",\n  \"timezone\": \"Europe/Madrid\",\n  \"attendanceMode\": \"in-person\",\n  \"location\": {\n    \"venue\": \"Las Naves, Carrer de Joan Verdeguer 16, València\",\n    \"address\": {\n      \"street\": \"Carrer de Joan Verdeguer 16\",\n      \"locality\": \"València\",\n      \"region\": \"Comunitat Valenciana\",\n      \"postalCode\": \"46024\",\n      \"country\": \"ES\"\n    }\n  },\n  \"offers\": [\n    {\n      \"name\": \"Early bird\",\n      \"price\": 35,\n      \"currency\": \"EUR\",\n      \"url\": \"https://devfest-levante.example/2026/entradas\",\n      \"availability\": \"sold-out\",\n      \"closesAt\": \"2026-06-30T23:59:59+02:00\"\n    },\n    {\n      \"name\": \"General\",\n      \"price\": 45,\n      \"currency\": \"EUR\",\n      \"url\": \"https://devfest-levante.example/2026/entradas\",\n      \"availability\": \"in-stock\",\n      \"opensAt\": \"2026-07-01T00:00:00+02:00\"\n    },\n    {\n      \"name\": \"Estudiantes\",\n      \"price\": 0,\n      \"url\": \"https://devfest-levante.example/2026/entradas#estudiantes\",\n      \"availability\": \"in-stock\"\n    }\n  ],\n  \"cfp\": {\n    \"url\": \"https://devfest-levante.example/2026/cfp\",\n    \"opensAt\": \"2026-05-01T00:00:00+02:00\",\n    \"closesAt\": \"2026-07-15T23:59:59+02:00\",\n    \"coversTravel\": true,\n    \"coversAccommodation\": true\n  },\n  \"tags\": [\n    \"cloud\",\n    \"ai\",\n    \"web\"\n  ],\n  \"languages\": [\n    \"es\",\n    \"en\"\n  ],\n  \"status\": \"scheduled\",\n  \"license\": \"CC-BY-4.0\",\n  \"updatedAt\": \"2026-05-04T09:00:00Z\"\n}",
+      "source": "{\n  \"specVersion\": \"0.3.0\",\n  \"id\": \"https://devfest-levante.example/2026\",\n  \"url\": \"https://devfest-levante.example/2026\",\n  \"name\": \"DevFest Levante 2026\",\n  \"description\": \"Conferencia de desarrollo del sureste, edición 2026. Dos días, tres tracks.\",\n  \"image\": [\n    \"https://devfest-levante.example/img/2026-16x9.png\"\n  ],\n  \"organizers\": [\n    {\n      \"name\": \"GDG Levante\",\n      \"url\": \"https://gdglevante.example\"\n    }\n  ],\n  \"startDate\": \"2026-10-16\",\n  \"endDate\": \"2026-10-17\",\n  \"timezone\": \"Europe/Madrid\",\n  \"attendanceMode\": \"in-person\",\n  \"location\": {\n    \"venue\": \"Las Naves, Carrer de Joan Verdeguer 16, València\",\n    \"address\": {\n      \"street\": \"Carrer de Joan Verdeguer 16\",\n      \"locality\": \"València\",\n      \"region\": \"Comunitat Valenciana\",\n      \"postalCode\": \"46024\",\n      \"country\": \"ES\"\n    }\n  },\n  \"tags\": [\n    \"cloud\",\n    \"ai\",\n    \"web\"\n  ],\n  \"languages\": [\n    \"es\",\n    \"en\"\n  ],\n  \"offers\": [\n    {\n      \"name\": \"Early bird\",\n      \"price\": 35,\n      \"currency\": \"EUR\",\n      \"url\": \"https://devfest-levante.example/2026/entradas\",\n      \"availability\": \"sold-out\",\n      \"closesAt\": \"2026-06-30T23:59:59+02:00\"\n    },\n    {\n      \"name\": \"General\",\n      \"price\": 45,\n      \"currency\": \"EUR\",\n      \"url\": \"https://devfest-levante.example/2026/entradas\",\n      \"availability\": \"in-stock\",\n      \"opensAt\": \"2026-07-01T00:00:00+02:00\"\n    },\n    {\n      \"name\": \"Estudiantes\",\n      \"price\": 0,\n      \"url\": \"https://devfest-levante.example/2026/entradas#estudiantes\",\n      \"availability\": \"in-stock\"\n    }\n  ],\n  \"cfp\": {\n    \"url\": \"https://devfest-levante.example/2026/cfp\",\n    \"opensAt\": \"2026-05-01T00:00:00+02:00\",\n    \"closesAt\": \"2026-07-15T23:59:59+02:00\",\n    \"coversTravel\": true,\n    \"coversAccommodation\": true\n  },\n  \"status\": \"scheduled\",\n  \"license\": \"CC-BY-4.0\",\n  \"updatedAt\": \"2026-05-04T09:00:00Z\"\n}",
       "lines": {
         "event.specVersion": [
           2
@@ -1050,62 +1050,62 @@
         "event.location": [
           20
         ],
-        "event.offers[].name": [
-          32,
-          40,
-          48
-        ],
-        "event.offers[].price": [
-          33,
-          41,
-          49
-        ],
-        "event.offers[].currency": [
-          34,
-          42
-        ],
-        "event.offers[].url": [
-          35,
-          43,
-          50
-        ],
-        "event.offers[].availability": [
-          36,
-          44,
-          51
-        ],
-        "event.offers[].closesAt": [
-          37
-        ],
-        "event.offers[].opensAt": [
-          45
-        ],
-        "event.offers": [
+        "event.tags": [
           30
         ],
-        "event.cfp.url": [
-          55
+        "event.languages": [
+          35
         ],
-        "event.cfp.opensAt": [
-          56
-        ],
-        "event.cfp.closesAt": [
+        "event.offers[].name": [
+          41,
+          49,
           57
         ],
-        "event.cfp.coversTravel": [
+        "event.offers[].price": [
+          42,
+          50,
           58
         ],
-        "event.cfp.coversAccommodation": [
+        "event.offers[].currency": [
+          43,
+          51
+        ],
+        "event.offers[].url": [
+          44,
+          52,
           59
         ],
-        "event.cfp": [
+        "event.offers[].availability": [
+          45,
+          53,
+          60
+        ],
+        "event.offers[].closesAt": [
+          46
+        ],
+        "event.offers[].opensAt": [
           54
         ],
-        "event.tags": [
-          61
+        "event.offers": [
+          39
         ],
-        "event.languages": [
+        "event.cfp.url": [
+          64
+        ],
+        "event.cfp.opensAt": [
+          65
+        ],
+        "event.cfp.closesAt": [
           66
+        ],
+        "event.cfp.coversTravel": [
+          67
+        ],
+        "event.cfp.coversAccommodation": [
+          68
+        ],
+        "event.cfp": [
+          63
         ],
         "event.status": [
           70
@@ -3181,57 +3181,11 @@
         ]
       }
     ],
-    "event.offers[].price": [
-      {
-        "file": "event-meetup.json",
-        "lines": [
-          39
-        ]
-      },
-      {
-        "file": "event-conference-cfp.json",
-        "lines": [
-          33,
-          41,
-          49
-        ]
-      }
-    ],
-    "event.offers[].url": [
-      {
-        "file": "event-meetup.json",
-        "lines": [
-          40
-        ]
-      },
-      {
-        "file": "event-conference-cfp.json",
-        "lines": [
-          35,
-          43,
-          50
-        ]
-      }
-    ],
-    "event.offers": [
-      {
-        "file": "event-meetup.json",
-        "lines": [
-          37
-        ]
-      },
-      {
-        "file": "event-conference-cfp.json",
-        "lines": [
-          30
-        ]
-      }
-    ],
     "event.tags": [
       {
         "file": "event-meetup.json",
         "lines": [
-          43
+          37
         ]
       },
       {
@@ -3269,7 +3223,7 @@
       {
         "file": "event-conference-cfp.json",
         "lines": [
-          61
+          30
         ]
       },
       {
@@ -3303,7 +3257,7 @@
       {
         "file": "event-meetup.json",
         "lines": [
-          47
+          41
         ]
       },
       {
@@ -3341,7 +3295,7 @@
       {
         "file": "event-conference-cfp.json",
         "lines": [
-          66
+          35
         ]
       },
       {
@@ -3368,6 +3322,52 @@
         "lines": [
           42,
           76
+        ]
+      }
+    ],
+    "event.offers[].price": [
+      {
+        "file": "event-meetup.json",
+        "lines": [
+          46
+        ]
+      },
+      {
+        "file": "event-conference-cfp.json",
+        "lines": [
+          42,
+          50,
+          58
+        ]
+      }
+    ],
+    "event.offers[].url": [
+      {
+        "file": "event-meetup.json",
+        "lines": [
+          47
+        ]
+      },
+      {
+        "file": "event-conference-cfp.json",
+        "lines": [
+          44,
+          52,
+          59
+        ]
+      }
+    ],
+    "event.offers": [
+      {
+        "file": "event-meetup.json",
+        "lines": [
+          44
+        ]
+      },
+      {
+        "file": "event-conference-cfp.json",
+        "lines": [
+          39
         ]
       }
     ],
@@ -3773,9 +3773,9 @@
       {
         "file": "event-conference-cfp.json",
         "lines": [
-          32,
-          40,
-          48
+          41,
+          49,
+          57
         ]
       }
     ],
@@ -3783,8 +3783,8 @@
       {
         "file": "event-conference-cfp.json",
         "lines": [
-          34,
-          42
+          43,
+          51
         ]
       }
     ],
@@ -3792,9 +3792,9 @@
       {
         "file": "event-conference-cfp.json",
         "lines": [
-          36,
-          44,
-          51
+          45,
+          53,
+          60
         ]
       }
     ],
@@ -3802,7 +3802,7 @@
       {
         "file": "event-conference-cfp.json",
         "lines": [
-          37
+          46
         ]
       }
     ],
@@ -3810,7 +3810,7 @@
       {
         "file": "event-conference-cfp.json",
         "lines": [
-          45
+          54
         ]
       }
     ],
@@ -3818,7 +3818,7 @@
       {
         "file": "event-conference-cfp.json",
         "lines": [
-          55
+          64
         ]
       }
     ],
@@ -3826,7 +3826,7 @@
       {
         "file": "event-conference-cfp.json",
         "lines": [
-          56
+          65
         ]
       }
     ],
@@ -3834,7 +3834,7 @@
       {
         "file": "event-conference-cfp.json",
         "lines": [
-          57
+          66
         ]
       }
     ],
@@ -3842,7 +3842,7 @@
       {
         "file": "event-conference-cfp.json",
         "lines": [
-          58
+          67
         ]
       }
     ],
@@ -3850,7 +3850,7 @@
       {
         "file": "event-conference-cfp.json",
         "lines": [
-          59
+          68
         ]
       }
     ],
@@ -3858,7 +3858,7 @@
       {
         "file": "event-conference-cfp.json",
         "lines": [
-          54
+          63
         ]
       }
     ],

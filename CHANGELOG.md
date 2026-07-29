@@ -124,11 +124,11 @@ descubrir y seguir.
     `null`.
   - **No satisface `location` por sí solo**: sigue haciendo falta `venue` u
     `onlineUrl`, misma regla que `geo`.
-  - **Entra en el perfil recomendado, de forma condicional**: se pide solo si hay
-    `location.venue`. Es la **primera recomendación anidada** — los perfiles
-    pasan a poder pedir `location.address`, no solo campos de primer nivel — y
-    tiene una excepción conocida: quien importa un `.ics` solo tiene `LOCATION`,
-    una línea de texto libre sin partes. Mismo caso que `image`.
+  - **No entra en el perfil recomendado**: lo recomendado es `location`. Qué hace
+    falta saber del sitio depende del tipo de evento —a uno online la dirección
+    postal no le aplica, y a un meetup en un bar le basta el nombre del bar—, así
+    que el aviso no sería accionable para buena parte de los eventos. Es una
+    mejora real cuando se tiene, no un mínimo de calidad.
 
 - **`offers`** (`array`, mín. 1) en el **evento**: qué cuesta asistir y dónde
   registrarse. Cada entrada: `name`, `price`, `currency`, `url`, `availability`

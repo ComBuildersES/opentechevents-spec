@@ -28,11 +28,11 @@
     "onlineUrl": "https://meet.example/rust-madrid",
     "geo": { "lat": 40.4081, "lon": -3.7188 }
   },
+  "tags": ["rust", "wasm"],
+  "languages": ["es"],
   "offers": [
     { "price": 0, "url": "https://rustmadrid.example/meetups/2026-06#registro" }
   ],
-  "tags": ["rust", "wasm"],
-  "languages": ["es"],
   "status": "scheduled",
   "license": "CC-BY-4.0",
   "updatedAt": "2026-06-10T18:00:00Z",
