@@ -17,13 +17,14 @@
   "location": {
     "venue": "Las Naves, Carrer de Joan Verdeguer 16, València"
   },
+  "tags": ["cloud", "ai", "web"],
   "languages": ["es", "en"],
   "status": "scheduled",
-  "tags": ["cloud", "ai", "web"],
   "license": "CC-BY-4.0",
   "updatedAt": "2026-05-04T09:00:00Z",
 
   "_comment_extensions": "Campos EN DISCUSIÓN (issue #5), no normativos en la v0.3. El documento es válido igualmente porque el schema no prohíbe campos adicionales. El CFP es el caso que más se pide: si lo necesitas, dilo en el issue.",
+
   "cfp": {
     "url": "https://devfest-levante.example/2026/cfp",
     "opensAt": "2026-05-01T00:00:00",

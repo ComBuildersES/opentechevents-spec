@@ -220,6 +220,14 @@ descubrir y seguir.
   emita seguirá validando.
 - El paquete npm exportaba solo los subpaths de `v0.1`. Ahora expone `v0.1`,
   `v0.2` y `v0.3`.
+- **Los campos se declaran en un orden canónico** —identidad, cuándo, dónde,
+  filtros, estado, procedencia— y lo siguen el schema, los ejemplos y la
+  referencia generada. **No cambia nada de lo que es válido**: JSON no tiene
+  orden y ningún consumidor debe depender de él. Cambia lo que se lee: la tabla
+  de referencia, el autocompletado del editor y el ejemplo que alguien copia
+  ahora enseñan la misma forma. `npm run validate` lo comprueba en los ejemplos
+  de `v0.3`; las versiones congeladas conservan el suyo. El orden y el porqué,
+  en [«El orden de los campos»](spec/v0.3/README.md#el-orden-de-los-campos-no-es-normativo-pero-hay-uno).
 
 ### Migration — cómo actualizar una herramienta
 

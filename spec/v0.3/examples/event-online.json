@@ -19,15 +19,14 @@
 
   "attendanceMode": "online",
   "location": { "onlineUrl": "https://discord.example/rust-girona" },
-  "languages": ["ca", "es"],
   "tags": ["rust", "pair-programming"],
+  "languages": ["ca", "es"],
   "status": "scheduled",
-  "license": "CC-BY-4.0",
-  "updatedAt": "2026-07-24T08:00:00Z",
-
   "partOf": {
     "id": "https://rustgirona.example/sessions",
     "name": "Sessió setmanal de codificació",
     "url": "https://rustgirona.example/sessions"
-  }
+  },
+  "license": "CC-BY-4.0",
+  "updatedAt": "2026-07-24T08:00:00Z"
 }

@@ -17,8 +17,8 @@
   "location": {
     "venue": "Las Naves, Valencia"
   },
-  "languages": ["es", "en"],
   "tags": ["cloud", "ai", "web"],
+  "languages": ["es", "en"],
   "status": "scheduled",
   "license": "CC-BY-4.0",
   "updatedAt": "2026-05-04T09:00:00Z"

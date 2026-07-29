@@ -132,20 +132,6 @@
           }
         },
         {
-          "path": "organizers[].type",
-          "type": "enum: organization | person",
-          "required": false,
-          "recommended": false,
-          "examples": [
-            "organization",
-            "person"
-          ],
-          "description": {
-            "en": "Organisation or person. Defaults to organisation: a translator has to pick a schema.org @type, and Organization is the tolerant choice.",
-            "es": "Organización o persona. Por defecto, organización: al traducir hay que elegir un `@type` de schema.org sí o sí, y `Organization` es la opción tolerante."
-          }
-        },
-        {
           "path": "organizers[].name",
           "type": "string",
           "required": true,
@@ -174,18 +160,17 @@
           }
         },
         {
-          "path": "timezone",
-          "type": "string",
-          "required": true,
+          "path": "organizers[].type",
+          "type": "enum: organization | person",
+          "required": false,
           "recommended": false,
           "examples": [
-            "Europe/Madrid",
-            "America/Bogota",
-            "UTC"
+            "organization",
+            "person"
           ],
           "description": {
-            "en": "IANA timezone (e.g. Europe/Madrid). Turns a wall-clock startDate into an unambiguous instant. For all-day events it contextualises the date — it does not shift it.",
-            "es": "Zona horaria IANA (p. ej. `Europe/Madrid`). Convierte un `startDate` de reloj de pared en un instante inequívoco. En eventos de todo el día contextualiza la fecha: no la desplaza."
+            "en": "Organisation or person. Defaults to organisation: a translator has to pick a schema.org @type, and Organization is the tolerant choice.",
+            "es": "Organización o persona. Por defecto, organización: al traducir hay que elegir un `@type` de schema.org sí o sí, y `Organization` es la opción tolerante."
           }
         },
         {
@@ -217,94 +202,33 @@
           }
         },
         {
-          "path": "partOf",
-          "type": "object",
-          "required": false,
-          "recommended": false,
-          "examples": [
-            {
-              "id": "https://rustmadrid.example/meetups",
-              "name": "Rust Madrid — meetup mensual",
-              "url": "https://rustmadrid.example/meetups"
-            },
-            {
-              "type": "multipart",
-              "id": "https://pyalmeria.example/study-jams/2026-testing",
-              "name": "Study Jam de testing en Python (3 sesiones)"
-            }
-          ],
-          "description": {
-            "en": "The series or multi-part event this document is one occurrence of. A REFERENCE, never a recurrence rule: OTE does not generate dates: whoever publishes expands the recurrence into one document per occurrence, each with its own id, dates and status. A consumer that ignores this field still sees complete, correct events.",
-            "es": "La serie o el evento multi-parte del que este documento es UNA ocurrencia. Es una REFERENCIA, nunca una regla de recurrencia: OTE no genera fechas — quien publica expande la recurrencia en un documento por ocurrencia, cada uno con su `id`, sus fechas y su `status`. Un consumidor que ignore este campo sigue viendo eventos completos y correctos."
-          }
-        },
-        {
-          "path": "partOf.type",
-          "type": "enum: series | multipart",
-          "required": false,
-          "recommended": false,
-          "examples": [
-            "series",
-            "multipart"
-          ],
-          "description": {
-            "en": "series: independent occurrences that share an identity (a monthly meetup). multipart: parts of ONE event held on non-consecutive dates (a three-session study jam on non-consecutive Saturdays, one registration). Defaults to series, the tolerant choice. It changes the translation: a series becomes schema.org EventSeries, a multi-part event becomes an Event whose parts are its subEvent.",
-            "es": "`series`: ocurrencias independientes que comparten identidad (un meetup mensual). `multipart`: partes de UN SOLO evento celebrado en fechas no consecutivas (un study jam de tres sesiones en sábados no consecutivos, con una sola inscripción). Por defecto `series`, que es la opción tolerante. Cambia la traducción: una serie se convierte en `EventSeries` de schema.org; un evento multi-parte, en un `Event` cuyas partes son su `subEvent`."
-          }
-        },
-        {
-          "path": "partOf.id",
-          "type": "string (uri)",
-          "required": true,
-          "recommended": false,
-          "examples": [
-            "https://rustmadrid.example/meetups",
-            "https://pyalmeria.example/study-jams/2026-testing"
-          ],
-          "description": {
-            "en": "Stable identifier of the series or multi-part event. Same rules as the event's id: a URI under a domain the publisher controls, minted once. It does NOT have to resolve to an OTE document — it is what lets a consumer group occurrences.",
-            "es": "Identificador estable de la serie o del evento multi-parte. Mismas reglas que el `id` del evento: una URI bajo un dominio que controle quien publica, acuñada una vez. NO tiene por qué resolver a un documento OTE — es lo que permite a un consumidor agrupar las ocurrencias."
-          }
-        },
-        {
-          "path": "partOf.name",
-          "type": "string",
-          "required": false,
-          "recommended": false,
-          "examples": [
-            "Rust Madrid — meetup mensual",
-            "Study Jam de testing en Python (3 sesiones)"
-          ],
-          "description": {
-            "en": "Display name of the series or multi-part event, so a consumer can group occurrences without resolving the id.",
-            "es": "Nombre de la serie o del evento multi-parte, para que un consumidor pueda agrupar sin resolver el `id`."
-          }
-        },
-        {
-          "path": "partOf.url",
-          "type": "string (uri)",
-          "required": false,
-          "recommended": false,
-          "examples": [
-            "https://rustmadrid.example/meetups"
-          ],
-          "description": {
-            "en": "Page describing the series or the multi-part event as a whole.",
-            "es": "Página que describe la serie o el evento multi-parte en conjunto."
-          }
-        },
-        {
-          "path": "license",
+          "path": "timezone",
           "type": "string",
           "required": true,
           "recommended": false,
           "examples": [
-            "CC-BY-4.0",
-            "CC0-1.0"
+            "Europe/Madrid",
+            "America/Bogota",
+            "UTC"
           ],
           "description": {
-            "en": "License of THIS DATA, not of the event. SPDX identifier (CC0-1.0, CC-BY-4.0…, full list at https://spdx.org/licenses/) or a URL.",
-            "es": "Licencia de ESTOS DATOS, no del evento. Identificador SPDX (`CC0-1.0`, `CC-BY-4.0`…, lista completa en https://spdx.org/licenses/) o una URL."
+            "en": "IANA timezone (e.g. Europe/Madrid). Turns a wall-clock startDate into an unambiguous instant. For all-day events it contextualises the date — it does not shift it.",
+            "es": "Zona horaria IANA (p. ej. `Europe/Madrid`). Convierte un `startDate` de reloj de pared en un instante inequívoco. En eventos de todo el día contextualiza la fecha: no la desplaza."
+          }
+        },
+        {
+          "path": "attendanceMode",
+          "type": "enum: in-person | online | hybrid",
+          "required": false,
+          "recommended": true,
+          "examples": [
+            "in-person",
+            "online",
+            "hybrid"
+          ],
+          "description": {
+            "en": "What the organiser says this event is. NO DEFAULT: absent means unknown, never in-person.",
+            "es": "Qué dice quien organiza que es este evento. SIN VALOR POR DEFECTO: ausente significa desconocido, nunca presencial."
           }
         },
         {
@@ -393,18 +317,23 @@
           }
         },
         {
-          "path": "attendanceMode",
-          "type": "enum: in-person | online | hybrid",
+          "path": "tags",
+          "type": "string[]",
           "required": false,
           "recommended": true,
           "examples": [
-            "in-person",
-            "online",
-            "hybrid"
+            [
+              "rust",
+              "wasm"
+            ],
+            [
+              "python",
+              "async"
+            ]
           ],
           "description": {
-            "en": "What the organiser says this event is. NO DEFAULT: absent means unknown, never in-person.",
-            "es": "Qué dice quien organiza que es este evento. SIN VALOR POR DEFECTO: ausente significa desconocido, nunca presencial."
+            "en": "Free-form topic tags. Maps to iCal CATEGORIES and schema.org keywords. A controlled vocabulary may layer on top later; the field itself stays free. No default: absent means unknown.",
+            "es": "Etiquetas temáticas de forma libre. Mapea a `CATEGORIES` de iCal y a `keywords` de schema.org. Más adelante podría superponerse un vocabulario controlado; el campo en sí sigue siendo libre. Sin valor por defecto: ausente significa desconocido."
           }
         },
         {
@@ -427,26 +356,6 @@
           }
         },
         {
-          "path": "tags",
-          "type": "string[]",
-          "required": false,
-          "recommended": true,
-          "examples": [
-            [
-              "rust",
-              "wasm"
-            ],
-            [
-              "python",
-              "async"
-            ]
-          ],
-          "description": {
-            "en": "Free-form topic tags. Maps to iCal CATEGORIES and schema.org keywords. A controlled vocabulary may layer on top later; the field itself stays free. No default: absent means unknown.",
-            "es": "Etiquetas temáticas de forma libre. Mapea a `CATEGORIES` de iCal y a `keywords` de schema.org. Más adelante podría superponerse un vocabulario controlado; el campo en sí sigue siendo libre. Sin valor por defecto: ausente significa desconocido."
-          }
-        },
-        {
           "path": "status",
           "type": "enum: scheduled | tentative | cancelled | postponed | rescheduled | moved-online",
           "required": false,
@@ -459,6 +368,97 @@
           "description": {
             "en": "What happened to the event, not to the data. An event that is cancelled, postponed or moved online MUST stay published: removing it leaves a dead event in subscribers' calendars. tentative means announced but not confirmed (iCal STATUS:TENTATIVE) — it exists so an importer never has to upgrade an unconfirmed event to scheduled, which is the one value with a default.",
             "es": "Qué le ha pasado al evento, no al dato. Un evento cancelado, pospuesto o movido a online DEBE seguir publicado: borrarlo deja un evento muerto en el calendario de quien se suscribió. `tentative` significa anunciado pero sin confirmar (el `STATUS:TENTATIVE` de iCal) — existe para que quien importa no tenga que ascender a `scheduled` un evento que nadie ha confirmado, ya que este es el único campo con valor por defecto."
+          }
+        },
+        {
+          "path": "partOf",
+          "type": "object",
+          "required": false,
+          "recommended": false,
+          "examples": [
+            {
+              "id": "https://rustmadrid.example/meetups",
+              "name": "Rust Madrid — meetup mensual",
+              "url": "https://rustmadrid.example/meetups"
+            },
+            {
+              "type": "multipart",
+              "id": "https://pyalmeria.example/study-jams/2026-testing",
+              "name": "Study Jam de testing en Python (3 sesiones)"
+            }
+          ],
+          "description": {
+            "en": "The series or multi-part event this document is one occurrence of. A REFERENCE, never a recurrence rule: OTE does not generate dates: whoever publishes expands the recurrence into one document per occurrence, each with its own id, dates and status. A consumer that ignores this field still sees complete, correct events.",
+            "es": "La serie o el evento multi-parte del que este documento es UNA ocurrencia. Es una REFERENCIA, nunca una regla de recurrencia: OTE no genera fechas — quien publica expande la recurrencia en un documento por ocurrencia, cada uno con su `id`, sus fechas y su `status`. Un consumidor que ignore este campo sigue viendo eventos completos y correctos."
+          }
+        },
+        {
+          "path": "partOf.id",
+          "type": "string (uri)",
+          "required": true,
+          "recommended": false,
+          "examples": [
+            "https://rustmadrid.example/meetups",
+            "https://pyalmeria.example/study-jams/2026-testing"
+          ],
+          "description": {
+            "en": "Stable identifier of the series or multi-part event. Same rules as the event's id: a URI under a domain the publisher controls, minted once. It does NOT have to resolve to an OTE document — it is what lets a consumer group occurrences.",
+            "es": "Identificador estable de la serie o del evento multi-parte. Mismas reglas que el `id` del evento: una URI bajo un dominio que controle quien publica, acuñada una vez. NO tiene por qué resolver a un documento OTE — es lo que permite a un consumidor agrupar las ocurrencias."
+          }
+        },
+        {
+          "path": "partOf.name",
+          "type": "string",
+          "required": false,
+          "recommended": false,
+          "examples": [
+            "Rust Madrid — meetup mensual",
+            "Study Jam de testing en Python (3 sesiones)"
+          ],
+          "description": {
+            "en": "Display name of the series or multi-part event, so a consumer can group occurrences without resolving the id.",
+            "es": "Nombre de la serie o del evento multi-parte, para que un consumidor pueda agrupar sin resolver el `id`."
+          }
+        },
+        {
+          "path": "partOf.url",
+          "type": "string (uri)",
+          "required": false,
+          "recommended": false,
+          "examples": [
+            "https://rustmadrid.example/meetups"
+          ],
+          "description": {
+            "en": "Page describing the series or the multi-part event as a whole.",
+            "es": "Página que describe la serie o el evento multi-parte en conjunto."
+          }
+        },
+        {
+          "path": "partOf.type",
+          "type": "enum: series | multipart",
+          "required": false,
+          "recommended": false,
+          "examples": [
+            "series",
+            "multipart"
+          ],
+          "description": {
+            "en": "series: independent occurrences that share an identity (a monthly meetup). multipart: parts of ONE event held on non-consecutive dates (a three-session study jam on non-consecutive Saturdays, one registration). Defaults to series, the tolerant choice. It changes the translation: a series becomes schema.org EventSeries, a multi-part event becomes an Event whose parts are its subEvent.",
+            "es": "`series`: ocurrencias independientes que comparten identidad (un meetup mensual). `multipart`: partes de UN SOLO evento celebrado en fechas no consecutivas (un study jam de tres sesiones en sábados no consecutivos, con una sola inscripción). Por defecto `series`, que es la opción tolerante. Cambia la traducción: una serie se convierte en `EventSeries` de schema.org; un evento multi-parte, en un `Event` cuyas partes son su `subEvent`."
+          }
+        },
+        {
+          "path": "license",
+          "type": "string",
+          "required": true,
+          "recommended": false,
+          "examples": [
+            "CC-BY-4.0",
+            "CC0-1.0"
+          ],
+          "description": {
+            "en": "License of THIS DATA, not of the event. SPDX identifier (CC0-1.0, CC-BY-4.0…, full list at https://spdx.org/licenses/) or a URL.",
+            "es": "Licencia de ESTOS DATOS, no del evento. Identificador SPDX (`CC0-1.0`, `CC-BY-4.0`…, lista completa en https://spdx.org/licenses/) o una URL."
           }
         },
         {

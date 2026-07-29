@@ -8,17 +8,17 @@
       "$ref": "https://opentechevents.org/schema/v0.3/event.schema.json#/$defs/event"
     },
     {
-      "description": "Without these, the event is published but not findable: url is the only link RSS/Atom has, description is what every destination shows, image is what makes the event visible where it is listed (Google recommends it for the Event rich result, and every platform studied already emits one), location and attendanceMode answer 'can I go?', tags and languages are what someone filters by, organizers is who is trusted for it, and updatedAt is what lets a subscriber sync incrementally instead of refetching everything.",
+      "description": "Without these, the event is published but not findable: url is the only link RSS/Atom has, description is what every destination shows, image is what makes the event visible where it is listed (Google recommends it for the Event rich result, and every platform studied already emits one), organizers is who is trusted for it, attendanceMode and location answer 'can I go?', tags and languages are what someone filters by, and updatedAt is what lets a subscriber sync incrementally instead of refetching everything.",
       "type": "object",
       "required": [
         "url",
         "description",
         "image",
         "organizers",
-        "location",
         "attendanceMode",
-        "languages",
+        "location",
         "tags",
+        "languages",
         "updatedAt"
       ]
     },

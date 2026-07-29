@@ -22,9 +22,9 @@
     "venue": "Escuela de Ingeniería, Universidad de Almería",
     "geo": { "lat": 36.8283, "lon": -2.4055 }
   },
-  "languages": ["es", "en"],
   "tags": ["hackathon", "open-source", "ai"],
+  "languages": ["es", "en"],
   "status": "scheduled",
-  "updatedAt": "2026-02-10T12:00:00Z",
-  "license": "CC-BY-4.0"
+  "license": "CC-BY-4.0",
+  "updatedAt": "2026-02-10T12:00:00Z"
 }

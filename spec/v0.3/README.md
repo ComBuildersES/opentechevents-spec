@@ -143,6 +143,26 @@ El perfil del feed es corto a propósito ([`feed.recommended.schema.json`](feed.
 
 La lista **puede crecer** en versiones futuras: recomendar algo no cuesta la compatibilidad de nadie, porque nada deja de validar. Lo que **no** hará es convertirse en la vía por la que un campo opcional pasa a obligatorio de tapadillo: ascender un campo al núcleo obligatorio sigue siendo un cambio que rompe, y va con su versión y su entrada en el [CHANGELOG](../../CHANGELOG.md). Recomendado es un nivel estable, no una sala de espera.
 
+### El orden de los campos: no es normativo, pero hay uno
+
+JSON no tiene orden: un documento con las claves barajadas es **exactamente igual de válido**, y ningún consumidor debe depender de cómo vengan colocadas. Aun así, la spec declara los campos en un orden concreto, y lo respetan el schema, los ejemplos y la [referencia generada](reference.es.md):
+
+```text
+specVersion                                    ← contra qué versión se valida
+id, url, name, description, image, organizers  ← qué es y quién lo hace
+startDate, endDate, timezone                   ← cuándo
+attendanceMode, location                       ← ¿puedo ir?
+tags, languages                                ← ¿me interesa?
+status, partOf                                 ← qué le ha pasado, y de qué forma parte
+license, source, updatedAt                     ← datos sobre el dato
+```
+
+Se lee como se rellena: primero lo que hace falta para **anunciar** el evento, al final la fontanería que solo importa a quien lo consume. No es alfabético, que separaría `startDate` de `endDate` y `id` de `url`; ni por obligatoriedad, que cambiaría en cada versión que recomiende un campo nuevo.
+
+Importa porque es lo que se ve en los tres sitios donde alguien mira de verdad: el **ejemplo que copia**, la **tabla de referencia** —generada leyendo el schema en orden de declaración— y el **autocompletado del editor**. Que los tres coincidan es la diferencia entre una forma que se memoriza y una que hay que consultar cada vez. `npm run validate` lo comprueba en los ejemplos de esta versión.
+
+Para tu feed es una **sugerencia, no una regla**: publicar en otro orden no rompe nada ni produce avisos.
+
 ### `id` y `url` empiezan siendo iguales, pero no son lo mismo
 
 `url` es **dónde se describe el evento hoy**. `id` es **qué evento es esto, para siempre**.

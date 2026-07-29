@@ -3,7 +3,9 @@
   "id": "https://calendar.example/ics/rust-madrid#a1b2c3d4-uid-from-the-ics",
   "name": "Rust Madrid — June meetup",
   "description": "Talks on WASM and Rust tooling.",
+
   "_comment_organizers": "El .ics traía ORGANIZER;CN=\"Rust Madrid\":mailto:hola@rustmadrid.example. De ahí solo sale el nombre: OTE no modela el email del organizador, así que se descarta al importar.",
+
   "organizers": [
     { "name": "Rust Madrid" }
   ],
@@ -14,14 +16,14 @@
     "venue": "Campus Madrid, Calle de Moreno Nieto 2, Madrid",
     "geo": { "lat": 40.4081, "lon": -3.7188 }
   },
-  "languages": ["es"],
   "tags": ["rust", "wasm"],
-  "updatedAt": "2026-06-10T18:00:00Z",
+  "languages": ["es"],
   "license": "CC-BY-4.0",
   "source": {
     "name": "Rust Madrid",
     "url": "https://calendar.example/ics/rust-madrid",
     "license": "CC-BY-4.0",
     "retrievedAt": "2026-06-01T05:00:00Z"
-  }
+  },
+  "updatedAt": "2026-06-10T18:00:00Z"
 }

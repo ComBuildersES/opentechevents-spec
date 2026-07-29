@@ -42,6 +42,8 @@ Un cambio en la spec **no es solo editar un `.md`**. La v0.1 tiene cuatro piezas
 
 Antes de enviar: `npm run validate`. **Si el cambio no viene con un ejemplo que lo demuestre, no está terminado** — y si relaja una regla, quita el ejemplo de `invalid/` que ya no debe fallar.
 
+**Un campo nuevo se declara donde le toca.** El orden en que el schema declara sus `properties` es el orden canónico de los campos: lo hereda la referencia generada y el autocompletado del editor, y los ejemplos deben seguirlo (`npm run validate` falla si no). Está explicado, con sus bloques y el porqué, en [«El orden de los campos»](spec/v0.3/README.md#el-orden-de-los-campos-no-es-normativo-pero-hay-uno). Colocarlo al final «porque es nuevo» es lo único que no vale.
+
 **Añadir un campo no requiere cambiar el schema.** Los schemas no prohíben campos adicionales: si tu comunidad necesita `tags` o `cfp` hoy, los pones y tu documento sigue siendo válido. La spec crece con **campos que alguien ya usa de verdad**, no con campos que imaginamos que harán falta. Trae el uso real y hablamos de estandarizarlo.
 
 ### Versionado

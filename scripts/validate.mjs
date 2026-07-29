@@ -109,6 +109,31 @@ function checkRecommended({ recommendEvent, recommendFeed }, path, doc) {
   if (missing.length) warn(`${path} — missing recommended: ${missing.join(", ")}`);
 }
 
+/**
+ * The order in which `properties` are declared in the schema is the canonical field order: it is
+ * what the generated reference table lists, and what an editor autocompletes. The examples are
+ * what people actually copy, so if they order their keys differently they teach a shape the spec
+ * does not document. Unknown keys — extensions, `_comment_*` — are ignored: they are not the
+ * spec's to order.
+ */
+function outOfOrder(canonical, doc) {
+  const keys = Object.keys(doc).filter((k) => canonical.includes(k));
+  const expected = [...keys].sort((a, b) => canonical.indexOf(a) - canonical.indexOf(b));
+  return keys.join(" ") === expected.join(" ") ? null : expected.join(", ");
+}
+
+/** Reports every document in an example whose keys stray from the canonical order. */
+function checkFieldOrder(path, doc, order) {
+  const isFeed = Array.isArray(doc.events);
+  const wrong = outOfOrder(isFeed ? order.feed : order.event, doc);
+  if (wrong) log(false, `${path} — field order; expected: ${wrong}`);
+  if (!isFeed) return;
+  doc.events.forEach((event, i) => {
+    const gaps = outOfOrder(order.event, event);
+    if (gaps) log(false, `${path} — events[${i}] field order; expected: ${gaps}`);
+  });
+}
+
 // `npm run validate -- my-feed.json` → validate your own documents before opening an issue.
 // A document with an `events` array is a feed; anything else is a single event.
 const args = process.argv.slice(2);
@@ -140,6 +165,12 @@ for (const version of VERSIONS) {
   const { ajv, validateEvent, validateFeed } = built;
   const pick = (file) => (basename(file).startsWith("feed") ? validateFeed : validateEvent);
 
+  const { event: eventSchema, feed: feedSchema, registry } = loadSchemas(version);
+  const order = {
+    event: Object.keys(eventSchema.$defs.event.properties),
+    feed: Object.keys(feedSchema.properties),
+  };
+
   const examples = join(dir, "examples");
   for (const file of readdirSync(examples).filter((f) => f.endsWith(".json")).sort()) {
     const path = join(examples, file);
@@ -151,12 +182,14 @@ for (const version of VERSIONS) {
     // warnings are exactly the distance between "valid" and "useful". Do not silence them by
     // fattening that example — the gap is the lesson.
     if (valid) checkRecommended(built, path, doc);
+    // Frozen versions keep the order they shipped with: reordering them would rewrite history
+    // for a document someone already published against.
+    if (valid && version === LATEST) checkFieldOrder(path, doc, order);
   }
 
   // Every `examples` entry must satisfy the very field it illustrates. Without this, the
   // documentation drifts from the schema silently: someone tightens a format, forgets the
   // example, and the docs go on showing a value the validator would now reject.
-  const { event: eventSchema, feed: feedSchema, registry } = loadSchemas(version);
   for (const [schemaName, schema] of [
     ["event", eventSchema],
     ["feed", feedSchema],
@@ -192,6 +225,11 @@ for (const version of VERSIONS) {
 console.log("\ndocs/index.html code samples");
 {
   const { ajv, validateEvent, validateFeed } = build(LATEST);
+  const { event: eventSchema, feed: feedSchema } = loadSchemas(LATEST);
+  const order = {
+    event: Object.keys(eventSchema.$defs.event.properties),
+    feed: Object.keys(feedSchema.properties),
+  };
   const html = readFileSync(join("docs", "index.html"), "utf8");
   const samples = [...html.matchAll(/<pre data-ote="(event|feed)"><code>([\s\S]*?)<\/code><\/pre>/g)];
 
@@ -214,6 +252,7 @@ console.log("\ndocs/index.html code samples");
     const validate = kind === "feed" ? validateFeed : validateEvent;
     const valid = validate(doc);
     log(valid, `${kind} sample${valid ? "" : "\n" + ajv.errorsText(validate.errors, { separator: "\n" })}`);
+    if (valid) checkFieldOrder(`${kind} sample`, doc, order);
   }
 }
 
