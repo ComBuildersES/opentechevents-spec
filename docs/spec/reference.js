@@ -18,7 +18,7 @@
       navDevelopers: "Developers",
       navTools: "Tools",
       title: "Field reference",
-      lead: "Every field of OTE Spec v0.2. This page is generated from the JSON Schemas, so it cannot drift from what the validator actually enforces.",
+      lead: "Every field of OTE Spec v0.3. This page is generated from the JSON Schemas, so it cannot drift from what the validator actually enforces.",
       rules: "Rules a validator can't check",
       raw: "Raw JSON Schema",
       footerNote: "Generated from the schemas. Draft specification — fields may change.",
@@ -35,6 +35,17 @@
       noMatch: "No field matches that filter.",
       clear: "Clear the filter",
       anchorLabel: "Link to this field",
+      extTag: "Not generated from the schemas",
+      extTitle: "The field you need isn't here",
+      extLead: "Add it. OTE's schemas do not forbid extra fields, on purpose: your document stays valid, and a consumer that doesn't understand them can ignore them safely. This is how the spec grows — through fields someone already uses, not fields we imagine will be needed.",
+      extCoreTitle: "Candidate for the core",
+      extCoreBody: "A generic field that could become part of OTE. Write it without a prefix. If enough people need it, it gets standardised — and your local meaning gives way to the normative one.",
+      extVocabTitle: "Someone else's vocabulary",
+      extVocabBody: "A field whose meaning is defined by another project, and that will never belong to OTE. Write it with a prefix. It cannot collide with a core field, today or at 1.0.",
+      extPromise: "OTE will never mint a field name containing a colon.",
+      extPromiseBody: "That reservation is what makes the second column safe — and what lets OTE connect to other specifications without being coupled to them.",
+      extMore: "Full extension rules",
+      extIssue: "Tell us what you're using",
     },
     es: {
       pill: "Borrador 0.x",
@@ -46,7 +57,7 @@
       navDevelopers: "Desarrolladores",
       navTools: "Herramientas",
       title: "Referencia de campos",
-      lead: "Todos los campos de OTE Spec v0.2. Esta página se genera a partir de los JSON Schema, así que no puede separarse de lo que el validador exige de verdad.",
+      lead: "Todos los campos de OTE Spec v0.3. Esta página se genera a partir de los JSON Schema, así que no puede separarse de lo que el validador exige de verdad.",
       rules: "Reglas que un validador no ve",
       raw: "JSON Schema en crudo",
       footerNote: "Generado a partir de los schemas. Especificación en borrador: los campos pueden cambiar.",
@@ -63,6 +74,17 @@
       noMatch: "Ningún campo coincide con el filtro.",
       clear: "Quitar el filtro",
       anchorLabel: "Enlace a este campo",
+      extTag: "Escrito a mano, no generado de los schemas",
+      extTitle: "El campo que necesitas no está aquí",
+      extLead: "Añádelo. Los schemas de OTE no prohíben campos adicionales, a propósito: tu documento sigue siendo válido, y quien no los entienda puede ignorarlos sin romperse. Es la vía por la que la spec crece: campos que alguien ya usa de verdad, no campos que imaginamos que harán falta.",
+      extCoreTitle: "Candidato a núcleo",
+      extCoreBody: "Un campo genérico que aspira a ser de OTE. Se escribe sin prefijo. Si le hace falta a bastante gente, se estandariza — y tu significado local cede ante el normativo.",
+      extVocabTitle: "Vocabulario de otro proyecto",
+      extVocabBody: "Un campo cuyo significado lo define otro proyecto y que nunca será de OTE. Se escribe con prefijo. No puede colisionar con un campo del núcleo, hoy ni en la 1.0.",
+      extPromise: "OTE no acuñará jamás un nombre de campo que contenga dos puntos.",
+      extPromiseBody: "Esa reserva es lo que hace segura la segunda columna, y lo que permite que OTE conecte con otras especificaciones sin acoplarse a ellas.",
+      extMore: "Las reglas completas",
+      extIssue: "Cuéntanos qué estás usando",
     },
   };
 
@@ -109,9 +131,12 @@
     var prefix = "";
     for (var i = 0; i < parts.length - 1; i++) {
       prefix = prefix ? prefix + "." + parts[i] : parts[i];
+      // The ancestor of `organizers[].name` is the field named `organizers`: the `[]` marks
+      // "each item of", it is not part of the parent's name.
+      var parentPath = prefix.replace(/\[\]$/, "");
       var ancestor = null;
       for (var j = 0; j < fields.length; j++) {
-        if (fields[j].path === prefix) { ancestor = fields[j]; break; }
+        if (fields[j].path === parentPath) { ancestor = fields[j]; break; }
       }
       if (ancestor && !ancestor.required) return false;
     }
@@ -220,7 +245,7 @@
   function render() {
     var t = UI[state.lang];
     document.documentElement.lang = state.lang;
-    document.title = t.title + " — OTE Spec v0.2";
+    document.title = t.title + " — OTE Spec v0.3";
 
     document.querySelectorAll("[data-t]").forEach(function (node) {
       var value = t[node.getAttribute("data-t")];

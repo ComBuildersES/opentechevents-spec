@@ -18,7 +18,7 @@ import { join } from "node:path";
 import Ajv2020 from "ajv/dist/2020.js";
 import addFormats from "ajv-formats";
 
-const SPEC = "spec/v0.2";
+const SPEC = "spec/v0.3";
 const ADOPTERS = join("docs", "data", "adopters.json");
 const STATE = join(".github", "feed-health.json");
 const THRESHOLD = Number(process.env.FEED_FAILURE_THRESHOLD || 3);

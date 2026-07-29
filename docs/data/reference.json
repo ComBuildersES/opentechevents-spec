@@ -1,5 +1,5 @@
 {
-  "specVersion": "0.2.0",
+  "specVersion": "0.3.0",
   "languages": [
     "en",
     "es"
@@ -18,10 +18,10 @@
       "fields": [
         {
           "path": "specVersion",
-          "type": "const: \"0.2.0\"",
+          "type": "const: \"0.3.0\"",
           "required": true,
           "examples": [
-            "0.2.0"
+            "0.3.0"
           ],
           "description": {
             "en": "Version of OTE Spec this document adheres to.",
@@ -75,6 +75,73 @@
           "description": {
             "en": "Short description. Plain text or Markdown.",
             "es": "Descripción breve. Texto plano o Markdown."
+          }
+        },
+        {
+          "path": "organizers",
+          "type": "object[]",
+          "required": false,
+          "examples": [
+            [
+              {
+                "name": "PyAlmería",
+                "url": "https://pyalmeria.example"
+              }
+            ],
+            [
+              {
+                "name": "GDG Madrid",
+                "url": "https://gdgmadrid.example"
+              },
+              {
+                "type": "person",
+                "name": "Ada Lovelace",
+                "url": "https://ada.example"
+              }
+            ]
+          ],
+          "description": {
+            "en": "Who runs the event — not where the data came from (that is source). A list: co-organised events are the norm, not the exception. Inside a feed, an event that omits it inherits the feed's organizers; declaring it REPLACES the inherited list, it does not add to it.",
+            "es": "Quién organiza el evento — no de dónde salieron los datos (eso es `source`). Es una lista: la co-organización es lo normal, no la excepción. Dentro de un feed, el evento que la omite hereda la del feed; declararla REEMPLAZA la heredada, no se suma a ella."
+          }
+        },
+        {
+          "path": "organizers[].type",
+          "type": "enum: organization | person",
+          "required": false,
+          "examples": [
+            "organization",
+            "person"
+          ],
+          "description": {
+            "en": "Organisation or person. Defaults to organisation: a translator has to pick a schema.org @type, and Organization is the tolerant choice.",
+            "es": "Organización o persona. Por defecto, organización: al traducir hay que elegir un `@type` de schema.org sí o sí, y `Organization` es la opción tolerante."
+          }
+        },
+        {
+          "path": "organizers[].name",
+          "type": "string",
+          "required": true,
+          "examples": [
+            "PyAlmería",
+            "Ada Lovelace"
+          ],
+          "description": {
+            "en": "Display name of the organiser.",
+            "es": "Nombre de quien organiza."
+          }
+        },
+        {
+          "path": "organizers[].url",
+          "type": "string (uri)",
+          "required": false,
+          "examples": [
+            "https://pyalmeria.example",
+            "https://www.meetup.com/pyalmeria/"
+          ],
+          "description": {
+            "en": "Where this organiser lives on the web — their own site, or their profile on the platform they publish from.",
+            "es": "Dónde vive en la web quien organiza: su propia página, o su perfil en la plataforma desde la que publica."
           }
         },
         {
@@ -366,10 +433,10 @@
       "fields": [
         {
           "path": "specVersion",
-          "type": "const: \"0.2.0\"",
+          "type": "const: \"0.3.0\"",
           "required": true,
           "examples": [
-            "0.2.0"
+            "0.3.0"
           ],
           "description": {
             "en": "Version of OTE Spec this feed adheres to. Applies to every event in it.",
@@ -410,6 +477,23 @@
           "description": {
             "en": "Canonical URL of the community, directory or organisation publishing the feed.",
             "es": "URL canónica de la comunidad, directorio u organización que publica el feed."
+          }
+        },
+        {
+          "path": "organizers",
+          "type": "object[]",
+          "required": false,
+          "examples": [
+            [
+              {
+                "name": "PyAlmería",
+                "url": "https://pyalmeria.example"
+              }
+            ]
+          ],
+          "description": {
+            "en": "Who runs the events in this feed — the DEFAULT for every event that does not declare its own. Not the same as title/url, which name whoever publishes the feed: an aggregator publishes events it does not organise, and must leave this out so each event states its own.",
+            "es": "Quién organiza los eventos de este feed — VALOR POR DEFECTO de todo evento que no declare el suyo. No es lo mismo que `title`/`url`, que nombran a quien publica el feed: un agregador publica eventos que no organiza, y debe omitir este campo para que cada evento declare el suyo."
           }
         },
         {

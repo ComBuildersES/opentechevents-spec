@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>OTE Spec v0.2 — field reference</title>
-<meta name="description" content="Field reference for OTE Spec v0.2, generated from the JSON Schemas.">
+<title>OTE Spec v0.3 — field reference</title>
+<meta name="description" content="Field reference for OTE Spec v0.3, generated from the JSON Schemas.">
 <link rel="canonical" href="https://opentechevents.org/spec/">
 <link rel="stylesheet" href="../styles.css">
 <link rel="stylesheet" href="reference.css">
@@ -44,11 +44,11 @@
 <main class="ref-main">
   <div class="wrap ref-intro">
     <h1 data-t="title">Field reference</h1>
-    <p class="lead" data-t="lead">Every field of OTE Spec v0.2. This page is generated from the JSON Schemas, so it cannot drift from what the validator actually enforces.</p>
+    <p class="lead" data-t="lead">Every field of OTE Spec v0.3. This page is generated from the JSON Schemas, so it cannot drift from what the validator actually enforces.</p>
 
     <div class="cta-row">
-      <a class="btn btn-ghost" href="https://github.com/OpenTechEvents/opentechevents-spec/blob/main/spec/v0.2/README.md" data-t="rules">Rules a validator can't check</a>
-      <a class="btn btn-ghost" href="../schema/v0.2/event.schema.json" data-t="raw">Raw JSON Schema</a>
+      <a class="btn btn-ghost" href="https://github.com/OpenTechEvents/opentechevents-spec/blob/main/spec/v0.3/README.md" data-t="rules">Rules a validator can't check</a>
+      <a class="btn btn-ghost" href="../schema/v0.3/event.schema.json" data-t="raw">Raw JSON Schema</a>
     </div>
   </div>
 
@@ -81,6 +81,35 @@
       <p class="ref-count" id="ref-count" role="status" aria-live="polite"></p>
 
       <div id="reference"></div>
+
+      <!-- Hand-written, unlike everything above it: the schemas cannot state a promise about
+           names they will never mint. Sits AFTER the fields because that is where the question
+           appears — you scanned the table, what you needed is not in it. -->
+      <section class="ref-ext" id="extensions">
+        <p class="ref-ext-tag" data-t="extTag">Not generated from the schemas</p>
+        <h2 data-t="extTitle">The field you need isn't here</h2>
+        <p data-t="extLead">Add it. OTE's schemas do not forbid extra fields, on purpose: your document stays valid, and a consumer that doesn't understand them can ignore them safely. This is how the spec grows — through fields someone already uses, not fields we imagine will be needed.</p>
+
+        <div class="ref-ext-grid">
+          <div class="ref-ext-card">
+            <h3 data-t="extCoreTitle">Candidate for the core</h3>
+            <p data-t="extCoreBody">A generic field that could become part of OTE. Write it without a prefix. If enough people need it, it gets standardised — and your local meaning gives way to the normative one.</p>
+            <code>"image": "https://…"</code>
+          </div>
+          <div class="ref-ext-card">
+            <h3 data-t="extVocabTitle">Someone else's vocabulary</h3>
+            <p data-t="extVocabBody">A field whose meaning is defined by another project, and that will never belong to OTE. Write it with a prefix. It cannot collide with a core field, today or at 1.0.</p>
+            <code>"combuilders:communityId": "gdg-madrid"</code>
+          </div>
+        </div>
+
+        <p class="ref-ext-promise"><strong data-t="extPromise">OTE will never mint a field name containing a colon.</strong> <span data-t="extPromiseBody">That reservation is what makes the second column safe — and what lets OTE connect to other specifications without being coupled to them.</span></p>
+
+        <div class="cta-row">
+          <a class="btn btn-ghost" href="https://github.com/OpenTechEvents/opentechevents-spec/blob/main/spec/v0.3/README.md#extensiones" data-t="extMore">Full extension rules</a>
+          <a class="btn btn-ghost" href="https://github.com/OpenTechEvents/opentechevents-spec/issues/5" data-t="extIssue">Tell us what you're using</a>
+        </div>
+      </section>
     </div>
   </div>
 </main>

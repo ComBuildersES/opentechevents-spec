@@ -10,7 +10,7 @@
 
   var REPO = "OpenTechEvents/opentechevents-spec";
   var ISSUE_TEMPLATE = "adopter.yml";
-  var SCHEMA_BASE = "../schema/v0.2/"; // published copies — same origin, no CORS
+  var SCHEMA_BASE = "../schema/v0.3/"; // published copies — same origin, no CORS
 
   /* ---------- linking sources (pluggable) ----------
      A source turns an external community directory into a flat list of

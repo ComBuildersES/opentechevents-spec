@@ -50,15 +50,15 @@ Una vez estabilizada la especificación, el objetivo es construir un ecosistema 
 
 ## La especificación
 
-👉 **[OTE Spec v0.1](spec/v0.1/README.md)** — schemas ejecutables (JSON Schema 2020-12), prosa normativa y ejemplos validados en CI.
+👉 **[OTE Spec v0.3](spec/v0.3/README.md)** — schemas ejecutables (JSON Schema 2020-12), prosa normativa y ejemplos validados en CI. Las [v0.1](spec/v0.1/README.md) y [v0.2](spec/v0.2/README.md) quedan congeladas; qué cambió, en el [CHANGELOG](CHANGELOG.md).
 
 ```bash
 npm install @opentechevents/schema
 ```
 
 ```text
-https://opentechevents.org/schema/v0.1/event.schema.json
-https://opentechevents.org/schema/v0.1/feed.schema.json
+https://opentechevents.org/schema/v0.3/event.schema.json
+https://opentechevents.org/schema/v0.3/feed.schema.json
 ```
 
 > 🚧 **`0.x` puede romper sin previo aviso.** Se publica para que existan implementaciones reales —empezando por el importador de `.ics`— y para que rompan lo que esté mal. El debate sigue abierto en los issues [#5](https://github.com/OpenTechEvents/opentechevents-spec/issues/5) y [#6](https://github.com/OpenTechEvents/opentechevents-spec/issues/6).
@@ -67,13 +67,13 @@ https://opentechevents.org/schema/v0.1/feed.schema.json
 
 ## Estado del proyecto
 
-🚧 **Fase inicial.** Existe una **v0.1 implementable** y el trabajo se centra ahora en **construir sobre ella** (el agregador y su importador de `.ics`) para descubrir qué está mal. El nombre, el alcance y la gobernanza siguen siendo provisionales y abiertos a debate; la [licencia](#licencia) ya está decidida.
+🚧 **Fase inicial.** Existe una **v0.3 implementable** y el trabajo se centra ahora en **construir sobre ella** (el agregador y su importador de `.ics`) para descubrir qué está mal. El nombre, el alcance y la gobernanza siguen siendo provisionales y abiertos a debate; la [licencia](#licencia) ya está decidida.
 
 ## Roadmap
 
 1. ✅ **Investigación inicial** — análisis de estándares existentes (RSS, iCalendar, schema.org/Event…), plataformas y casos de uso reales. → [research/](research/README.md)
 2. ✅ **v0.1 de la especificación** — modelo de datos mínimo, JSON Schema ejecutable y ejemplos. → [spec/v0.1/](spec/v0.1/README.md)
-3. 🔜 **Validación con implementaciones reales** — el [agregador](https://github.com/OpenTechEvents/opentechevents-data) y su importador de `.ics` son el banco de pruebas: si el modelo no soporta una ingesta real, el modelo está mal. De ahí saldrá la v0.2.
+3. 🔜 **Validación con implementaciones reales** — el [agregador](https://github.com/OpenTechEvents/opentechevents-data) y su importador de `.ics` son el banco de pruebas: si el modelo no soporta una ingesta real, el modelo está mal. De ahí salieron la [v0.2](CHANGELOG.md) (`tags`, `location.geo`, `updatedAt`) y la v0.3 (`organizers`). Sigue abierto.
 4. 🔜 **Adopción** — comunidades publicando feeds y directorios consumiéndolos. Sin datos reales, el estándar es teoría.
 5. 🔜 **Ecosistema de herramientas** — ingesta, transformación y publicación automatizada. → [catálogo en la web](https://opentechevents.org/#tools)
 

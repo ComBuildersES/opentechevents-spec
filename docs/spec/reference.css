@@ -205,3 +205,44 @@
   .field[data-depth="2"] { margin-left: 24px; }
   .search-hint { display: none; }
 }
+
+/* ---------- extensions (hand-written, after the generated fields) ---------- */
+.ref-ext {
+  margin-top: 56px; padding-top: 32px; border-top: 1px solid var(--line);
+  scroll-margin-top: 50px;
+}
+.ref-ext-tag {
+  font: 600 .68rem/1 var(--sans); letter-spacing: .08em; text-transform: uppercase;
+  color: var(--ink-faint); margin: 0 0 10px;
+}
+.ref-ext h2 { margin: 0 0 10px; }
+.ref-ext > p { color: var(--ink-soft); }
+
+.ref-ext-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 24px 0;
+}
+.ref-ext-card {
+  border: 1px solid var(--line); border-radius: var(--radius);
+  padding: 18px 20px; background: #fff;
+}
+.ref-ext-card h3 { margin: 0 0 8px; font-size: 1rem; }
+.ref-ext-card p { margin: 0 0 14px; color: var(--ink-soft); font-size: .92rem; }
+.ref-ext-card code {
+  display: block; font-family: var(--mono); font-size: .78rem;
+  background: var(--bg-alt); border: 1px solid var(--line); color: var(--ink-soft);
+  padding: 8px 10px; border-radius: 6px; overflow-x: auto; white-space: nowrap;
+}
+/* The prefixed one is the point of the section: give it the accent. */
+.ref-ext-card:last-child { border-left: 3px solid var(--accent); }
+.ref-ext-card:last-child code { background: var(--accent-soft); border-color: transparent; color: var(--accent-ink); }
+
+.ref-ext-promise {
+  margin: 0 0 24px; padding: 16px 18px;
+  background: var(--bg-alt); border-radius: var(--radius);
+  font-size: .92rem; color: var(--ink-soft);
+}
+.ref-ext-promise strong { color: var(--ink); }
+
+@media (max-width: 620px) {
+  .ref-ext-grid { grid-template-columns: 1fr; }
+}

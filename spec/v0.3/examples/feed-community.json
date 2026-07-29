@@ -1,0 +1,51 @@
+{
+  "specVersion": "0.3.0",
+  "title": "Eventos de PyAlmería",
+  "description": "Meetups mensuales de Python en Almería.",
+  "url": "https://pyalmeria.example",
+  "license": "CC-BY-4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+  "updatedAt": "2026-07-06T10:00:00Z",
+
+  "_comment_organizers": "Feed de una comunidad: `organizers` va arriba y lo hereda todo evento que no declare el suyo. El segundo evento SÍ lo declara, y su lista REEMPLAZA la heredada — no se suma. Por eso PyAlmería aparece repetida ahí: si se omitiera, el evento pasaría a ser solo de PyData Almería.",
+
+  "organizers": [
+    { "name": "PyAlmería", "url": "https://pyalmeria.example" }
+  ],
+
+  "events": [
+    {
+      "id": "https://pyalmeria.example/eventos/2026-06-async",
+      "url": "https://pyalmeria.example/eventos/2026-06-async",
+      "name": "PyAlmería — Introducción a async/await",
+      "description": "Charla introductoria a la programación asíncrona en Python, con ejemplos en vivo.",
+      "startDate": "2026-06-11T18:30:00",
+      "endDate": "2026-06-11T20:30:00",
+      "timezone": "Europe/Madrid",
+      "attendanceMode": "in-person",
+      "location": { "venue": "El Cable, Almería" },
+      "languages": ["es"],
+      "tags": ["python", "async"]
+    },
+    {
+      "id": "https://pyalmeria.example/eventos/2026-07-datos",
+      "url": "https://pyalmeria.example/eventos/2026-07-datos",
+      "name": "Noche de datos — PyAlmería × PyData Almería",
+      "description": "Sesión conjunta con PyData Almería.",
+      "startDate": "2026-07-09T18:30:00",
+      "endDate": "2026-07-09T21:00:00",
+      "timezone": "Europe/Madrid",
+      "attendanceMode": "hybrid",
+      "location": {
+        "venue": "El Cable, Almería",
+        "onlineUrl": "https://meet.example/pyalmeria"
+      },
+      "languages": ["es"],
+      "tags": ["python", "data"],
+      "organizers": [
+        { "name": "PyAlmería", "url": "https://pyalmeria.example" },
+        { "name": "PyData Almería", "url": "https://pydata-almeria.example" }
+      ]
+    }
+  ]
+}

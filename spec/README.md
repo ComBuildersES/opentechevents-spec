@@ -1,6 +1,6 @@
 # Especificación — OpenTechEvents (OTE Spec)
 
-> ✅ **La especificación vigente es [`v0.2/`](v0.2/)** — schemas ejecutables, prosa normativa y ejemplos validados en CI. La [`v0.1/`](v0.1/) queda congelada. Qué cambió: [CHANGELOG](../CHANGELOG.md).
+> ✅ **La especificación vigente es [`v0.3/`](v0.3/)** — schemas ejecutables, prosa normativa y ejemplos validados en CI. La [`v0.1/`](v0.1/) y la [`v0.2/`](v0.2/) quedan congeladas. Qué cambió: [CHANGELOG](../CHANGELOG.md).
 >
 > ⚠️ **Los documentos de esta carpeta (`data-model.md`, `feed.md`, `examples/`) son el boceto ANTERIOR**, generado por IA para abrir el debate. Se conservan por su valor histórico y por las ideas que aún no han entrado en la spec (cfp, speakers, offers…). **No son normativos y no deben implementarse.**
 

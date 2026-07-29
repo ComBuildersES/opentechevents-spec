@@ -68,10 +68,26 @@ export function* fieldsOf(schema, registry = {}, node = null, prefix = "", baseP
       },
     ];
 
+    const targetPointer = raw.$ref?.startsWith("#") ? raw.$ref.slice(1) : `${pointer}/properties/${name}`;
+
     // Recurse into sub-objects (location, source) so their fields are documented too.
     if (target?.properties) {
-      const targetPointer = raw.$ref?.startsWith("#") ? raw.$ref.slice(1) : `${pointer}/properties/${name}`;
       yield* fieldsOf(schema, registry, target, path, targetPointer);
+    }
+
+    // Same for arrays of objects (organizers): `organizers[].name` is a field people need
+    // documented, and it is the schema — not prose — that knows it exists.
+    // Only within the owning schema: `feed.events[]` and `feed.organizers[]` point at the
+    // EVENT schema, and inlining them here would document the whole event twice — once as
+    // itself, once nested under the feed. Each field is documented where it is defined.
+    if (target?.type === "array") {
+      const itemRef = target.items?.$ref;
+      const isLocal = !itemRef || itemRef.startsWith("#");
+      const items = itemRef ? resolve(itemRef, schema, registry) : target.items;
+      if (isLocal && items?.properties) {
+        const itemPointer = itemRef ? itemRef.slice(1) : `${targetPointer}/items`;
+        yield* fieldsOf(schema, registry, items, `${path}[]`, itemPointer);
+      }
     }
   }
 }
