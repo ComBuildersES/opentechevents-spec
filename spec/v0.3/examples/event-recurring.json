@@ -14,7 +14,15 @@
   "endDate": "2026-06-08T21:00:00",
   "timezone": "Europe/Madrid",
   "attendanceMode": "in-person",
-  "location": { "venue": "Campus Madrid, Calle de Moreno Nieto 2, Madrid" },
+  "location": {
+    "venue": "Campus Madrid, Calle de Moreno Nieto 2, Madrid",
+    "address": {
+      "street": "Calle de Moreno Nieto 2",
+      "locality": "Madrid",
+      "postalCode": "28005",
+      "country": "ES"
+    }
+  },
   "tags": ["rust", "wasm"],
   "languages": ["es"],
   "status": "scheduled",

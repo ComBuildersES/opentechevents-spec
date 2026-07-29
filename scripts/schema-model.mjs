@@ -93,17 +93,27 @@ export function* fieldsOf(schema, registry = {}, node = null, prefix = "", baseP
 }
 
 /**
- * The fields a recommended profile asks for, as a Set of names.
+ * The fields a recommended profile asks for, as a Set of dotted paths.
  *
  * The profile is a plain JSON Schema whose `allOf` branches carry `required` — including the
  * conditional ones (`if`/`then`), which are recommendations too: `endDate` is recommended for a
  * timed event and pointless for an all-day one, and the docs must still show it as recommended.
- * Read from the profile, never re-typed: a list of field names written twice is a list that
- * drifts.
+ * A branch may also ask for a field one level down (`location.address`), so `required` nested
+ * under `properties` counts the same. Read from the profile, never re-typed: a list of field
+ * names written twice is a list that drifts.
  */
 export function recommendedOf(profile) {
   if (!profile) return new Set();
-  const names = (branch) => [...(branch?.required ?? []), ...(branch?.then?.required ?? [])];
+  const nested = (branch) =>
+    Object.entries(branch?.properties ?? {}).flatMap(([parent, sub]) =>
+      (sub?.required ?? []).map((name) => `${parent}.${name}`)
+    );
+  const names = (branch) => [
+    ...(branch?.required ?? []),
+    ...nested(branch),
+    ...(branch?.then?.required ?? []),
+    ...nested(branch?.then),
+  ];
   return new Set([...names(profile), ...(profile.allOf ?? []).flatMap(names)]);
 }
 

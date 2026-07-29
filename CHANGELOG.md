@@ -13,7 +13,7 @@ versión nueva**: los documentos `0.1.0` siguen validando contra `spec/v0.1/`.
 
 ## [0.3.0] — 2026-07-29
 
-Tres campos nuevos y dos valores nuevos de `status`, todo **opcional y
+Cuatro campos nuevos y dos valores nuevos de `status`, todo **opcional y
 retrocompatible** (por eso MINOR): un documento `0.2.0` válido, con solo cambiar
 `specVersion` a `"0.3.0"`, sigue siendo válido.
 
@@ -98,6 +98,37 @@ descubrir y seguir.
     mapear. Sigue siendo un aviso: nada deja de validar.
   - Era una **extensión sin prefijo** en los ejemplos desde la v0.1 (como cadena
     suelta). Se gradúa a núcleo **como lista**: si la emitías como cadena, migra.
+
+- **`location.address`** (`object`) en el **evento**: la dirección postal de la
+  sede física **por partes** — `street`, `locality`, `region`, `postalCode` y
+  `country`, todas opcionales, con al menos una presente.
+  - **Complementa a `venue`, no lo sustituye.** `venue` sigue siendo la cadena
+    legible que imprimen `LOCATION` de iCal y el texto de un ítem RSS —los dos
+    formatos que **no modelan direcciones**—, y `Place.name` de schema.org.
+    `address` es lo que necesita el traductor para emitir un `PostalAddress`
+    cuyos subcampos **Google valida uno a uno** en el rich result de `Event`.
+    `venue` para leer, `address` para procesar.
+  - **Entra porque ya existe ahí fuera**: cuatro de las cinco fuentes estudiadas
+    (Meetup, Eventbrite, Guild y el ejemplo canónico de Google) emiten
+    `PostalAddress` con sus subcampos. Sin el campo, un exportador solo podía
+    emitir la dirección como texto suelto o **partir `venue` por comas**, que es
+    inventar datos.
+  - **`country` es ISO 3166-1 alfa-2 en mayúsculas** (`ES`, `US`), la única parte
+    con formato exigido: el nombre del país tiene una grafía por idioma, y quien
+    agrupe por país vería «España», «Spain» y «Espagne» como tres países.
+    Convertir nombre → código es consultar una tabla, no inventar. `region` se
+    deja libre: no hay tabla universal (provincia, estado, condado, *Land*).
+  - **Omitir es la forma correcta de no saber**: `""` y `null` se rechazan (cada
+    parte es una cadena de longitud ≥ 1), y `"address": {}` también, igual que
+    `location: {}`. Con caso real detrás: Guild emite hoy los cinco subcampos a
+    `null`.
+  - **No satisface `location` por sí solo**: sigue haciendo falta `venue` u
+    `onlineUrl`, misma regla que `geo`.
+  - **Entra en el perfil recomendado, de forma condicional**: se pide solo si hay
+    `location.venue`. Es la **primera recomendación anidada** — los perfiles
+    pasan a poder pedir `location.address`, no solo campos de primer nivel — y
+    tiene una excepción conocida: quien importa un `.ics` solo tiene `LOCATION`,
+    una línea de texto libre sin partes. Mismo caso que `image`.
 
 - **Dos valores nuevos de `status`: `moved-online` y `tentative`.** El enum pasa a
   ser `scheduled` (por defecto), `tentative`, `cancelled`, `postponed`,

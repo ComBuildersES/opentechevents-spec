@@ -25,6 +25,12 @@
       "attendanceMode": "hybrid",
       "location": {
         "venue": "Campus Madrid, Calle de Moreno Nieto 2, Madrid",
+        "address": {
+          "street": "Calle de Moreno Nieto 2",
+          "locality": "Madrid",
+          "postalCode": "28005",
+          "country": "ES"
+        },
         "onlineUrl": "https://meet.example/rust-madrid"
       },
       "tags": ["rust", "wasm"],
@@ -44,7 +50,16 @@
       "endDate": "2026-10-16",
       "timezone": "Europe/Madrid",
       "attendanceMode": "in-person",
-      "location": { "venue": "Valencia, Spain" },
+      "location": {
+        "venue": "Valencia, Spain",
+
+        "_comment_address": "La sede aún no está cerrada, así que `address` solo trae lo que se sabe: ciudad y país. Rellenar `street` o `postalCode` con \"\" o `null` sería inválido — y peor que callarse, porque publica un desconocido como si fuera dato.",
+
+        "address": {
+          "locality": "València",
+          "country": "ES"
+        }
+      },
       "tags": ["web", "cloud"],
       "languages": ["es", "en"],
       "status": "cancelled",

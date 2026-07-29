@@ -39,7 +39,7 @@ const model = {
     { name: "feed", schema: feed },
   ].map(({ name, schema }) => {
     // Recommended is read from the profile schema, not declared here: one list, one place.
-    // It is a top-level notion — a profile asks for `location`, never for `location.geo.lat`.
+    // Paths are dotted, so a profile can ask for `location.address` as well as for `location`.
     const recommended = recommendedOf(profiles[name]);
     return {
       name,

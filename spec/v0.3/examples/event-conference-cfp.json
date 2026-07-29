@@ -15,7 +15,14 @@
   "timezone": "Europe/Madrid",
   "attendanceMode": "in-person",
   "location": {
-    "venue": "Las Naves, Carrer de Joan Verdeguer 16, València"
+    "venue": "Las Naves, Carrer de Joan Verdeguer 16, València",
+    "address": {
+      "street": "Carrer de Joan Verdeguer 16",
+      "locality": "València",
+      "region": "Comunitat Valenciana",
+      "postalCode": "46024",
+      "country": "ES"
+    }
   },
   "tags": ["cloud", "ai", "web"],
   "languages": ["es", "en"],

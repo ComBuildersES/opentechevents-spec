@@ -245,6 +245,12 @@
             },
             {
               "venue": "Campus Madrid, Calle de Moreno Nieto 2, Madrid",
+              "address": {
+                "street": "Calle de Moreno Nieto 2",
+                "locality": "Madrid",
+                "postalCode": "28005",
+                "country": "ES"
+              },
               "onlineUrl": "https://meet.example/rust-madrid"
             }
           ],
@@ -262,8 +268,100 @@
             "El Cable, Almería"
           ],
           "description": {
-            "en": "Human-readable physical location. Its presence means the event has a physical venue.",
-            "es": "Lugar físico, legible por personas. Su presencia significa que el evento tiene sede física."
+            "en": "Human-readable physical location. Its presence means the event has a physical venue. It is the string every destination can print as-is — iCal LOCATION, the text of an RSS item, schema.org Place.name.",
+            "es": "Lugar físico, legible por personas. Su presencia significa que el evento tiene sede física. Es la cadena que cualquier destino puede imprimir tal cual: `LOCATION` de iCal, el texto de un ítem RSS, `Place.name` de schema.org."
+          }
+        },
+        {
+          "path": "location.address",
+          "type": "object",
+          "required": false,
+          "recommended": true,
+          "examples": [
+            {
+              "street": "Calle de Moreno Nieto 2",
+              "locality": "Madrid",
+              "postalCode": "28005",
+              "country": "ES"
+            },
+            {
+              "locality": "Almería",
+              "country": "ES"
+            }
+          ],
+          "description": {
+            "en": "Postal address of the physical venue, in parts. COMPLEMENTS venue, never replaces it: venue is the one string every format can print, address is what a translator needs to emit a schema.org PostalAddress — whose subfields Google validates one by one for the Event rich result. Every part is optional; leave out what you do not know. An absent key means unknown; \"\" or null publish 'unknown' as if it were data, which is the one thing worse than saying nothing.",
+            "es": "Dirección postal de la sede física, por partes. COMPLEMENTA a `venue`, no lo sustituye: `venue` es la única cadena que todo formato sabe imprimir; `address` es lo que necesita un traductor para emitir un `PostalAddress` de schema.org — cuyos subcampos Google valida uno a uno para el rich result de `Event`. Todas las partes son opcionales; omite lo que no sepas. Una clave ausente significa desconocido; `\"\"` o `null` publican un desconocido como si fuera dato, que es lo único peor que callarse."
+          }
+        },
+        {
+          "path": "location.address.street",
+          "type": "string",
+          "required": false,
+          "recommended": false,
+          "examples": [
+            "Calle de Moreno Nieto 2",
+            "100 West Snickerpark Dr"
+          ],
+          "description": {
+            "en": "Street and number, as written locally. May carry a floor or a unit; it is one line of text, not a sub-object.",
+            "es": "Calle y número, tal y como se escriben localmente. Puede llevar planta o puerta; es una línea de texto, no un sub-objeto."
+          }
+        },
+        {
+          "path": "location.address.locality",
+          "type": "string",
+          "required": false,
+          "recommended": false,
+          "examples": [
+            "Madrid",
+            "Almería"
+          ],
+          "description": {
+            "en": "City, town or village.",
+            "es": "Ciudad, pueblo o localidad."
+          }
+        },
+        {
+          "path": "location.address.region",
+          "type": "string",
+          "required": false,
+          "recommended": false,
+          "examples": [
+            "Comunidad de Madrid",
+            "PA"
+          ],
+          "description": {
+            "en": "Province, state or autonomous community — whatever level sits between locality and country in that country. Free text or an ISO 3166-2 code; both travel to schema.org addressRegion unchanged.",
+            "es": "Provincia, estado o comunidad autónoma — el nivel que en ese país queda entre localidad y país. Texto libre o código ISO 3166-2; ambos viajan sin cambios a `addressRegion` de schema.org."
+          }
+        },
+        {
+          "path": "location.address.postalCode",
+          "type": "string",
+          "required": false,
+          "recommended": false,
+          "examples": [
+            "28005",
+            "19019"
+          ],
+          "description": {
+            "en": "Postal code, as the local post office writes it. A string, never a number: leading zeros are part of it.",
+            "es": "Código postal, tal y como lo escribe el correo local. Cadena, nunca número: los ceros a la izquierda forman parte de él."
+          }
+        },
+        {
+          "path": "location.address.country",
+          "type": "string",
+          "required": false,
+          "recommended": false,
+          "examples": [
+            "ES",
+            "US"
+          ],
+          "description": {
+            "en": "ISO 3166-1 alpha-2 code, uppercase (ES, US, MX). A code and not a country name, because the name has one spelling per language: \"España\", \"Spain\" and \"Espagne\" are the same country, and a consumer grouping events by country would see three. Turning a name into a code is a table lookup, not an invention — which is why the spec asks for it here and nowhere else.",
+            "es": "Código ISO 3166-1 alfa-2, en mayúsculas (`ES`, `US`, `MX`). Un código y no el nombre del país, porque el nombre tiene una grafía por idioma: «España», «Spain» y «Espagne» son el mismo país, y un consumidor que agrupe eventos por país vería tres. Convertir un nombre en código es consultar una tabla, no inventar — por eso la spec lo pide aquí y en ningún otro sitio."
           }
         },
         {

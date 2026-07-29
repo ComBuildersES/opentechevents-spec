@@ -18,6 +18,13 @@
   "attendanceMode": "hybrid",
   "location": {
     "venue": "Campus Madrid, Calle de Moreno Nieto 2, Madrid",
+    "address": {
+      "street": "Calle de Moreno Nieto 2",
+      "locality": "Madrid",
+      "region": "Comunidad de Madrid",
+      "postalCode": "28005",
+      "country": "ES"
+    },
     "onlineUrl": "https://meet.example/rust-madrid",
     "geo": { "lat": 40.4081, "lon": -3.7188 }
   },

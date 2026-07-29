@@ -29,6 +29,7 @@
       "summary": "Sede y URL de conexión a la vez, temáticas, coordenadas, un cartel — y un campo que todavía no es de la spec.",
       "points": [
         "`location` y `attendanceMode` responden preguntas distintas: `location` son hechos observables (¿hay sede?, ¿hay URL?), `attendanceMode` es la intención de quien organiza. Si se contradicen, manda `attendanceMode`.",
+        "`venue` y `address` son el mismo sitio dicho dos veces, y a propósito: `venue` es la única cadena que iCal y RSS saben imprimir; `address` son las cinco partes que necesita un `PostalAddress` de schema.org — y Google las valida una a una.",
         "`updatedAt` es lo que permite sincronizar de forma incremental: es el `LAST-MODIFIED` de iCal, no el `DTSTAMP`.",
         "`image` lleva EL MISMO cartel en tres recortes, el más útil primero: varios tamaños de una imagen, no una galería. A iCal solo llega el primero.",
         "`offers` NO está en la v0.3. El documento es válido igualmente: los schemas no prohíben campos adicionales, a propósito. Es la vía por la que la spec crece — campos que alguien ya usa de verdad, que es justo por donde entró `image`."
@@ -102,6 +103,7 @@
       "summary": "Lo que un importador puede producir honestamente desde un fichero de calendario, incluido lo que debe dejar fuera.",
       "points": [
         "Sin `attendanceMode`, porque iCalendar no sabe expresarlo. Callarse y decir `in-person` son afirmaciones distintas, y solo una es honesta.",
+        "Falta `location.address`, y el checker avisa: un `.ics` trae `LOCATION` como una línea de texto libre, sin partes en las que separarla. El aviso dice qué le falta al evento, no de quién es la culpa.",
         "`source` es obligatoria cuando el evento se importó o agregó. Es ortogonal a `organizers`: quién hace el evento frente a de dónde salieron los datos.",
         "`source.license` (lo que permite la fuente) y `license` (lo que permite este documento) son campos distintos. Declarar una licencia no concede derechos que la fuente nunca dio."
       ]

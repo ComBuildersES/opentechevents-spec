@@ -32,11 +32,12 @@
     {
       "file": "event-meetup.json",
       "cases": ["meetup", "hybrid"],
-      "fields": ["event.attendanceMode", "event.location", "event.location.geo", "event.image", "event.tags", "event.updatedAt"],
+      "fields": ["event.attendanceMode", "event.location", "event.location.address", "event.location.geo", "event.image", "event.tags", "event.updatedAt"],
       "title": "Hybrid meetup, with everything you'd normally want",
       "summary": "A venue and a joining URL at once, topics, coordinates, a poster — and one field that is not part of the spec yet.",
       "points": [
         "`location` and `attendanceMode` answer different questions: `location` is observable fact (is there a venue? is there a URL?), `attendanceMode` is the organiser's intent. If they disagree, `attendanceMode` wins.",
+        "`venue` and `address` are the same place said twice on purpose: `venue` is the one string iCal and RSS can print, `address` is the five parts a schema.org `PostalAddress` needs — and Google validates them one by one.",
         "`updatedAt` is what lets a consumer sync incrementally — it is iCal's `LAST-MODIFIED`, not `DTSTAMP`.",
         "`image` lists the SAME poster in three crops, most useful first: several sizes of one image, not a gallery. Only the first survives iCal.",
         "`offers` is NOT in v0.3. The document is valid anyway: the schemas do not forbid extra fields, on purpose. That is how the spec grows — through fields someone already uses, which is exactly how `image` got in."
@@ -129,11 +130,12 @@
     {
       "file": "event-from-ics.json",
       "cases": ["imported", "meetup"],
-      "fields": ["event.source", "event.source.license", "event.attendanceMode"],
+      "fields": ["event.source", "event.source.license", "event.attendanceMode", "event.location.venue"],
       "title": "Imported from an .ics file",
       "summary": "What an importer can honestly produce from a calendar file — including what it must leave out.",
       "points": [
         "No `attendanceMode`, because iCalendar cannot express it. Staying silent and saying `in-person` are different claims, and only one is honest.",
+        "`location.address` is missing, and the checker says so — an `.ics` carries `LOCATION` as one free-text line, with no parts to split it into. The warning names what the event lacks, not who is to blame for it.",
         "`source` is required when the event was imported or aggregated. It is orthogonal to `organizers`: who runs the event vs. where the data came from.",
         "`source.license` (what the origin allows) and `license` (what this document allows) are different fields. Declaring a licence does not grant rights the origin never gave."
       ]

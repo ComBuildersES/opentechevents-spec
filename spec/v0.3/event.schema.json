@@ -160,6 +160,12 @@
             },
             {
               "venue": "Campus Madrid, Calle de Moreno Nieto 2, Madrid",
+              "address": {
+                "street": "Calle de Moreno Nieto 2",
+                "locality": "Madrid",
+                "postalCode": "28005",
+                "country": "ES"
+              },
               "onlineUrl": "https://meet.example/rust-madrid"
             }
           ]
@@ -422,11 +428,27 @@
       "type": "object",
       "properties": {
         "venue": {
-          "description": "Human-readable physical location. Its presence means the event has a physical venue.",
+          "description": "Human-readable physical location. Its presence means the event has a physical venue. It is the string every destination can print as-is — iCal LOCATION, the text of an RSS item, schema.org Place.name.",
           "type": "string",
           "minLength": 1,
           "examples": [
             "El Cable, Almería"
+          ]
+        },
+        "address": {
+          "description": "Postal address of the physical venue, in parts. COMPLEMENTS venue, never replaces it: venue is the one string every format can print, address is what a translator needs to emit a schema.org PostalAddress — whose subfields Google validates one by one for the Event rich result. Every part is optional; leave out what you do not know. An absent key means unknown; \"\" or null publish 'unknown' as if it were data, which is the one thing worse than saying nothing.",
+          "$ref": "#/$defs/address",
+          "examples": [
+            {
+              "street": "Calle de Moreno Nieto 2",
+              "locality": "Madrid",
+              "postalCode": "28005",
+              "country": "ES"
+            },
+            {
+              "locality": "Almería",
+              "country": "ES"
+            }
           ]
         },
         "onlineUrl": {
@@ -479,6 +501,58 @@
           ]
         }
       ]
+    },
+    "address": {
+      "description": "A postal address in parts, mapped 1:1 onto schema.org PostalAddress. Five fields, all optional, none of them free-form enough to be a second venue: this is the machine-readable half of a location, not a prettier one.",
+      "type": "object",
+      "minProperties": 1,
+      "properties": {
+        "street": {
+          "description": "Street and number, as written locally. May carry a floor or a unit; it is one line of text, not a sub-object.",
+          "type": "string",
+          "minLength": 1,
+          "examples": [
+            "Calle de Moreno Nieto 2",
+            "100 West Snickerpark Dr"
+          ]
+        },
+        "locality": {
+          "description": "City, town or village.",
+          "type": "string",
+          "minLength": 1,
+          "examples": [
+            "Madrid",
+            "Almería"
+          ]
+        },
+        "region": {
+          "description": "Province, state or autonomous community — whatever level sits between locality and country in that country. Free text or an ISO 3166-2 code; both travel to schema.org addressRegion unchanged.",
+          "type": "string",
+          "minLength": 1,
+          "examples": [
+            "Comunidad de Madrid",
+            "PA"
+          ]
+        },
+        "postalCode": {
+          "description": "Postal code, as the local post office writes it. A string, never a number: leading zeros are part of it.",
+          "type": "string",
+          "minLength": 1,
+          "examples": [
+            "28005",
+            "19019"
+          ]
+        },
+        "country": {
+          "description": "ISO 3166-1 alpha-2 code, uppercase (ES, US, MX). A code and not a country name, because the name has one spelling per language: \"España\", \"Spain\" and \"Espagne\" are the same country, and a consumer grouping events by country would see three. Turning a name into a code is a table lookup, not an invention — which is why the spec asks for it here and nowhere else.",
+          "type": "string",
+          "pattern": "^[A-Z]{2}$",
+          "examples": [
+            "ES",
+            "US"
+          ]
+        }
+      }
     },
     "source": {
       "type": "object",

@@ -66,17 +66,21 @@ function build(version) {
 }
 
 /**
- * Which recommended fields a document leaves out. Only `required` errors at the root count:
- * the profile also carries the base schema by $ref, and a document that is already invalid has
- * been reported as such — repeating its errors as warnings would bury the useful ones.
+ * Which recommended fields a document leaves out, as dotted paths (`location.address`).
+ *
+ * Every `required` error counts, wherever it sits: this only ever runs on a document that
+ * already validated against the base schema, so the base half of the profile ($ref) cannot
+ * contribute errors — whatever is left was asked for by the profile itself. Other keywords are
+ * dropped: `if`/`then` report their own failure alongside the inner one, and reporting both
+ * would say the same thing twice.
  */
 function missingRecommended(validate, doc) {
   if (!validate || validate(doc)) return [];
   return [
     ...new Set(
       (validate.errors ?? [])
-        .filter((e) => e.keyword === "required" && e.instancePath === "")
-        .map((e) => e.params.missingProperty)
+        .filter((e) => e.keyword === "required")
+        .map((e) => [...e.instancePath.split("/").filter(Boolean), e.params.missingProperty].join("."))
     ),
   ];
 }

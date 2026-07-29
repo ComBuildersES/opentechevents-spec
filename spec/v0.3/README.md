@@ -124,12 +124,15 @@ El criterio **no** es «estaría bien tenerlo»: es **qué se rompe en los tres 
 | `description` | Lo que muestra literalmente todo destino: `DESCRIPTION` en iCal, el cuerpo de la entrada en RSS/Atom, el snippet en schema.org. |
 | `image` | La imagen es lo que hace que el evento **se vea** donde se lista: Google la pide para el `Event` (como recomendada), y es lo único que llena una tarjeta en cualquier interfaz. Además, el aviso es **accionable**: las cinco plataformas estudiadas ya emiten una, así que quien no la manda casi siempre la tiene y no la ha mapeado. |
 | `location` | Google lo exige para el `Event`; en iCal es `LOCATION`. Sin él nadie puede contestar «¿me pilla cerca?». |
+| `location.address` | **Solo si hay sede física** (`location.venue`). Sin las partes, la dirección viaja a schema.org como texto suelto y el rich result de `Event` de Google no la valida: [detalle abajo](#locationaddress-la-dirección-que-se-valida-por-partes). Cuatro de las cinco plataformas estudiadas ya la emiten por partes, así que el aviso es accionable — salvo importando un `.ics`, que no las tiene. |
 | `attendanceMode` | La primera pregunta de quien busca: ¿puedo ir desde casa? No se deriva de `location` de forma fiable — [por eso son campos distintos](#location-y-attendancemode-no-son-redundantes). |
 | `tags` | **El campo del descubrimiento por interés.** Sin él, filtrar por tema exige adivinar a partir del título. Va a `CATEGORIES` en iCal y a `keywords` en schema.org. |
 | `languages` | Un evento en un idioma que no hablas es ruido, y no es el título quien lo dice. |
 | `organizers` | A quién sigues y de quién te fías. Sin él, un feed de agregador atribuye todo a quien agrega. |
 | `updatedAt` | Es lo que hace posible **la suscripción**: sin él, un consumidor no puede sincronizar de forma incremental y tiene que releerlo todo cada vez. |
 | `endDate` | Solo si `startDate` lleva hora: sin él el cliente de calendario se inventa la duración. En un evento de todo el día su ausencia ya significa «acaba el día que empieza», y avisar ahí sería ruido. |
+
+`location.address` es **la única recomendación anidada y la única condicional junto a `endDate`**: solo se pide cuando hay `location.venue`, porque a un evento online pedirle código postal es un aviso que nadie puede atender. El perfil lo expresa con un `if`/`then`, no con prosa, así que un checker cualquiera lo aplica sin saber nada de esta página.
 
 El perfil del feed es corto a propósito ([`feed.recommended.schema.json`](feed.recommended.schema.json)): `url` y `description`. Casi toda la calidad de un feed está en sus eventos, y un checker aplica el perfil de evento a cada uno por separado —  **con la herencia ya resuelta**, o todo evento de un feed comunitario avisaría por unos `organizers` que el feed ya declaró.
 
@@ -248,7 +251,45 @@ Casi siempre se podrían derivar el uno del otro, y coinciden. El campo existe p
 
 **`attendanceMode` no tiene valor por defecto.** Ausente significa **desconocido**, no `in-person`. Un valor por defecto dejaría que cualquier productor que simplemente *no tiene* el dato emitiera uno falso sin enterarse: un formulario en blanco, un CMS exportando de una plantilla, un importador leyendo un formato que no sabe expresarlo — **iCalendar, el formato de eventos más publicado del mundo, no modela la modalidad en absoluto**. Callarse y decir `in-person` son afirmaciones distintas, y solo una es honesta.
 
-Si `location` está presente, debe traer al menos `venue` o `onlineUrl`. Un `location: {}` es inválido: no dice nada, y decir nada ya se hace omitiendo el campo.
+Si `location` está presente, debe traer al menos `venue` o `onlineUrl`. Un `location: {}` es inválido: no dice nada, y decir nada ya se hace omitiendo el campo. **`address` y `geo` no cuentan** para esa regla: describen la sede que `venue` nombra, no la sustituyen.
+
+### `location.address`: la dirección que se valida por partes
+
+Nueva en la v0.3, opcional, y **hermana de `venue`, no sustituta**:
+
+```json
+"location": {
+  "venue": "Campus Madrid, Calle de Moreno Nieto 2, Madrid",
+  "address": {
+    "street": "Calle de Moreno Nieto 2",
+    "locality": "Madrid",
+    "region": "Comunidad de Madrid",
+    "postalCode": "28005",
+    "country": "ES"
+  },
+  "geo": { "lat": 40.4081, "lon": -3.7188 }
+}
+```
+
+**Por qué se añade.** `venue` es una cadena, y una cadena no se puede validar por partes. Al traducir a schema.org, la sede se convierte en un `Place`, y la dirección de un `Place` es un `PostalAddress` con cinco subcampos que **Google comprueba uno a uno** para el rich result de `Event`. Con solo `venue`, un exportador tiene dos salidas: emitir `address` como texto suelto —válido en schema.org, no validado por Google— o *adivinar* dónde acaba la calle y empieza la ciudad partiendo por comas. Lo segundo es inventar datos, que es justo lo que esta spec no quiere provocar. De las cinco fuentes estudiadas ([`research/findings/json-ld-event-platforms.md`](../../research/findings/json-ld-event-platforms.md)), **cuatro emiten `PostalAddress`** con sus subcampos: es un campo que ya existe ahí fuera, no una idea.
+
+**Por qué `venue` sigue estando, y sigue siendo el que manda.** Porque los otros dos destinos no saben qué hacer con una dirección por partes: `LOCATION` de iCal es **una línea de texto libre**, y RSS/Atom no modelan direcciones en absoluto. Alguien tiene que producir esa línea, y la escribe mejor quien organiza («Campus Madrid, Calle de Moreno Nieto 2, Madrid») que un exportador uniendo partes con comas, que es lo que da direcciones como la de Meetup: `"calle de raimundo lulio, 9 28010, madrid, españa, Madrid"`. Los dos campos dicen el mismo sitio a propósito: **`venue` para leer, `address` para procesar**.
+
+**Todas las partes son opcionales, y omitir es la forma correcta de no saber.** Una clave ausente significa desconocido. `""` y `null` **no son válidos** —cada parte es una cadena de al menos un carácter—, y esa es una decisión con caso real detrás: Guild emite hoy un `PostalAddress` con los cinco subcampos a `null`, que es publicar un desconocido con forma de dato. `"address": {}` también se rechaza, por el mismo motivo que `location: {}`.
+
+**`country` es un código ISO 3166-1 alfa-2 en mayúsculas** (`ES`, `US`), y es la única parte con formato exigido. Un nombre de país tiene una grafía por idioma —«España», «Spain», «Espagne»— y un consumidor que agrupe eventos por país vería tres países donde hay uno. Convertir el nombre en código es **consultar una tabla, no inventar**: por eso aquí sí se exige, y no se exige en `region`, donde no hay tabla universal que valga (provincia, estado, condado o *Land*, según el país).
+
+**No se modelan** ni `addressType`, ni segunda línea de dirección, ni `postOfficeBoxNumber`: `street` es una línea, y las plantas o puertas van en ella. Ningún productor real emite más, y la sección de [Extensiones](#extensiones) prohíbe el diseño especulativo.
+
+**Traducción a los tres formatos de destino, incluida la pérdida:**
+
+| Destino | Mapeo | Pérdida |
+| --- | --- | --- |
+| **schema.org** | `location.address` → `PostalAddress`: `street` → `streetAddress`, `locality` → `addressLocality`, `region` → `addressRegion`, `postalCode` → `postalCode`, `country` → `addressCountry`. `venue` sigue siendo `Place.name` | Ninguna. Es 1:1 — y es el único mapeo que hace que Google valide la dirección. |
+| **iCal** | `LOCATION:<venue>` — la dirección **no viaja por partes** | **Toda la estructura.** iCalendar no modela direcciones ([RFC 5545](https://www.rfc-editor.org/rfc/rfc5545) solo tiene `LOCATION`, texto libre). Un exportador puede anexar las partes al `LOCATION` si `venue` no las incluye ya; lo que no debe es duplicar la dirección detrás de un nombre que ya la lleva. |
+| **RSS / Atom** | Nada nativo: va dentro del texto del ítem | **Toda la estructura**, igual que en iCal. Ninguno de los dos modela lugares. |
+
+Los nombres cortos (`street`, `locality`) frente a los de schema.org (`streetAddress`, `addressLocality`) son la misma decisión que `geo: { lat, lon }` frente a `GeoCoordinates`: **el objeto ya se llama `address`**, y repetir el prefijo en cada clave es ruido. El mapeo es literal y está en la tabla de arriba.
 
 ### `status`: un evento cancelado sigue publicado
 

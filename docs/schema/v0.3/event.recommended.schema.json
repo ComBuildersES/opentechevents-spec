@@ -23,6 +23,34 @@
       ]
     },
     {
+      "description": "location.address is recommended once there IS a physical venue, and meaningless otherwise. A venue given only as free text becomes a schema.org Place whose address is a string: schema.org accepts it, Google's Event rich result does not validate it, and four of the five platforms studied already emit the five PostalAddress subfields. The warning is actionable — whoever runs the event knows its address — with one known exception: an importer reading a .ics has only LOCATION, which has no parts. Same trade-off as image, and the same answer: the profile says what the event is missing, not who is to blame.",
+      "if": {
+        "type": "object",
+        "required": [
+          "location"
+        ],
+        "properties": {
+          "location": {
+            "type": "object",
+            "required": [
+              "venue"
+            ]
+          }
+        }
+      },
+      "then": {
+        "type": "object",
+        "properties": {
+          "location": {
+            "type": "object",
+            "required": [
+              "address"
+            ]
+          }
+        }
+      }
+    },
+    {
       "description": "endDate is recommended only for a timed event: without it a calendar client invents a duration. For an all-day event its absence already means 'ends the day it starts', which is almost always right — so asking for it there would be noise, and a warning nobody can act on is a warning that gets ignored.",
       "if": {
         "type": "object",

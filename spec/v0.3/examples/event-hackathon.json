@@ -20,6 +20,13 @@
   "attendanceMode": "in-person",
   "location": {
     "venue": "Escuela de Ingeniería, Universidad de Almería",
+    "address": {
+      "street": "Carretera Sacramento s/n, La Cañada de San Urbano",
+      "locality": "Almería",
+      "region": "Andalucía",
+      "postalCode": "04120",
+      "country": "ES"
+    },
     "geo": { "lat": 36.8283, "lon": -2.4055 }
   },
   "tags": ["hackathon", "open-source", "ai"],
