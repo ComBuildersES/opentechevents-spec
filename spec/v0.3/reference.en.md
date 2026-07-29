@@ -4,59 +4,61 @@
 >
 > The rules a validator cannot check (why `id` must never change, why a cancelled event stays published) are in [README.md](README.md).
 
+**Level** — `required`: the validator rejects the document without it. `recommended`: valid without it, but a checker warns — these are the fields that decide whether the event can be found, filtered and subscribed to. They are read from [`event.recommended.schema.json`](event.recommended.schema.json) and [`feed.recommended.schema.json`](feed.recommended.schema.json).
+
 ## `event` — OTE Event
 
 A single tech community event. See https://opentechevents.org for the normative prose.
 
-| Field | Type | Required | Description | Examples |
+| Field | Type | Level | Description | Examples |
 | --- | --- | :---: | --- | --- |
-| `specVersion` | const: "0.3.0" | **yes** | Version of OTE Spec this document adheres to. | `"0.3.0"` |
-| `id` | string (uri) | **yes** | Stable, globally unique identifier. A URI under a domain the publisher controls. Minted once, never rewritten — this is what lets consumers update an event instead of duplicating it. | `"https://pyalmeria.example/eventos/2026-06-async"`<br>`"https://calendar.example/ics/rust-madrid#a1b2c3d4-uid"` |
-| `url` | string (uri) | — | Canonical URL where the event is described today. May change over time; id may not. | `"https://pyalmeria.example/eventos/2026-06-async"` |
-| `name` | string | **yes** | Display name of the event. | `"PyAlmería — Introducción a async/await"` |
-| `description` | string | — | Short description. Plain text or Markdown. | `"Charla introductoria a la programación asíncrona en Python, con ejemplos en vivo."` |
-| `organizers` | object[] | — | Who runs the event — not where the data came from (that is source). A list: co-organised events are the norm, not the exception. Inside a feed, an event that omits it inherits the feed's organizers; declaring it REPLACES the inherited list, it does not add to it. | `[{"name":"PyAlmería","url":"https://pyalmeria.example"}]`<br>`[{"name":"GDG Madrid","url":"https://gdgmadrid.example"},{"type":"person","name":"Ada Lovelace","url":"https://ada.example"}]` |
-| `organizers[].type` | enum: organization \| person | — | Organisation or person. Defaults to organisation: a translator has to pick a schema.org @type, and Organization is the tolerant choice. | `"organization"`<br>`"person"` |
-| `organizers[].name` | string | **yes** | Display name of the organiser. | `"PyAlmería"`<br>`"Ada Lovelace"` |
-| `organizers[].url` | string (uri) | — | Where this organiser lives on the web — their own site, or their profile on the platform they publish from. | `"https://pyalmeria.example"`<br>`"https://www.meetup.com/pyalmeria/"` |
-| `timezone` | string | **yes** | IANA timezone (e.g. Europe/Madrid). Turns a wall-clock startDate into an unambiguous instant. For all-day events it contextualises the date — it does not shift it. | `"Europe/Madrid"`<br>`"America/Bogota"`<br>`"UTC"` |
-| `startDate` | string | **yes** | Wall-clock start: a date (2026-10-15) for all-day events, or a local date-time (2026-10-15T09:00:00). Never carries a UTC offset — timezone does that. | `"2026-06-11T18:30:00"`<br>`"2026-10-15"` |
-| `endDate` | string | — | Wall-clock end, in the SAME form as startDate (both dates, or both date-times). If absent, the event is assumed to end on the day it starts. | `"2026-06-11T20:00:00"`<br>`"2026-10-16"` |
-| `partOf` | object | — | The series or multi-part event this document is one occurrence of. A REFERENCE, never a recurrence rule: OTE does not generate dates: whoever publishes expands the recurrence into one document per occurrence, each with its own id, dates and status. A consumer that ignores this field still sees complete, correct events. | `{"id":"https://rustmadrid.example/meetups","name":"Rust Madrid — meetup mensual","url":"https://rustmadrid.example/meetups"}`<br>`{"type":"multipart","id":"https://pyalmeria.example/cursos/2026-testing","name":"Curso de testing en Python (3 sábados)"}` |
-| `partOf.type` | enum: series \| multipart | — | series: independent occurrences that share an identity (a monthly meetup). multipart: parts of ONE event held on non-consecutive dates (a course over three Saturdays, one registration). Defaults to series, the tolerant choice. It changes the translation: a series becomes schema.org EventSeries, a multi-part event becomes an Event whose parts are its subEvent. | `"series"`<br>`"multipart"` |
-| `partOf.id` | string (uri) | **yes** | Stable identifier of the series or multi-part event. Same rules as the event's id: a URI under a domain the publisher controls, minted once. It does NOT have to resolve to an OTE document — it is what lets a consumer group occurrences. | `"https://rustmadrid.example/meetups"`<br>`"https://pyalmeria.example/cursos/2026-testing"` |
-| `partOf.name` | string | — | Display name of the series or multi-part event, so a consumer can group occurrences without resolving the id. | `"Rust Madrid — meetup mensual"`<br>`"Curso de testing en Python (3 sábados)"` |
-| `partOf.url` | string (uri) | — | Page describing the series or the multi-part event as a whole. | `"https://rustmadrid.example/meetups"` |
-| `license` | string | **yes** | License of THIS DATA, not of the event. SPDX identifier (CC0-1.0, CC-BY-4.0…, full list at https://spdx.org/licenses/) or a URL. | `"CC-BY-4.0"`<br>`"CC0-1.0"` |
-| `location` | object | — | What is KNOWN about where the event happens. Not the same question as attendanceMode, which states the organiser's intent. | `{"venue":"El Cable, Almería"}`<br>`{"onlineUrl":"https://meet.example/pyalmeria"}`<br>`{"venue":"Campus Madrid, Calle de Moreno Nieto 2, Madrid","onlineUrl":"https://meet.example/rust-madrid"}` |
-| `location.venue` | string | — | Human-readable physical location. Its presence means the event has a physical venue. | `"El Cable, Almería"` |
-| `location.onlineUrl` | string (uri) | — | URL to attend online. Its presence means the event has online access. | `"https://meet.example/pyalmeria"` |
-| `location.geo` | object | — | Coordinates of the physical venue (WGS-84 decimal degrees). Independent of venue, which is free text — a point, not a name. Maps to iCal GEO and schema.org Place.geo (GeoCoordinates). | — |
-| `location.geo.lat` | number | **yes** | Latitude in decimal degrees. | `40.4168` |
-| `location.geo.lon` | number | **yes** | Longitude in decimal degrees. | `-3.7038` |
-| `attendanceMode` | enum: in-person \| online \| hybrid | — | What the organiser says this event is. NO DEFAULT: absent means unknown, never in-person. | `"in-person"`<br>`"online"`<br>`"hybrid"` |
-| `languages` | string[] | — | BCP 47 tags, e.g. ["es","en"]. No default: absent means unknown. | `["es"]`<br>`["es","en"]` |
-| `tags` | string[] | — | Free-form topic tags. Maps to iCal CATEGORIES and schema.org keywords. A controlled vocabulary may layer on top later; the field itself stays free. No default: absent means unknown. | `["rust","wasm"]`<br>`["python","async"]` |
-| `status` | enum: scheduled \| tentative \| cancelled \| postponed \| rescheduled \| moved-online | — | What happened to the event, not to the data. An event that is cancelled, postponed or moved online MUST stay published: removing it leaves a dead event in subscribers' calendars. tentative means announced but not confirmed (iCal STATUS:TENTATIVE) — it exists so an importer never has to upgrade an unconfirmed event to scheduled, which is the one value with a default. | `"scheduled"`<br>`"cancelled"`<br>`"moved-online"` |
-| `source` | object | — | Provenance. Required when the event was imported or aggregated from elsewhere; omitted when the organiser describes their own event — they are the source. | `{"name":"Rust Madrid","url":"https://calendar.example/ics/rust-madrid","license":"CC-BY-4.0","retrievedAt":"2026-06-01T05:00:00Z"}` |
-| `source.name` | string | **yes** | Name of the origin (e.g. "Rust Madrid", "Meetup"). | `"Rust Madrid"`<br>`"Meetup"` |
-| `source.url` | string (uri) | — | Link to the original record, so the data can be verified and corrected upstream. | `"https://calendar.example/ics/rust-madrid"` |
-| `source.license` | string | — | License under which the ORIGIN publishes the data. Constrains what may be republished: declaring a license does not grant rights the origin never gave. | `"CC-BY-4.0"` |
-| `source.retrievedAt` | string | — | When the data was fetched. | `"2026-06-01T05:00:00Z"` |
-| `updatedAt` | string | — | Instant the event's DATA last changed — equivalent to iCal LAST-MODIFIED, not DTSTAMP (which marks generation and changes on every export). Lets a consumer sync incrementally: fetch only what changed since its last read. Absent means unknown, not 'never changed'. | `"2026-06-10T18:00:00Z"` |
+| `specVersion` | const: "0.3.0" | **required** | Version of OTE Spec this document adheres to. | `"0.3.0"` |
+| `id` | string (uri) | **required** | Stable, globally unique identifier. A URI under a domain the publisher controls. Minted once, never rewritten — this is what lets consumers update an event instead of duplicating it. | `"https://pyalmeria.example/eventos/2026-06-async"`<br>`"https://calendar.example/ics/rust-madrid#a1b2c3d4-uid"` |
+| `url` | string (uri) | _recommended_ | Canonical URL where the event is described today. May change over time; id may not. | `"https://pyalmeria.example/eventos/2026-06-async"` |
+| `name` | string | **required** | Display name of the event. | `"PyAlmería — Introducción a async/await"` |
+| `description` | string | _recommended_ | Short description. Plain text or Markdown. | `"Charla introductoria a la programación asíncrona en Python, con ejemplos en vivo."` |
+| `organizers` | object[] | _recommended_ | Who runs the event — not where the data came from (that is source). A list: co-organised events are the norm, not the exception. Inside a feed, an event that omits it inherits the feed's organizers; declaring it REPLACES the inherited list, it does not add to it. | `[{"name":"PyAlmería","url":"https://pyalmeria.example"}]`<br>`[{"name":"GDG Madrid","url":"https://gdgmadrid.example"},{"type":"person","name":"Ada Lovelace","url":"https://ada.example"}]` |
+| `organizers[].type` | enum: organization \| person | optional | Organisation or person. Defaults to organisation: a translator has to pick a schema.org @type, and Organization is the tolerant choice. | `"organization"`<br>`"person"` |
+| `organizers[].name` | string | **required** | Display name of the organiser. | `"PyAlmería"`<br>`"Ada Lovelace"` |
+| `organizers[].url` | string (uri) | optional | Where this organiser lives on the web — their own site, or their profile on the platform they publish from. | `"https://pyalmeria.example"`<br>`"https://www.meetup.com/pyalmeria/"` |
+| `timezone` | string | **required** | IANA timezone (e.g. Europe/Madrid). Turns a wall-clock startDate into an unambiguous instant. For all-day events it contextualises the date — it does not shift it. | `"Europe/Madrid"`<br>`"America/Bogota"`<br>`"UTC"` |
+| `startDate` | string | **required** | Wall-clock start: a date (2026-10-15) for all-day events, or a local date-time (2026-10-15T09:00:00). Never carries a UTC offset — timezone does that. | `"2026-06-11T18:30:00"`<br>`"2026-10-15"` |
+| `endDate` | string | _recommended_ | Wall-clock end, in the SAME form as startDate (both dates, or both date-times). If absent, the event is assumed to end on the day it starts. | `"2026-06-11T20:00:00"`<br>`"2026-10-16"` |
+| `partOf` | object | optional | The series or multi-part event this document is one occurrence of. A REFERENCE, never a recurrence rule: OTE does not generate dates: whoever publishes expands the recurrence into one document per occurrence, each with its own id, dates and status. A consumer that ignores this field still sees complete, correct events. | `{"id":"https://rustmadrid.example/meetups","name":"Rust Madrid — meetup mensual","url":"https://rustmadrid.example/meetups"}`<br>`{"type":"multipart","id":"https://pyalmeria.example/cursos/2026-testing","name":"Curso de testing en Python (3 sábados)"}` |
+| `partOf.type` | enum: series \| multipart | optional | series: independent occurrences that share an identity (a monthly meetup). multipart: parts of ONE event held on non-consecutive dates (a course over three Saturdays, one registration). Defaults to series, the tolerant choice. It changes the translation: a series becomes schema.org EventSeries, a multi-part event becomes an Event whose parts are its subEvent. | `"series"`<br>`"multipart"` |
+| `partOf.id` | string (uri) | **required** | Stable identifier of the series or multi-part event. Same rules as the event's id: a URI under a domain the publisher controls, minted once. It does NOT have to resolve to an OTE document — it is what lets a consumer group occurrences. | `"https://rustmadrid.example/meetups"`<br>`"https://pyalmeria.example/cursos/2026-testing"` |
+| `partOf.name` | string | optional | Display name of the series or multi-part event, so a consumer can group occurrences without resolving the id. | `"Rust Madrid — meetup mensual"`<br>`"Curso de testing en Python (3 sábados)"` |
+| `partOf.url` | string (uri) | optional | Page describing the series or the multi-part event as a whole. | `"https://rustmadrid.example/meetups"` |
+| `license` | string | **required** | License of THIS DATA, not of the event. SPDX identifier (CC0-1.0, CC-BY-4.0…, full list at https://spdx.org/licenses/) or a URL. | `"CC-BY-4.0"`<br>`"CC0-1.0"` |
+| `location` | object | _recommended_ | What is KNOWN about where the event happens. Not the same question as attendanceMode, which states the organiser's intent. | `{"venue":"El Cable, Almería"}`<br>`{"onlineUrl":"https://meet.example/pyalmeria"}`<br>`{"venue":"Campus Madrid, Calle de Moreno Nieto 2, Madrid","onlineUrl":"https://meet.example/rust-madrid"}` |
+| `location.venue` | string | optional | Human-readable physical location. Its presence means the event has a physical venue. | `"El Cable, Almería"` |
+| `location.onlineUrl` | string (uri) | optional | URL to attend online. Its presence means the event has online access. | `"https://meet.example/pyalmeria"` |
+| `location.geo` | object | optional | Coordinates of the physical venue (WGS-84 decimal degrees). Independent of venue, which is free text — a point, not a name. Maps to iCal GEO and schema.org Place.geo (GeoCoordinates). | — |
+| `location.geo.lat` | number | **required** | Latitude in decimal degrees. | `40.4168` |
+| `location.geo.lon` | number | **required** | Longitude in decimal degrees. | `-3.7038` |
+| `attendanceMode` | enum: in-person \| online \| hybrid | _recommended_ | What the organiser says this event is. NO DEFAULT: absent means unknown, never in-person. | `"in-person"`<br>`"online"`<br>`"hybrid"` |
+| `languages` | string[] | _recommended_ | BCP 47 tags, e.g. ["es","en"]. No default: absent means unknown. | `["es"]`<br>`["es","en"]` |
+| `tags` | string[] | _recommended_ | Free-form topic tags. Maps to iCal CATEGORIES and schema.org keywords. A controlled vocabulary may layer on top later; the field itself stays free. No default: absent means unknown. | `["rust","wasm"]`<br>`["python","async"]` |
+| `status` | enum: scheduled \| tentative \| cancelled \| postponed \| rescheduled \| moved-online | optional | What happened to the event, not to the data. An event that is cancelled, postponed or moved online MUST stay published: removing it leaves a dead event in subscribers' calendars. tentative means announced but not confirmed (iCal STATUS:TENTATIVE) — it exists so an importer never has to upgrade an unconfirmed event to scheduled, which is the one value with a default. | `"scheduled"`<br>`"cancelled"`<br>`"moved-online"` |
+| `source` | object | optional | Provenance. Required when the event was imported or aggregated from elsewhere; omitted when the organiser describes their own event — they are the source. | `{"name":"Rust Madrid","url":"https://calendar.example/ics/rust-madrid","license":"CC-BY-4.0","retrievedAt":"2026-06-01T05:00:00Z"}` |
+| `source.name` | string | **required** | Name of the origin (e.g. "Rust Madrid", "Meetup"). | `"Rust Madrid"`<br>`"Meetup"` |
+| `source.url` | string (uri) | optional | Link to the original record, so the data can be verified and corrected upstream. | `"https://calendar.example/ics/rust-madrid"` |
+| `source.license` | string | optional | License under which the ORIGIN publishes the data. Constrains what may be republished: declaring a license does not grant rights the origin never gave. | `"CC-BY-4.0"` |
+| `source.retrievedAt` | string | optional | When the data was fetched. | `"2026-06-01T05:00:00Z"` |
+| `updatedAt` | string | _recommended_ | Instant the event's DATA last changed — equivalent to iCal LAST-MODIFIED, not DTSTAMP (which marks generation and changes on every export). Lets a consumer sync incrementally: fetch only what changed since its last read. Absent means unknown, not 'never changed'. | `"2026-06-10T18:00:00Z"` |
 
 ## `feed` — OTE Feed
 
 A collection of OTE events published at a stable URL. An exchange format, not an API.
 
-| Field | Type | Required | Description | Examples |
+| Field | Type | Level | Description | Examples |
 | --- | --- | :---: | --- | --- |
-| `specVersion` | const: "0.3.0" | **yes** | Version of OTE Spec this feed adheres to. Applies to every event in it. | `"0.3.0"` |
-| `title` | string | **yes** | Human-readable name of the feed. | `"Eventos de PyAlmería"` |
-| `description` | string | — | Short description of the feed. | `"Meetups mensuales de Python en Almería."` |
-| `url` | string (uri) | — | Canonical URL of the community, directory or organisation publishing the feed. | `"https://pyalmeria.example"` |
-| `organizers` | object[] | — | Who runs the events in this feed — the DEFAULT for every event that does not declare its own. Not the same as title/url, which name whoever publishes the feed: an aggregator publishes events it does not organise, and must leave this out so each event states its own. | `[{"name":"PyAlmería","url":"https://pyalmeria.example"}]` |
-| `license` | string | **yes** | License for the feed's contents. Acts as the DEFAULT for every event that does not declare its own. SPDX identifier (full list at https://spdx.org/licenses/) or URL. | `"CC-BY-4.0"`<br>`"CC0-1.0"` |
-| `licenseUrl` | string (uri) | — | URL of the full license text. | `"https://creativecommons.org/licenses/by/4.0/"` |
-| `updatedAt` | string | **yes** | When this feed was generated. | `"2026-07-06T10:00:00Z"` |
-| `events` | object[] | **yes** | Events in this feed. Each one inherits the feed's specVersion and license unless it declares its own. | — |
+| `specVersion` | const: "0.3.0" | **required** | Version of OTE Spec this feed adheres to. Applies to every event in it. | `"0.3.0"` |
+| `title` | string | **required** | Human-readable name of the feed. | `"Eventos de PyAlmería"` |
+| `description` | string | _recommended_ | Short description of the feed. | `"Meetups mensuales de Python en Almería."` |
+| `url` | string (uri) | _recommended_ | Canonical URL of the community, directory or organisation publishing the feed. | `"https://pyalmeria.example"` |
+| `organizers` | object[] | optional | Who runs the events in this feed — the DEFAULT for every event that does not declare its own. Not the same as title/url, which name whoever publishes the feed: an aggregator publishes events it does not organise, and must leave this out so each event states its own. | `[{"name":"PyAlmería","url":"https://pyalmeria.example"}]` |
+| `license` | string | **required** | License for the feed's contents. Acts as the DEFAULT for every event that does not declare its own. SPDX identifier (full list at https://spdx.org/licenses/) or URL. | `"CC-BY-4.0"`<br>`"CC0-1.0"` |
+| `licenseUrl` | string (uri) | optional | URL of the full license text. | `"https://creativecommons.org/licenses/by/4.0/"` |
+| `updatedAt` | string | **required** | When this feed was generated. | `"2026-07-06T10:00:00Z"` |
+| `events` | object[] | **required** | Events in this feed. Each one inherits the feed's specVersion and license unless it declares its own. | — |

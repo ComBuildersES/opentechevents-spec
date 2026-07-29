@@ -25,7 +25,8 @@
       "attendanceMode": "in-person",
       "location": { "venue": "El Cable, Almería" },
       "languages": ["es"],
-      "tags": ["python", "async"]
+      "tags": ["python", "async"],
+      "updatedAt": "2026-05-28T11:00:00Z"
     },
     {
       "id": "https://pyalmeria.example/eventos/2026-07-datos",
@@ -42,6 +43,7 @@
       },
       "languages": ["es"],
       "tags": ["python", "data"],
+      "updatedAt": "2026-06-30T16:45:00Z",
       "organizers": [
         { "name": "PyAlmería", "url": "https://pyalmeria.example" },
         { "name": "PyData Almería", "url": "https://pydata-almeria.example" }

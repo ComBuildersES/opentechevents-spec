@@ -12,3 +12,13 @@ export declare const feedSchema: Record<string, unknown>;
  * so the event schema must be registered first.
  */
 export declare const schemas: Record<string, unknown>[];
+
+/**
+ * Quality profiles, NOT validity: a document that fails one is still a valid OTE document.
+ * They list the fields that decide whether an event can be found, filtered and subscribed to.
+ * Report their failures as warnings; never reject a document for them. Both reference the base
+ * schemas by $id, so register `schemas` first.
+ */
+export declare const eventRecommendedSchema: Record<string, unknown>;
+export declare const feedRecommendedSchema: Record<string, unknown>;
+export declare const recommendedSchemas: Record<string, unknown>[];

@@ -12,6 +12,7 @@
   "languages": ["es"],
   "tags": ["python", "cloud"],
   "license": "CC-BY-4.0",
+  "updatedAt": "2026-09-02T17:20:00Z",
 
   "_comment_organizers": "Tres organizadores: dos comunidades y una persona. El primero es el principal — el orden es significativo, porque iCal solo puede expresar UNO (y ni eso: sin email no hay ORGANIZER válido, así que se degrada a X-OTE-ORGANIZER). schema.org y Atom sí aceptan la lista entera.",
 

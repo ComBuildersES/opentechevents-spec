@@ -8,6 +8,7 @@ Especificación mínima para describir eventos de comunidades técnicas y public
 | --- | --- |
 | [`event.schema.json`](event.schema.json) | **Normativo, ejecutable.** JSON Schema (draft 2020-12) de un evento. |
 | [`feed.schema.json`](feed.schema.json) | **Normativo, ejecutable.** JSON Schema de una colección de eventos. |
+| [`event.recommended.schema.json`](event.recommended.schema.json)<br>[`feed.recommended.schema.json`](feed.recommended.schema.json) | **Normativos, ejecutables.** Perfiles de **calidad, no de validez**: los campos sin los que el evento no se puede descubrir ni seguir. Fallar aquí produce **avisos**, nunca un rechazo. Ver [Campos recomendados](#válido-no-es-lo-mismo-que-útil-los-campos-recomendados). |
 | Este documento | **Normativo, no ejecutable.** Las reglas que un validador no puede comprobar. |
 | [`examples/`](examples/) | Ejemplos, **validados en CI**. Si no pasan el validador, el build falla. |
 
@@ -16,6 +17,8 @@ Los `$id` son las URLs bajo las que se publican los schemas:
 ```text
 https://opentechevents.org/schema/v0.3/event.schema.json
 https://opentechevents.org/schema/v0.3/feed.schema.json
+https://opentechevents.org/schema/v0.3/event.recommended.schema.json
+https://opentechevents.org/schema/v0.3/feed.recommended.schema.json
 ```
 
 **Una vez publicada, una versión no se toca.** Las `v0.1` y `v0.2` siguen congeladas en [`spec/v0.1/`](../v0.1/) y [`spec/v0.2/`](../v0.2/); los cambios futuros irán a `spec/v0.4/`. Es lo que permite que un documento diga `specVersion: "0.3.0"` y un consumidor sepa dentro de tres años contra qué validarlo. Qué cambió entre versiones vive en el [CHANGELOG](../../CHANGELOG.md).
@@ -39,6 +42,19 @@ ajv.addSchema(eventSchema);          // el feed referencia al evento por $id: re
 const validateFeed = ajv.compile(feedSchema);
 ```
 
+Los perfiles de calidad vienen en el mismo paquete, y se usan **aparte** de la validación: lo que devuelven son avisos, no errores.
+
+```js
+import { eventRecommendedSchema } from "@opentechevents/schema";
+
+const validateEvent = ajv.compile(eventSchema);
+const checkEvent = ajv.compile(eventRecommendedSchema); // referencia al evento por $id, ya registrado
+
+if (validateEvent(event) && !checkEvent(event)) {
+  warn(checkEvent.errors); // publícalo igual: sigue siendo válido
+}
+```
+
 **Por URL** (para editores, CI de terceros o quien no use npm):
 
 ```text
@@ -57,7 +73,9 @@ npm run validate
 
 Obligatorio: `id`, `name`, `startDate`, `timezone` — y, en un documento suelto, `specVersion` y `license`.
 
-Todo lo demás es opcional. **Deliberadamente**: la mayoría de los `.ics` publicados no traen ni URL ni descripción, y una spec que los exija obliga al importador a descartar el evento o a inventarse el dato. Ninguna de las dos cosas es aceptable. `url` y `description` se recomiendan con fuerza; no se exigen.
+Todo lo demás es opcional. **Deliberadamente**: la mayoría de los `.ics` publicados no traen ni URL ni descripción, y una spec que los exija obliga al importador a descartar el evento o a inventarse el dato. Ninguna de las dos cosas es aceptable.
+
+Opcional **no** quiere decir prescindible, y ahí entra el segundo nivel: los [campos recomendados](#válido-no-es-lo-mismo-que-útil-los-campos-recomendados).
 
 Ejemplo mínimo real ([`examples/event-minimal.json`](examples/event-minimal.json)):
 
@@ -71,6 +89,58 @@ Ejemplo mínimo real ([`examples/event-minimal.json`](examples/event-minimal.jso
   "license": "CC-BY-4.0"
 }
 ```
+
+### Válido no es lo mismo que útil: los campos recomendados
+
+Nuevo en la v0.3. Un evento con solo los seis campos obligatorios es **válido** y, para el problema que esta spec existe para resolver, **casi inservible**: no se puede filtrar por tema, no se sabe si se puede ir, y en RSS no hay ni enlace que pinchar. Bajar el listón de la validez fue una decisión correcta; dejar ahí la conversación, no.
+
+Por eso hay **dos schemas y dos preguntas distintas**:
+
+| Schema | La pregunta que responde | Qué pasa si falla |
+| --- | --- | --- |
+| [`event.schema.json`](event.schema.json) | ¿Es esto un evento OTE? | **Error.** El documento se rechaza. |
+| [`event.recommended.schema.json`](event.recommended.schema.json) | ¿Sirve para algo? | **Aviso.** El documento sigue siendo válido. |
+
+**Regla normativa: una herramienta MAY avisar de un campo recomendado que falta, y MUST NOT rechazar el documento por ello.** Convertir una recomendación en un error reintroduce por la puerta de atrás justo lo que la permisividad evita: quien importa un `.ics` pelado se ve obligado a inventarse el dato o a tirar el evento.
+
+Los perfiles son schemas normales, publicados bajo su propio `$id` y distribuidos en el paquete npm. Referencian a los de base por `$ref`, así que hay que registrar primero los de base:
+
+```text
+https://opentechevents.org/schema/v0.3/event.recommended.schema.json
+https://opentechevents.org/schema/v0.3/feed.recommended.schema.json
+```
+
+```bash
+npm run validate -- mi-feed.json     # errores y avisos, en la misma pasada
+```
+
+#### Qué se recomienda, y por qué ese y no otro
+
+El criterio **no** es «estaría bien tenerlo»: es **qué se rompe en los tres destinos si falta**, y si la ausencia impide descubrir o seguir el evento.
+
+| Campo | Qué se pierde sin él |
+| --- | --- |
+| `url` | RSS y Atom no tienen otro sitio donde llevar el enlace: la entrada deja de ser pinchable. Es lo que convierte un dato en algo a lo que ir. |
+| `description` | Lo que muestra literalmente todo destino: `DESCRIPTION` en iCal, el cuerpo de la entrada en RSS/Atom, el snippet en schema.org. |
+| `location` | Google lo exige para el `Event`; en iCal es `LOCATION`. Sin él nadie puede contestar «¿me pilla cerca?». |
+| `attendanceMode` | La primera pregunta de quien busca: ¿puedo ir desde casa? No se deriva de `location` de forma fiable — [por eso son campos distintos](#location-y-attendancemode-no-son-redundantes). |
+| `tags` | **El campo del descubrimiento por interés.** Sin él, filtrar por tema exige adivinar a partir del título. Va a `CATEGORIES` en iCal y a `keywords` en schema.org. |
+| `languages` | Un evento en un idioma que no hablas es ruido, y no es el título quien lo dice. |
+| `organizers` | A quién sigues y de quién te fías. Sin él, un feed de agregador atribuye todo a quien agrega. |
+| `updatedAt` | Es lo que hace posible **la suscripción**: sin él, un consumidor no puede sincronizar de forma incremental y tiene que releerlo todo cada vez. |
+| `endDate` | Solo si `startDate` lleva hora: sin él el cliente de calendario se inventa la duración. En un evento de todo el día su ausencia ya significa «acaba el día que empieza», y avisar ahí sería ruido. |
+
+El perfil del feed es corto a propósito ([`feed.recommended.schema.json`](feed.recommended.schema.json)): `url` y `description`. Casi toda la calidad de un feed está en sus eventos, y un checker aplica el perfil de evento a cada uno por separado —  **con la herencia ya resuelta**, o todo evento de un feed comunitario avisaría por unos `organizers` que el feed ya declaró.
+
+#### Dos ausencias que son la parte interesante
+
+**`status` no es recomendado**, y es el único campo de la spec con valor por defecto. Escribir `"status": "scheduled"` no añade información: es lo que ya significa su ausencia. Lo que de verdad importa de `status` es una acción, no un campo — **actualizarlo cuando el evento se cae** —, y eso ningún schema lo puede comprobar: el documento que anuncia un evento cancelado como si nada es indistinguible del correcto hasta que alguien se planta en una puerta cerrada. Sigue siendo [la regla más importante de esta spec](#status-un-evento-cancelado-sigue-publicado); simplemente no es una regla que un perfil pueda vigilar.
+
+**`feed.organizers` tampoco**, y por el motivo contrario: un agregador **debe** omitirlo para que cada evento declare el suyo. Un aviso ahí empujaría a quien agrega a atribuirse eventos que no organiza — corrompiendo exactamente el dato que el campo existe para proteger. Una recomendación que, seguida al pie de la letra, empeora los datos, es una recomendación mal puesta.
+
+#### Qué promete este nivel, y qué no
+
+La lista **puede crecer** en versiones futuras: recomendar algo no cuesta la compatibilidad de nadie, porque nada deja de validar. Lo que **no** hará es convertirse en la vía por la que un campo opcional pasa a obligatorio de tapadillo: ascender un campo al núcleo obligatorio sigue siendo un cambio que rompe, y va con su versión y su entrada en el [CHANGELOG](../../CHANGELOG.md). Recomendado es un nivel estable, no una sala de espera.
 
 ### `id` y `url` empiezan siendo iguales, pero no son lo mismo
 

@@ -25,6 +25,8 @@
       examplesCta: "Practical examples",
       footerNote: "Generated from the schemas. Draft specification — fields may change.",
       required: "required",
+      recommended: "recommended",
+      recommendedTip: "Valid without it — but a checker warns. These are the fields that decide whether the event can be found, filtered and subscribed to.",
       optional: "optional",
       examples: "Examples",
       examplesHint: "Click a value to see it inside a whole document",
@@ -74,6 +76,8 @@
       examplesCta: "Ejemplos prácticos",
       footerNote: "Generado a partir de los schemas. Especificación en borrador: los campos pueden cambiar.",
       required: "obligatorio",
+      recommended: "recomendado",
+      recommendedTip: "El documento es válido sin él, pero un checker avisa. Son los campos que deciden si el evento se puede encontrar, filtrar y seguir.",
       optional: "opcional",
       examples: "Ejemplos",
       examplesHint: "Pulsa un valor para verlo dentro de un documento entero",
@@ -492,7 +496,10 @@
       section.appendChild(el("p", "ref-schema-desc", schema.description[state.lang]));
 
       fields.forEach(function (f) {
-        var card = el("article", "field" + (f.required ? " field-required" : ""));
+        var card = el(
+          "article",
+          "field" + (f.required ? " field-required" : f.recommended ? " field-recommended" : "")
+        );
         card.id = schema.name + "-" + f.path;
         card.dataset.depth = String(f.path.split(".").length - 1);
 
@@ -505,9 +512,13 @@
         anchor.setAttribute("aria-label", t.anchorLabel + ": " + f.path);
         head.appendChild(anchor);
 
-        head.appendChild(
-          el("span", "field-req " + (f.required ? "is-required" : "is-optional"), f.required ? t.required : t.optional)
-        );
+        // Three levels, one badge: required (the validator rejects the document without it),
+        // recommended (valid, but a checker warns) and optional. The middle one is the whole
+        // point of the profiles — flattening it back into "optional" would hide it.
+        var level = f.required ? "required" : f.recommended ? "recommended" : "optional";
+        var badge = el("span", "field-req is-" + level, t[level]);
+        if (level === "recommended") badge.title = t.recommendedTip;
+        head.appendChild(badge);
         card.appendChild(head);
 
         var desc = el("p", "field-desc");

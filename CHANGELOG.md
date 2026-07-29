@@ -30,6 +30,11 @@ al agregador todos los eventos que agrega**.
 Y entra `partOf`, que agrupa las ocurrencias de una serie o las partes de un
 evento multi-parte **sin** meter una regla de recurrencia dentro del feed.
 
+Además, un **segundo nivel de exigencia**: los perfiles de campos recomendados.
+No cambian lo que es válido —ni un solo documento deja de validar— pero ponen
+nombre a la diferencia entre un evento válido y uno que de verdad se puede
+descubrir y seguir.
+
 ### Added
 
 - **`organizers`** (`array`, mín. 1) en el **evento** y en el **feed**. Cada
@@ -95,6 +100,38 @@ evento multi-parte **sin** meter una regla de recurrencia dentro del feed.
     (ya con fecha nueva, que es la que lleva el documento). Y que **RSS/Atom no
     tienen `status`**: quien exporte debe llevarlo al título de la entrada
     (`[CANCELADO] …`).
+
+- **Campos recomendados**, como dos schemas nuevos y publicados:
+  [`event.recommended.schema.json`](spec/v0.3/event.recommended.schema.json) y
+  [`feed.recommended.schema.json`](spec/v0.3/feed.recommended.schema.json).
+  - **Son perfiles de calidad, no de validez.** `event.schema.json` responde «¿es
+    esto un evento OTE?»; el perfil responde «¿sirve para algo?». Regla
+    normativa: una herramienta **puede avisar** de un campo recomendado que
+    falta y **no debe rechazar** el documento por ello. Lo contrario
+    reintroduciría por la puerta de atrás lo que la permisividad evita: quien
+    importa un `.ics` pelado tendría que inventarse el dato o tirar el evento.
+  - **Recomendados en el evento**: `url`, `description`, `organizers`,
+    `location`, `attendanceMode`, `tags`, `languages`, `updatedAt` — y `endDate`
+    **solo si `startDate` lleva hora** (en un evento de todo el día su ausencia
+    ya significa «acaba el día que empieza», así que avisar sería ruido). El
+    criterio no es «estaría bien tenerlo» sino **qué se rompe en los tres
+    destinos si falta**: sin `url` no hay enlace en RSS/Atom, sin `tags` no hay
+    filtrado por interés, sin `updatedAt` no hay sincronización incremental —
+    que es lo que hace posible *suscribirse* en vez de releerlo todo.
+  - **Recomendados en el feed**: solo `url` y `description`. Casi toda la calidad
+    de un feed está en sus eventos, y un checker aplica el perfil de evento a
+    cada uno **con la herencia ya resuelta**.
+  - **`status` NO es recomendado**: es el único campo con valor por defecto, y
+    escribir `"scheduled"` no añade nada a su ausencia. Lo que importa de
+    `status` es *actualizarlo cuando el evento se cae*, y eso ningún schema lo
+    puede comprobar.
+  - **`feed.organizers` NO es recomendado**: un agregador **debe** omitirlo. Un
+    aviso ahí le empujaría a atribuirse eventos que no organiza, corrompiendo el
+    dato que el campo existe para proteger.
+  - La referencia de campos pasa a tener tres niveles (`obligatorio`,
+    `recomendado`, `opcional`), leídos **de los perfiles**, no escritos a mano.
+    `npm run validate` los reporta como avisos y **nunca** cambia el código de
+    salida.
 
 - **Política de extensiones con prefijo**, en el README de la spec. Se distinguen
   dos tipos de campo adicional: **candidato a núcleo** (sin prefijo: `image`,

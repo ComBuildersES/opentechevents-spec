@@ -20,6 +20,7 @@
           "path": "specVersion",
           "type": "const: \"0.3.0\"",
           "required": true,
+          "recommended": false,
           "examples": [
             "0.3.0"
           ],
@@ -32,6 +33,7 @@
           "path": "id",
           "type": "string (uri)",
           "required": true,
+          "recommended": false,
           "examples": [
             "https://pyalmeria.example/eventos/2026-06-async",
             "https://calendar.example/ics/rust-madrid#a1b2c3d4-uid"
@@ -45,6 +47,7 @@
           "path": "url",
           "type": "string (uri)",
           "required": false,
+          "recommended": true,
           "examples": [
             "https://pyalmeria.example/eventos/2026-06-async"
           ],
@@ -57,6 +60,7 @@
           "path": "name",
           "type": "string",
           "required": true,
+          "recommended": false,
           "examples": [
             "PyAlmería — Introducción a async/await"
           ],
@@ -69,6 +73,7 @@
           "path": "description",
           "type": "string",
           "required": false,
+          "recommended": true,
           "examples": [
             "Charla introductoria a la programación asíncrona en Python, con ejemplos en vivo."
           ],
@@ -81,6 +86,7 @@
           "path": "organizers",
           "type": "object[]",
           "required": false,
+          "recommended": true,
           "examples": [
             [
               {
@@ -109,6 +115,7 @@
           "path": "organizers[].type",
           "type": "enum: organization | person",
           "required": false,
+          "recommended": false,
           "examples": [
             "organization",
             "person"
@@ -122,6 +129,7 @@
           "path": "organizers[].name",
           "type": "string",
           "required": true,
+          "recommended": false,
           "examples": [
             "PyAlmería",
             "Ada Lovelace"
@@ -135,6 +143,7 @@
           "path": "organizers[].url",
           "type": "string (uri)",
           "required": false,
+          "recommended": false,
           "examples": [
             "https://pyalmeria.example",
             "https://www.meetup.com/pyalmeria/"
@@ -148,6 +157,7 @@
           "path": "timezone",
           "type": "string",
           "required": true,
+          "recommended": false,
           "examples": [
             "Europe/Madrid",
             "America/Bogota",
@@ -162,6 +172,7 @@
           "path": "startDate",
           "type": "string",
           "required": true,
+          "recommended": false,
           "examples": [
             "2026-06-11T18:30:00",
             "2026-10-15"
@@ -175,6 +186,7 @@
           "path": "endDate",
           "type": "string",
           "required": false,
+          "recommended": true,
           "examples": [
             "2026-06-11T20:00:00",
             "2026-10-16"
@@ -188,6 +200,7 @@
           "path": "partOf",
           "type": "object",
           "required": false,
+          "recommended": false,
           "examples": [
             {
               "id": "https://rustmadrid.example/meetups",
@@ -209,6 +222,7 @@
           "path": "partOf.type",
           "type": "enum: series | multipart",
           "required": false,
+          "recommended": false,
           "examples": [
             "series",
             "multipart"
@@ -222,6 +236,7 @@
           "path": "partOf.id",
           "type": "string (uri)",
           "required": true,
+          "recommended": false,
           "examples": [
             "https://rustmadrid.example/meetups",
             "https://pyalmeria.example/cursos/2026-testing"
@@ -235,6 +250,7 @@
           "path": "partOf.name",
           "type": "string",
           "required": false,
+          "recommended": false,
           "examples": [
             "Rust Madrid — meetup mensual",
             "Curso de testing en Python (3 sábados)"
@@ -248,6 +264,7 @@
           "path": "partOf.url",
           "type": "string (uri)",
           "required": false,
+          "recommended": false,
           "examples": [
             "https://rustmadrid.example/meetups"
           ],
@@ -260,6 +277,7 @@
           "path": "license",
           "type": "string",
           "required": true,
+          "recommended": false,
           "examples": [
             "CC-BY-4.0",
             "CC0-1.0"
@@ -273,6 +291,7 @@
           "path": "location",
           "type": "object",
           "required": false,
+          "recommended": true,
           "examples": [
             {
               "venue": "El Cable, Almería"
@@ -294,6 +313,7 @@
           "path": "location.venue",
           "type": "string",
           "required": false,
+          "recommended": false,
           "examples": [
             "El Cable, Almería"
           ],
@@ -306,6 +326,7 @@
           "path": "location.onlineUrl",
           "type": "string (uri)",
           "required": false,
+          "recommended": false,
           "examples": [
             "https://meet.example/pyalmeria"
           ],
@@ -318,6 +339,7 @@
           "path": "location.geo",
           "type": "object",
           "required": false,
+          "recommended": false,
           "examples": [],
           "description": {
             "en": "Coordinates of the physical venue (WGS-84 decimal degrees). Independent of venue, which is free text — a point, not a name. Maps to iCal GEO and schema.org Place.geo (GeoCoordinates).",
@@ -328,6 +350,7 @@
           "path": "location.geo.lat",
           "type": "number",
           "required": true,
+          "recommended": false,
           "examples": [
             40.4168
           ],
@@ -340,6 +363,7 @@
           "path": "location.geo.lon",
           "type": "number",
           "required": true,
+          "recommended": false,
           "examples": [
             -3.7038
           ],
@@ -352,6 +376,7 @@
           "path": "attendanceMode",
           "type": "enum: in-person | online | hybrid",
           "required": false,
+          "recommended": true,
           "examples": [
             "in-person",
             "online",
@@ -366,6 +391,7 @@
           "path": "languages",
           "type": "string[]",
           "required": false,
+          "recommended": true,
           "examples": [
             [
               "es"
@@ -384,6 +410,7 @@
           "path": "tags",
           "type": "string[]",
           "required": false,
+          "recommended": true,
           "examples": [
             [
               "rust",
@@ -403,6 +430,7 @@
           "path": "status",
           "type": "enum: scheduled | tentative | cancelled | postponed | rescheduled | moved-online",
           "required": false,
+          "recommended": false,
           "examples": [
             "scheduled",
             "cancelled",
@@ -417,6 +445,7 @@
           "path": "source",
           "type": "object",
           "required": false,
+          "recommended": false,
           "examples": [
             {
               "name": "Rust Madrid",
@@ -434,6 +463,7 @@
           "path": "source.name",
           "type": "string",
           "required": true,
+          "recommended": false,
           "examples": [
             "Rust Madrid",
             "Meetup"
@@ -447,6 +477,7 @@
           "path": "source.url",
           "type": "string (uri)",
           "required": false,
+          "recommended": false,
           "examples": [
             "https://calendar.example/ics/rust-madrid"
           ],
@@ -459,6 +490,7 @@
           "path": "source.license",
           "type": "string",
           "required": false,
+          "recommended": false,
           "examples": [
             "CC-BY-4.0"
           ],
@@ -471,6 +503,7 @@
           "path": "source.retrievedAt",
           "type": "string",
           "required": false,
+          "recommended": false,
           "examples": [
             "2026-06-01T05:00:00Z"
           ],
@@ -483,6 +516,7 @@
           "path": "updatedAt",
           "type": "string",
           "required": false,
+          "recommended": true,
           "examples": [
             "2026-06-10T18:00:00Z"
           ],
@@ -508,6 +542,7 @@
           "path": "specVersion",
           "type": "const: \"0.3.0\"",
           "required": true,
+          "recommended": false,
           "examples": [
             "0.3.0"
           ],
@@ -520,6 +555,7 @@
           "path": "title",
           "type": "string",
           "required": true,
+          "recommended": false,
           "examples": [
             "Eventos de PyAlmería"
           ],
@@ -532,6 +568,7 @@
           "path": "description",
           "type": "string",
           "required": false,
+          "recommended": true,
           "examples": [
             "Meetups mensuales de Python en Almería."
           ],
@@ -544,6 +581,7 @@
           "path": "url",
           "type": "string (uri)",
           "required": false,
+          "recommended": true,
           "examples": [
             "https://pyalmeria.example"
           ],
@@ -556,6 +594,7 @@
           "path": "organizers",
           "type": "object[]",
           "required": false,
+          "recommended": false,
           "examples": [
             [
               {
@@ -573,6 +612,7 @@
           "path": "license",
           "type": "string",
           "required": true,
+          "recommended": false,
           "examples": [
             "CC-BY-4.0",
             "CC0-1.0"
@@ -586,6 +626,7 @@
           "path": "licenseUrl",
           "type": "string (uri)",
           "required": false,
+          "recommended": false,
           "examples": [
             "https://creativecommons.org/licenses/by/4.0/"
           ],
@@ -598,6 +639,7 @@
           "path": "updatedAt",
           "type": "string",
           "required": true,
+          "recommended": false,
           "examples": [
             "2026-07-06T10:00:00Z"
           ],
@@ -610,6 +652,7 @@
           "path": "events",
           "type": "object[]",
           "required": true,
+          "recommended": false,
           "examples": [],
           "description": {
             "en": "Events in this feed. Each one inherits the feed's specVersion and license unless it declares its own.",

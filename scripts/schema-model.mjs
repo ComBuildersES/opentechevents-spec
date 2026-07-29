@@ -6,7 +6,7 @@
  * cannot check (why `id` must never change, why a cancelled event stays published) is NOT
  * here — it is hand-written, and marked as such in the docs.
  */
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
 /** Resolves a local (#/$defs/x) or remote-by-$id ($id#/$defs/x) reference. */
@@ -92,9 +92,35 @@ export function* fieldsOf(schema, registry = {}, node = null, prefix = "", baseP
   }
 }
 
+/**
+ * The fields a recommended profile asks for, as a Set of names.
+ *
+ * The profile is a plain JSON Schema whose `allOf` branches carry `required` — including the
+ * conditional ones (`if`/`then`), which are recommendations too: `endDate` is recommended for a
+ * timed event and pointless for an all-day one, and the docs must still show it as recommended.
+ * Read from the profile, never re-typed: a list of field names written twice is a list that
+ * drifts.
+ */
+export function recommendedOf(profile) {
+  if (!profile) return new Set();
+  const names = (branch) => [...(branch?.required ?? []), ...(branch?.then?.required ?? [])];
+  return new Set([...names(profile), ...(profile.allOf ?? []).flatMap(names)]);
+}
+
 export function loadSchemas(version = "v0.1", dir = "spec") {
   const event = JSON.parse(readFileSync(join(dir, version, "event.schema.json"), "utf8"));
   const feed = JSON.parse(readFileSync(join(dir, version, "feed.schema.json"), "utf8"));
   const registry = { [event.$id]: event, [feed.$id]: feed };
-  return { event, feed, registry };
+
+  // Recommended profiles arrive in v0.3; v0.1 and v0.2 are frozen without them.
+  const profile = (name) => {
+    const path = join(dir, version, `${name}.recommended.schema.json`);
+    if (!existsSync(path)) return null;
+    const schema = JSON.parse(readFileSync(path, "utf8"));
+    registry[schema.$id] = schema;
+    return schema;
+  };
+  const profiles = { event: profile("event"), feed: profile("feed") };
+
+  return { event, feed, profiles, registry };
 }

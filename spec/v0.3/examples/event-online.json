@@ -20,6 +20,7 @@
   "tags": ["rust", "pair-programming"],
   "status": "scheduled",
   "license": "CC-BY-4.0",
+  "updatedAt": "2026-07-24T08:00:00Z",
 
   "partOf": {
     "id": "https://rustgirona.example/sessions",

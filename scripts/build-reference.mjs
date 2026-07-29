@@ -15,13 +15,13 @@
  */
 import { readFileSync, writeFileSync, readdirSync, existsSync } from "node:fs";
 import { join } from "node:path";
-import { fieldsOf, loadSchemas } from "./schema-model.mjs";
+import { fieldsOf, loadSchemas, recommendedOf } from "./schema-model.mjs";
 
 const VERSION = "v0.3";
 const BASE_LANG = "en"; // the schema's own `description` fields
 const check = process.argv.includes("--check");
 
-const { event, feed, registry } = loadSchemas(VERSION);
+const { event, feed, profiles, registry } = loadSchemas(VERSION);
 const i18nDir = join("spec", VERSION, "i18n");
 const locales = { [BASE_LANG]: null };
 if (existsSync(i18nDir)) {
@@ -37,18 +37,24 @@ const model = {
   schemas: [
     { name: "event", schema: event },
     { name: "feed", schema: feed },
-  ].map(({ name, schema }) => ({
-    name,
-    title: { [BASE_LANG]: schema.title },
-    description: { [BASE_LANG]: schema.description },
-    fields: [...fieldsOf(schema, registry)].map(([path, , meta]) => ({
-      path,
-      type: meta.type,
-      required: meta.required,
-      examples: meta.examples,
-      description: { [BASE_LANG]: meta.description },
-    })),
-  })),
+  ].map(({ name, schema }) => {
+    // Recommended is read from the profile schema, not declared here: one list, one place.
+    // It is a top-level notion — a profile asks for `location`, never for `location.geo.lat`.
+    const recommended = recommendedOf(profiles[name]);
+    return {
+      name,
+      title: { [BASE_LANG]: schema.title },
+      description: { [BASE_LANG]: schema.description },
+      fields: [...fieldsOf(schema, registry)].map(([path, , meta]) => ({
+        path,
+        type: meta.type,
+        required: meta.required,
+        recommended: !meta.required && recommended.has(path),
+        examples: meta.examples,
+        description: { [BASE_LANG]: meta.description },
+      })),
+    };
+  }),
 };
 
 // Merge translations, and refuse to ship a half-translated reference.
@@ -75,22 +81,28 @@ const md = (lang) => {
       rules: `The rules a validator cannot check (why \`id\` must never change, why a cancelled event stays published) are in [README.md](README.md).`,
       field: "Field",
       type: "Type",
-      req: "Required",
+      req: "Level",
       desc: "Description",
       ex: "Examples",
-      yes: "yes",
-      no: "—",
+      yes: "required",
+      rec: "recommended",
+      no: "optional",
+      legend:
+        "**Level** — `required`: the validator rejects the document without it. `recommended`: valid without it, but a checker warns — these are the fields that decide whether the event can be found, filtered and subscribed to. They are read from [`event.recommended.schema.json`](event.recommended.schema.json) and [`feed.recommended.schema.json`](feed.recommended.schema.json).",
     },
     es: {
       intro: `Generado a partir de los schemas — no lo edites a mano. Ejecuta \`npm run build-reference\`.`,
       rules: `Las reglas que un validador no puede comprobar (por qué el \`id\` no cambia nunca, por qué un evento cancelado sigue publicado) están en [README.md](README.md).`,
       field: "Campo",
       type: "Tipo",
-      req: "Oblig.",
+      req: "Nivel",
       desc: "Descripción",
       ex: "Ejemplos",
-      yes: "sí",
-      no: "—",
+      yes: "obligatorio",
+      rec: "recomendado",
+      no: "opcional",
+      legend:
+        "**Nivel** — `obligatorio`: sin él, el validador rechaza el documento. `recomendado`: el documento es válido sin él, pero un checker avisa — son los campos que deciden si el evento se puede encontrar, filtrar y seguir. Se leen de [`event.recommended.schema.json`](event.recommended.schema.json) y [`feed.recommended.schema.json`](feed.recommended.schema.json).",
     },
   }[lang];
 
@@ -101,6 +113,8 @@ const md = (lang) => {
     ">",
     `> ${t.rules}`,
     "",
+    t.legend,
+    "",
   ];
 
   for (const schema of model.schemas) {
@@ -110,8 +124,9 @@ const md = (lang) => {
       const ex = f.examples.map((e) => `\`${JSON.stringify(e)}\``).join("<br>") || "—";
       // An enum renders as "a | b | c": unescaped, those pipes become table columns.
       const cell = (s) => String(s).replace(/\|/g, "\\|");
+      const level = f.required ? `**${t.yes}**` : f.recommended ? `_${t.rec}_` : t.no;
       lines.push(
-        `| \`${f.path}\` | ${cell(f.type)} | ${f.required ? `**${t.yes}**` : t.no} | ${cell(f.description[lang])} | ${cell(ex)} |`
+        `| \`${f.path}\` | ${cell(f.type)} | ${level} | ${cell(f.description[lang])} | ${cell(ex)} |`
       );
     }
     lines.push("");

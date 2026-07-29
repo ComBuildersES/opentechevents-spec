@@ -17,6 +17,7 @@
       "id": "https://pyalmeria.example/cursos/2026-testing/1",
       "url": "https://pyalmeria.example/cursos/2026-testing",
       "name": "Curso de testing en Python — Sesión 1: pytest desde cero",
+      "description": "Primera sesión: pytest desde cero — fixtures, parametrización y estructura de un proyecto.",
       "startDate": "2026-03-07T10:00:00",
       "endDate": "2026-03-07T14:00:00",
       "timezone": "Europe/Madrid",
@@ -24,6 +25,7 @@
       "location": { "venue": "El Cable, Almería" },
       "languages": ["es"],
       "tags": ["python", "testing"],
+      "updatedAt": "2026-02-18T09:00:00Z",
       "partOf": {
         "type": "multipart",
         "id": "https://pyalmeria.example/cursos/2026-testing",
@@ -35,6 +37,7 @@
       "id": "https://pyalmeria.example/cursos/2026-testing/2",
       "url": "https://pyalmeria.example/cursos/2026-testing",
       "name": "Curso de testing en Python — Sesión 2: dobles de prueba",
+      "description": "Segunda sesión: dobles de prueba — mocks, stubs y cuándo NO usarlos.",
       "startDate": "2026-03-14T10:00:00",
       "endDate": "2026-03-14T14:00:00",
       "timezone": "Europe/Madrid",
@@ -42,6 +45,7 @@
       "location": { "venue": "El Cable, Almería" },
       "languages": ["es"],
       "tags": ["python", "testing"],
+      "updatedAt": "2026-02-18T09:00:00Z",
       "partOf": {
         "type": "multipart",
         "id": "https://pyalmeria.example/cursos/2026-testing",
@@ -53,6 +57,7 @@
       "id": "https://pyalmeria.example/cursos/2026-testing/3",
       "url": "https://pyalmeria.example/cursos/2026-testing",
       "name": "Curso de testing en Python — Sesión 3: CI y cobertura",
+      "description": "Tercera sesión: CI y cobertura — automatizar la suite y leer lo que mide.",
       "startDate": "2026-03-28T10:00:00",
       "endDate": "2026-03-28T14:00:00",
       "timezone": "Europe/Madrid",
@@ -60,6 +65,7 @@
       "location": { "venue": "El Cable, Almería" },
       "languages": ["es"],
       "tags": ["python", "testing"],
+      "updatedAt": "2026-02-25T10:30:00Z",
       "partOf": {
         "type": "multipart",
         "id": "https://pyalmeria.example/cursos/2026-testing",

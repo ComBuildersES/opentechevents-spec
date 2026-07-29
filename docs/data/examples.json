@@ -291,7 +291,7 @@
           "`ics:rrule` es vocabulario de otro proyecto — el prefijo lo dice. El importador la guarda para poder volver al `.ics` sin pérdida; nadie está obligado a expandirla."
         ]
       },
-      "source": "{\n  \"specVersion\": \"0.3.0\",\n  \"id\": \"https://rustmadrid.example/meetups/2026-06\",\n  \"url\": \"https://rustmadrid.example/meetups/2026-06\",\n  \"name\": \"Rust Madrid — Meetup de junio\",\n  \"description\": \"Segundo lunes de cada mes. Esta edición: WASM y tooling.\",\n  \"organizers\": [\n    {\n      \"name\": \"Rust Madrid\",\n      \"url\": \"https://rustmadrid.example\"\n    }\n  ],\n  \"startDate\": \"2026-06-08T19:00:00\",\n  \"endDate\": \"2026-06-08T21:00:00\",\n  \"timezone\": \"Europe/Madrid\",\n  \"attendanceMode\": \"in-person\",\n  \"location\": {\n    \"venue\": \"Campus Madrid, Calle de Moreno Nieto 2, Madrid\"\n  },\n  \"languages\": [\n    \"es\"\n  ],\n  \"tags\": [\n    \"rust\",\n    \"wasm\"\n  ],\n  \"status\": \"scheduled\",\n  \"license\": \"CC-BY-4.0\",\n  \"partOf\": {\n    \"id\": \"https://rustmadrid.example/meetups\",\n    \"name\": \"Rust Madrid — meetup mensual\",\n    \"url\": \"https://rustmadrid.example/meetups\"\n  },\n  \"ics:rrule\": \"FREQ=MONTHLY;BYDAY=2MO\"\n}",
+      "source": "{\n  \"specVersion\": \"0.3.0\",\n  \"id\": \"https://rustmadrid.example/meetups/2026-06\",\n  \"url\": \"https://rustmadrid.example/meetups/2026-06\",\n  \"name\": \"Rust Madrid — Meetup de junio\",\n  \"description\": \"Segundo lunes de cada mes. Esta edición: WASM y tooling.\",\n  \"organizers\": [\n    {\n      \"name\": \"Rust Madrid\",\n      \"url\": \"https://rustmadrid.example\"\n    }\n  ],\n  \"startDate\": \"2026-06-08T19:00:00\",\n  \"endDate\": \"2026-06-08T21:00:00\",\n  \"timezone\": \"Europe/Madrid\",\n  \"attendanceMode\": \"in-person\",\n  \"location\": {\n    \"venue\": \"Campus Madrid, Calle de Moreno Nieto 2, Madrid\"\n  },\n  \"languages\": [\n    \"es\"\n  ],\n  \"tags\": [\n    \"rust\",\n    \"wasm\"\n  ],\n  \"status\": \"scheduled\",\n  \"license\": \"CC-BY-4.0\",\n  \"updatedAt\": \"2026-05-30T12:00:00Z\",\n  \"partOf\": {\n    \"id\": \"https://rustmadrid.example/meetups\",\n    \"name\": \"Rust Madrid — meetup mensual\",\n    \"url\": \"https://rustmadrid.example/meetups\"\n  },\n  \"ics:rrule\": \"FREQ=MONTHLY;BYDAY=2MO\"\n}",
       "lines": {
         "event.specVersion": [
           2
@@ -347,20 +347,23 @@
         "event.license": [
           28
         ],
-        "event.partOf.id": [
-          30
-        ],
-        "event.partOf.name": [
-          31
-        ],
-        "event.partOf.url": [
-          32
-        ],
-        "event.partOf": [
+        "event.updatedAt": [
           29
         ],
+        "event.partOf.id": [
+          31
+        ],
+        "event.partOf.name": [
+          32
+        ],
+        "event.partOf.url": [
+          33
+        ],
+        "event.partOf": [
+          30
+        ],
         "event.ics:rrule": [
-          34
+          35
         ]
       }
     },
@@ -397,7 +400,7 @@
           "Las sesiones semanales se publican igual que las mensuales: un documento por sesión, agrupadas por `partOf`."
         ]
       },
-      "source": "{\n  \"specVersion\": \"0.3.0\",\n  \"id\": \"https://rustgirona.example/sessions/2026-07-31\",\n  \"url\": \"https://rustgirona.example/sessions/2026-07-31\",\n  \"name\": \"Sessió setmanal de codificació — Rust Girona\",\n  \"description\": \"Cada semana nos juntamos en línea para picar Rust un rato. Canal de voz de Discord; el enlace está en la página del evento.\",\n  \"organizers\": [\n    {\n      \"name\": \"Rust Girona\",\n      \"url\": \"https://rustgirona.example\"\n    },\n    {\n      \"type\": \"person\",\n      \"name\": \"Ivan Fraixedes\",\n      \"url\": \"https://ifraixedes.example\"\n    }\n  ],\n  \"startDate\": \"2026-07-31T18:00:00\",\n  \"endDate\": \"2026-07-31T19:00:00\",\n  \"timezone\": \"Europe/Madrid\",\n  \"attendanceMode\": \"online\",\n  \"location\": {\n    \"onlineUrl\": \"https://discord.example/rust-girona\"\n  },\n  \"languages\": [\n    \"ca\",\n    \"es\"\n  ],\n  \"tags\": [\n    \"rust\",\n    \"pair-programming\"\n  ],\n  \"status\": \"scheduled\",\n  \"license\": \"CC-BY-4.0\",\n  \"partOf\": {\n    \"id\": \"https://rustgirona.example/sessions\",\n    \"name\": \"Sessió setmanal de codificació\",\n    \"url\": \"https://rustgirona.example/sessions\"\n  }\n}",
+      "source": "{\n  \"specVersion\": \"0.3.0\",\n  \"id\": \"https://rustgirona.example/sessions/2026-07-31\",\n  \"url\": \"https://rustgirona.example/sessions/2026-07-31\",\n  \"name\": \"Sessió setmanal de codificació — Rust Girona\",\n  \"description\": \"Cada semana nos juntamos en línea para picar Rust un rato. Canal de voz de Discord; el enlace está en la página del evento.\",\n  \"organizers\": [\n    {\n      \"name\": \"Rust Girona\",\n      \"url\": \"https://rustgirona.example\"\n    },\n    {\n      \"type\": \"person\",\n      \"name\": \"Ivan Fraixedes\",\n      \"url\": \"https://ifraixedes.example\"\n    }\n  ],\n  \"startDate\": \"2026-07-31T18:00:00\",\n  \"endDate\": \"2026-07-31T19:00:00\",\n  \"timezone\": \"Europe/Madrid\",\n  \"attendanceMode\": \"online\",\n  \"location\": {\n    \"onlineUrl\": \"https://discord.example/rust-girona\"\n  },\n  \"languages\": [\n    \"ca\",\n    \"es\"\n  ],\n  \"tags\": [\n    \"rust\",\n    \"pair-programming\"\n  ],\n  \"status\": \"scheduled\",\n  \"license\": \"CC-BY-4.0\",\n  \"updatedAt\": \"2026-07-24T08:00:00Z\",\n  \"partOf\": {\n    \"id\": \"https://rustgirona.example/sessions\",\n    \"name\": \"Sessió setmanal de codificació\",\n    \"url\": \"https://rustgirona.example/sessions\"\n  }\n}",
       "lines": {
         "event.specVersion": [
           2
@@ -458,17 +461,20 @@
         "event.license": [
           34
         ],
-        "event.partOf.id": [
-          36
+        "event.updatedAt": [
+          35
         ],
-        "event.partOf.name": [
+        "event.partOf.id": [
           37
         ],
-        "event.partOf.url": [
+        "event.partOf.name": [
           38
         ],
+        "event.partOf.url": [
+          39
+        ],
         "event.partOf": [
-          35
+          36
         ]
       }
     },
@@ -610,7 +616,7 @@
           "Lo que `multipart` no modela es «una sola inscripción». Eso no es una fecha, es registro y entradas, que la v0.3 deja fuera. No lo arregles deformando los campos de tiempo."
         ]
       },
-      "source": "{\n  \"specVersion\": \"0.3.0\",\n  \"title\": \"Eventos de PyAlmería\",\n  \"description\": \"Meetups y formación de Python en Almería.\",\n  \"url\": \"https://pyalmeria.example\",\n  \"license\": \"CC-BY-4.0\",\n  \"updatedAt\": \"2026-02-20T09:00:00Z\",\n  \"organizers\": [\n    {\n      \"name\": \"PyAlmería\",\n      \"url\": \"https://pyalmeria.example\"\n    }\n  ],\n  \"events\": [\n    {\n      \"id\": \"https://pyalmeria.example/cursos/2026-testing/1\",\n      \"url\": \"https://pyalmeria.example/cursos/2026-testing\",\n      \"name\": \"Curso de testing en Python — Sesión 1: pytest desde cero\",\n      \"startDate\": \"2026-03-07T10:00:00\",\n      \"endDate\": \"2026-03-07T14:00:00\",\n      \"timezone\": \"Europe/Madrid\",\n      \"attendanceMode\": \"in-person\",\n      \"location\": {\n        \"venue\": \"El Cable, Almería\"\n      },\n      \"languages\": [\n        \"es\"\n      ],\n      \"tags\": [\n        \"python\",\n        \"testing\"\n      ],\n      \"partOf\": {\n        \"type\": \"multipart\",\n        \"id\": \"https://pyalmeria.example/cursos/2026-testing\",\n        \"name\": \"Curso de testing en Python (3 sábados)\",\n        \"url\": \"https://pyalmeria.example/cursos/2026-testing\"\n      }\n    },\n    {\n      \"id\": \"https://pyalmeria.example/cursos/2026-testing/2\",\n      \"url\": \"https://pyalmeria.example/cursos/2026-testing\",\n      \"name\": \"Curso de testing en Python — Sesión 2: dobles de prueba\",\n      \"startDate\": \"2026-03-14T10:00:00\",\n      \"endDate\": \"2026-03-14T14:00:00\",\n      \"timezone\": \"Europe/Madrid\",\n      \"attendanceMode\": \"in-person\",\n      \"location\": {\n        \"venue\": \"El Cable, Almería\"\n      },\n      \"languages\": [\n        \"es\"\n      ],\n      \"tags\": [\n        \"python\",\n        \"testing\"\n      ],\n      \"partOf\": {\n        \"type\": \"multipart\",\n        \"id\": \"https://pyalmeria.example/cursos/2026-testing\",\n        \"name\": \"Curso de testing en Python (3 sábados)\",\n        \"url\": \"https://pyalmeria.example/cursos/2026-testing\"\n      }\n    },\n    {\n      \"id\": \"https://pyalmeria.example/cursos/2026-testing/3\",\n      \"url\": \"https://pyalmeria.example/cursos/2026-testing\",\n      \"name\": \"Curso de testing en Python — Sesión 3: CI y cobertura\",\n      \"startDate\": \"2026-03-28T10:00:00\",\n      \"endDate\": \"2026-03-28T14:00:00\",\n      \"timezone\": \"Europe/Madrid\",\n      \"attendanceMode\": \"in-person\",\n      \"location\": {\n        \"venue\": \"El Cable, Almería\"\n      },\n      \"languages\": [\n        \"es\"\n      ],\n      \"tags\": [\n        \"python\",\n        \"testing\"\n      ],\n      \"partOf\": {\n        \"type\": \"multipart\",\n        \"id\": \"https://pyalmeria.example/cursos/2026-testing\",\n        \"name\": \"Curso de testing en Python (3 sábados)\",\n        \"url\": \"https://pyalmeria.example/cursos/2026-testing\"\n      }\n    }\n  ]\n}",
+      "source": "{\n  \"specVersion\": \"0.3.0\",\n  \"title\": \"Eventos de PyAlmería\",\n  \"description\": \"Meetups y formación de Python en Almería.\",\n  \"url\": \"https://pyalmeria.example\",\n  \"license\": \"CC-BY-4.0\",\n  \"updatedAt\": \"2026-02-20T09:00:00Z\",\n  \"organizers\": [\n    {\n      \"name\": \"PyAlmería\",\n      \"url\": \"https://pyalmeria.example\"\n    }\n  ],\n  \"events\": [\n    {\n      \"id\": \"https://pyalmeria.example/cursos/2026-testing/1\",\n      \"url\": \"https://pyalmeria.example/cursos/2026-testing\",\n      \"name\": \"Curso de testing en Python — Sesión 1: pytest desde cero\",\n      \"description\": \"Primera sesión: pytest desde cero — fixtures, parametrización y estructura de un proyecto.\",\n      \"startDate\": \"2026-03-07T10:00:00\",\n      \"endDate\": \"2026-03-07T14:00:00\",\n      \"timezone\": \"Europe/Madrid\",\n      \"attendanceMode\": \"in-person\",\n      \"location\": {\n        \"venue\": \"El Cable, Almería\"\n      },\n      \"languages\": [\n        \"es\"\n      ],\n      \"tags\": [\n        \"python\",\n        \"testing\"\n      ],\n      \"updatedAt\": \"2026-02-18T09:00:00Z\",\n      \"partOf\": {\n        \"type\": \"multipart\",\n        \"id\": \"https://pyalmeria.example/cursos/2026-testing\",\n        \"name\": \"Curso de testing en Python (3 sábados)\",\n        \"url\": \"https://pyalmeria.example/cursos/2026-testing\"\n      }\n    },\n    {\n      \"id\": \"https://pyalmeria.example/cursos/2026-testing/2\",\n      \"url\": \"https://pyalmeria.example/cursos/2026-testing\",\n      \"name\": \"Curso de testing en Python — Sesión 2: dobles de prueba\",\n      \"description\": \"Segunda sesión: dobles de prueba — mocks, stubs y cuándo NO usarlos.\",\n      \"startDate\": \"2026-03-14T10:00:00\",\n      \"endDate\": \"2026-03-14T14:00:00\",\n      \"timezone\": \"Europe/Madrid\",\n      \"attendanceMode\": \"in-person\",\n      \"location\": {\n        \"venue\": \"El Cable, Almería\"\n      },\n      \"languages\": [\n        \"es\"\n      ],\n      \"tags\": [\n        \"python\",\n        \"testing\"\n      ],\n      \"updatedAt\": \"2026-02-18T09:00:00Z\",\n      \"partOf\": {\n        \"type\": \"multipart\",\n        \"id\": \"https://pyalmeria.example/cursos/2026-testing\",\n        \"name\": \"Curso de testing en Python (3 sábados)\",\n        \"url\": \"https://pyalmeria.example/cursos/2026-testing\"\n      }\n    },\n    {\n      \"id\": \"https://pyalmeria.example/cursos/2026-testing/3\",\n      \"url\": \"https://pyalmeria.example/cursos/2026-testing\",\n      \"name\": \"Curso de testing en Python — Sesión 3: CI y cobertura\",\n      \"description\": \"Tercera sesión: CI y cobertura — automatizar la suite y leer lo que mide.\",\n      \"startDate\": \"2026-03-28T10:00:00\",\n      \"endDate\": \"2026-03-28T14:00:00\",\n      \"timezone\": \"Europe/Madrid\",\n      \"attendanceMode\": \"in-person\",\n      \"location\": {\n        \"venue\": \"El Cable, Almería\"\n      },\n      \"languages\": [\n        \"es\"\n      ],\n      \"tags\": [\n        \"python\",\n        \"testing\"\n      ],\n      \"updatedAt\": \"2026-02-25T10:30:00Z\",\n      \"partOf\": {\n        \"type\": \"multipart\",\n        \"id\": \"https://pyalmeria.example/cursos/2026-testing\",\n        \"name\": \"Curso de testing en Python (3 sábados)\",\n        \"url\": \"https://pyalmeria.example/cursos/2026-testing\"\n      }\n    }\n  ]\n}",
       "lines": {
         "feed.specVersion": [
           2
@@ -641,83 +647,93 @@
         ],
         "event.id": [
           16,
-          41,
-          66
+          43,
+          70
         ],
         "event.url": [
           17,
-          42,
-          67
+          44,
+          71
         ],
         "event.name": [
           18,
-          43,
-          68
-        ],
-        "event.startDate": [
-          19,
-          44,
-          69
-        ],
-        "event.endDate": [
-          20,
           45,
-          70
-        ],
-        "event.timezone": [
-          21,
-          46,
-          71
-        ],
-        "event.attendanceMode": [
-          22,
-          47,
           72
         ],
-        "event.location.venue": [
-          24,
-          49,
-          74
-        ],
-        "event.location": [
-          23,
-          48,
+        "event.description": [
+          19,
+          46,
           73
         ],
-        "event.languages": [
-          26,
-          51,
+        "event.startDate": [
+          20,
+          47,
+          74
+        ],
+        "event.endDate": [
+          21,
+          48,
+          75
+        ],
+        "event.timezone": [
+          22,
+          49,
           76
         ],
-        "event.tags": [
-          29,
-          54,
+        "event.attendanceMode": [
+          23,
+          50,
+          77
+        ],
+        "event.location.venue": [
+          25,
+          52,
           79
         ],
-        "event.partOf.type": [
-          34,
-          59,
+        "event.location": [
+          24,
+          51,
+          78
+        ],
+        "event.languages": [
+          27,
+          54,
+          81
+        ],
+        "event.tags": [
+          30,
+          57,
           84
         ],
+        "event.updatedAt": [
+          34,
+          61,
+          88
+        ],
+        "event.partOf.type": [
+          36,
+          63,
+          90
+        ],
         "event.partOf.id": [
-          35,
-          60,
-          85
+          37,
+          64,
+          91
         ],
         "event.partOf.name": [
-          36,
-          61,
-          86
+          38,
+          65,
+          92
         ],
         "event.partOf.url": [
-          37,
-          62,
-          87
+          39,
+          66,
+          93
         ],
         "event.partOf": [
-          33,
-          58,
-          83
+          35,
+          62,
+          89
         ],
         "feed.events": [
           14
@@ -754,7 +770,7 @@
           "En eventos de todo el día, `timezone` contextualiza la fecha: dice a qué región pertenece ese día. No la desplaza, y un consumidor no debe convertirla a otra zona."
         ]
       },
-      "source": "{\n  \"specVersion\": \"0.3.0\",\n  \"id\": \"https://devfest-levante.example/2026\",\n  \"url\": \"https://devfest-levante.example/2026\",\n  \"name\": \"DevFest Levante 2026\",\n  \"description\": \"Conferencia de desarrollo del sureste, edición 2026.\",\n  \"organizers\": [\n    {\n      \"name\": \"GDG Levante\",\n      \"url\": \"https://gdglevante.example\"\n    }\n  ],\n  \"startDate\": \"2026-10-16\",\n  \"endDate\": \"2026-10-17\",\n  \"timezone\": \"Europe/Madrid\",\n  \"attendanceMode\": \"in-person\",\n  \"location\": {\n    \"venue\": \"Las Naves, Valencia\"\n  },\n  \"languages\": [\n    \"es\",\n    \"en\"\n  ],\n  \"status\": \"scheduled\",\n  \"license\": \"CC-BY-4.0\"\n}",
+      "source": "{\n  \"specVersion\": \"0.3.0\",\n  \"id\": \"https://devfest-levante.example/2026\",\n  \"url\": \"https://devfest-levante.example/2026\",\n  \"name\": \"DevFest Levante 2026\",\n  \"description\": \"Conferencia de desarrollo del sureste, edición 2026.\",\n  \"organizers\": [\n    {\n      \"name\": \"GDG Levante\",\n      \"url\": \"https://gdglevante.example\"\n    }\n  ],\n  \"startDate\": \"2026-10-16\",\n  \"endDate\": \"2026-10-17\",\n  \"timezone\": \"Europe/Madrid\",\n  \"attendanceMode\": \"in-person\",\n  \"location\": {\n    \"venue\": \"Las Naves, Valencia\"\n  },\n  \"languages\": [\n    \"es\",\n    \"en\"\n  ],\n  \"tags\": [\n    \"cloud\",\n    \"ai\",\n    \"web\"\n  ],\n  \"status\": \"scheduled\",\n  \"license\": \"CC-BY-4.0\",\n  \"updatedAt\": \"2026-05-04T09:00:00Z\"\n}",
       "lines": {
         "event.specVersion": [
           2
@@ -801,11 +817,17 @@
         "event.languages": [
           20
         ],
-        "event.status": [
+        "event.tags": [
           24
         ],
+        "event.status": [
+          29
+        ],
         "event.license": [
-          25
+          30
+        ],
+        "event.updatedAt": [
+          31
         ]
       }
     },
@@ -841,7 +863,7 @@
           "Si publicas estos campos, dilo en el issue. El uso real es el argumento que mueve un campo al núcleo; una petición sin caso detrás, no."
         ]
       },
-      "source": "{\n  \"specVersion\": \"0.3.0\",\n  \"id\": \"https://devfest-levante.example/2026\",\n  \"url\": \"https://devfest-levante.example/2026\",\n  \"name\": \"DevFest Levante 2026\",\n  \"description\": \"Conferencia de desarrollo del sureste, edición 2026. Dos días, tres tracks.\",\n  \"organizers\": [\n    {\n      \"name\": \"GDG Levante\",\n      \"url\": \"https://gdglevante.example\"\n    }\n  ],\n  \"startDate\": \"2026-10-16\",\n  \"endDate\": \"2026-10-17\",\n  \"timezone\": \"Europe/Madrid\",\n  \"attendanceMode\": \"in-person\",\n  \"location\": {\n    \"venue\": \"Las Naves, Carrer de Joan Verdeguer 16, València\"\n  },\n  \"languages\": [\n    \"es\",\n    \"en\"\n  ],\n  \"status\": \"scheduled\",\n  \"tags\": [\n    \"cloud\",\n    \"ai\",\n    \"web\"\n  ],\n  \"license\": \"CC-BY-4.0\",\n  \"cfp\": {\n    \"url\": \"https://devfest-levante.example/2026/cfp\",\n    \"opensAt\": \"2026-05-01T00:00:00\",\n    \"closesAt\": \"2026-07-15T23:59:59\",\n    \"timezone\": \"Europe/Madrid\",\n    \"coversTravel\": true,\n    \"coversAccommodation\": true\n  },\n  \"offers\": {\n    \"isFree\": false,\n    \"price\": 45,\n    \"currency\": \"EUR\",\n    \"registrationUrl\": \"https://devfest-levante.example/2026/entradas\"\n  }\n}",
+      "source": "{\n  \"specVersion\": \"0.3.0\",\n  \"id\": \"https://devfest-levante.example/2026\",\n  \"url\": \"https://devfest-levante.example/2026\",\n  \"name\": \"DevFest Levante 2026\",\n  \"description\": \"Conferencia de desarrollo del sureste, edición 2026. Dos días, tres tracks.\",\n  \"organizers\": [\n    {\n      \"name\": \"GDG Levante\",\n      \"url\": \"https://gdglevante.example\"\n    }\n  ],\n  \"startDate\": \"2026-10-16\",\n  \"endDate\": \"2026-10-17\",\n  \"timezone\": \"Europe/Madrid\",\n  \"attendanceMode\": \"in-person\",\n  \"location\": {\n    \"venue\": \"Las Naves, Carrer de Joan Verdeguer 16, València\"\n  },\n  \"languages\": [\n    \"es\",\n    \"en\"\n  ],\n  \"status\": \"scheduled\",\n  \"tags\": [\n    \"cloud\",\n    \"ai\",\n    \"web\"\n  ],\n  \"license\": \"CC-BY-4.0\",\n  \"updatedAt\": \"2026-05-04T09:00:00Z\",\n  \"cfp\": {\n    \"url\": \"https://devfest-levante.example/2026/cfp\",\n    \"opensAt\": \"2026-05-01T00:00:00\",\n    \"closesAt\": \"2026-07-15T23:59:59\",\n    \"timezone\": \"Europe/Madrid\",\n    \"coversTravel\": true,\n    \"coversAccommodation\": true\n  },\n  \"offers\": {\n    \"isFree\": false,\n    \"price\": 45,\n    \"currency\": \"EUR\",\n    \"registrationUrl\": \"https://devfest-levante.example/2026/entradas\"\n  }\n}",
       "lines": {
         "event.specVersion": [
           2
@@ -897,41 +919,44 @@
         "event.license": [
           30
         ],
-        "event.cfp.url": [
-          32
-        ],
-        "event.cfp.opensAt": [
-          33
-        ],
-        "event.cfp.closesAt": [
-          34
-        ],
-        "event.cfp.timezone": [
-          35
-        ],
-        "event.cfp.coversTravel": [
-          36
-        ],
-        "event.cfp.coversAccommodation": [
-          37
-        ],
-        "event.cfp": [
+        "event.updatedAt": [
           31
         ],
-        "event.offers.isFree": [
-          40
+        "event.cfp.url": [
+          33
         ],
-        "event.offers.price": [
+        "event.cfp.opensAt": [
+          34
+        ],
+        "event.cfp.closesAt": [
+          35
+        ],
+        "event.cfp.timezone": [
+          36
+        ],
+        "event.cfp.coversTravel": [
+          37
+        ],
+        "event.cfp.coversAccommodation": [
+          38
+        ],
+        "event.cfp": [
+          32
+        ],
+        "event.offers.isFree": [
           41
         ],
-        "event.offers.currency": [
+        "event.offers.price": [
           42
         ],
-        "event.offers.registrationUrl": [
+        "event.offers.currency": [
           43
         ],
+        "event.offers.registrationUrl": [
+          44
+        ],
         "event.offers": [
-          39
+          40
         ]
       }
     },
@@ -968,7 +993,7 @@
           "`combuilders:communityId` no es un campo de OTE. OTE se compromete a no acuñar jamás un nombre de campo con dos puntos, así que un campo con prefijo no puede colisionar con el núcleo — hoy ni en la 1.0."
         ]
       },
-      "source": "{\n  \"specVersion\": \"0.3.0\",\n  \"id\": \"https://gdgmadrid.example/eventos/2026-09-devfest-warmup\",\n  \"url\": \"https://gdgmadrid.example/eventos/2026-09-devfest-warmup\",\n  \"name\": \"DevFest Warm-up — GDG Madrid × Python Madrid\",\n  \"description\": \"Sesión conjunta de calentamiento para el DevFest, con charla invitada.\",\n  \"startDate\": \"2026-09-24T19:00:00\",\n  \"endDate\": \"2026-09-24T21:00:00\",\n  \"timezone\": \"Europe/Madrid\",\n  \"attendanceMode\": \"in-person\",\n  \"location\": {\n    \"venue\": \"Campus Madrid, Calle de Moreno Nieto 2, Madrid\"\n  },\n  \"languages\": [\n    \"es\"\n  ],\n  \"tags\": [\n    \"python\",\n    \"cloud\"\n  ],\n  \"license\": \"CC-BY-4.0\",\n  \"organizers\": [\n    {\n      \"name\": \"GDG Madrid\",\n      \"url\": \"https://gdgmadrid.example\",\n      \"combuilders:communityId\": \"gdg-madrid\"\n    },\n    {\n      \"name\": \"Python Madrid\",\n      \"url\": \"https://www.meetup.com/python-madrid/\"\n    },\n    {\n      \"type\": \"person\",\n      \"name\": \"Ada Lovelace\",\n      \"url\": \"https://ada.example\"\n    }\n  ]\n}",
+      "source": "{\n  \"specVersion\": \"0.3.0\",\n  \"id\": \"https://gdgmadrid.example/eventos/2026-09-devfest-warmup\",\n  \"url\": \"https://gdgmadrid.example/eventos/2026-09-devfest-warmup\",\n  \"name\": \"DevFest Warm-up — GDG Madrid × Python Madrid\",\n  \"description\": \"Sesión conjunta de calentamiento para el DevFest, con charla invitada.\",\n  \"startDate\": \"2026-09-24T19:00:00\",\n  \"endDate\": \"2026-09-24T21:00:00\",\n  \"timezone\": \"Europe/Madrid\",\n  \"attendanceMode\": \"in-person\",\n  \"location\": {\n    \"venue\": \"Campus Madrid, Calle de Moreno Nieto 2, Madrid\"\n  },\n  \"languages\": [\n    \"es\"\n  ],\n  \"tags\": [\n    \"python\",\n    \"cloud\"\n  ],\n  \"license\": \"CC-BY-4.0\",\n  \"updatedAt\": \"2026-09-02T17:20:00Z\",\n  \"organizers\": [\n    {\n      \"name\": \"GDG Madrid\",\n      \"url\": \"https://gdgmadrid.example\",\n      \"combuilders:communityId\": \"gdg-madrid\"\n    },\n    {\n      \"name\": \"Python Madrid\",\n      \"url\": \"https://www.meetup.com/python-madrid/\"\n    },\n    {\n      \"type\": \"person\",\n      \"name\": \"Ada Lovelace\",\n      \"url\": \"https://ada.example\"\n    }\n  ]\n}",
       "lines": {
         "event.specVersion": [
           2
@@ -1012,24 +1037,27 @@
         "event.license": [
           21
         ],
-        "event.organizers[].name": [
-          24,
-          29,
-          34
+        "event.updatedAt": [
+          22
         ],
-        "event.organizers[].url": [
+        "event.organizers[].name": [
           25,
           30,
           35
         ],
+        "event.organizers[].url": [
+          26,
+          31,
+          36
+        ],
         "event.organizers[].combuilders:communityId": [
-          26
+          27
         ],
         "event.organizers[].type": [
-          33
+          34
         ],
         "event.organizers": [
-          22
+          23
         ]
       }
     },
@@ -1172,7 +1200,7 @@
           "Por eso el segundo evento repite la comunidad del propio feed junto a la invitada: omitirla atribuiría el evento solo a la invitada."
         ]
       },
-      "source": "{\n  \"specVersion\": \"0.3.0\",\n  \"title\": \"Eventos de PyAlmería\",\n  \"description\": \"Meetups mensuales de Python en Almería.\",\n  \"url\": \"https://pyalmeria.example\",\n  \"license\": \"CC-BY-4.0\",\n  \"licenseUrl\": \"https://creativecommons.org/licenses/by/4.0/\",\n  \"updatedAt\": \"2026-07-06T10:00:00Z\",\n  \"organizers\": [\n    {\n      \"name\": \"PyAlmería\",\n      \"url\": \"https://pyalmeria.example\"\n    }\n  ],\n  \"events\": [\n    {\n      \"id\": \"https://pyalmeria.example/eventos/2026-06-async\",\n      \"url\": \"https://pyalmeria.example/eventos/2026-06-async\",\n      \"name\": \"PyAlmería — Introducción a async/await\",\n      \"description\": \"Charla introductoria a la programación asíncrona en Python, con ejemplos en vivo.\",\n      \"startDate\": \"2026-06-11T18:30:00\",\n      \"endDate\": \"2026-06-11T20:30:00\",\n      \"timezone\": \"Europe/Madrid\",\n      \"attendanceMode\": \"in-person\",\n      \"location\": {\n        \"venue\": \"El Cable, Almería\"\n      },\n      \"languages\": [\n        \"es\"\n      ],\n      \"tags\": [\n        \"python\",\n        \"async\"\n      ]\n    },\n    {\n      \"id\": \"https://pyalmeria.example/eventos/2026-07-datos\",\n      \"url\": \"https://pyalmeria.example/eventos/2026-07-datos\",\n      \"name\": \"Noche de datos — PyAlmería × PyData Almería\",\n      \"description\": \"Sesión conjunta con PyData Almería.\",\n      \"startDate\": \"2026-07-09T18:30:00\",\n      \"endDate\": \"2026-07-09T21:00:00\",\n      \"timezone\": \"Europe/Madrid\",\n      \"attendanceMode\": \"hybrid\",\n      \"location\": {\n        \"venue\": \"El Cable, Almería\",\n        \"onlineUrl\": \"https://meet.example/pyalmeria\"\n      },\n      \"languages\": [\n        \"es\"\n      ],\n      \"tags\": [\n        \"python\",\n        \"data\"\n      ],\n      \"organizers\": [\n        {\n          \"name\": \"PyAlmería\",\n          \"url\": \"https://pyalmeria.example\"\n        },\n        {\n          \"name\": \"PyData Almería\",\n          \"url\": \"https://pydata-almeria.example\"\n        }\n      ]\n    }\n  ]\n}",
+      "source": "{\n  \"specVersion\": \"0.3.0\",\n  \"title\": \"Eventos de PyAlmería\",\n  \"description\": \"Meetups mensuales de Python en Almería.\",\n  \"url\": \"https://pyalmeria.example\",\n  \"license\": \"CC-BY-4.0\",\n  \"licenseUrl\": \"https://creativecommons.org/licenses/by/4.0/\",\n  \"updatedAt\": \"2026-07-06T10:00:00Z\",\n  \"organizers\": [\n    {\n      \"name\": \"PyAlmería\",\n      \"url\": \"https://pyalmeria.example\"\n    }\n  ],\n  \"events\": [\n    {\n      \"id\": \"https://pyalmeria.example/eventos/2026-06-async\",\n      \"url\": \"https://pyalmeria.example/eventos/2026-06-async\",\n      \"name\": \"PyAlmería — Introducción a async/await\",\n      \"description\": \"Charla introductoria a la programación asíncrona en Python, con ejemplos en vivo.\",\n      \"startDate\": \"2026-06-11T18:30:00\",\n      \"endDate\": \"2026-06-11T20:30:00\",\n      \"timezone\": \"Europe/Madrid\",\n      \"attendanceMode\": \"in-person\",\n      \"location\": {\n        \"venue\": \"El Cable, Almería\"\n      },\n      \"languages\": [\n        \"es\"\n      ],\n      \"tags\": [\n        \"python\",\n        \"async\"\n      ],\n      \"updatedAt\": \"2026-05-28T11:00:00Z\"\n    },\n    {\n      \"id\": \"https://pyalmeria.example/eventos/2026-07-datos\",\n      \"url\": \"https://pyalmeria.example/eventos/2026-07-datos\",\n      \"name\": \"Noche de datos — PyAlmería × PyData Almería\",\n      \"description\": \"Sesión conjunta con PyData Almería.\",\n      \"startDate\": \"2026-07-09T18:30:00\",\n      \"endDate\": \"2026-07-09T21:00:00\",\n      \"timezone\": \"Europe/Madrid\",\n      \"attendanceMode\": \"hybrid\",\n      \"location\": {\n        \"venue\": \"El Cable, Almería\",\n        \"onlineUrl\": \"https://meet.example/pyalmeria\"\n      },\n      \"languages\": [\n        \"es\"\n      ],\n      \"tags\": [\n        \"python\",\n        \"data\"\n      ],\n      \"updatedAt\": \"2026-06-30T16:45:00Z\",\n      \"organizers\": [\n        {\n          \"name\": \"PyAlmería\",\n          \"url\": \"https://pyalmeria.example\"\n        },\n        {\n          \"name\": \"PyData Almería\",\n          \"url\": \"https://pydata-almeria.example\"\n        }\n      ]\n    }\n  ]\n}",
       "lines": {
         "feed.specVersion": [
           2
@@ -1197,70 +1225,74 @@
         ],
         "event.organizers[].name": [
           11,
-          58,
-          62
+          60,
+          64
         ],
         "event.organizers[].url": [
           12,
-          59,
-          63
+          61,
+          65
         ],
         "feed.organizers": [
           9
         ],
         "event.id": [
           17,
-          37
+          38
         ],
         "event.url": [
           18,
-          38
+          39
         ],
         "event.name": [
           19,
-          39
+          40
         ],
         "event.description": [
           20,
-          40
+          41
         ],
         "event.startDate": [
           21,
-          41
+          42
         ],
         "event.endDate": [
           22,
-          42
+          43
         ],
         "event.timezone": [
           23,
-          43
+          44
         ],
         "event.attendanceMode": [
           24,
-          44
+          45
         ],
         "event.location.venue": [
           26,
-          46
+          47
         ],
         "event.location": [
           25,
-          45
+          46
         ],
         "event.languages": [
           28,
-          49
+          50
         ],
         "event.tags": [
           31,
-          52
+          53
+        ],
+        "event.updatedAt": [
+          35,
+          57
         ],
         "event.location.onlineUrl": [
-          47
+          48
         ],
         "event.organizers": [
-          56
+          58
         ],
         "feed.events": [
           15
@@ -1300,7 +1332,7 @@
           "El evento cancelado sigue en el feed. Borrarlo en silencio deja un evento muerto en el calendario de quien se suscribió, y sin forma de enterarse."
         ]
       },
-      "source": "{\n  \"specVersion\": \"0.3.0\",\n  \"title\": \"Open Tech Events Spain\",\n  \"description\": \"Eventos de comunidades técnicas en España.\",\n  \"url\": \"https://opentechevents.org\",\n  \"license\": \"CC-BY-4.0\",\n  \"licenseUrl\": \"https://creativecommons.org/licenses/by/4.0/\",\n  \"updatedAt\": \"2026-07-06T10:00:00Z\",\n  \"events\": [\n    {\n      \"id\": \"https://rustmadrid.example/meetup/2026-06\",\n      \"organizers\": [\n        {\n          \"name\": \"Rust Madrid\",\n          \"url\": \"https://rustmadrid.example\"\n        }\n      ],\n      \"url\": \"https://rustmadrid.example/meetup/2026-06\",\n      \"name\": \"Rust Madrid — June meetup\",\n      \"description\": \"Talks on WASM and Rust tooling.\",\n      \"startDate\": \"2026-06-26T19:00:00\",\n      \"endDate\": \"2026-06-26T21:00:00\",\n      \"timezone\": \"Europe/Madrid\",\n      \"attendanceMode\": \"hybrid\",\n      \"location\": {\n        \"venue\": \"Campus Madrid, Calle de Moreno Nieto 2, Madrid\",\n        \"onlineUrl\": \"https://meet.example/rust-madrid\"\n      },\n      \"languages\": [\n        \"es\"\n      ]\n    },\n    {\n      \"id\": \"https://coolconf.example/2026/\",\n      \"url\": \"https://coolconf.example/2026/\",\n      \"name\": \"CoolConf 2026\",\n      \"organizers\": [\n        {\n          \"name\": \"CoolConf\",\n          \"url\": \"https://coolconf.example\"\n        }\n      ],\n      \"startDate\": \"2026-10-15\",\n      \"endDate\": \"2026-10-16\",\n      \"timezone\": \"Europe/Madrid\",\n      \"attendanceMode\": \"in-person\",\n      \"location\": {\n        \"venue\": \"Valencia, Spain\"\n      },\n      \"status\": \"cancelled\",\n      \"license\": \"CC0-1.0\"\n    }\n  ]\n}",
+      "source": "{\n  \"specVersion\": \"0.3.0\",\n  \"title\": \"Open Tech Events Spain\",\n  \"description\": \"Eventos de comunidades técnicas en España.\",\n  \"url\": \"https://opentechevents.org\",\n  \"license\": \"CC-BY-4.0\",\n  \"licenseUrl\": \"https://creativecommons.org/licenses/by/4.0/\",\n  \"updatedAt\": \"2026-07-06T10:00:00Z\",\n  \"events\": [\n    {\n      \"id\": \"https://rustmadrid.example/meetup/2026-06\",\n      \"organizers\": [\n        {\n          \"name\": \"Rust Madrid\",\n          \"url\": \"https://rustmadrid.example\"\n        }\n      ],\n      \"url\": \"https://rustmadrid.example/meetup/2026-06\",\n      \"name\": \"Rust Madrid — June meetup\",\n      \"description\": \"Talks on WASM and Rust tooling.\",\n      \"startDate\": \"2026-06-26T19:00:00\",\n      \"endDate\": \"2026-06-26T21:00:00\",\n      \"timezone\": \"Europe/Madrid\",\n      \"attendanceMode\": \"hybrid\",\n      \"location\": {\n        \"venue\": \"Campus Madrid, Calle de Moreno Nieto 2, Madrid\",\n        \"onlineUrl\": \"https://meet.example/rust-madrid\"\n      },\n      \"languages\": [\n        \"es\"\n      ],\n      \"tags\": [\n        \"rust\",\n        \"wasm\"\n      ],\n      \"updatedAt\": \"2026-06-01T07:30:00Z\"\n    },\n    {\n      \"id\": \"https://coolconf.example/2026/\",\n      \"url\": \"https://coolconf.example/2026/\",\n      \"name\": \"CoolConf 2026\",\n      \"description\": \"Conferencia de dos días sobre web, cloud y sistemas.\",\n      \"organizers\": [\n        {\n          \"name\": \"CoolConf\",\n          \"url\": \"https://coolconf.example\"\n        }\n      ],\n      \"startDate\": \"2026-10-15\",\n      \"endDate\": \"2026-10-16\",\n      \"timezone\": \"Europe/Madrid\",\n      \"attendanceMode\": \"in-person\",\n      \"location\": {\n        \"venue\": \"Valencia, Spain\"\n      },\n      \"languages\": [\n        \"es\",\n        \"en\"\n      ],\n      \"tags\": [\n        \"web\",\n        \"cloud\"\n      ],\n      \"status\": \"cancelled\",\n      \"license\": \"CC0-1.0\",\n      \"updatedAt\": \"2026-07-02T14:00:00Z\"\n    }\n  ]\n}",
       "lines": {
         "feed.specVersion": [
           2
@@ -1325,66 +1357,76 @@
         ],
         "event.id": [
           11,
-          34
+          39
         ],
         "event.organizers[].name": [
           14,
-          39
+          45
         ],
         "event.organizers[].url": [
           15,
-          40
+          46
         ],
         "event.organizers": [
           12,
-          37
+          43
         ],
         "event.url": [
           18,
-          35
+          40
         ],
         "event.name": [
           19,
-          36
+          41
         ],
         "event.description": [
-          20
+          20,
+          42
         ],
         "event.startDate": [
           21,
-          43
+          49
         ],
         "event.endDate": [
           22,
-          44
+          50
         ],
         "event.timezone": [
           23,
-          45
+          51
         ],
         "event.attendanceMode": [
           24,
-          46
+          52
         ],
         "event.location.venue": [
           26,
-          48
+          54
         ],
         "event.location.onlineUrl": [
           27
         ],
         "event.location": [
           25,
-          47
+          53
         ],
         "event.languages": [
-          29
+          29,
+          56
+        ],
+        "event.tags": [
+          32,
+          60
+        ],
+        "event.updatedAt": [
+          36,
+          66
         ],
         "event.status": [
-          50
+          64
         ],
         "event.license": [
-          51
+          65
         ],
         "feed.events": [
           9
@@ -1484,8 +1526,8 @@
         "file": "feed-multipart.json",
         "lines": [
           16,
-          41,
-          66
+          43,
+          70
         ]
       },
       {
@@ -1516,14 +1558,14 @@
         "file": "feed-community.json",
         "lines": [
           17,
-          37
+          38
         ]
       },
       {
         "file": "feed.json",
         "lines": [
           11,
-          34
+          39
         ]
       }
     ],
@@ -1562,8 +1604,8 @@
         "file": "feed-multipart.json",
         "lines": [
           18,
-          43,
-          68
+          45,
+          72
         ]
       },
       {
@@ -1594,14 +1636,14 @@
         "file": "feed-community.json",
         "lines": [
           19,
-          39
+          40
         ]
       },
       {
         "file": "feed.json",
         "lines": [
           19,
-          36
+          41
         ]
       }
     ],
@@ -1639,9 +1681,9 @@
       {
         "file": "feed-multipart.json",
         "lines": [
-          19,
-          44,
-          69
+          20,
+          47,
+          74
         ]
       },
       {
@@ -1672,14 +1714,14 @@
         "file": "feed-community.json",
         "lines": [
           21,
-          41
+          42
         ]
       },
       {
         "file": "feed.json",
         "lines": [
           21,
-          43
+          49
         ]
       }
     ],
@@ -1717,9 +1759,9 @@
       {
         "file": "feed-multipart.json",
         "lines": [
-          21,
-          46,
-          71
+          22,
+          49,
+          76
         ]
       },
       {
@@ -1750,14 +1792,14 @@
         "file": "feed-community.json",
         "lines": [
           23,
-          43
+          44
         ]
       },
       {
         "file": "feed.json",
         "lines": [
           23,
-          45
+          51
         ]
       }
     ],
@@ -1795,7 +1837,7 @@
       {
         "file": "event-all-day.json",
         "lines": [
-          25
+          30
         ]
       },
       {
@@ -1819,7 +1861,7 @@
       {
         "file": "feed.json",
         "lines": [
-          51
+          65
         ]
       }
     ],
@@ -1852,8 +1894,8 @@
         "file": "feed-multipart.json",
         "lines": [
           17,
-          42,
-          67
+          44,
+          71
         ]
       },
       {
@@ -1878,14 +1920,14 @@
         "file": "feed-community.json",
         "lines": [
           18,
-          38
+          39
         ]
       },
       {
         "file": "feed.json",
         "lines": [
           18,
-          35
+          40
         ]
       }
     ],
@@ -1912,6 +1954,14 @@
         "file": "event-hackathon.json",
         "lines": [
           6
+        ]
+      },
+      {
+        "file": "feed-multipart.json",
+        "lines": [
+          19,
+          46,
+          73
         ]
       },
       {
@@ -1942,13 +1992,14 @@
         "file": "feed-community.json",
         "lines": [
           20,
-          40
+          41
         ]
       },
       {
         "file": "feed.json",
         "lines": [
-          20
+          20,
+          42
         ]
       }
     ],
@@ -2000,9 +2051,9 @@
       {
         "file": "event-co-organized.json",
         "lines": [
-          24,
-          29,
-          34
+          25,
+          30,
+          35
         ]
       },
       {
@@ -2015,15 +2066,15 @@
         "file": "feed-community.json",
         "lines": [
           11,
-          58,
-          62
+          60,
+          64
         ]
       },
       {
         "file": "feed.json",
         "lines": [
           14,
-          39
+          45
         ]
       }
     ],
@@ -2075,24 +2126,24 @@
       {
         "file": "event-co-organized.json",
         "lines": [
-          25,
-          30,
-          35
+          26,
+          31,
+          36
         ]
       },
       {
         "file": "feed-community.json",
         "lines": [
           12,
-          59,
-          63
+          61,
+          65
         ]
       },
       {
         "file": "feed.json",
         "lines": [
           15,
-          40
+          46
         ]
       }
     ],
@@ -2136,7 +2187,7 @@
       {
         "file": "event-co-organized.json",
         "lines": [
-          22
+          23
         ]
       },
       {
@@ -2148,14 +2199,14 @@
       {
         "file": "feed-community.json",
         "lines": [
-          56
+          58
         ]
       },
       {
         "file": "feed.json",
         "lines": [
           12,
-          37
+          43
         ]
       }
     ],
@@ -2187,9 +2238,9 @@
       {
         "file": "feed-multipart.json",
         "lines": [
-          20,
-          45,
-          70
+          21,
+          48,
+          75
         ]
       },
       {
@@ -2220,14 +2271,14 @@
         "file": "feed-community.json",
         "lines": [
           22,
-          42
+          43
         ]
       },
       {
         "file": "feed.json",
         "lines": [
           22,
-          44
+          50
         ]
       }
     ],
@@ -2259,9 +2310,9 @@
       {
         "file": "feed-multipart.json",
         "lines": [
-          22,
-          47,
-          72
+          23,
+          50,
+          77
         ]
       },
       {
@@ -2286,14 +2337,14 @@
         "file": "feed-community.json",
         "lines": [
           24,
-          44
+          45
         ]
       },
       {
         "file": "feed.json",
         "lines": [
           24,
-          46
+          52
         ]
       }
     ],
@@ -2319,9 +2370,9 @@
       {
         "file": "feed-multipart.json",
         "lines": [
-          24,
-          49,
-          74
+          25,
+          52,
+          79
         ]
       },
       {
@@ -2352,14 +2403,14 @@
         "file": "feed-community.json",
         "lines": [
           26,
-          46
+          47
         ]
       },
       {
         "file": "feed.json",
         "lines": [
           26,
-          48
+          54
         ]
       }
     ],
@@ -2379,7 +2430,7 @@
       {
         "file": "feed-community.json",
         "lines": [
-          47
+          48
         ]
       },
       {
@@ -2477,9 +2528,9 @@
       {
         "file": "feed-multipart.json",
         "lines": [
-          23,
-          48,
-          73
+          24,
+          51,
+          78
         ]
       },
       {
@@ -2510,14 +2561,14 @@
         "file": "feed-community.json",
         "lines": [
           25,
-          45
+          46
         ]
       },
       {
         "file": "feed.json",
         "lines": [
           25,
-          47
+          53
         ]
       }
     ],
@@ -2549,9 +2600,9 @@
       {
         "file": "feed-multipart.json",
         "lines": [
-          26,
-          51,
-          76
+          27,
+          54,
+          81
         ]
       },
       {
@@ -2582,13 +2633,14 @@
         "file": "feed-community.json",
         "lines": [
           28,
-          49
+          50
         ]
       },
       {
         "file": "feed.json",
         "lines": [
-          29
+          29,
+          56
         ]
       }
     ],
@@ -2620,9 +2672,15 @@
       {
         "file": "feed-multipart.json",
         "lines": [
-          29,
-          54,
-          79
+          30,
+          57,
+          84
+        ]
+      },
+      {
+        "file": "event-all-day.json",
+        "lines": [
+          24
         ]
       },
       {
@@ -2647,7 +2705,14 @@
         "file": "feed-community.json",
         "lines": [
           31,
-          52
+          53
+        ]
+      },
+      {
+        "file": "feed.json",
+        "lines": [
+          32,
+          60
         ]
       }
     ],
@@ -2679,7 +2744,7 @@
       {
         "file": "event-all-day.json",
         "lines": [
-          24
+          29
         ]
       },
       {
@@ -2691,7 +2756,7 @@
       {
         "file": "feed.json",
         "lines": [
-          50
+          64
         ]
       }
     ],
@@ -2703,15 +2768,67 @@
         ]
       },
       {
+        "file": "event-recurring.json",
+        "lines": [
+          29
+        ]
+      },
+      {
+        "file": "event-online.json",
+        "lines": [
+          35
+        ]
+      },
+      {
         "file": "event-hackathon.json",
         "lines": [
           38
         ]
       },
       {
+        "file": "feed-multipart.json",
+        "lines": [
+          34,
+          61,
+          88
+        ]
+      },
+      {
+        "file": "event-all-day.json",
+        "lines": [
+          31
+        ]
+      },
+      {
+        "file": "event-conference-cfp.json",
+        "lines": [
+          31
+        ]
+      },
+      {
+        "file": "event-co-organized.json",
+        "lines": [
+          22
+        ]
+      },
+      {
         "file": "event-from-ics.json",
         "lines": [
           28
+        ]
+      },
+      {
+        "file": "feed-community.json",
+        "lines": [
+          35,
+          57
+        ]
+      },
+      {
+        "file": "feed.json",
+        "lines": [
+          36,
+          66
         ]
       }
     ],
@@ -2733,7 +2850,7 @@
       {
         "file": "event-conference-cfp.json",
         "lines": [
-          40
+          41
         ]
       }
     ],
@@ -2747,7 +2864,7 @@
       {
         "file": "event-conference-cfp.json",
         "lines": [
-          43
+          44
         ]
       }
     ],
@@ -2769,11 +2886,77 @@
       {
         "file": "event-conference-cfp.json",
         "lines": [
-          39
+          40
         ]
       }
     ],
     "event.partOf.id": [
+      {
+        "file": "event-recurring.json",
+        "lines": [
+          31
+        ]
+      },
+      {
+        "file": "event-online.json",
+        "lines": [
+          37
+        ]
+      },
+      {
+        "file": "feed-multipart.json",
+        "lines": [
+          37,
+          64,
+          91
+        ]
+      }
+    ],
+    "event.partOf.name": [
+      {
+        "file": "event-recurring.json",
+        "lines": [
+          32
+        ]
+      },
+      {
+        "file": "event-online.json",
+        "lines": [
+          38
+        ]
+      },
+      {
+        "file": "feed-multipart.json",
+        "lines": [
+          38,
+          65,
+          92
+        ]
+      }
+    ],
+    "event.partOf.url": [
+      {
+        "file": "event-recurring.json",
+        "lines": [
+          33
+        ]
+      },
+      {
+        "file": "event-online.json",
+        "lines": [
+          39
+        ]
+      },
+      {
+        "file": "feed-multipart.json",
+        "lines": [
+          39,
+          66,
+          93
+        ]
+      }
+    ],
+    "event.partOf": [
       {
         "file": "event-recurring.json",
         "lines": [
@@ -2790,74 +2973,8 @@
         "file": "feed-multipart.json",
         "lines": [
           35,
-          60,
-          85
-        ]
-      }
-    ],
-    "event.partOf.name": [
-      {
-        "file": "event-recurring.json",
-        "lines": [
-          31
-        ]
-      },
-      {
-        "file": "event-online.json",
-        "lines": [
-          37
-        ]
-      },
-      {
-        "file": "feed-multipart.json",
-        "lines": [
-          36,
-          61,
-          86
-        ]
-      }
-    ],
-    "event.partOf.url": [
-      {
-        "file": "event-recurring.json",
-        "lines": [
-          32
-        ]
-      },
-      {
-        "file": "event-online.json",
-        "lines": [
-          38
-        ]
-      },
-      {
-        "file": "feed-multipart.json",
-        "lines": [
-          37,
           62,
-          87
-        ]
-      }
-    ],
-    "event.partOf": [
-      {
-        "file": "event-recurring.json",
-        "lines": [
-          29
-        ]
-      },
-      {
-        "file": "event-online.json",
-        "lines": [
-          35
-        ]
-      },
-      {
-        "file": "feed-multipart.json",
-        "lines": [
-          33,
-          58,
-          83
+          89
         ]
       }
     ],
@@ -2865,7 +2982,7 @@
       {
         "file": "event-recurring.json",
         "lines": [
-          34
+          35
         ]
       }
     ],
@@ -2879,7 +2996,7 @@
       {
         "file": "event-co-organized.json",
         "lines": [
-          33
+          34
         ]
       }
     ],
@@ -3021,9 +3138,9 @@
       {
         "file": "feed-multipart.json",
         "lines": [
-          34,
-          59,
-          84
+          36,
+          63,
+          90
         ]
       }
     ],
@@ -3051,7 +3168,7 @@
       {
         "file": "event-conference-cfp.json",
         "lines": [
-          32
+          33
         ]
       }
     ],
@@ -3059,7 +3176,7 @@
       {
         "file": "event-conference-cfp.json",
         "lines": [
-          33
+          34
         ]
       }
     ],
@@ -3067,7 +3184,7 @@
       {
         "file": "event-conference-cfp.json",
         "lines": [
-          34
+          35
         ]
       }
     ],
@@ -3075,7 +3192,7 @@
       {
         "file": "event-conference-cfp.json",
         "lines": [
-          35
+          36
         ]
       }
     ],
@@ -3083,7 +3200,7 @@
       {
         "file": "event-conference-cfp.json",
         "lines": [
-          36
+          37
         ]
       }
     ],
@@ -3091,7 +3208,7 @@
       {
         "file": "event-conference-cfp.json",
         "lines": [
-          37
+          38
         ]
       }
     ],
@@ -3099,7 +3216,7 @@
       {
         "file": "event-conference-cfp.json",
         "lines": [
-          31
+          32
         ]
       }
     ],
@@ -3107,7 +3224,7 @@
       {
         "file": "event-conference-cfp.json",
         "lines": [
-          41
+          42
         ]
       }
     ],
@@ -3115,7 +3232,7 @@
       {
         "file": "event-conference-cfp.json",
         "lines": [
-          42
+          43
         ]
       }
     ],
@@ -3123,7 +3240,7 @@
       {
         "file": "event-co-organized.json",
         "lines": [
-          26
+          27
         ]
       }
     ],

@@ -16,3 +16,13 @@ export const feedSchema = require("./spec/v0.3/feed.schema.json");
  * so the event schema must be registered first.
  */
 export const schemas = [eventSchema, feedSchema];
+
+/**
+ * Quality profiles, NOT validity: a document that fails one is still a valid OTE document.
+ * They list the fields that decide whether an event can be found, filtered and subscribed to.
+ * Report their failures as warnings; never reject a document for them. Both reference the base
+ * schemas by $id, so register `schemas` first.
+ */
+export const eventRecommendedSchema = require("./spec/v0.3/event.recommended.schema.json");
+export const feedRecommendedSchema = require("./spec/v0.3/feed.recommended.schema.json");
+export const recommendedSchemas = [eventRecommendedSchema, feedRecommendedSchema];

@@ -8,6 +8,12 @@
  *
  * Files under spec/<version>/examples/invalid/ MUST fail: they are the guardrails.
  * A schema that only ever accepts is not a schema.
+ *
+ * Two levels, and they must not be confused. The schemas decide VALIDITY and a failure here is
+ * an error. The `*.recommended.schema.json` profiles decide whether the document is any good at
+ * the job — findable, filterable, subscribable — and a failure there is a WARNING that never
+ * changes the exit code. Turning a recommendation into an error would push whoever imports a
+ * bare .ics into inventing data, which is the one thing this spec refuses to cause.
  */
 import { readFileSync, readdirSync, existsSync } from "node:fs";
 import { spawnSync } from "node:child_process";
@@ -21,9 +27,14 @@ const SPEC_DIR = "spec";
 const LATEST = VERSIONS[VERSIONS.length - 1];
 
 let failures = 0;
+let warnings = 0;
 const log = (ok, msg) => {
   if (!ok) failures++;
   console.log(`${ok ? "  ok  " : "  FAIL"}  ${msg}`);
+};
+const warn = (msg) => {
+  warnings++;
+  console.log(`  warn  ${msg}`);
 };
 
 function build(version) {
@@ -37,15 +48,73 @@ function build(version) {
   const eventSchema = JSON.parse(readFileSync(join(dir, "event.schema.json"), "utf8"));
   const feedSchema = JSON.parse(readFileSync(join(dir, "feed.schema.json"), "utf8"));
   ajv.addSchema(eventSchema);
+  ajv.addSchema(feedSchema); // the profiles reference it by $id, so it must be registered first
 
-  return { ajv, validateEvent: ajv.compile(eventSchema), validateFeed: ajv.compile(feedSchema) };
+  // Recommended profiles arrive in v0.3; v0.1 and v0.2 are frozen without them.
+  const profile = (name) => {
+    const path = join(dir, `${name}.recommended.schema.json`);
+    return existsSync(path) ? ajv.compile(JSON.parse(readFileSync(path, "utf8"))) : null;
+  };
+
+  return {
+    ajv,
+    validateEvent: ajv.compile(eventSchema),
+    validateFeed: ajv.compile(feedSchema),
+    recommendEvent: profile("event"),
+    recommendFeed: profile("feed"),
+  };
+}
+
+/**
+ * Which recommended fields a document leaves out. Only `required` errors at the root count:
+ * the profile also carries the base schema by $ref, and a document that is already invalid has
+ * been reported as such — repeating its errors as warnings would bury the useful ones.
+ */
+function missingRecommended(validate, doc) {
+  if (!validate || validate(doc)) return [];
+  return [
+    ...new Set(
+      (validate.errors ?? [])
+        .filter((e) => e.keyword === "required" && e.instancePath === "")
+        .map((e) => e.params.missingProperty)
+    ),
+  ];
+}
+
+/**
+ * An event inside a feed inherits the feed's organizers (and license, and specVersion), so the
+ * profile has to see the event as a consumer will — otherwise every event in a well-formed
+ * community feed gets warned for a field the feed already answered.
+ */
+const asPublished = (feed, event) => ({
+  ...(feed.organizers ? { organizers: feed.organizers } : {}),
+  ...(feed.license ? { license: feed.license } : {}),
+  ...(feed.specVersion ? { specVersion: feed.specVersion } : {}),
+  ...event,
+});
+
+/** Reports the recommended fields a document is missing. Never fails the build. */
+function checkRecommended({ recommendEvent, recommendFeed }, path, doc) {
+  const isFeed = Array.isArray(doc.events);
+  if (isFeed) {
+    const missing = missingRecommended(recommendFeed, doc);
+    if (missing.length) warn(`${path} — feed missing recommended: ${missing.join(", ")}`);
+    doc.events.forEach((event, i) => {
+      const gaps = missingRecommended(recommendEvent, asPublished(doc, event));
+      if (gaps.length) warn(`${path} — events[${i}] (${event.id ?? "?"}) missing recommended: ${gaps.join(", ")}`);
+    });
+    return;
+  }
+  const missing = missingRecommended(recommendEvent, doc);
+  if (missing.length) warn(`${path} — missing recommended: ${missing.join(", ")}`);
 }
 
 // `npm run validate -- my-feed.json` → validate your own documents before opening an issue.
 // A document with an `events` array is a feed; anything else is a single event.
 const args = process.argv.slice(2);
 if (args.length) {
-  const { ajv, validateEvent, validateFeed } = build(LATEST);
+  const built = build(LATEST);
+  const { ajv, validateEvent, validateFeed } = built;
   for (const path of args) {
     const doc = JSON.parse(readFileSync(path, "utf8"));
     const isFeed = Array.isArray(doc.events);
@@ -56,8 +125,10 @@ if (args.length) {
       `${path} (${isFeed ? "feed" : "event"}, ${LATEST})` +
         (valid ? "" : "\n" + ajv.errorsText(validate.errors, { separator: "\n" }))
     );
+    if (valid) checkRecommended(built, path, doc);
   }
   console.log(failures ? `\n${failures} failure(s)` : "\nValid.");
+  if (warnings) console.log(`${warnings} recommendation(s) — valid either way. See the field reference.`);
   process.exit(failures ? 1 : 0);
 }
 
@@ -65,15 +136,21 @@ for (const version of VERSIONS) {
   const dir = join(SPEC_DIR, version);
   console.log(`\n${dir}`);
 
-  const { ajv, validateEvent, validateFeed } = build(version);
+  const built = build(version);
+  const { ajv, validateEvent, validateFeed } = built;
   const pick = (file) => (basename(file).startsWith("feed") ? validateFeed : validateEvent);
 
   const examples = join(dir, "examples");
   for (const file of readdirSync(examples).filter((f) => f.endsWith(".json")).sort()) {
     const path = join(examples, file);
     const validate = pick(file);
-    const valid = validate(JSON.parse(readFileSync(path, "utf8")));
+    const doc = JSON.parse(readFileSync(path, "utf8"));
+    const valid = validate(doc);
     log(valid, `${path}${valid ? "" : "\n" + ajv.errorsText(validate.errors, { separator: "\n" })}`);
+    // event-minimal.json is SUPPOSED to warn: it illustrates the floor of validity, and the
+    // warnings are exactly the distance between "valid" and "useful". Do not silence them by
+    // fattening that example — the gap is the lesson.
+    if (valid) checkRecommended(built, path, doc);
   }
 
   // Every `examples` entry must satisfy the very field it illustrates. Without this, the
@@ -145,7 +222,9 @@ console.log("\ndocs/index.html code samples");
 // which is the only thing keeping them from drifting apart.
 console.log("\npublished copies (docs/schema/)");
 for (const version of VERSIONS) {
-  for (const schema of ["event.schema.json", "feed.schema.json"]) {
+  // Every schema in the version's directory, profiles included: whatever has an $id under
+  // opentechevents.org/schema/ has to be reachable there.
+  for (const schema of readdirSync(join(SPEC_DIR, version)).filter((f) => f.endsWith(".schema.json")).sort()) {
     const src = join(SPEC_DIR, version, schema);
     const published = join("docs", "schema", version, schema);
     const same =
@@ -161,4 +240,5 @@ const generated = ["scripts/build-reference.mjs", "scripts/build-examples.mjs"]
   .filter((run) => run.status).length;
 
 console.log(failures || generated ? `\n${failures + generated} failure(s)` : "\nAll examples validate.");
+if (warnings) console.log(`${warnings} recommendation(s) — warnings only, they never fail the build.`);
 process.exit(failures || generated ? 1 : 0);

@@ -124,6 +124,7 @@
   scroll-margin-top: 50px;
 }
 .field-required { border-left-color: var(--accent); }
+.field-recommended { border-left-color: var(--warn); }
 /* Children of an object sit inside it, visually. */
 .field[data-depth="1"] { margin-left: 22px; }
 .field[data-depth="2"] { margin-left: 44px; }
@@ -138,6 +139,7 @@
   padding: 4px 8px; border-radius: 999px; white-space: nowrap;
 }
 .is-required { background: var(--accent-soft); color: var(--accent-ink); }
+.is-recommended { background: #fdf3e3; color: var(--warn); cursor: help; }
 .is-optional { background: var(--bg-alt); color: var(--ink-faint); }
 
 /* Deep link, revealed on hover/focus — every field is addressable. */
