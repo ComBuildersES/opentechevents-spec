@@ -110,6 +110,123 @@ export function* fieldsOf(schema, registry = {}, node = null, prefix = "", baseP
   }
 }
 
+/* ---------- the constraints that are not a plain `required` ---------- */
+
+/**
+ * A schema enforces more than "this field must be there": `location` needs a venue OR an
+ * onlineUrl, a non-zero `price` drags `currency` in with it, an `image` that carries
+ * translations must carry the `alt` they translate. Those rules are as normative as
+ * `required` and were invisible in the docs — a reference that shows every field as
+ * "optional" while the validator rejects the document is worse than no reference.
+ *
+ * Each rule is yielded STRUCTURED (a kind plus the field names it talks about), never as a
+ * sentence: the phrasing belongs to whoever renders it, in whichever language. The branch's
+ * own `description`, when the schema author wrote one, travels along as `note` — it is the
+ * rationale, and no generated sentence can replace it.
+ */
+
+/** What an `if` looks at, as far as we can name it: a value, a bound, or mere presence. */
+function conditionOf(when) {
+  const required = when?.required ?? [];
+  if (required.length !== 1) return null; // more than one antecedent: not phrasable, skip
+  const field = required[0];
+  const sub = when?.properties?.[field];
+  if (sub?.const !== undefined) return { field, equals: sub.const };
+  if (sub?.exclusiveMinimum !== undefined) return { field, above: sub.exclusiveMinimum };
+  if (sub?.minimum !== undefined) return { field, atLeast: sub.minimum };
+  return { field, present: true };
+}
+
+/** The rules an `if`/`then` branch states, if we can name them. */
+function conditionalRules(branch) {
+  const when = conditionOf(branch.if);
+  if (!when) return [];
+  const rules = [];
+  for (const name of branch.then?.required ?? []) {
+    rules.push({ kind: "conditional", when, field: name, note: branch.description });
+  }
+  for (const [name, sub] of Object.entries(branch.then?.properties ?? {})) {
+    if (sub?.not?.const !== undefined) {
+      rules.push({ kind: "conditionalNot", when, field: name, value: sub.not.const, note: branch.description });
+    }
+  }
+  return rules;
+}
+
+/** The rules one object states about itself. `node` is already $ref-resolved. */
+function rulesOfObject(node) {
+  const rules = [];
+
+  // `anyOf` whose every branch is a bare `required`: "at least one of these".
+  const branches = node.anyOf ?? [];
+  const asRequired = branches.every((b) => Object.keys(b).every((k) => k === "required" || k === "description"));
+  if (branches.length && asRequired) {
+    const fields = [...new Set(branches.flatMap((b) => b.required ?? []))];
+    if (fields.length) {
+      rules.push({
+        kind: "anyOfRequired",
+        fields,
+        note: branches.map((b) => b.description).find(Boolean),
+      });
+    }
+  }
+
+  for (const [when, then] of Object.entries(node.dependentRequired ?? {})) {
+    rules.push({ kind: "dependent", when: { field: when, present: true }, fields: then });
+  }
+
+  if (node.minProperties) rules.push({ kind: "minProperties", min: node.minProperties });
+
+  for (const branch of [node, ...(node.allOf ?? [])]) {
+    if (branch?.if) rules.push(...conditionalRules(branch));
+  }
+
+  // A branch we cannot phrase still has to be readable: if its author explained it, the
+  // explanation IS the rule. Silently dropping it is how the docs drifted in the first place.
+  for (const branch of node.allOf ?? []) {
+    const named = branch.if ? conditionalRules(branch).length : 0;
+    if (!named && branch.description) rules.push({ kind: "prose", note: branch.description });
+  }
+  for (const key of ["oneOf", "anyOf"]) {
+    if (key === "anyOf" && asRequired) continue;
+    for (const branch of node[key] ?? []) {
+      if (branch.description) rules.push({ kind: "prose", note: branch.description });
+    }
+  }
+
+  return rules;
+}
+
+/**
+ * Walks a schema the way `fieldsOf` does, yielding [ownerPath, rule] — the owner being the
+ * object the rule constrains, `""` for the document itself. Same traversal, so a rule cannot
+ * end up hanging off an object the field table does not show.
+ */
+export function* constraintsOf(schema, registry = {}, node = null, prefix = "") {
+  const root = node ?? schema.$defs?.event ?? schema;
+  // The document itself: its own rules, plus the ones the wrapping allOf adds ($ref branches
+  // carry no rules of their own, and their `required` is already the field table's business).
+  const wrapping = prefix || root === schema ? [] : (schema.allOf ?? []).filter((b) => !b.$ref);
+  const own = [...rulesOfObject(root), ...wrapping.flatMap(rulesOfObject)];
+  for (const rule of own) yield [prefix, rule];
+
+  for (const [name, raw] of Object.entries(root.properties ?? {})) {
+    const path = prefix ? `${prefix}.${name}` : name;
+    const target = raw.$ref ? resolve(raw.$ref, schema, registry) : raw;
+    if (target?.properties) yield* constraintsOf(schema, registry, target, path);
+    if (target?.type === "array") {
+      const forms = target.items?.oneOf ?? target.items?.anyOf ?? [target.items];
+      for (const form of forms) {
+        const itemRef = form?.$ref;
+        if (itemRef && !itemRef.startsWith("#")) continue;
+        const items = itemRef ? resolve(itemRef, schema, registry) : form;
+        if (!items?.properties) continue;
+        yield* constraintsOf(schema, registry, items, `${path}[]`);
+      }
+    }
+  }
+}
+
 /**
  * The fields a recommended profile asks for, as a Set of dotted paths.
  *

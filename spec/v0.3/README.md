@@ -367,6 +367,8 @@ Un evento **cancelado, pospuesto o movido debe seguir en el feed**. Borrarlo en 
 
 `source` es **obligatoria cuando el evento se importó o agregó** de otro sitio (un `.ics`, Meetup, otro directorio). Se omite cuando quien organiza describe su propio evento: **es** la fuente.
 
+**Dentro de `source` basta con `name` o con `url`** —lo ideal es las dos—, y el schema rechaza una `source` que no lleve ninguna: una procedencia que no apunta a nada no es una procedencia. Exigir el `name` sería peor que aceptar la `url`: quien importa un `.ics` siempre conoce la dirección que descargó y a menudo no tiene nombre de publicador que leer (el `X-WR-CALNAME` de iCalendar es opcional), así que el requisito se cumpliría **inventándolo**, y una fuente inventada es peor que una fuente dada solo como enlace. Es la misma regla que siguen `offers` con `price` y `url`, y `location` con `venue` y `onlineUrl`.
+
 `source.license` (lo que la fuente permite) y `license` (lo que este documento permite) son campos distintos y **no tienen por qué coincidir**. Pero los términos de la fuente **restringen lo que puede republicarse**: declarar una `license` no concede derechos que la fuente nunca dio.
 
 ### `organizers`: quién organiza — y las tres cosas que no es

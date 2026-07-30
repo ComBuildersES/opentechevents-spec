@@ -1,5 +1,5 @@
 {
-  "_comment": "Traducción de la referencia de campos. El inglés vive en las `description` del schema (viaja en el paquete npm hacia implementadores de todo el mundo); aquí solo las traducciones. Las claves son <schema>.<ruta del campo>. El CI falla si falta alguna: `npm run build-reference -- --check`.",
+  "_comment": "Traducción de la referencia de campos. El inglés vive en las `description` del schema (viaja en el paquete npm hacia implementadores de todo el mundo); aquí solo las traducciones. Las claves de `fields` son <schema>.<ruta del campo>; las de `rules` son <schema>.<objeto>#<n>, y traducen el POR QUÉ de una restricción (la frase que la enuncia la genera el script en cada idioma). El CI falla si falta alguna: `npm run build-reference -- --check`.",
   "schemas": {
     "event": {
       "title": "Evento",
@@ -75,7 +75,7 @@
     "event.eligibility.url": "Dónde se explica o se cumple la condición: la página para unirse a la comunidad, pedir invitación o solicitar plaza. Distinta de `offers[].url`, que es donde cambia de manos una plaza o un pago — aquí no se compra nada, se abre una puerta.",
     "event.status": "Qué le ha pasado al evento, no al dato. Un evento cancelado, pospuesto o movido a online DEBE seguir publicado: borrarlo deja un evento muerto en el calendario de quien se suscribió. `tentative` significa anunciado pero sin confirmar (el `STATUS:TENTATIVE` de iCal) — existe para que quien importa no tenga que ascender a `scheduled` un evento que nadie ha confirmado, ya que este es el único campo con valor por defecto.",
     "event.source": "Procedencia. Obligatoria cuando el evento se importó o agregó de otro sitio; se omite cuando quien organiza describe su propio evento: es la fuente.",
-    "event.source.name": "Nombre de la fuente (p. ej. «Rust Madrid», «Meetup»).",
+    "event.source.name": "Nombre de la fuente (p. ej. «Rust Madrid», «Meetup»), tal y como lo leería una persona. Escríbelo siempre que la fuente tenga nombre propio: quien muestre de dónde salió el dato puede sacar una etiqueta de `url` (su host), pero una etiqueta derivada es una suposición.",
     "event.source.url": "Enlace a la ficha original, para poder verificar y corregir el dato en origen.",
     "event.source.license": "Licencia bajo la que la FUENTE publica el dato. Restringe lo que puede republicarse: declarar una licencia no concede derechos que la fuente nunca dio.",
     "event.source.retrievedAt": "Cuándo se obtuvo el dato.",
@@ -91,5 +91,15 @@
     "feed.licenseUrl": "URL del texto completo de la licencia.",
     "feed.updatedAt": "Cuándo se generó este feed.",
     "feed.events": "Los eventos del feed. Cada uno hereda `specVersion` y `license` del feed salvo que declare los suyos."
+  },
+  "rules": {
+    "event#0": "Un mapa de traducciones es inservible si no se sabe en qué idioma está el texto principal: quien lo consume no puede saber qué entrada lo duplica ni a qué está cayendo por defecto. Así que CUALQUIER mapa de traducciones del documento —el del propio evento o uno dentro de image, offers, eligibility o partOf— exige textLanguage. Es el único sitio de esta spec donde un campo depende de que otro esté presente, y vale a cualquier profundidad porque el idioma principal es una propiedad del documento entero, no de cada objeto.",
+    "event#1": "startDate y endDate tienen que ser de la misma forma: dos fechas de día completo, o dos fechas-hora locales.",
+    "event.eligibility#0": "restricted significa «hay una puerta que el enum no sabe nombrar». Sin note no nombra nada, y quien lo consume solo puede mostrar la palabra: así es como un campo que existe para responder «¿puedo ir?» acaba preguntándolo.",
+    "event.offers[]#0": "Una oferta tiene que llevar un precio o un enlace —lo ideal es los dos—. Una que no lleva ninguno no dice nada que no dijera ya omitir la lista entera; es la misma regla que sigue location con venue y onlineUrl.",
+    "event.offers[]#1": "Una lista de espera para algo que todavía puedes comprar no es una lista de espera: la cola solo tiene sentido cuando la oferta se ha agotado. La disponibilidad puede seguir estando AUSENTE: quien sabe que hay cola y no controla el estado de las entradas no debería verse obligado a afirmar que están agotadas para poder mencionarla. Solo se rechaza la combinación incoherente, nunca la incompleta.",
+    "event.offers[]#2": "Una cantidad distinta de cero sin moneda no es un precio: 45 es otra cosa en EUR, en USD y en MXN, y quien tenga que adivinarlo adivinará la suya.",
+    "event.source#0": "La procedencia tiene que apuntar a algo: un nombre que lea una persona, una URL que siga una máquina, idealmente las dos. Cualquiera de ellas basta, y exigir el nombre sería peor que aceptar la URL: quien importa un `.ics` siempre conoce la dirección que descargó y a menudo no tiene nombre de publicador que leer (el X-WR-CALNAME de iCalendar es opcional), así que el requisito se cumpliría inventándolo. Una fuente inventada es peor que una fuente dada solo como enlace. Misma regla que offers con price y url, y que location con venue y onlineUrl.",
+    "feed#0": "Misma regla que en un evento: un mapa de traducciones es inservible si no se sabe en qué idioma está el texto principal. Un feed que traduce su título tiene que decir en qué idioma está ese título."
   }
 }

@@ -25,9 +25,16 @@
       examplesCta: "Practical examples",
       footerNote: "Generated from the schemas. Draft specification — fields may change.",
       required: "required",
+      requiredIn: "required in `{parent}`",
+      requiredInTip:
+        "Required inside {parent}, which is itself optional: a minimal document needs neither, but a document that has a {parent} must give this field. Leaving the whole object out stays valid.",
       recommended: "recommended",
       recommendedTip: "Valid without it — but a checker warns. These are the fields that decide whether the event can be found, filtered and subscribed to.",
       optional: "optional",
+      rulesField: "Rules on this object",
+      rulesItem: "Rules on each entry of this list",
+      rulesDoc: "Rules on the whole document",
+      rulesLead: "Enforced by the validator: conditions that tie fields together, which no single field's level can state.",
       examples: "Examples",
       examplesHint: "Click a value to see it inside a whole document",
       inDocs: "See it in a real document",
@@ -42,6 +49,7 @@
       tocTitle: "On this page",
       tocLegend: "Required in a minimal document",
       tocLegendRecommended: "Recommended: valid without it, but a checker warns",
+      tocLegendInParent: "Unmarked: optional, or required only inside an object that is itself optional",
       tocExpand: "Show the subfields of {field}",
       tocCollapse: "Hide the subfields of {field}",
       searchPlaceholder: "Filter fields…",
@@ -79,9 +87,16 @@
       examplesCta: "Ejemplos prácticos",
       footerNote: "Generado a partir de los schemas. Especificación en borrador: los campos pueden cambiar.",
       required: "obligatorio",
+      requiredIn: "obligatorio en `{parent}`",
+      requiredInTip:
+        "Obligatorio dentro de {parent}, que a su vez es opcional: un documento mínimo no necesita ninguno de los dos, pero un documento que traiga un {parent} tiene que dar este campo. Dejar fuera el objeto entero sigue siendo válido.",
       recommended: "recomendado",
       recommendedTip: "El documento es válido sin él, pero un checker avisa. Son los campos que deciden si el evento se puede encontrar, filtrar y seguir.",
       optional: "opcional",
+      rulesField: "Reglas de este objeto",
+      rulesItem: "Reglas de cada entrada de esta lista",
+      rulesDoc: "Reglas del documento completo",
+      rulesLead: "Las aplica el validador: condiciones que atan campos entre sí y que el nivel de un campo suelto no puede enunciar.",
       examples: "Ejemplos",
       examplesHint: "Pulsa un valor para verlo dentro de un documento entero",
       inDocs: "Verlo en un documento real",
@@ -96,6 +111,7 @@
       tocTitle: "En esta página",
       tocLegend: "Obligatorio en un documento mínimo",
       tocLegendRecommended: "Recomendado: válido sin él, pero un checker avisa",
+      tocLegendInParent: "Sin marca: opcional, u obligatorio solo dentro de un objeto que es opcional",
       tocExpand: "Mostrar los subcampos de {field}",
       tocCollapse: "Ocultar los subcampos de {field}",
       searchPlaceholder: "Filtrar campos…",
@@ -169,32 +185,29 @@
     return node;
   }
 
-  // "Required" on a field means required *within its parent object*. A field is only required
-  // in a minimal valid document if that field AND every ancestor object are required — e.g.
-  // `location.geo.lat` is required inside `geo`, but `geo` (and `location`) are optional, so a
-  // minimal document needs none of them. The "only required" filter uses this stricter notion.
-  function isDocRequired(fields, f) {
-    if (!f.required) return false;
-    var parts = f.path.split(".");
-    var prefix = "";
-    for (var i = 0; i < parts.length - 1; i++) {
-      prefix = prefix ? prefix + "." + parts[i] : parts[i];
-      // The ancestor of `organizers[].name` is the field named `organizers`: the `[]` marks
-      // "each item of", it is not part of the parent's name.
-      var parentPath = prefix.replace(/\[\]$/, "");
-      var ancestor = null;
-      for (var j = 0; j < fields.length; j++) {
-        if (fields[j].path === parentPath) { ancestor = fields[j]; break; }
-      }
-      if (ancestor && !ancestor.required) return false;
-    }
-    return true;
+  // "Required" on a field means required *within its parent object* — `source.name` is required,
+  // but only once there is a `source`. `requiredIn` names that parent when it is itself optional,
+  // and the generator computes it, so the badge, the map and the filter cannot disagree about
+  // what the word means. A minimal valid document needs exactly the fields with `required` and
+  // no `requiredIn`, which is the notion the "only required" filter uses.
+  function isDocRequired(f) {
+    return Boolean(f.required) && !f.requiredIn;
   }
 
-  function matches(f, query) {
+  /** The rules the schema enforces on an object, by the path of the object they constrain. */
+  function rulesOf(schema, ownerPath) {
+    return (schema.rules || []).filter(function (rule) { return rule.owner === ownerPath; });
+  }
+
+  function matches(schema, f, query) {
     if (!query) return true;
     var hay = [f.path, f.type, f.description[state.lang]]
       .concat((f.examples || []).map(function (e) { return JSON.stringify(e); }))
+      // A field is also found by the rules that constrain it: someone searching "currency"
+      // should land on `offers`, where the rule that demands it lives.
+      .concat(rulesOf(schema, f.path).concat(rulesOf(schema, f.path + "[]")).map(function (rule) {
+        return rule.text[state.lang] + " " + (rule.note ? rule.note[state.lang] : "");
+      }))
       .join(" ")
       .toLowerCase();
     return hay.indexOf(query) !== -1;
@@ -202,7 +215,7 @@
 
   function visibleFields(schema) {
     return schema.fields.filter(function (f) {
-      return (!state.onlyRequired || isDocRequired(schema.fields, f)) && matches(f, state.query);
+      return (!state.onlyRequired || isDocRequired(f)) && matches(schema, f, state.query);
     });
   }
 
@@ -253,6 +266,37 @@
     if (at !== -1) name.appendChild(el("span", "path-parent", path.slice(0, at + 1)));
     name.appendChild(document.createTextNode(path.slice(at + 1)));
     return name;
+  }
+
+  /**
+   * The rules a set of fields cannot state on its own, printed where the object they constrain
+   * is documented. The sentence arrives already written, in both languages, from the generator:
+   * it is the same text the markdown reference prints, and a rule phrased twice is a rule that
+   * ends up saying two different things. `note` is the schema author's reasoning, when there is
+   * one — the part no generated sentence can replace.
+   */
+  function appendRules(parent, rules, t, title) {
+    if (!rules.length) return;
+    var box = el("div", "field-rules");
+    box.appendChild(el("p", "field-rules-title", title));
+    box.appendChild(el("p", "field-rules-lead", t.rulesLead));
+    var list = el("ul", "field-rules-list");
+    rules.forEach(function (rule) {
+      var item = el("li");
+      var text = rule.text[state.lang];
+      if (text) {
+        var strong = el("strong");
+        strong.appendChild(withCode(text));
+        item.appendChild(strong);
+      }
+      if (rule.note) {
+        if (text) item.appendChild(document.createTextNode(" "));
+        item.appendChild(withCode(rule.note[state.lang]));
+      }
+      list.appendChild(item);
+    });
+    box.appendChild(list);
+    parent.appendChild(box);
   }
 
   /* ---------- "show me this field in a real document" ---------- */
@@ -475,7 +519,7 @@
       var row = el("div", "toc-row");
       row.dataset.depth = String(f.path.split(".").length - 1);
 
-      var link = el("a", isDocRequired(schema.fields, f) ? "toc-required" : f.recommended ? "toc-recommended" : null);
+      var link = el("a", isDocRequired(f) ? "toc-required" : f.recommended ? "toc-recommended" : null);
       link.appendChild(el("span", null, f.path.split(".").pop()));
       link.href = "#" + key;
       link.title = f.path;
@@ -524,6 +568,10 @@
     dom.toc.appendChild(el("p", "toc-title", t.tocTitle));
     dom.toc.appendChild(el("p", "toc-legend", t.tocLegend));
     dom.toc.appendChild(el("p", "toc-legend toc-legend-recommended", t.tocLegendRecommended));
+    // The map marks what a MINIMAL document must carry, so `source.name` — required, but only
+    // once there is a `source` — carries no mark. Said here, because a reader who saw the badge
+    // on the field and no mark here would be right to think one of the two is lying.
+    dom.toc.appendChild(el("p", "toc-legend toc-legend-in-parent", t.tocLegendInParent));
 
     // A filter that hides its own matches would be useless: while one is active every branch
     // is open, whatever the reader collapsed before.
@@ -587,6 +635,9 @@
       h2.append(el("code", null, schema.name), document.createTextNode(" — " + schema.title[state.lang]));
       section.appendChild(h2);
       section.appendChild(el("p", "ref-schema-desc", schema.description[state.lang]));
+      // The document's own rules go here, above the fields: they are conditions on the whole
+      // thing (any translations map requires textLanguage) and belong to no single field.
+      appendRules(section, rulesOf(schema, ""), t, t.rulesDoc);
 
       fields.forEach(function (f) {
         var card = el(
@@ -610,16 +661,33 @@
 
         // Three levels, one badge: required (the validator rejects the document without it),
         // recommended (valid, but a checker warns) and optional. The middle one is the whole
-        // point of the profiles — flattening it back into "optional" would hide it.
+        // point of the profiles — flattening it back into "optional" would hide it. A required
+        // field inside an optional object says so on the badge itself: "required" alone sent
+        // readers looking for it in the map, where it is not marked, and nothing explained why.
         var level = f.required ? "required" : f.recommended ? "recommended" : "optional";
         var badge = el("span", "field-req is-" + level, t[level]);
         if (level === "recommended") badge.title = t.recommendedTip;
+        if (f.requiredIn) {
+          badge.classList.add("is-required-in");
+          badge.replaceChildren(withCode(t.requiredIn.replace("{parent}", f.requiredIn)));
+          // A title attribute is plain text: the backticks that mark up the badge would show.
+          badge.title = t.requiredInTip.replace(/\{parent\}/g, f.requiredIn).replace(/`/g, "");
+        }
         head.appendChild(badge);
         card.appendChild(head);
 
         var desc = el("p", "field-desc");
         desc.appendChild(withCode(f.description[state.lang]));
         card.appendChild(desc);
+
+        // What the validator enforces about this object beyond the level of its fields: at least
+        // one of venue and onlineUrl, currency once price is non-zero. Read from the schema like
+        // everything else here — a page that showed every one of those fields as "optional" was
+        // describing a document the validator would reject.
+        appendRules(card, rulesOf(schema, f.path), t, t.rulesField);
+        // A list has no card of its own for its items: the rules of `offers[]` are documented on
+        // the `offers` card, said of each entry — which is what `[]` means in the field paths.
+        appendRules(card, rulesOf(schema, f.path + "[]"), t, t.rulesItem);
 
         var path = schema.name + "." + f.path;
 

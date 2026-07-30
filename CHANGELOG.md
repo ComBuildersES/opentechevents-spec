@@ -570,6 +570,25 @@ descubrir y seguir.
   ahora enseñan la misma forma. `npm run validate` lo comprueba en los ejemplos
   de `v0.3`; las versiones congeladas conservan el suyo. El orden y el porqué,
   en [«El orden de los campos»](spec/v0.3/README.md#el-orden-de-los-campos-no-es-normativo-pero-hay-uno).
+- **`source` ya no exige `name`: pide `name` **o** `url`** (lo ideal, las dos).
+  **Relaja** lo que era válido, así que ningún documento `0.3.0` deja de validar
+  —y una `source` vacía, o con solo `license`/`retrievedAt`, sigue siendo
+  rechazada—. El motivo: quien importa un `.ics` siempre conoce la dirección que
+  descargó y a menudo no tiene nombre de publicador que leer (el `X-WR-CALNAME`
+  de iCalendar es opcional), así que la regla anterior se cumplía **inventando**
+  el nombre, y una fuente inventada es peor que una fuente dada solo como
+  enlace. Misma regla que `offers` (`price` o `url`) y `location` (`venue` o
+  `onlineUrl`). Quien consuma: no dé por hecho que `source.name` está — cuando
+  falte, la etiqueta se saca del host de `source.url`.
+- **La referencia generada ahora publica las restricciones de objeto** que el
+  validador aplica y que ninguna columna «Nivel» podía expresar: `location` con
+  `venue` o `onlineUrl`, `currency` en cuanto `price` pasa de 0, `alt` cuando una
+  imagen trae `translations`, `textLanguage` cuando hay traducciones… Se extraen
+  de los `anyOf`, `if`/`then`, `dependentRequired` y `minProperties` de los
+  schemas, igual que el resto de la referencia. Y un campo obligatorio **dentro
+  de un objeto opcional** (`source.name`, `cfp.url`, `location.geo.lat`) se
+  marca como tal —`obligatorio dentro de X`— en vez de como `obligatorio` a
+  secas: la palabra significaba dos cosas distintas en la misma página.
 - **Nueva regla normativa de consumo, sin cambio de schema:** un consumidor o
   agregador **MAY descartar** un evento que no traiga ni `url`, ni `location`,
   ni `cfp.url`, y cuyo feed tampoco declare `url`. Ningún documento deja de

@@ -98,6 +98,8 @@
   content: ""; flex: none; width: 5px; height: 5px; border-radius: 50%; background: var(--accent);
 }
 .toc-legend-recommended::before { background: var(--warn); }
+/* The absence of a mark is itself part of the legend: hollow, to look like nothing. */
+.toc-legend-in-parent::before { background: none; box-shadow: inset 0 0 0 1px var(--line); }
 .toc-empty { color: var(--ink-faint); font-size: .85rem; }
 
 /* ---------- sticky toolbar ---------- */
@@ -176,6 +178,13 @@
 .is-required { background: var(--accent-soft); color: var(--accent-ink); }
 .is-recommended { background: #fdf3e3; color: var(--warn); cursor: help; }
 .is-optional { background: var(--bg-alt); color: var(--ink-faint); }
+/* Required, but only inside an object that is itself optional: the same colour, outlined rather
+   than filled — a weaker claim than the one a plain "required" makes. */
+.is-required-in {
+  background: #fff; color: var(--accent-ink);
+  box-shadow: inset 0 0 0 1px var(--accent); cursor: help; text-transform: none;
+}
+.is-required-in code { font-family: var(--mono); font-size: .95em; }
 
 /* Deep link, revealed on hover/focus — every field is addressable. */
 .field-anchor {
@@ -192,6 +201,27 @@
 .field-desc .ref-link { color: var(--accent-ink); text-decoration: underline; text-underline-offset: 2px; }
 .field-desc .ref-link:hover { text-decoration: none; }
 .field mark { background: #fdf0a8; color: inherit; border-radius: 3px; padding: 0 1px; }
+
+/* What the validator enforces about a whole object. Set apart from the description, because it
+   is not commentary: break one of these and the document is rejected. */
+.field-rules {
+  margin-top: 14px; padding: 12px 14px;
+  background: var(--accent-soft); border-radius: var(--radius);
+}
+.field-rules-title {
+  margin: 0; font: 600 .7rem/1 var(--sans); letter-spacing: .04em; text-transform: uppercase;
+  color: var(--accent-ink);
+}
+.field-rules-lead { margin: 6px 0 0; font-size: .8rem; color: var(--ink-soft); }
+.field-rules-list { margin: 8px 0 0; padding-left: 18px; font-size: .9rem; color: var(--ink-soft); }
+.field-rules-list li + li { margin-top: 6px; }
+.field-rules-list strong { color: var(--ink); }
+.field-rules code {
+  font-family: var(--mono); font-size: .85em;
+  background: #fff; color: var(--accent-ink); padding: 1px 5px; border-radius: 4px;
+}
+/* The document's own rules: same block, outside any field card. */
+.ref-schema > .field-rules { margin: 0 0 24px; }
 
 .field-examples { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
 .field-examples-label {
