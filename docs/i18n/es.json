@@ -78,6 +78,10 @@
       "b4": "Licencia abierta, sin restricciones de uso — en la línea de RSS o iCal.",
       "link": "Leer el modelo de datos",
       "caption": "Evento mínimo válido"
+    },
+    "priorArt": {
+      "title": "El patrón no lo inventamos nosotros",
+      "body": "<a href=\"https://bioschemas.org\" target=\"_blank\" rel=\"noopener\">Bioschemas</a> hace algo parecido en ciencias de la vida: parte de schema.org, define perfiles sobre tipos existentes indicando qué propiedades son obligatorias, recomendadas u opcionales, y consigue que los recursos científicos se encuentren en la web. OTE hace lo mismo con los eventos de comunidades tech — y suma iCalendar y RSS, más un feed que cualquiera puede descubrir. No somos un proyecto de adopción de schema.org; pero cada feed publicado en OTE deja el marcado <code>schema.org/Event</code> válido al alcance de la mano de un sitio más, a coste casi cero. Ese efecto colateral lo firmamos."
     }
   },
   "docs": {
@@ -131,7 +135,7 @@
     },
     "b5": {
       "title": "Información correcta en todas partes",
-      "body": "Cambias la fecha en un sitio y todo el que relea tu feed recibe la corrección. Se acabaron los anuncios zombi con la dirección antigua."
+      "body": "Cambias la fecha en un sitio y todo el que relea tu feed recibe la corrección. Se acabaron los anuncios zombi con información obsoleta."
     },
     "b6": {
       "title": "Da forma al estándar",
