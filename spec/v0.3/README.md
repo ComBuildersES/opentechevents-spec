@@ -419,25 +419,40 @@ Los tres son **opcionales** y entraron por la misma razón: el importador de `.i
 
 - **`updatedAt`** — instante (con offset/Z) en que **los datos del evento** cambiaron por última vez. Es el equivalente de `LAST-MODIFIED` de iCal, **no** de `DTSTAMP`: `DTSTAMP` marca *cuándo se generó el fichero* y cambia en cada exportación aunque no haya cambiado nada, así que no sirve para «qué cambió». Su valor está en la **sincronización incremental**: un consumidor que lee el feed a diario filtra por `updatedAt > última_lectura` en vez de recomparar la colección entera. El `updatedAt` del feed dice «algo cambió»; el del evento dice **qué**. Ausente = desconocido, no «nunca cambió».
 
-### `image`: el cartel, y por qué es una lista de cadenas
+### `image`: el cartel, su texto alternativo, y por qué la lista admite dos formas
 
-Nuevo en la v0.3. Opcional —aunque [recomendado](#válido-no-es-lo-mismo-que-útil-los-campos-recomendados)— y **una lista** de URLs `https` **al fichero de imagen**, nunca a una página que lo muestre:
+Nuevo en la v0.3. Opcional —aunque [recomendado](#válido-no-es-lo-mismo-que-útil-los-campos-recomendados)— y **una lista** cuyas entradas apuntan con URLs `https` **al fichero de imagen**, nunca a una página que lo muestre:
 
 ```json
 "image": [
-  "https://rustmadrid.example/img/2026-06-16x9.png",
+  {
+    "url": "https://rustmadrid.example/img/2026-06-16x9.png",
+    "alt": "Cartel sobre fondo morado: el cangrejo Ferris con casco de obra, y la fecha «26 de junio, 19:00» en grande"
+  },
   "https://rustmadrid.example/img/2026-06-4x3.png",
   "https://rustmadrid.example/img/2026-06-1x1.png"
 ]
 ```
 
-**El orden es significativo**: la primera es la principal, y a menudo la única que un destino puede usar.
+**El orden es significativo**: la primera es la principal, y a menudo la única que un destino puede usar. Quien solo pueda mostrar una, muestra la primera.
 
-**No es una galería.** Las entradas describen **la misma imagen** en distintos recortes o resoluciones — que es exactamente lo que [Google pide](https://developers.google.com/search/docs/appearance/structured-data/event) (1:1, 4:3 y 16:9) y lo que ya emiten Meetup, Luma y Guild. Publicar ahí las fotos de la edición anterior no es inválido, pero degrada en todos los destinos: cada uno se queda con la primera y la trata como el cartel.
+**No es una galería.** Lo habitual es que las entradas sean **la misma imagen** en distintos recortes o resoluciones — que es exactamente lo que [Google pide](https://developers.google.com/search/docs/appearance/structured-data/event) (1:1, 4:3 y 16:9) y lo que ya emiten Meetup, Luma y Guild. Pero eso es lo habitual, **no una garantía**: nada impide publicar el cartel y una foto de la sede, y un consumidor no tiene forma de distinguir los dos casos. Por eso la regla que sí vale es la del orden, y ninguna interfaz debe renderizar la lista como carrusel de fotos.
 
 Entra por la vía de siempre —**un campo que ya emite todo el mundo**—: de las cinco fuentes estudiadas ([`research/findings/json-ld-event-platforms.md`](../../research/findings/json-ld-event-platforms.md)), **las cinco** emiten `image`, y tres de ellas ya como array.
 
-**Lista de cadenas, no de objetos**, y es una decisión, no un descuido. Un objeto permitiría `alt`, `width` o `caption`; **ningún productor real emite nada de eso** hoy, y añadirlo sería el diseño especulativo que la sección de Extensiones prohíbe. El precio está reconocido: el texto alternativo —que es accesibilidad, no decoración— **no se modela en la v0.3**. Si aparece un productor que lo emita, entra por extensión y se gradúa; ensanchar cadena → objeto es un cambio que rompe, y por eso llegaría con su versión.
+#### `image[].alt`: accesibilidad, y las tres decisiones que arrastra
+
+Una entrada es **o una cadena o un objeto** `{ url, alt?, translations? }`. Las dos formas conviven en la misma lista a propósito, y cada parte de esa frase es una decisión:
+
+**Por qué el `alt` va dentro de la entrada y no en un campo hermano del evento.** Un `imageAlt` al lado de `image` sería más simple de escribir y estaría mal: describiría la primera imagen y se aplicaría a las tres. Solo funciona si la lista es siempre el mismo cartel recortado, y acabamos de ver que eso **no se puede garantizar**. El texto alternativo describe *una* imagen concreta, así que viaja pegado a su URL.
+
+**Por qué las dos formas conviven en vez de migrar la lista a objetos.** Porque un array de objetos rompería todos los documentos `0.2` y `0.3` ya publicados —la v0.3 se anuncia como retrocompatible con la v0.2, y lo sigue siendo— y porque los recortes extra **no necesitan `alt`**: describir tres veces la misma imagen es ruido para quien lo escribe y para quien lo escucha. La forma de cadena es la respuesta correcta para ellos. El precio es que quien consume normaliza en una línea (`typeof i === "string" ? { url: i } : i`), y es un precio bajo.
+
+**Por qué el `alt` se traduce, y no se escribe en «inglés internacional».** Un `alt` lo lee un lector de pantalla con la voz y la pronunciación del idioma que lo rodea: meter inglés dentro de un documento en catalán produce audio destrozado, que es peor accesibilidad que la que venía a arreglar ([WCAG 3.1.2](https://www.w3.org/WAI/WCAG22/Understanding/language-of-parts.html) existe justo por esto). Así que `alt` está en el `textLanguage` del documento, como `name` y `description`, y se traduce con el mapa `translations` **de la propia entrada** — igual que `offers[].name`, y por la misma razón: [un espejo posicional](#textlanguage-y-translations-en-qué-idioma-está-escrito-esto) (`translations.es.image[0]`) pegaría el texto a la imagen equivocada en cuanto alguien reordene la lista. Ver [`examples/event-online.json`](examples/event-online.json).
+
+Sobre qué escribir: **describe lo que se ve**, no lo que ya dice el evento. Repetir el `name` hace que un lector de pantalla lo diga dos veces seguidas, y «imagen de…» sobra porque el cliente ya anuncia que es una imagen. No hay cadena vacía: el `alt=""` de HTML significa «decorativa», y una imagen decorativa no pinta nada en un feed — una imagen que no tiene nada que decir es una imagen que se deja fuera.
+
+Y una advertencia por si se confunde con lo de abajo: esto **no es SEO**. Google no puntúa el `alt` de `Event.image`; se añade porque hay personas que no ven el cartel.
 
 **Es un campo [recomendado](#válido-no-es-lo-mismo-que-útil-los-campos-recomendados)**, no obligatorio. Sin él nada deja de validar y nada se rompe en los tres destinos — pero el evento se lista sin cara, y en una interfaz llena de tarjetas eso decide si alguien lo mira. Pesa más el segundo test del perfil: **el aviso es accionable**. Las cinco fuentes estudiadas ya emiten imagen, así que un feed sin `image` casi nunca es un evento sin cartel: es un cartel que no se ha mapeado. Un aviso que quien publica puede arreglar en un minuto es exactamente lo que el perfil existe para dar.
 
@@ -447,10 +462,10 @@ La excepción conocida es quien importa un `.ics`: **iCalendar casi nunca trae i
 
 | Destino | Mapeo | Pérdida |
 | --- | --- | --- |
-| **schema.org** | `image` (array, tal cual) | Ninguna. Es 1:1 — el array de OTE **es** el que pide Google. |
-| **iCal** | `IMAGE;VALUE=URI;DISPLAY=BADGE:<primera>` ([RFC 7986](https://www.rfc-editor.org/rfc/rfc7986)) | **De la segunda en adelante**: `IMAGE` admite varias, pero los clientes que la soportan enseñan una. Un cliente que ignore la propiedad —la mayoría— ve el evento completo igual. |
-| **RSS 2.0** | `<enclosure url type length>` con la primera, o `<media:content>` | `<enclosure>` **exige `type` y `length`**, que OTE no modela: quien exporte tiene que inferir el MIME por la extensión y hacer un `HEAD` para el tamaño, o usar `media:content`, que no exige ninguno de los dos. |
-| **Atom** | `<link rel="enclosure" href="…" type="…">`, repetible | Ninguna en el número de imágenes; el `type` tiene el mismo problema que en RSS. |
+| **schema.org** | `image`: URLs peladas para las entradas sin `alt`, y `ImageObject { url, caption }` para las que lo llevan | Ninguna en las URLs — el array de OTE **es** el que pide Google, y `Event.image` admite `ImageObject`, así que el rich result no se pierde por añadir `alt`. schema.org **no tiene una propiedad `alt`**: `caption` es la más cercana y es la que usa Google, así que el matiz «texto alternativo» y no «pie de foto» sí se pierde. |
+| **iCal** | `IMAGE;VALUE=URI;DISPLAY=BADGE:<primera>` ([RFC 7986](https://www.rfc-editor.org/rfc/rfc7986)) | **De la segunda en adelante**, y **el `alt` entero**: `IMAGE` no tiene parámetro para texto alternativo. `IMAGE` admite varias, pero los clientes que la soportan enseñan una. Un cliente que ignore la propiedad —la mayoría— ve el evento completo igual. |
+| **RSS 2.0** | `<enclosure url type length>` con la primera, o `<media:content>` + `<media:description>` para el `alt` | `<enclosure>` **exige `type` y `length`**, que OTE no modela: quien exporte tiene que inferir el MIME por la extensión y hacer un `HEAD` para el tamaño, o usar `media:content`, que no exige ninguno de los dos **y además es el único de los dos que sabe llevar el `alt`**. |
+| **Atom** | `<link rel="enclosure" href="…" type="…">`, repetible; el `alt` va en el `alt=` del `<img>` dentro del `<content type="html">` | Ninguna en el número de imágenes; el `type` tiene el mismo problema que en RSS. |
 
 Que el MIME no esté es la misma clase de decisión que el email de `organizers`: se puede derivar razonablemente en el exportador, y exigirlo en el schema obligaría a quien importa a inventárselo.
 
@@ -499,7 +514,14 @@ Nuevos en la v0.3, los dos opcionales. Son **dos campos porque son dos problemas
   "type": "members-only",
   "note": "Membres del Discord de Rust Girona",
   "translations": { "es": { "note": "Miembros del Discord de Rust Girona" } }
-}
+},
+"image": [
+  {
+    "url": "https://rustgirona.example/img/sessio-setmanal.png",
+    "alt": "Quadrícula de webcams i un editor amb codi Rust compartit",
+    "translations": { "es": { "alt": "Cuadrícula de webcams y un editor con código Rust compartido" } }
+  }
+]
 ```
 
 **Nunca un espejo posicional.** `translations.es.offers[0].name` es la forma que esta spec **rechaza**: una lista no tiene claves estables, así que basta con que alguien reordene las ofertas para que la traducción quede colgada de la tarifa equivocada — **y nada dejaría de validar**. Un mapa local no puede desalinearse: vive dentro del objeto que traduce.
@@ -508,7 +530,7 @@ Nuevos en la v0.3, los dos opcionales. Son **dos campos porque son dos problemas
 
 | Clase | Ejemplos | Qué hace la spec |
 | --- | --- | --- |
-| **Prosa y rótulos** | `name`, `description`, `offers[].name`, `eligibility.note`, `partOf.name` | **Se traducen**, con `translations` — el del evento para los dos primeros, uno local para el resto. |
+| **Prosa y rótulos** | `name`, `description`, `offers[].name`, `eligibility.note`, `partOf.name`, `image[].alt` | **Se traducen**, con `translations` — el del evento para los dos primeros, uno local para el resto. `image[].alt` es el caso con más consecuencia: se lee **en voz alta** con la pronunciación del idioma que lo rodea. |
 | **Nombres propios** | `organizers[].name`, `location.venue` | **No se traducen nunca.** «PyAlmería» es «PyAlmería» en todos los idiomas, y traducir el nombre de una sede es inventarse un sitio. |
 | **Etiquetas** | `tags` | **No se traducen en el dato**, y aquí la spec deja una arista: `tags` es texto libre, así que un evento etiquetado `["aprenentatge-automàtic"]` y otro `["machine-learning"]` no se encuentran entre sí. La recomendación práctica es **etiquetar en el idioma del ecosistema técnico**, que es de hecho lo que ya pasa (`rust`, `wasm`, `ai`), y dejar la presentación a la interfaz. Un vocabulario controlado encima lo resolvería del todo; sigue siendo [pregunta abierta](#otras). |
 | **Valores cerrados** | `eligibility.type`, `status`, `attendanceMode`, `offers[].availability` | **No necesitan traducción**: un enum es **multilingüe gratis**. `members-only` se renderiza en el idioma de quien lee, y el dato no cambia. Es el mejor argumento a favor de los enums de toda la spec. |

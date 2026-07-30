@@ -20,14 +20,25 @@ function resolve(ref, self, registry) {
     .reduce((acc, key) => acc?.[key.replace(/~1/g, "/").replace(/~0/g, "~")], schema);
 }
 
-/** Human-readable type, e.g. "string (uri)", "enum: online | hybrid", "string[]". */
+/**
+ * The branches an array item may take. One entry for a plain `items`, several when the item is
+ * a `oneOf` — `image` accepts a bare URL string or an object that adds alt text, and a docs
+ * table that showed only one of the two would document a form nobody can write.
+ */
+function itemBranches(items, self, registry) {
+  if (!items) return [];
+  const branches = items.oneOf ?? items.anyOf ?? [items];
+  return branches.map((branch) => (branch.$ref ? resolve(branch.$ref, self, registry) : branch));
+}
+
+/** Human-readable type, e.g. "string (uri)", "enum: online | hybrid", "string[]", "(string | object)[]". */
 function typeOf(subschema, self, registry) {
   const s = subschema.$ref ? { ...resolve(subschema.$ref, self, registry), ...subschema } : subschema;
   if (s.const !== undefined) return `const: ${JSON.stringify(s.const)}`;
   if (s.enum) return `enum: ${s.enum.join(" | ")}`;
   if (s.type === "array") {
-    const item = s.items?.$ref ? resolve(s.items.$ref, self, registry) : s.items;
-    return `${item?.type ?? "object"}[]`;
+    const kinds = [...new Set(itemBranches(s.items, self, registry).map((b) => b?.type ?? "object"))];
+    return kinds.length > 1 ? `(${kinds.join(" | ")})[]` : `${kinds[0] ?? "object"}[]`;
   }
   if (s.anyOf) return s.type ?? "string";
   if (s.type === "object" || s.properties) return "object";
@@ -80,12 +91,19 @@ export function* fieldsOf(schema, registry = {}, node = null, prefix = "", baseP
     // Only within the owning schema: `feed.events[]` and `feed.organizers[]` point at the
     // EVENT schema, and inlining them here would document the whole event twice — once as
     // itself, once nested under the feed. Each field is documented where it is defined.
+    // An item may also be a `oneOf` of forms (image: a bare URL, or an object with alt); the
+    // object branch is the one that carries fields, and it is the one that gets documented.
     if (target?.type === "array") {
-      const itemRef = target.items?.$ref;
-      const isLocal = !itemRef || itemRef.startsWith("#");
-      const items = itemRef ? resolve(itemRef, schema, registry) : target.items;
-      if (isLocal && items?.properties) {
-        const itemPointer = itemRef ? itemRef.slice(1) : `${targetPointer}/items`;
+      const forms = target.items?.oneOf ?? target.items?.anyOf ?? [target.items];
+      for (const [index, form] of forms.entries()) {
+        const itemRef = form?.$ref;
+        const isLocal = !itemRef || itemRef.startsWith("#");
+        const items = itemRef ? resolve(itemRef, schema, registry) : form;
+        if (!isLocal || !items?.properties) continue;
+        const branch = target.items?.oneOf || target.items?.anyOf ? `/${index}` : "";
+        const itemPointer = itemRef
+          ? itemRef.slice(1)
+          : `${targetPointer}/items${branch ? `/oneOf${branch}` : ""}`;
         yield* fieldsOf(schema, registry, items, `${path}[]`, itemPointer);
       }
     }

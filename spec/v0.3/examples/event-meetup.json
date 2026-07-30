@@ -4,8 +4,13 @@
   "url": "https://rustmadrid.example/meetups/2026-06",
   "name": "Rust Madrid — Meetup de junio",
   "description": "Charlas sobre WASM y tooling de Rust.\n\n18:30 Puertas · 19:00 Charlas · 20:30 Networking",
+  "_comment_image": "Lista en orden de preferencia: quien solo pueda mostrar una, muestra la primera. Aquí las tres son el mismo cartel en tres recortes, así que solo la primera lleva `alt` — describir tres veces la misma imagen es ruido. El `alt` va pegado a su URL y no en un campo hermano del evento porque la lista NO garantiza que sea siempre el mismo cartel: si fueran imágenes distintas, un solo `alt` describiría la primera y se aplicaría a las tres. Describe lo que se VE, no repite `name`: un lector de pantalla ya acaba de leerlo.",
+
   "image": [
-    "https://rustmadrid.example/img/2026-06-16x9.png",
+    {
+      "url": "https://rustmadrid.example/img/2026-06-16x9.png",
+      "alt": "Cartel sobre fondo morado: el cangrejo Ferris con casco de obra, y la fecha «26 de junio, 19:00» en grande"
+    },
     "https://rustmadrid.example/img/2026-06-4x3.png",
     "https://rustmadrid.example/img/2026-06-1x1.png"
   ],

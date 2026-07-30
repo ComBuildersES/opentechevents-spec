@@ -78,20 +78,50 @@ descubrir y seguir.
     propia — el equivalente de `RECURRENCE-ID`), y `EXDATE` deja de existir: es
     *no emitir* ese documento, o `status: cancelled` si ya se había publicado.
 
-- **`image`** (`array` de URLs `https`, mín. 1) en el **evento**. Imágenes
-  promocionales: cartel, portada, tarjeta. **El orden es significativo** — la
-  primera es la principal, y a menudo la única que un destino puede usar.
-  - **No es una galería.** Las entradas son **la misma imagen** en distintos
-    recortes o resoluciones, que es lo que pide Google (1:1, 4:3, 16:9) y lo que
-    ya emiten Meetup, Luma y Guild.
-  - **Lista de cadenas, no de objetos**, y por tanto **sin `alt`**: ningún
-    productor real emite texto alternativo, y modelarlo hoy sería diseño
-    especulativo. La pérdida de accesibilidad se reconoce; ensanchar cadena →
-    objeto rompe, así que llegaría con su versión.
-  - Traducción: `image` de schema.org **1:1**; `IMAGE;VALUE=URI` (RFC 7986) en
-    iCal, solo la primera en la práctica; `<enclosure>` o `<media:content>` en
-    RSS y `<link rel="enclosure">` en Atom — donde el `type` (MIME) hay que
-    inferirlo, porque OTE no lo modela.
+- **`image`** (`array`, mín. 1) en el **evento**. Imágenes promocionales: cartel,
+  portada, tarjeta. Cada entrada es **o una URL `https` pelada, o un objeto
+  `{ url, alt?, translations? }`**. **El orden es significativo** — la primera es
+  la principal, y a menudo la única que un destino puede usar.
+  - **No es una galería.** Lo habitual es que las entradas sean **la misma
+    imagen** en distintos recortes o resoluciones, que es lo que pide Google
+    (1:1, 4:3, 16:9) y lo que ya emiten Meetup, Luma y Guild. Pero es lo
+    habitual, **no una garantía**: nadie impide publicar el cartel y una foto de
+    la sede, y un consumidor no puede distinguir los dos casos. La regla que vale
+    es la del orden; ninguna interfaz debe renderizarla como carrusel.
+  - **`image[].alt`** (`string`, no vacío, ≤ 250) — texto alternativo, por
+    accesibilidad. Describe **lo que se ve**, no lo que ya dicen `name` y
+    `description`: repetirlos hace que un lector de pantalla los diga dos veces.
+    Sin cadena vacía: el `alt=""` de HTML significa «decorativa», y una imagen
+    decorativa no pinta nada en un feed.
+    - **Va dentro de la entrada, no en un `imageAlt` hermano del evento.** Un
+      solo `alt` para toda la lista describiría la primera imagen y se aplicaría
+      a las tres; solo sería correcto si la lista fuese siempre el mismo cartel
+      recortado, y eso **no se puede garantizar**.
+    - **Las dos formas de entrada conviven** en vez de migrar la lista a objetos:
+      así **ningún documento `0.2` o `0.3` ya publicado deja de validar** —esta
+      versión sigue siendo retrocompatible— y los recortes extra, que no
+      necesitan `alt`, siguen siendo una cadena. Quien consume normaliza en una
+      línea (`typeof i === "string" ? { url: i } : i`).
+    - **Se traduce, y no se escribe en «inglés internacional».** Un `alt` se lee
+      en voz alta con la pronunciación del idioma que lo rodea, así que va en el
+      `textLanguage` del documento y se traduce con el `translations` **de la
+      propia entrada** (nunca un espejo posicional, como `offers[].name`).
+      Escribirlo siempre en inglés sería peor accesibilidad que no tenerlo
+      —[WCAG 3.1.2](https://www.w3.org/WAI/WCAG22/Understanding/language-of-parts.html)
+      existe justo por esto— y lo convertiría en el único texto libre de la spec
+      que no sigue a `textLanguage`.
+    - **No es SEO**: Google no puntúa el `alt` de `Event.image`. Entra por las
+      personas que no ven el cartel, y por eso **no** espera a tener un productor
+      que ya lo emita — es el único criterio de esta spec que cede ante la
+      accesibilidad.
+  - Traducción: en schema.org, URLs peladas para las entradas sin `alt` y
+    `ImageObject { url, caption }` para las que lo llevan (`Event.image` admite
+    `ImageObject`, así que el rich result se conserva; schema.org **no tiene
+    propiedad `alt`**, y `caption` —la que usa Google— pierde el matiz);
+    `IMAGE;VALUE=URI` (RFC 7986) en iCal, solo la primera en la práctica y **sin
+    `alt`, que no tiene dónde ir**; `<enclosure>` o `<media:content>` +
+    `<media:description>` en RSS y `<link rel="enclosure">` en Atom — donde el
+    `type` (MIME) hay que inferirlo, porque OTE no lo modela.
   - **Entra en el perfil recomendado.** No rompe nada en los tres destinos, pero
     el aviso es **accionable**: las cinco fuentes estudiadas ya emiten imagen, así
     que un feed sin `image` casi nunca es un evento sin cartel — es un cartel sin

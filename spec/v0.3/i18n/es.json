@@ -1,6 +1,5 @@
 {
   "_comment": "Traducción de la referencia de campos. El inglés vive en las `description` del schema (viaja en el paquete npm hacia implementadores de todo el mundo); aquí solo las traducciones. Las claves son <schema>.<ruta del campo>. El CI falla si falta alguna: `npm run build-reference -- --check`.",
-
   "schemas": {
     "event": {
       "title": "Evento",
@@ -11,14 +10,16 @@
       "description": "Una colección de eventos OTE publicada en una URL estable. Un formato de intercambio, no una API."
     }
   },
-
   "fields": {
     "event.specVersion": "Versión de OTE Spec a la que se adhiere el documento.",
     "event.id": "Identificador estable y único a nivel global. Una URI bajo un dominio que controle quien publica. Se acuña una vez y no se reescribe jamás: es lo que permite a un consumidor actualizar el evento en vez de duplicarlo.",
     "event.url": "URL canónica donde se describe el evento hoy. Puede cambiar con el tiempo; el `id` no.",
     "event.name": "Nombre del evento.",
     "event.description": "Descripción breve. Texto plano o Markdown.",
-    "event.image": "Imágenes promocionales del evento: cartel, portada, tarjeta. Es una lista, en orden de preferencia — la primera es la principal, y a menudo la única que un destino puede usar. Varias entradas describen LA MISMA imagen en distintos recortes o resoluciones (Google pide 1:1, 4:3 y 16:9), no una galería de fotos. URLs https absolutas al fichero de imagen, nunca a una página que la muestre.",
+    "event.image": "Imágenes promocionales del evento: cartel, portada, tarjeta. Es una lista en orden de preferencia — la PRIMERA es la principal, y a menudo la única que un destino puede usar. Las demás pueden ser otros recortes o resoluciones de esa misma imagen (Google pide 1:1, 4:3 y 16:9) o imágenes distintas; quien solo pueda mostrar una, muestra la primera, y nadie debe dar por hecho que la lista se renderiza como galería de fotos. Cada entrada es o bien una URL https pelada al fichero de imagen —nunca a una página que la muestre— o bien un objeto que añade texto alternativo.",
+    "event.image[].url": "URL https absoluta del fichero de imagen, nunca de una página que la muestre. El mismo valor que lleva la forma de cadena pelada.",
+    "event.image[].alt": "Lo que la imagen MUESTRA, para quien no puede verla: lectores de pantalla, clientes de solo texto y cualquier render donde la imagen no cargue. Describe la foto, no el evento — el `name` y la `description` ya se están leyendo al lado, así que repetirlos hace que un lector de pantalla diga dos veces lo mismo. Sin «imagen de» ni «cartel que muestra»: el cliente ya anuncia que es una imagen. Se escribe en el `textLanguage` del documento, como el resto del texto libre, y se traduce con el mapa `translations` de esta misma entrada: el `alt` se lee en voz alta con la pronunciación del idioma que lo rodea, así que un `alt` en inglés dentro de un documento en español es peor accesibilidad que el problema que venía a resolver. Una imagen puramente decorativa no pinta nada en un feed, y aquí no hay cadena vacía: una imagen que no tiene nada que decir es una imagen que se deja fuera.",
+    "event.image[].translations": "El `alt` de esta imagen en otros idiomas. Local a la imagen que describe — nunca un espejo posicional de la lista de imágenes. Exige el `textLanguage` del documento, como cualquier otro mapa de traducciones.",
     "event.organizers": "Quién organiza el evento — no de dónde salieron los datos (eso es `source`). Es una lista: la co-organización es lo normal, no la excepción. Dentro de un feed, el evento que la omite hereda la del feed; declararla REEMPLAZA la heredada, no se suma a ella.",
     "event.organizers[].type": "Organización o persona. Por defecto, organización: al traducir hay que elegir un `@type` de schema.org sí o sí, y `Organization` es la opción tolerante.",
     "event.organizers[].name": "Nombre de quien organiza.",
@@ -78,7 +79,6 @@
     "event.source.license": "Licencia bajo la que la FUENTE publica el dato. Restringe lo que puede republicarse: declarar una licencia no concede derechos que la fuente nunca dio.",
     "event.source.retrievedAt": "Cuándo se obtuvo el dato.",
     "event.updatedAt": "Instante en que los DATOS del evento cambiaron por última vez — equivalente a `LAST-MODIFIED` de iCal, no a `DTSTAMP` (que marca la generación y cambia en cada exportación). Permite a un consumidor sincronizar de forma incremental: traer solo lo que cambió desde su última lectura. Ausente significa desconocido, no «nunca cambió».",
-
     "feed.specVersion": "Versión de OTE Spec a la que se adhiere el feed. Aplica a todos sus eventos.",
     "feed.title": "Nombre del feed, legible por personas.",
     "feed.description": "Descripción breve del feed.",

@@ -177,7 +177,7 @@
           "`capacity` NO está en la v0.3. El documento es válido igualmente: los schemas no prohíben campos adicionales, a propósito. Es la vía por la que la spec crece — campos que alguien ya usa de verdad, que es justo por donde entraron `image` y `offers`."
         ]
       },
-      "source": "{\n  \"specVersion\": \"0.3.0\",\n  \"id\": \"https://rustmadrid.example/meetups/2026-06\",\n  \"url\": \"https://rustmadrid.example/meetups/2026-06\",\n  \"name\": \"Rust Madrid — Meetup de junio\",\n  \"description\": \"Charlas sobre WASM y tooling de Rust.\\n\\n18:30 Puertas · 19:00 Charlas · 20:30 Networking\",\n  \"image\": [\n    \"https://rustmadrid.example/img/2026-06-16x9.png\",\n    \"https://rustmadrid.example/img/2026-06-4x3.png\",\n    \"https://rustmadrid.example/img/2026-06-1x1.png\"\n  ],\n  \"organizers\": [\n    {\n      \"name\": \"Rust Madrid\",\n      \"url\": \"https://rustmadrid.example\"\n    }\n  ],\n  \"startDate\": \"2026-06-26T19:00:00\",\n  \"endDate\": \"2026-06-26T21:00:00\",\n  \"timezone\": \"Europe/Madrid\",\n  \"attendanceMode\": \"hybrid\",\n  \"location\": {\n    \"venue\": \"Campus Madrid, Calle de Moreno Nieto 2, Madrid\",\n    \"address\": {\n      \"street\": \"Calle de Moreno Nieto 2\",\n      \"locality\": \"Madrid\",\n      \"region\": \"Comunidad de Madrid\",\n      \"postalCode\": \"28005\",\n      \"country\": \"ES\"\n    },\n    \"onlineUrl\": \"https://meet.example/rust-madrid\",\n    \"geo\": {\n      \"lat\": 40.4081,\n      \"lon\": -3.7188\n    }\n  },\n  \"tags\": [\n    \"rust\",\n    \"wasm\"\n  ],\n  \"languages\": [\n    \"es\"\n  ],\n  \"offers\": [\n    {\n      \"price\": 0,\n      \"url\": \"https://rustmadrid.example/meetups/2026-06#registro\"\n    }\n  ],\n  \"status\": \"scheduled\",\n  \"license\": \"CC-BY-4.0\",\n  \"updatedAt\": \"2026-06-10T18:00:00Z\",\n  \"capacity\": 80\n}",
+      "source": "{\n  \"specVersion\": \"0.3.0\",\n  \"id\": \"https://rustmadrid.example/meetups/2026-06\",\n  \"url\": \"https://rustmadrid.example/meetups/2026-06\",\n  \"name\": \"Rust Madrid — Meetup de junio\",\n  \"description\": \"Charlas sobre WASM y tooling de Rust.\\n\\n18:30 Puertas · 19:00 Charlas · 20:30 Networking\",\n  \"image\": [\n    {\n      \"url\": \"https://rustmadrid.example/img/2026-06-16x9.png\",\n      \"alt\": \"Cartel sobre fondo morado: el cangrejo Ferris con casco de obra, y la fecha «26 de junio, 19:00» en grande\"\n    },\n    \"https://rustmadrid.example/img/2026-06-4x3.png\",\n    \"https://rustmadrid.example/img/2026-06-1x1.png\"\n  ],\n  \"organizers\": [\n    {\n      \"name\": \"Rust Madrid\",\n      \"url\": \"https://rustmadrid.example\"\n    }\n  ],\n  \"startDate\": \"2026-06-26T19:00:00\",\n  \"endDate\": \"2026-06-26T21:00:00\",\n  \"timezone\": \"Europe/Madrid\",\n  \"attendanceMode\": \"hybrid\",\n  \"location\": {\n    \"venue\": \"Campus Madrid, Calle de Moreno Nieto 2, Madrid\",\n    \"address\": {\n      \"street\": \"Calle de Moreno Nieto 2\",\n      \"locality\": \"Madrid\",\n      \"region\": \"Comunidad de Madrid\",\n      \"postalCode\": \"28005\",\n      \"country\": \"ES\"\n    },\n    \"onlineUrl\": \"https://meet.example/rust-madrid\",\n    \"geo\": {\n      \"lat\": 40.4081,\n      \"lon\": -3.7188\n    }\n  },\n  \"tags\": [\n    \"rust\",\n    \"wasm\"\n  ],\n  \"languages\": [\n    \"es\"\n  ],\n  \"offers\": [\n    {\n      \"price\": 0,\n      \"url\": \"https://rustmadrid.example/meetups/2026-06#registro\"\n    }\n  ],\n  \"status\": \"scheduled\",\n  \"license\": \"CC-BY-4.0\",\n  \"updatedAt\": \"2026-06-10T18:00:00Z\",\n  \"capacity\": 80\n}",
       "lines": {
         "event.specVersion": [
           2
@@ -194,92 +194,98 @@
         "event.description": [
           6
         ],
+        "event.image[].url": [
+          9
+        ],
+        "event.image[].alt": [
+          10
+        ],
         "event.image": [
           7
         ],
         "event.organizers[].name": [
-          14
+          17
         ],
         "event.organizers[].url": [
-          15
-        ],
-        "event.organizers": [
-          12
-        ],
-        "event.startDate": [
           18
         ],
-        "event.endDate": [
-          19
+        "event.organizers": [
+          15
         ],
-        "event.timezone": [
-          20
-        ],
-        "event.attendanceMode": [
+        "event.startDate": [
           21
         ],
-        "event.location.venue": [
-          23
-        ],
-        "event.location.address.street": [
-          25
-        ],
-        "event.location.address.locality": [
-          26
-        ],
-        "event.location.address.region": [
-          27
-        ],
-        "event.location.address.postalCode": [
-          28
-        ],
-        "event.location.address.country": [
-          29
-        ],
-        "event.location.address": [
-          24
-        ],
-        "event.location.onlineUrl": [
-          31
-        ],
-        "event.location.geo.lat": [
-          33
-        ],
-        "event.location.geo.lon": [
-          34
-        ],
-        "event.location.geo": [
-          32
-        ],
-        "event.location": [
+        "event.endDate": [
           22
         ],
-        "event.tags": [
+        "event.timezone": [
+          23
+        ],
+        "event.attendanceMode": [
+          24
+        ],
+        "event.location.venue": [
+          26
+        ],
+        "event.location.address.street": [
+          28
+        ],
+        "event.location.address.locality": [
+          29
+        ],
+        "event.location.address.region": [
+          30
+        ],
+        "event.location.address.postalCode": [
+          31
+        ],
+        "event.location.address.country": [
+          32
+        ],
+        "event.location.address": [
+          27
+        ],
+        "event.location.onlineUrl": [
+          34
+        ],
+        "event.location.geo.lat": [
+          36
+        ],
+        "event.location.geo.lon": [
           37
         ],
+        "event.location.geo": [
+          35
+        ],
+        "event.location": [
+          25
+        ],
+        "event.tags": [
+          40
+        ],
         "event.languages": [
-          41
-        ],
-        "event.offers[].price": [
-          46
-        ],
-        "event.offers[].url": [
-          47
-        ],
-        "event.offers": [
           44
         ],
-        "event.status": [
+        "event.offers[].price": [
+          49
+        ],
+        "event.offers[].url": [
           50
         ],
+        "event.offers": [
+          47
+        ],
+        "event.status": [
+          53
+        ],
         "event.license": [
-          51
+          54
         ],
         "event.updatedAt": [
-          52
+          55
         ],
         "event.capacity": [
-          53
+          56
         ]
       }
     },
@@ -455,7 +461,7 @@
           "Las sesiones semanales se publican igual que las mensuales: un documento por sesión, agrupadas por `partOf`."
         ]
       },
-      "source": "{\n  \"specVersion\": \"0.3.0\",\n  \"id\": \"https://rustgirona.example/sessions/2026-07-31\",\n  \"url\": \"https://rustgirona.example/sessions/2026-07-31\",\n  \"name\": \"Sessió setmanal de codificació — Rust Girona\",\n  \"description\": \"Cada setmana ens trobem en línia per picar Rust una estona. Canal de veu de Discord; l'enllaç és a la pàgina de l'esdeveniment.\",\n  \"image\": [\n    \"https://rustgirona.example/img/sessio-setmanal.png\"\n  ],\n  \"organizers\": [\n    {\n      \"name\": \"Rust Girona\",\n      \"url\": \"https://rustgirona.example\"\n    },\n    {\n      \"type\": \"person\",\n      \"name\": \"Ivan Fraixedes\",\n      \"url\": \"https://ifraixedes.example\"\n    }\n  ],\n  \"startDate\": \"2026-07-31T18:00:00\",\n  \"endDate\": \"2026-07-31T19:00:00\",\n  \"timezone\": \"Europe/Madrid\",\n  \"attendanceMode\": \"online\",\n  \"location\": {\n    \"onlineUrl\": \"https://discord.example/rust-girona\"\n  },\n  \"eligibility\": {\n    \"type\": \"members-only\",\n    \"note\": \"Membres del Discord de Rust Girona\",\n    \"url\": \"https://rustgirona.example/discord\",\n    \"translations\": {\n      \"es\": {\n        \"note\": \"Miembros del Discord de Rust Girona\"\n      }\n    }\n  },\n  \"tags\": [\n    \"rust\",\n    \"pair-programming\"\n  ],\n  \"languages\": [\n    \"ca\",\n    \"es\"\n  ],\n  \"textLanguage\": \"ca\",\n  \"status\": \"scheduled\",\n  \"partOf\": {\n    \"id\": \"https://rustgirona.example/sessions\",\n    \"name\": \"Sessió setmanal de codificació\",\n    \"url\": \"https://rustgirona.example/sessions\",\n    \"translations\": {\n      \"es\": {\n        \"name\": \"Sesión semanal de programación\"\n      }\n    }\n  },\n  \"license\": \"CC-BY-4.0\",\n  \"updatedAt\": \"2026-07-24T08:00:00Z\",\n  \"translations\": {\n    \"es\": {\n      \"name\": \"Sesión semanal de programación — Rust Girona\",\n      \"description\": \"Cada semana nos juntamos en línea para picar Rust un rato. Canal de voz de Discord; el enlace está en la página del evento.\"\n    }\n  }\n}",
+      "source": "{\n  \"specVersion\": \"0.3.0\",\n  \"id\": \"https://rustgirona.example/sessions/2026-07-31\",\n  \"url\": \"https://rustgirona.example/sessions/2026-07-31\",\n  \"name\": \"Sessió setmanal de codificació — Rust Girona\",\n  \"description\": \"Cada setmana ens trobem en línia per picar Rust una estona. Canal de veu de Discord; l'enllaç és a la pàgina de l'esdeveniment.\",\n  \"image\": [\n    {\n      \"url\": \"https://rustgirona.example/img/sessio-setmanal.png\",\n      \"alt\": \"Captura d'una sessió: quadrícula de webcams i un editor amb codi Rust compartit\",\n      \"translations\": {\n        \"es\": {\n          \"alt\": \"Captura de una sesión: cuadrícula de webcams y un editor con código Rust compartido\"\n        }\n      }\n    }\n  ],\n  \"organizers\": [\n    {\n      \"name\": \"Rust Girona\",\n      \"url\": \"https://rustgirona.example\"\n    },\n    {\n      \"type\": \"person\",\n      \"name\": \"Ivan Fraixedes\",\n      \"url\": \"https://ifraixedes.example\"\n    }\n  ],\n  \"startDate\": \"2026-07-31T18:00:00\",\n  \"endDate\": \"2026-07-31T19:00:00\",\n  \"timezone\": \"Europe/Madrid\",\n  \"attendanceMode\": \"online\",\n  \"location\": {\n    \"onlineUrl\": \"https://discord.example/rust-girona\"\n  },\n  \"eligibility\": {\n    \"type\": \"members-only\",\n    \"note\": \"Membres del Discord de Rust Girona\",\n    \"url\": \"https://rustgirona.example/discord\",\n    \"translations\": {\n      \"es\": {\n        \"note\": \"Miembros del Discord de Rust Girona\"\n      }\n    }\n  },\n  \"tags\": [\n    \"rust\",\n    \"pair-programming\"\n  ],\n  \"languages\": [\n    \"ca\",\n    \"es\"\n  ],\n  \"textLanguage\": \"ca\",\n  \"status\": \"scheduled\",\n  \"partOf\": {\n    \"id\": \"https://rustgirona.example/sessions\",\n    \"name\": \"Sessió setmanal de codificació\",\n    \"url\": \"https://rustgirona.example/sessions\",\n    \"translations\": {\n      \"es\": {\n        \"name\": \"Sesión semanal de programación\"\n      }\n    }\n  },\n  \"license\": \"CC-BY-4.0\",\n  \"updatedAt\": \"2026-07-24T08:00:00Z\",\n  \"translations\": {\n    \"es\": {\n      \"name\": \"Sesión semanal de programación — Rust Girona\",\n      \"description\": \"Cada semana nos juntamos en línea para picar Rust un rato. Canal de voz de Discord; el enlace está en la página del evento.\"\n    }\n  }\n}",
       "lines": {
         "event.specVersion": [
           2
@@ -472,112 +478,127 @@
         "event.description": [
           6
         ],
+        "event.image[].url": [
+          9
+        ],
+        "event.image[].alt": [
+          10
+        ],
+        "event.image[].translations.es.alt": [
+          13
+        ],
+        "event.image[].translations.es": [
+          12
+        ],
+        "event.image[].translations": [
+          11
+        ],
         "event.image": [
           7
         ],
         "event.organizers[].name": [
-          12,
-          17
-        ],
-        "event.organizers[].url": [
-          13,
-          18
-        ],
-        "event.organizers[].type": [
-          16
-        ],
-        "event.organizers": [
-          10
-        ],
-        "event.startDate": [
-          21
-        ],
-        "event.endDate": [
-          22
-        ],
-        "event.timezone": [
-          23
-        ],
-        "event.attendanceMode": [
-          24
-        ],
-        "event.location.onlineUrl": [
-          26
-        ],
-        "event.location": [
+          20,
           25
         ],
-        "event.eligibility.type": [
+        "event.organizers[].url": [
+          21,
+          26
+        ],
+        "event.organizers[].type": [
+          24
+        ],
+        "event.organizers": [
+          18
+        ],
+        "event.startDate": [
           29
         ],
-        "event.eligibility.note": [
+        "event.endDate": [
           30
         ],
-        "event.eligibility.url": [
+        "event.timezone": [
           31
         ],
-        "event.eligibility.translations.es.note": [
-          34
-        ],
-        "event.eligibility.translations.es": [
-          33
-        ],
-        "event.eligibility.translations": [
+        "event.attendanceMode": [
           32
         ],
-        "event.eligibility": [
-          28
+        "event.location.onlineUrl": [
+          34
         ],
-        "event.tags": [
+        "event.location": [
+          33
+        ],
+        "event.eligibility.type": [
+          37
+        ],
+        "event.eligibility.note": [
           38
         ],
-        "event.languages": [
+        "event.eligibility.url": [
+          39
+        ],
+        "event.eligibility.translations.es.note": [
           42
         ],
-        "event.textLanguage": [
+        "event.eligibility.translations.es": [
+          41
+        ],
+        "event.eligibility.translations": [
+          40
+        ],
+        "event.eligibility": [
+          36
+        ],
+        "event.tags": [
           46
         ],
-        "event.status": [
-          47
-        ],
-        "event.partOf.id": [
-          49
-        ],
-        "event.partOf.name": [
+        "event.languages": [
           50
         ],
-        "event.partOf.url": [
-          51
-        ],
-        "event.partOf.translations.es.name": [
+        "event.textLanguage": [
           54
         ],
-        "event.partOf.translations.es": [
-          53
+        "event.status": [
+          55
         ],
-        "event.partOf.translations": [
-          52
+        "event.partOf.id": [
+          57
         ],
-        "event.partOf": [
-          48
-        ],
-        "event.license": [
+        "event.partOf.name": [
           58
         ],
-        "event.updatedAt": [
+        "event.partOf.url": [
           59
         ],
-        "event.translations.es.name": [
+        "event.partOf.translations.es.name": [
           62
         ],
-        "event.translations.es.description": [
-          63
-        ],
-        "event.translations.es": [
+        "event.partOf.translations.es": [
           61
         ],
-        "event.translations": [
+        "event.partOf.translations": [
           60
+        ],
+        "event.partOf": [
+          56
+        ],
+        "event.license": [
+          66
+        ],
+        "event.updatedAt": [
+          67
+        ],
+        "event.translations.es.name": [
+          70
+        ],
+        "event.translations.es.description": [
+          71
+        ],
+        "event.translations.es": [
+          69
+        ],
+        "event.translations": [
+          68
         ]
       }
     },
@@ -1964,7 +1985,7 @@
       {
         "file": "event-meetup.json",
         "lines": [
-          18
+          21
         ]
       },
       {
@@ -1976,7 +1997,7 @@
       {
         "file": "event-online.json",
         "lines": [
-          21
+          29
         ]
       },
       {
@@ -2042,7 +2063,7 @@
       {
         "file": "event-meetup.json",
         "lines": [
-          20
+          23
         ]
       },
       {
@@ -2054,7 +2075,7 @@
       {
         "file": "event-online.json",
         "lines": [
-          23
+          31
         ]
       },
       {
@@ -2120,7 +2141,7 @@
       {
         "file": "event-meetup.json",
         "lines": [
-          51
+          54
         ]
       },
       {
@@ -2132,7 +2153,7 @@
       {
         "file": "event-online.json",
         "lines": [
-          58
+          66
         ]
       },
       {
@@ -2310,6 +2331,34 @@
         ]
       }
     ],
+    "event.image[].url": [
+      {
+        "file": "event-meetup.json",
+        "lines": [
+          9
+        ]
+      },
+      {
+        "file": "event-online.json",
+        "lines": [
+          9
+        ]
+      }
+    ],
+    "event.image[].alt": [
+      {
+        "file": "event-meetup.json",
+        "lines": [
+          10
+        ]
+      },
+      {
+        "file": "event-online.json",
+        "lines": [
+          10
+        ]
+      }
+    ],
     "event.image": [
       {
         "file": "event-meetup.json",
@@ -2380,7 +2429,7 @@
       {
         "file": "event-meetup.json",
         "lines": [
-          14
+          17
         ]
       },
       {
@@ -2392,8 +2441,8 @@
       {
         "file": "event-online.json",
         "lines": [
-          12,
-          17
+          20,
+          25
         ]
       },
       {
@@ -2455,7 +2504,7 @@
       {
         "file": "event-meetup.json",
         "lines": [
-          15
+          18
         ]
       },
       {
@@ -2467,8 +2516,8 @@
       {
         "file": "event-online.json",
         "lines": [
-          13,
-          18
+          21,
+          26
         ]
       },
       {
@@ -2524,7 +2573,7 @@
       {
         "file": "event-meetup.json",
         "lines": [
-          12
+          15
         ]
       },
       {
@@ -2536,7 +2585,7 @@
       {
         "file": "event-online.json",
         "lines": [
-          10
+          18
         ]
       },
       {
@@ -2587,7 +2636,7 @@
       {
         "file": "event-meetup.json",
         "lines": [
-          19
+          22
         ]
       },
       {
@@ -2599,7 +2648,7 @@
       {
         "file": "event-online.json",
         "lines": [
-          22
+          30
         ]
       },
       {
@@ -2659,7 +2708,7 @@
       {
         "file": "event-meetup.json",
         "lines": [
-          21
+          24
         ]
       },
       {
@@ -2671,7 +2720,7 @@
       {
         "file": "event-online.json",
         "lines": [
-          24
+          32
         ]
       },
       {
@@ -2725,7 +2774,7 @@
       {
         "file": "event-meetup.json",
         "lines": [
-          23
+          26
         ]
       },
       {
@@ -2791,7 +2840,7 @@
       {
         "file": "event-meetup.json",
         "lines": [
-          25
+          28
         ]
       },
       {
@@ -2850,7 +2899,7 @@
       {
         "file": "event-meetup.json",
         "lines": [
-          26
+          29
         ]
       },
       {
@@ -2910,7 +2959,7 @@
       {
         "file": "event-meetup.json",
         "lines": [
-          27
+          30
         ]
       },
       {
@@ -2930,7 +2979,7 @@
       {
         "file": "event-meetup.json",
         "lines": [
-          28
+          31
         ]
       },
       {
@@ -2989,7 +3038,7 @@
       {
         "file": "event-meetup.json",
         "lines": [
-          29
+          32
         ]
       },
       {
@@ -3049,7 +3098,7 @@
       {
         "file": "event-meetup.json",
         "lines": [
-          24
+          27
         ]
       },
       {
@@ -3109,13 +3158,13 @@
       {
         "file": "event-meetup.json",
         "lines": [
-          31
+          34
         ]
       },
       {
         "file": "event-online.json",
         "lines": [
-          26
+          34
         ]
       },
       {
@@ -3135,7 +3184,7 @@
       {
         "file": "event-meetup.json",
         "lines": [
-          33
+          36
         ]
       },
       {
@@ -3155,7 +3204,7 @@
       {
         "file": "event-meetup.json",
         "lines": [
-          34
+          37
         ]
       },
       {
@@ -3175,7 +3224,7 @@
       {
         "file": "event-meetup.json",
         "lines": [
-          32
+          35
         ]
       },
       {
@@ -3195,7 +3244,7 @@
       {
         "file": "event-meetup.json",
         "lines": [
-          22
+          25
         ]
       },
       {
@@ -3207,7 +3256,7 @@
       {
         "file": "event-online.json",
         "lines": [
-          25
+          33
         ]
       },
       {
@@ -3267,7 +3316,7 @@
       {
         "file": "event-meetup.json",
         "lines": [
-          37
+          40
         ]
       },
       {
@@ -3279,7 +3328,7 @@
       {
         "file": "event-online.json",
         "lines": [
-          38
+          46
         ]
       },
       {
@@ -3339,7 +3388,7 @@
       {
         "file": "event-meetup.json",
         "lines": [
-          41
+          44
         ]
       },
       {
@@ -3351,7 +3400,7 @@
       {
         "file": "event-online.json",
         "lines": [
-          42
+          50
         ]
       },
       {
@@ -3411,7 +3460,7 @@
       {
         "file": "event-meetup.json",
         "lines": [
-          46
+          49
         ]
       },
       {
@@ -3427,7 +3476,7 @@
       {
         "file": "event-meetup.json",
         "lines": [
-          47
+          50
         ]
       },
       {
@@ -3443,7 +3492,7 @@
       {
         "file": "event-meetup.json",
         "lines": [
-          44
+          47
         ]
       },
       {
@@ -3457,7 +3506,7 @@
       {
         "file": "event-meetup.json",
         "lines": [
-          50
+          53
         ]
       },
       {
@@ -3469,7 +3518,7 @@
       {
         "file": "event-online.json",
         "lines": [
-          47
+          55
         ]
       },
       {
@@ -3501,7 +3550,7 @@
       {
         "file": "event-meetup.json",
         "lines": [
-          52
+          55
         ]
       },
       {
@@ -3513,7 +3562,7 @@
       {
         "file": "event-online.json",
         "lines": [
-          59
+          67
         ]
       },
       {
@@ -3573,7 +3622,7 @@
       {
         "file": "event-meetup.json",
         "lines": [
-          53
+          56
         ]
       }
     ],
@@ -3587,7 +3636,7 @@
       {
         "file": "event-online.json",
         "lines": [
-          49
+          57
         ]
       },
       {
@@ -3609,7 +3658,7 @@
       {
         "file": "event-online.json",
         "lines": [
-          50
+          58
         ]
       },
       {
@@ -3631,7 +3680,7 @@
       {
         "file": "event-online.json",
         "lines": [
-          51
+          59
         ]
       },
       {
@@ -3653,7 +3702,7 @@
       {
         "file": "event-online.json",
         "lines": [
-          48
+          56
         ]
       },
       {
@@ -3673,11 +3722,35 @@
         ]
       }
     ],
+    "event.image[].translations.es.alt": [
+      {
+        "file": "event-online.json",
+        "lines": [
+          13
+        ]
+      }
+    ],
+    "event.image[].translations.es": [
+      {
+        "file": "event-online.json",
+        "lines": [
+          12
+        ]
+      }
+    ],
+    "event.image[].translations": [
+      {
+        "file": "event-online.json",
+        "lines": [
+          11
+        ]
+      }
+    ],
     "event.organizers[].type": [
       {
         "file": "event-online.json",
         "lines": [
-          16
+          24
         ]
       },
       {
@@ -3691,7 +3764,7 @@
       {
         "file": "event-online.json",
         "lines": [
-          29
+          37
         ]
       }
     ],
@@ -3699,7 +3772,7 @@
       {
         "file": "event-online.json",
         "lines": [
-          30
+          38
         ]
       }
     ],
@@ -3707,7 +3780,7 @@
       {
         "file": "event-online.json",
         "lines": [
-          31
+          39
         ]
       }
     ],
@@ -3715,7 +3788,7 @@
       {
         "file": "event-online.json",
         "lines": [
-          34
+          42
         ]
       }
     ],
@@ -3723,7 +3796,7 @@
       {
         "file": "event-online.json",
         "lines": [
-          33
+          41
         ]
       }
     ],
@@ -3731,7 +3804,7 @@
       {
         "file": "event-online.json",
         "lines": [
-          32
+          40
         ]
       }
     ],
@@ -3739,7 +3812,7 @@
       {
         "file": "event-online.json",
         "lines": [
-          28
+          36
         ]
       }
     ],
@@ -3747,7 +3820,7 @@
       {
         "file": "event-online.json",
         "lines": [
-          46
+          54
         ]
       },
       {
@@ -3761,7 +3834,7 @@
       {
         "file": "event-online.json",
         "lines": [
-          54
+          62
         ]
       }
     ],
@@ -3769,7 +3842,7 @@
       {
         "file": "event-online.json",
         "lines": [
-          53
+          61
         ]
       }
     ],
@@ -3777,7 +3850,7 @@
       {
         "file": "event-online.json",
         "lines": [
-          52
+          60
         ]
       }
     ],
@@ -3785,7 +3858,7 @@
       {
         "file": "event-online.json",
         "lines": [
-          62
+          70
         ]
       }
     ],
@@ -3793,7 +3866,7 @@
       {
         "file": "event-online.json",
         "lines": [
-          63
+          71
         ]
       }
     ],
@@ -3801,7 +3874,7 @@
       {
         "file": "event-online.json",
         "lines": [
-          61
+          69
         ]
       }
     ],
@@ -3809,7 +3882,7 @@
       {
         "file": "event-online.json",
         "lines": [
-          60
+          68
         ]
       }
     ],

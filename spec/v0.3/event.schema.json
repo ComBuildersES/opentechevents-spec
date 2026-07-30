@@ -68,22 +68,19 @@
           ]
         },
         "image": {
-          "description": "Promotional images of the event: poster, cover, card. A list, in preference order — the first is the primary one, and often the only one a destination can use. Several entries describe the SAME image in different crops or resolutions (Google asks for 1:1, 4:3 and 16:9), not a photo gallery. Absolute https URLs to the image file itself, never to a page showing it.",
-          "type": "array",
-          "items": {
-            "type": "string",
-            "format": "uri",
-            "pattern": "^https://"
-          },
-          "minItems": 1,
+          "description": "Promotional images of the event: poster, cover, card. A list in preference order — the FIRST is the primary one, and often the only one a destination can use. The rest may be other crops or resolutions of that same image (Google asks for 1:1, 4:3 and 16:9) or different images altogether; a consumer that can show only one shows the first, and none may assume the list renders as a photo gallery. An entry is either a bare https URL to the image file itself — never to a page showing it — or an object that adds alt text.",
+          "$ref": "#/$defs/images",
           "examples": [
             [
               "https://rustmadrid.example/img/2026-06-16x9.png"
             ],
             [
+              {
+                "url": "https://rustmadrid.example/img/2026-06-16x9.png",
+                "alt": "Cartel: Ferris sobre fondo morado, «Rust Madrid · 16 junio · Impact Hub»"
+              },
               "https://rustmadrid.example/img/2026-06-1x1.png",
-              "https://rustmadrid.example/img/2026-06-4x3.png",
-              "https://rustmadrid.example/img/2026-06-16x9.png"
+              "https://rustmadrid.example/img/2026-06-4x3.png"
             ]
           ]
         },
@@ -354,7 +351,7 @@
       },
       "allOf": [
         {
-          "description": "A map of translations is unusable without knowing which language the primary text is in: a consumer cannot tell which entry duplicates it, nor what it is falling back to. So ANY translations map in the document — the event's own, or one inside offers, eligibility or partOf — requires textLanguage. It is the one place where a field of this spec depends on another being present, and it holds at every depth because the primary language is a property of the whole document, not of each object.",
+          "description": "A map of translations is unusable without knowing which language the primary text is in: a consumer cannot tell which entry duplicates it, nor what it is falling back to. So ANY translations map in the document — the event's own, or one inside image, offers, eligibility or partOf — requires textLanguage. It is the one place where a field of this spec depends on another being present, and it holds at every depth because the primary language is a property of the whole document, not of each object.",
           "if": {
             "type": "object",
             "anyOf": [
@@ -395,6 +392,22 @@
                 ],
                 "properties": {
                   "offers": {
+                    "contains": {
+                      "required": [
+                        "translations"
+                      ],
+                      "type": "object"
+                    },
+                    "type": "array"
+                  }
+                }
+              },
+              {
+                "required": [
+                  "image"
+                ],
+                "properties": {
+                  "image": {
                     "contains": {
                       "required": [
                         "translations"
@@ -954,6 +967,97 @@
           }
         }
       ]
+    },
+    "images": {
+      "description": "The event's images, in preference order. Two item forms on purpose: a bare URL string, which is what every 0.2 document already contains and keeps validating unchanged, and an object that adds alt text. Mixing them in one list is legal and expected — the primary image earns its alt, the extra crops of it do not need one.",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "oneOf": [
+          {
+            "type": "string",
+            "format": "uri",
+            "pattern": "^https://"
+          },
+          {
+            "$ref": "#/$defs/imageEntry"
+          }
+        ]
+      }
+    },
+    "imageEntry": {
+      "description": "One image with its description. The alt travels attached to its own URL and not in a sibling field of the event, because the entries of the list are not guaranteed to be the same picture: one alt for the whole list would describe the first image and be applied to the third. Same reason there is no positional mirror in translations — a list has no stable keys.",
+      "type": "object",
+      "required": [
+        "url"
+      ],
+      "properties": {
+        "url": {
+          "description": "Absolute https URL of the image file itself, never of a page showing it. The same value the bare-string form carries.",
+          "type": "string",
+          "format": "uri",
+          "pattern": "^https://",
+          "examples": [
+            "https://rustmadrid.example/img/2026-06-16x9.png"
+          ]
+        },
+        "alt": {
+          "description": "What the image SHOWS, for whoever cannot see it: screen readers, text-only clients, and any render where the image fails to load. Describe the picture, not the event — the name and description are already being read out next to it, so repeating them makes a screen reader say the same thing twice. Skip \"image of\" or \"poster showing\": the client already announces it is an image. Written in the document's textLanguage, like every other free text here, and translated by this entry's own translations map: alt is read aloud with the pronunciation of the surrounding language, so an English alt inside a Spanish document is worse for accessibility than the problem it was meant to solve. Purely decorative images have no place in a feed and no empty string here — an image with nothing to say is an image left out.",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 250,
+          "examples": [
+            "Cartel: Ferris sobre fondo morado, «Rust Madrid · 16 junio · Impact Hub»",
+            "Sala diáfana con unas 60 sillas y una pantalla al fondo"
+          ]
+        },
+        "translations": {
+          "description": "This image's alt text in other languages. Local to the image it describes — never a positional mirror of the image list. Requires the document's textLanguage, like every other translations map.",
+          "$ref": "#/$defs/imageTranslations",
+          "examples": [
+            {
+              "en": {
+                "alt": "Poster: Ferris on a purple background, “Rust Madrid · June 16 · Impact Hub”"
+              }
+            }
+          ]
+        }
+      },
+      "dependentRequired": {
+        "translations": [
+          "alt"
+        ]
+      }
+    },
+    "imageTranslations": {
+      "description": "This image's alt text in other languages. Only alt is translated: the url is a file, and a file has no language.",
+      "type": "object",
+      "allOf": [
+        {
+          "$ref": "#/$defs/languageMap"
+        }
+      ],
+      "additionalProperties": {
+        "$ref": "#/$defs/imageTranslation"
+      }
+    },
+    "imageTranslation": {
+      "description": "One language's version of what the image shows.",
+      "type": "object",
+      "required": [
+        "alt"
+      ],
+      "properties": {
+        "alt": {
+          "description": "What the image shows, in this language.",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 250,
+          "examples": [
+            "Poster: Ferris on a purple background, “Rust Madrid · June 16 · Impact Hub”"
+          ]
+        }
+      }
     },
     "offers": {
       "description": "Ways of attending, with their price. A list because an event may sell several kinds of ticket, and because the answer to \"is it free?\" has to survive an event that is free for students and paid for everyone else.",

@@ -4,8 +4,16 @@
   "url": "https://rustgirona.example/sessions/2026-07-31",
   "name": "Sessió setmanal de codificació — Rust Girona",
   "description": "Cada setmana ens trobem en línia per picar Rust una estona. Canal de veu de Discord; l'enllaç és a la pàgina de l'esdeveniment.",
+  "_comment_image": "El `alt` va en el `textLanguage` del documento (`ca`) y se traduce en el propio objeto de la imagen, no en un espejo posicional tipo `translations.es.image[0]`: una lista no tiene claves estables y reordenarla pegaría el texto a la imagen equivocada. Se traduce, no se escribe en inglés «internacional»: el `alt` lo lee un lector de pantalla con la pronunciación del idioma que lo rodea.",
+
   "image": [
-    "https://rustgirona.example/img/sessio-setmanal.png"
+    {
+      "url": "https://rustgirona.example/img/sessio-setmanal.png",
+      "alt": "Captura d'una sessió: quadrícula de webcams i un editor amb codi Rust compartit",
+      "translations": {
+        "es": { "alt": "Captura de una sesión: cuadrícula de webcams y un editor con código Rust compartido" }
+      }
+    }
   ],
   "organizers": [
     { "name": "Rust Girona", "url": "https://rustgirona.example" },
