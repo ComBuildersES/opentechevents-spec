@@ -1,0 +1,1326 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://opentechevents.org/schema/v0.3/event.schema.json",
+  "title": "OTE Event",
+  "description": "A single tech community event. See https://opentechevents.org for the normative prose.",
+  "allOf": [
+    {
+      "$ref": "#/$defs/event"
+    },
+    {
+      "type": "object",
+      "description": "A standalone event document must carry its own specVersion and license. Inside a feed, both are inherited from the feed.",
+      "required": [
+        "specVersion",
+        "license"
+      ]
+    }
+  ],
+  "$defs": {
+    "event": {
+      "type": "object",
+      "required": [
+        "id",
+        "name",
+        "startDate",
+        "timezone"
+      ],
+      "properties": {
+        "specVersion": {
+          "description": "Version of OTE Spec this document adheres to.",
+          "x-inheritsFrom": "feed.specVersion",
+          "const": "0.3.0",
+          "examples": [
+            "0.3.0"
+          ]
+        },
+        "id": {
+          "description": "Stable, globally unique identifier. A URI under a domain the publisher controls. Minted once, never rewritten — this is what lets consumers update an event instead of duplicating it.",
+          "type": "string",
+          "format": "uri",
+          "pattern": "^[a-zA-Z][a-zA-Z0-9+.-]*:",
+          "examples": [
+            "https://pyalmeria.example/eventos/2026-06-async",
+            "https://calendar.example/ics/rust-madrid#a1b2c3d4-uid"
+          ]
+        },
+        "url": {
+          "description": "Canonical URL where the event is described today. May change over time; id may not.",
+          "type": "string",
+          "format": "uri",
+          "pattern": "^https?://",
+          "examples": [
+            "https://pyalmeria.example/eventos/2026-06-async"
+          ]
+        },
+        "name": {
+          "description": "Display name of the event.",
+          "type": "string",
+          "minLength": 1,
+          "examples": [
+            "PyAlmería — Introducción a async/await"
+          ]
+        },
+        "description": {
+          "description": "Short description. Plain text or Markdown.",
+          "type": "string",
+          "examples": [
+            "Charla introductoria a la programación asíncrona en Python, con ejemplos en vivo."
+          ]
+        },
+        "image": {
+          "description": "Promotional images of the event: poster, cover, card. A list in preference order — the FIRST is the primary one, and often the only one a destination can use. The rest may be other crops or resolutions of that same image (Google asks for 1:1, 4:3 and 16:9) or different images altogether; a consumer that can show only one shows the first, and none may assume the list renders as a photo gallery. An entry is either a bare https URL to the image file itself — never to a page showing it — or an object that adds alt text.",
+          "$ref": "#/$defs/images",
+          "examples": [
+            [
+              "https://rustmadrid.example/img/2026-06-16x9.png"
+            ],
+            [
+              {
+                "url": "https://rustmadrid.example/img/2026-06-16x9.png",
+                "alt": "Cartel: Ferris sobre fondo morado, «Rust Madrid · 16 junio · Impact Hub»"
+              },
+              "https://rustmadrid.example/img/2026-06-1x1.png",
+              "https://rustmadrid.example/img/2026-06-4x3.png"
+            ]
+          ]
+        },
+        "organizers": {
+          "description": "Who runs the event — not where the data came from (that is source). A list: co-organised events are the norm, not the exception. Declaring it REPLACES the inherited list, it does not add to it.",
+          "x-inheritsFrom": "feed.organizers",
+          "$ref": "#/$defs/organizers",
+          "examples": [
+            [
+              {
+                "name": "PyAlmería",
+                "url": "https://pyalmeria.example"
+              }
+            ],
+            [
+              {
+                "name": "GDG Madrid",
+                "url": "https://gdgmadrid.example"
+              },
+              {
+                "type": "person",
+                "name": "Ada Lovelace",
+                "url": "https://ada.example"
+              }
+            ]
+          ]
+        },
+        "startDate": {
+          "description": "Wall-clock start: a date (2026-10-15) for all-day events, or a local date-time (2026-10-15T09:00:00). Never carries a UTC offset — timezone does that. Which of the two forms you pick is not this field's decision alone: it has to match endDate's — see the document's constraints.",
+          "$ref": "#/$defs/wallClock",
+          "examples": [
+            "2026-06-11T18:30:00",
+            "2026-10-15"
+          ]
+        },
+        "endDate": {
+          "description": "Wall-clock end, in the SAME form as startDate (both dates, or both date-times). If absent, the event is assumed to end on the day it starts. That pairing is a rule of the document, not of this field — see the document's constraints.",
+          "$ref": "#/$defs/wallClock",
+          "examples": [
+            "2026-06-11T20:00:00",
+            "2026-10-16"
+          ]
+        },
+        "timezone": {
+          "description": "IANA timezone (e.g. Europe/Madrid). Turns a wall-clock startDate into an unambiguous instant. For all-day events it contextualises the date — it does not shift it.",
+          "type": "string",
+          "pattern": "^[A-Za-z_]+(?:/[A-Za-z0-9_+-]+)+$|^UTC$",
+          "examples": [
+            "Europe/Madrid",
+            "America/Bogota",
+            "UTC"
+          ]
+        },
+        "attendanceMode": {
+          "description": "What the organiser says this event is. Absent never means in-person.",
+          "enum": [
+            "in-person",
+            "online",
+            "hybrid"
+          ],
+          "examples": [
+            "in-person",
+            "online",
+            "hybrid"
+          ]
+        },
+        "location": {
+          "$ref": "#/$defs/location",
+          "examples": [
+            {
+              "venue": "El Cable, Almería"
+            },
+            {
+              "onlineUrl": "https://meet.example/pyalmeria"
+            },
+            {
+              "venue": "Campus Madrid, Calle de Moreno Nieto 2, Madrid",
+              "address": {
+                "street": "Calle de Moreno Nieto 2",
+                "locality": "Madrid",
+                "postalCode": "28005",
+                "country": "ES"
+              },
+              "onlineUrl": "https://meet.example/rust-madrid"
+            }
+          ]
+        },
+        "eligibility": {
+          "description": "Who may attend, when the answer is not \"anyone\". The third part of \"can I go?\", after attendanceMode and location: those two answer whether the event is reachable, this one whether you are allowed in. Absent never means open — an importer reading a .ics cannot know, and staying quiet is not the same claim as saying the door is open.",
+          "$ref": "#/$defs/eligibility",
+          "examples": [
+            {
+              "type": "open"
+            },
+            {
+              "type": "members-only",
+              "note": "Miembros del Discord de Rust Girona",
+              "url": "https://rustgirona.example/join"
+            },
+            {
+              "type": "restricted",
+              "note": "Solo alumnado de la Universidad de Almería"
+            }
+          ]
+        },
+        "tags": {
+          "description": "Free-form topic tags — what the event is ABOUT. Maps to iCal CATEGORIES and schema.org keywords. Not who may attend: that question has its own field, eligibility, because a tag like \"members-only\" is invisible to a consumer that does not already know to look for it. A controlled vocabulary may layer on top later; the field itself stays free.",
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "minItems": 1,
+          "examples": [
+            [
+              "rust",
+              "wasm"
+            ],
+            [
+              "python",
+              "async"
+            ]
+          ]
+        },
+        "languages": {
+          "description": "Languages SPOKEN at the event, as BCP 47 tags, e.g. [\"es\",\"en\"]. Not the language this document is written in — that is textLanguage, and the two disagree all the time: a bilingual session described in Catalan only.",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/languageTag"
+          },
+          "minItems": 1,
+          "examples": [
+            [
+              "es"
+            ],
+            [
+              "es",
+              "en"
+            ]
+          ]
+        },
+        "textLanguage": {
+          "description": "Language THIS DOCUMENT's free text is written in — name, description, and any other prose in it. One BCP 47 tag, not a list: a text is written in one language. A different question from languages, which says what is spoken at the event. Absent means unknown, never the feed's language and never English.",
+          "x-inheritsFrom": "feed.textLanguage",
+          "$ref": "#/$defs/languageTag",
+          "examples": [
+            "es",
+            "ca",
+            "en"
+          ]
+        },
+        "offers": {
+          "description": "What it costs to attend, and where to register. A list: tiered pricing (early bird, student, patron) is one entry each, and a free event is a single entry with price 0. Absent means UNKNOWN, never free — saying free is what price 0 is for.",
+          "$ref": "#/$defs/offers",
+          "examples": [
+            [
+              {
+                "price": 0,
+                "url": "https://rustmadrid.example/meetups/2026-06#registro"
+              }
+            ],
+            [
+              {
+                "name": "Early bird",
+                "price": 35,
+                "currency": "EUR",
+                "url": "https://devfest-levante.example/2026/entradas",
+                "availability": "sold-out",
+                "closesAt": "2026-07-31T23:59:59+02:00"
+              },
+              {
+                "name": "General",
+                "price": 45,
+                "currency": "EUR",
+                "url": "https://devfest-levante.example/2026/entradas",
+                "availability": "in-stock"
+              }
+            ]
+          ]
+        },
+        "cfp": {
+          "description": "The event's open call for proposals — talks, workshops, papers. The one field of the spec with no equivalent in ANY of the three destination formats: it exists because 'which conferences are accepting proposals right now' is a question only the publisher can answer, and today it is answered by scraping.",
+          "$ref": "#/$defs/cfp",
+          "examples": [
+            {
+              "url": "https://devfest-levante.example/2026/cfp",
+              "closesAt": "2026-07-15T23:59:59+02:00"
+            },
+            {
+              "url": "https://devfest-levante.example/2026/cfp",
+              "opensAt": "2026-05-01T00:00:00+02:00",
+              "closesAt": "2026-07-15T23:59:59+02:00",
+              "coversTravel": true,
+              "coversAccommodation": true
+            }
+          ]
+        },
+        "status": {
+          "description": "What happened to the event, not to the data. An event that is cancelled, postponed or moved online MUST stay published: removing it leaves a dead event in subscribers' calendars. tentative means announced but not confirmed (iCal STATUS:TENTATIVE) — it exists so an importer never has to upgrade an unconfirmed event to scheduled.",
+          "enum": [
+            "scheduled",
+            "tentative",
+            "cancelled",
+            "postponed",
+            "rescheduled",
+            "moved-online"
+          ],
+          "default": "scheduled",
+          "examples": [
+            "scheduled",
+            "cancelled",
+            "moved-online"
+          ]
+        },
+        "partOf": {
+          "description": "The series or multi-part event this document is one occurrence of. A REFERENCE, never a recurrence rule: OTE does not generate dates: whoever publishes expands the recurrence into one document per occurrence, each with its own id, dates and status. A consumer that ignores this field still sees complete, correct events.",
+          "$ref": "#/$defs/partOf",
+          "examples": [
+            {
+              "id": "https://rustmadrid.example/meetups",
+              "name": "Rust Madrid — meetup mensual",
+              "url": "https://rustmadrid.example/meetups"
+            },
+            {
+              "type": "multipart",
+              "id": "https://pyalmeria.example/study-jams/2026-testing",
+              "name": "Study Jam de testing en Python (3 sesiones)"
+            }
+          ]
+        },
+        "license": {
+          "description": "License of THIS DATA, not of the event. SPDX identifier (CC0-1.0, CC-BY-4.0…, full list at https://spdx.org/licenses/) or a URL.",
+          "x-inheritsFrom": "feed.license",
+          "$ref": "#/$defs/license",
+          "examples": [
+            "CC-BY-4.0",
+            "CC0-1.0"
+          ]
+        },
+        "source": {
+          "description": "Provenance. Required when the event was imported or aggregated from elsewhere; omitted when the organiser describes their own event — they are the source.",
+          "$ref": "#/$defs/source",
+          "examples": [
+            {
+              "name": "Rust Madrid",
+              "url": "https://calendar.example/ics/rust-madrid",
+              "license": "CC-BY-4.0",
+              "retrievedAt": "2026-06-01T05:00:00Z"
+            }
+          ]
+        },
+        "updatedAt": {
+          "description": "Instant the event's DATA last changed — equivalent to iCal LAST-MODIFIED, not DTSTAMP (which marks generation and changes on every export). Lets a consumer sync incrementally: fetch only what changed since its last read. Absent means unknown, not 'never changed'.",
+          "$ref": "#/$defs/instant",
+          "examples": [
+            "2026-06-10T18:00:00Z"
+          ]
+        },
+        "translations": {
+          "description": "The same event's free text in other languages, keyed by BCP 47 tag. The document keeps ONE primary text in its own fields — declared by textLanguage — and this carries the versions of it. Additive on purpose: name and description stay strings, so every existing consumer keeps working and a monolingual publisher writes nothing at all. Never a translation of the language the document is already in. Requires textLanguage — and so does any other translations map in the document, at any depth; see the document's constraints.",
+          "$ref": "#/$defs/translations",
+          "examples": [
+            {
+              "es": {
+                "name": "Sesión semanal de programación — Rust Girona",
+                "description": "Cada semana nos juntamos en línea para picar Rust un rato."
+              }
+            }
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "description": "A map of translations is unusable without knowing which language the primary text is in: a consumer cannot tell which entry duplicates it, nor what it is falling back to. So ANY translations map in the document — the event's own, or one inside image, offers, eligibility or partOf — requires textLanguage. It is the one place where a field of this spec depends on another being present, and it holds at every depth because the primary language is a property of the whole document, not of each object.",
+          "if": {
+            "type": "object",
+            "anyOf": [
+              {
+                "required": [
+                  "translations"
+                ]
+              },
+              {
+                "required": [
+                  "eligibility"
+                ],
+                "properties": {
+                  "eligibility": {
+                    "required": [
+                      "translations"
+                    ],
+                    "type": "object"
+                  }
+                }
+              },
+              {
+                "required": [
+                  "partOf"
+                ],
+                "properties": {
+                  "partOf": {
+                    "required": [
+                      "translations"
+                    ],
+                    "type": "object"
+                  }
+                }
+              },
+              {
+                "required": [
+                  "offers"
+                ],
+                "properties": {
+                  "offers": {
+                    "contains": {
+                      "required": [
+                        "translations"
+                      ],
+                      "type": "object"
+                    },
+                    "type": "array"
+                  }
+                }
+              },
+              {
+                "required": [
+                  "image"
+                ],
+                "properties": {
+                  "image": {
+                    "contains": {
+                      "required": [
+                        "translations"
+                      ],
+                      "type": "object"
+                    },
+                    "type": "array"
+                  }
+                }
+              }
+            ]
+          },
+          "then": {
+            "type": "object",
+            "required": [
+              "textLanguage"
+            ]
+          }
+        },
+        {
+          "description": "startDate and endDate must be of the same form: two all-day dates, or two local date-times.",
+          "oneOf": [
+            {
+              "properties": {
+                "startDate": {
+                  "$ref": "#/$defs/date"
+                },
+                "endDate": {
+                  "$ref": "#/$defs/date"
+                }
+              },
+              "type": "object"
+            },
+            {
+              "properties": {
+                "startDate": {
+                  "$ref": "#/$defs/dateTime"
+                },
+                "endDate": {
+                  "$ref": "#/$defs/dateTime"
+                }
+              },
+              "type": "object"
+            }
+          ]
+        }
+      ]
+    },
+    "date": {
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+    },
+    "dateTime": {
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}(:\\d{2})?$"
+    },
+    "wallClock": {
+      "type": "string",
+      "anyOf": [
+        {
+          "$ref": "#/$defs/date"
+        },
+        {
+          "$ref": "#/$defs/dateTime"
+        }
+      ]
+    },
+    "instant": {
+      "description": "An absolute point in time, WITH offset or Z. Used for metadata (when data was fetched) and for deadlines (when a sale or a call closes) — never for when an event happens, which is wall clock plus timezone.",
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})$"
+    },
+    "license": {
+      "type": "string",
+      "minLength": 2,
+      "pattern": "^([A-Za-z0-9.+-]+|https?://.+)$"
+    },
+    "languageTag": {
+      "description": "A BCP 47 language tag: \"es\", \"ca\", \"en\", \"es-MX\", \"zh-Hant\". Shared by languages (spoken at the event), textLanguage (the document's own text) and the keys of translations, so the three can never drift into three notions of what a language is.",
+      "type": "string",
+      "pattern": "^[A-Za-z]{2,3}(-[A-Za-z0-9]{2,8})*$"
+    },
+    "languageMap": {
+      "description": "The shape every translations map shares, wherever it appears: keys are BCP 47 tags, and an empty map is invalid — saying nothing is already done by omitting the field, the same rule location follows. Defined once so the five maps of this spec can never drift into five notions of what a language key is.",
+      "type": "object",
+      "minProperties": 1,
+      "propertyNames": {
+        "$ref": "#/$defs/languageTag"
+      }
+    },
+    "translations": {
+      "description": "Free text in other languages, keyed by BCP 47 tag. A map and not a list because the language IS the key: one entry per language, and no way to publish two Spanish versions that contradict each other.",
+      "type": "object",
+      "allOf": [
+        {
+          "$ref": "#/$defs/languageMap"
+        }
+      ],
+      "additionalProperties": {
+        "$ref": "#/$defs/translation"
+      }
+    },
+    "translation": {
+      "description": "One language's version of an event's OWN free text: name and description, the two fields every destination format prints. Not a mirror of the whole event — text that lives inside offers, eligibility or partOf is translated where it lives, by that object's own translations map. A positional mirror (translations.es.offers[0].name) is the one shape this spec refuses: a list has no stable keys, so reordering the offers would silently attach a translation to the wrong tier.",
+      "type": "object",
+      "minProperties": 1,
+      "properties": {
+        "name": {
+          "description": "The event's name in this language.",
+          "type": "string",
+          "minLength": 1,
+          "examples": [
+            "Sesión semanal de programación — Rust Girona"
+          ]
+        },
+        "description": {
+          "description": "The event's description in this language. Plain text or Markdown, like the field it translates.",
+          "type": "string",
+          "minLength": 1,
+          "examples": [
+            "Cada semana nos juntamos en línea para picar Rust un rato."
+          ]
+        }
+      }
+    },
+    "feedTranslations": {
+      "description": "A feed's OWN title and description in other languages, keyed by BCP 47 tag. Never its events': each event carries its own translations, because each event has its own text and its own languages.",
+      "type": "object",
+      "allOf": [
+        {
+          "$ref": "#/$defs/languageMap"
+        }
+      ],
+      "additionalProperties": {
+        "$ref": "#/$defs/feedTranslation"
+      }
+    },
+    "offerTranslations": {
+      "description": "This offer's name in other languages. Local to the offer, so no consumer has to line up two lists by position. It exists because offers[].name stays FREE TEXT on purpose: a kind enum (general, early-bird, student) would have been multilingual for free, and it would also have taken away the organiser's right to name their own tickets. Free text is the choice; translating it is the price.",
+      "type": "object",
+      "allOf": [
+        {
+          "$ref": "#/$defs/languageMap"
+        }
+      ],
+      "additionalProperties": {
+        "$ref": "#/$defs/offerTranslation"
+      }
+    },
+    "offerTranslation": {
+      "description": "One language's version of an offer's free text. Only name: price is a number, currency is a code, availability is an enum — none of them has a language.",
+      "type": "object",
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "name": {
+          "description": "This ticket's name in this language.",
+          "type": "string",
+          "minLength": 1,
+          "examples": [
+            "Students",
+            "Estudiantes"
+          ]
+        }
+      }
+    },
+    "eligibilityTranslations": {
+      "description": "This condition's note in other languages. Only note is translated: type is an enum, and an enum is multilingual for free — a consumer renders members-only in the reader's language without anyone translating the data.",
+      "type": "object",
+      "allOf": [
+        {
+          "$ref": "#/$defs/languageMap"
+        }
+      ],
+      "additionalProperties": {
+        "$ref": "#/$defs/eligibilityTranslation"
+      }
+    },
+    "eligibilityTranslation": {
+      "description": "One language's version of the condition in words.",
+      "type": "object",
+      "required": [
+        "note"
+      ],
+      "properties": {
+        "note": {
+          "description": "The condition, in this language.",
+          "type": "string",
+          "minLength": 1,
+          "examples": [
+            "Miembros del Discord de Rust Girona"
+          ]
+        }
+      }
+    },
+    "partOfTranslations": {
+      "description": "The series' or multi-part event's name in other languages. The id is never translated: it is an identifier, and translating it would split one series into two.",
+      "type": "object",
+      "allOf": [
+        {
+          "$ref": "#/$defs/languageMap"
+        }
+      ],
+      "additionalProperties": {
+        "$ref": "#/$defs/partOfTranslation"
+      }
+    },
+    "partOfTranslation": {
+      "description": "One language's version of the series' display name.",
+      "type": "object",
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "name": {
+          "description": "The series' or multi-part event's name in this language.",
+          "type": "string",
+          "minLength": 1,
+          "examples": [
+            "Sesión semanal de programación"
+          ]
+        }
+      }
+    },
+    "feedTranslation": {
+      "description": "One language's version of a feed's own free text.",
+      "type": "object",
+      "minProperties": 1,
+      "properties": {
+        "title": {
+          "description": "The feed's title in this language.",
+          "type": "string",
+          "minLength": 1,
+          "examples": [
+            "Rust Girona events"
+          ]
+        },
+        "description": {
+          "description": "The feed's description in this language.",
+          "type": "string",
+          "minLength": 1,
+          "examples": [
+            "Weekly online Rust coding sessions, in Catalan and Spanish."
+          ]
+        }
+      }
+    },
+    "organizers": {
+      "description": "Who runs the event or the feed. Kept deliberately small: a name, and where to find them.",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/organizer"
+      }
+    },
+    "organizer": {
+      "type": "object",
+      "required": [
+        "name"
+      ],
+      "$comment": "email is deliberately NOT in the recommended profile: an .ics importer does not always have it, and warning about a missing address would push someone into publishing contact data they chose not to publish.",
+      "properties": {
+        "name": {
+          "description": "Display name of the organiser.",
+          "type": "string",
+          "minLength": 1,
+          "examples": [
+            "PyAlmería",
+            "Ada Lovelace"
+          ]
+        },
+        "url": {
+          "description": "Where this organiser lives on the web — their own site, or their profile on the platform they publish from.",
+          "type": "string",
+          "format": "uri",
+          "pattern": "^https?://",
+          "examples": [
+            "https://pyalmeria.example",
+            "https://www.meetup.com/pyalmeria/"
+          ]
+        },
+        "email": {
+          "description": "Address for enquiries about the event. A ROLE address (info@, hola@) rather than someone's personal mailbox: a feed is open and crawlable, and what goes in it cannot be unpublished. Optional and deliberately NOT recommended. It exists because without it there is no valid iCal ORGANIZER to emit (a CAL-ADDRESS is in practice a mailto:) and no RSS 2.0 <author>, which requires an email. Written bare, without the mailto: prefix — the exporter adds it. Never populate it from a source that is not itself publicly published.",
+          "type": "string",
+          "format": "email",
+          "examples": [
+            "hola@pyalmeria.example",
+            "info@gdgmadrid.example"
+          ]
+        },
+        "type": {
+          "description": "Organisation or person. A translator has to pick a schema.org @type either way, and Organization is the tolerant choice.",
+          "enum": [
+            "organization",
+            "person"
+          ],
+          "default": "organization",
+          "examples": [
+            "organization",
+            "person"
+          ]
+        }
+      }
+    },
+    "partOf": {
+      "description": "A reference to the whole this occurrence belongs to. Identity only — no dates: the occurrence already carries them.",
+      "type": "object",
+      "required": [
+        "id"
+      ],
+      "properties": {
+        "id": {
+          "description": "Stable identifier of the series or multi-part event. Same rules as the event's id: a URI under a domain the publisher controls, minted once. It does NOT have to resolve to an OTE document — it is what lets a consumer group occurrences.",
+          "type": "string",
+          "format": "uri",
+          "pattern": "^[a-zA-Z][a-zA-Z0-9+.-]*:",
+          "examples": [
+            "https://rustmadrid.example/meetups",
+            "https://pyalmeria.example/study-jams/2026-testing"
+          ]
+        },
+        "name": {
+          "description": "Display name of the series or multi-part event, so a consumer can group occurrences without resolving the id.",
+          "type": "string",
+          "minLength": 1,
+          "examples": [
+            "Rust Madrid — meetup mensual",
+            "Study Jam de testing en Python (3 sesiones)"
+          ]
+        },
+        "url": {
+          "description": "Page describing the series or the multi-part event as a whole.",
+          "type": "string",
+          "format": "uri",
+          "pattern": "^https?://",
+          "examples": [
+            "https://rustmadrid.example/meetups"
+          ]
+        },
+        "type": {
+          "description": "series: independent occurrences that share an identity (a monthly meetup). multipart: parts of ONE event held on non-consecutive dates (a three-session study jam on non-consecutive Saturdays, one registration). series is the tolerant choice, and the choice changes the translation: a series becomes schema.org EventSeries, a multi-part event becomes an Event whose parts are its subEvent.",
+          "enum": [
+            "series",
+            "multipart"
+          ],
+          "default": "series",
+          "examples": [
+            "series",
+            "multipart"
+          ]
+        },
+        "translations": {
+          "description": "The series' display name in other languages. Its id stays untranslated — an identifier with two spellings is two series.",
+          "$ref": "#/$defs/partOfTranslations",
+          "examples": [
+            {
+              "es": {
+                "name": "Sesión semanal de programación"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "location": {
+      "description": "What is KNOWN about where the event happens. Not the same question as attendanceMode, which states the organiser's intent.",
+      "type": "object",
+      "properties": {
+        "venue": {
+          "description": "Human-readable physical location, in one line of free text: the name of the place plus as much address as it takes to get there — how much is your call. Its presence means the event has a physical venue. It is not made redundant by address, because joining address's parts back up never gives you the name: a PostalAddress has no field for \"El Cable\" or \"Campus Madrid\", and the name is what people navigate by. In schema.org it is Place.name, a sibling of Place.address.",
+          "type": "string",
+          "minLength": 1,
+          "examples": [
+            "El Cable, Almería",
+            "Campus Madrid, Calle de Moreno Nieto 2, Madrid"
+          ]
+        },
+        "address": {
+          "description": "Postal address of the physical venue, in parts. COMPLEMENTS venue, never replaces it: venue is the one string every format can print, address is what a translator needs to emit a schema.org PostalAddress — whose subfields Google validates one by one for the Event rich result. Every part is optional; leave out what you do not know. An absent key means unknown; \"\" or null publish 'unknown' as if it were data, which is the one thing worse than saying nothing.",
+          "$ref": "#/$defs/address",
+          "examples": [
+            {
+              "street": "Calle de Moreno Nieto 2",
+              "locality": "Madrid",
+              "postalCode": "28005",
+              "country": "ES"
+            },
+            {
+              "locality": "Almería",
+              "country": "ES"
+            }
+          ]
+        },
+        "onlineUrl": {
+          "description": "URL to attend online. Its presence means the event has online access.",
+          "type": "string",
+          "format": "uri",
+          "pattern": "^https?://",
+          "examples": [
+            "https://meet.example/pyalmeria"
+          ]
+        },
+        "geo": {
+          "description": "Coordinates of the physical venue (WGS-84 decimal degrees). Independent of venue, which is free text — a point, not a name. Maps to iCal GEO and schema.org Place.geo (GeoCoordinates).",
+          "type": "object",
+          "required": [
+            "lat",
+            "lon"
+          ],
+          "properties": {
+            "lat": {
+              "description": "Latitude in decimal degrees.",
+              "type": "number",
+              "minimum": -90,
+              "maximum": 90,
+              "examples": [
+                40.4168
+              ]
+            },
+            "lon": {
+              "description": "Longitude in decimal degrees.",
+              "type": "number",
+              "minimum": -180,
+              "maximum": 180,
+              "examples": [
+                -3.7038
+              ]
+            }
+          }
+        }
+      },
+      "anyOf": [
+        {
+          "required": [
+            "venue"
+          ]
+        },
+        {
+          "required": [
+            "onlineUrl"
+          ]
+        }
+      ]
+    },
+    "address": {
+      "description": "A postal address in parts, mapped 1:1 onto schema.org PostalAddress. Five fields, all optional, none of them free-form enough to be a second venue: this is the machine-readable half of a location, not a prettier one.",
+      "type": "object",
+      "minProperties": 1,
+      "properties": {
+        "street": {
+          "description": "Street and number, as written locally. May carry a floor or a unit; it is one line of text, not a sub-object.",
+          "type": "string",
+          "minLength": 1,
+          "examples": [
+            "Calle de Moreno Nieto 2",
+            "100 West Snickerpark Dr"
+          ]
+        },
+        "locality": {
+          "description": "City, town or village.",
+          "type": "string",
+          "minLength": 1,
+          "examples": [
+            "Madrid",
+            "Almería"
+          ]
+        },
+        "region": {
+          "description": "Province, state or autonomous community — whatever level sits between locality and country in that country. Free text or an ISO 3166-2 code; both travel to schema.org addressRegion unchanged.",
+          "type": "string",
+          "minLength": 1,
+          "examples": [
+            "Comunidad de Madrid",
+            "PA"
+          ]
+        },
+        "postalCode": {
+          "description": "Postal code, as the local post office writes it. A string, never a number: leading zeros are part of it.",
+          "type": "string",
+          "minLength": 1,
+          "examples": [
+            "28005",
+            "19019"
+          ]
+        },
+        "country": {
+          "description": "ISO 3166-1 alpha-2 code, uppercase (ES, US, MX). A code and not a country name, because the name has one spelling per language: \"España\", \"Spain\" and \"Espagne\" are the same country, and a consumer grouping events by country would see three. Turning a name into a code is a table lookup, not an invention — which is why the spec asks for it here and nowhere else.",
+          "type": "string",
+          "pattern": "^[A-Z]{2}$",
+          "examples": [
+            "ES",
+            "US"
+          ]
+        }
+      }
+    },
+    "eligibility": {
+      "description": "The door: whether there is a condition to get in, and what it is. An enum so a consumer can filter on it, plus a note so a human can read the part no enum can carry. It models the CONDITION, not the ticketing: no capacity, no seats left, no per-attendee approval state.",
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "description": "The kind of door. open: anyone may attend — including an event that sells tickets or runs out of seats, because a price and a capacity are not conditions on WHO you are. members-only: you have to belong to something first. approval-required: you sign up and the organiser DECIDES — Luma's request-to-approve, a Meetup group with an admission question, a workshop that picks a cohort. It is about a judgement on the person, never about capacity: first-come-first-served with limited seats is open, and the seats running out is offers[].availability. restricted: there IS a condition and none of the other values names it — say which in `note`, which is why the schema demands it there. Four values, kept small on purpose: a consumer that has to handle twenty doors handles none. invite-only is deliberately NOT one of them, see the spec prose.",
+          "enum": [
+            "open",
+            "members-only",
+            "approval-required",
+            "restricted"
+          ],
+          "examples": [
+            "open",
+            "members-only",
+            "approval-required"
+          ]
+        },
+        "note": {
+          "description": "The condition in words, for a person to read: which community, which university, which company. REQUIRED when type is restricted, because \"restricted\" on its own tells nobody anything; worth writing whenever the enum value alone leaves a question. This is the part that survives export to every format, inside the text.",
+          "type": "string",
+          "minLength": 1,
+          "examples": [
+            "Miembros del Discord de Rust Girona",
+            "Solo alumnado de la Universidad de Almería"
+          ]
+        },
+        "url": {
+          "description": "Where the condition is explained or met: the page to join the community, request an invitation, apply. Distinct from offers[].url, which is where a seat or money changes hands — here nothing is bought, a door is opened.",
+          "type": "string",
+          "format": "uri",
+          "pattern": "^https?://",
+          "examples": [
+            "https://rustgirona.example/join"
+          ]
+        },
+        "translations": {
+          "description": "The note in other languages. type needs none: an enum carries no language, and a consumer renders it in the reader's.",
+          "$ref": "#/$defs/eligibilityTranslations",
+          "examples": [
+            {
+              "es": {
+                "note": "Miembros del Discord de Rust Girona"
+              }
+            }
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "description": "restricted means \"there is a door the enum cannot name\". Without a note it names nothing, and a consumer can only show the word itself — which is how a field meant to answer \"can I go?\" ends up asking it.",
+          "if": {
+            "type": "object",
+            "required": [
+              "type"
+            ],
+            "properties": {
+              "type": {
+                "const": "restricted"
+              }
+            }
+          },
+          "then": {
+            "type": "object",
+            "required": [
+              "note"
+            ]
+          }
+        }
+      ]
+    },
+    "images": {
+      "description": "The event's images, in preference order. Two item forms on purpose: a bare URL string, which is what every 0.2 document already contains and keeps validating unchanged, and an object that adds alt text. Mixing them in one list is legal and expected — the primary image earns its alt, the extra crops of it do not need one.",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "oneOf": [
+          {
+            "type": "string",
+            "format": "uri",
+            "pattern": "^https://"
+          },
+          {
+            "$ref": "#/$defs/imageEntry"
+          }
+        ]
+      }
+    },
+    "imageEntry": {
+      "description": "One image with its description. The alt travels attached to its own URL and not in a sibling field of the event, because the entries of the list are not guaranteed to be the same picture: one alt for the whole list would describe the first image and be applied to the third. Same reason there is no positional mirror in translations — a list has no stable keys.",
+      "type": "object",
+      "required": [
+        "url"
+      ],
+      "properties": {
+        "url": {
+          "description": "Absolute https URL of the image file itself, never of a page showing it. The same value the bare-string form carries.",
+          "type": "string",
+          "format": "uri",
+          "pattern": "^https://",
+          "examples": [
+            "https://rustmadrid.example/img/2026-06-16x9.png"
+          ]
+        },
+        "alt": {
+          "description": "What the image SHOWS, for whoever cannot see it: screen readers, text-only clients, and any render where the image fails to load. Describe the picture, not the event — the name and description are already being read out next to it, so repeating them makes a screen reader say the same thing twice. Skip \"image of\" or \"poster showing\": the client already announces it is an image. Written in the document's textLanguage, like every other free text here, and translated by this entry's own translations map: alt is read aloud with the pronunciation of the surrounding language, so an English alt inside a Spanish document is worse for accessibility than the problem it was meant to solve. Purely decorative images have no place in a feed and no empty string here — an image with nothing to say is an image left out.",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 250,
+          "examples": [
+            "Cartel: Ferris sobre fondo morado, «Rust Madrid · 16 junio · Impact Hub»",
+            "Sala diáfana con unas 60 sillas y una pantalla al fondo"
+          ]
+        },
+        "translations": {
+          "description": "This image's alt text in other languages. Local to the image it describes — never a positional mirror of the image list. Requires the document's textLanguage, like every other translations map.",
+          "$ref": "#/$defs/imageTranslations",
+          "examples": [
+            {
+              "en": {
+                "alt": "Poster: Ferris on a purple background, “Rust Madrid · June 16 · Impact Hub”"
+              }
+            }
+          ]
+        }
+      },
+      "dependentRequired": {
+        "translations": [
+          "alt"
+        ]
+      }
+    },
+    "imageTranslations": {
+      "description": "This image's alt text in other languages. Only alt is translated: the url is a file, and a file has no language.",
+      "type": "object",
+      "allOf": [
+        {
+          "$ref": "#/$defs/languageMap"
+        }
+      ],
+      "additionalProperties": {
+        "$ref": "#/$defs/imageTranslation"
+      }
+    },
+    "imageTranslation": {
+      "description": "One language's version of what the image shows.",
+      "type": "object",
+      "required": [
+        "alt"
+      ],
+      "properties": {
+        "alt": {
+          "description": "What the image shows, in this language.",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 250,
+          "examples": [
+            "Poster: Ferris on a purple background, “Rust Madrid · June 16 · Impact Hub”"
+          ]
+        }
+      }
+    },
+    "offers": {
+      "description": "Ways of attending, with their price. A list because an event may sell several kinds of ticket, and because the answer to \"is it free?\" has to survive an event that is free for students and paid for everyone else.",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/offer"
+      }
+    },
+    "offer": {
+      "description": "One way of attending: a price, a place to get it, or both. Maps 1:1 onto a schema.org Offer, which is what Google reads to show a price. It models the ticket, not the ticketing: no capacity, no seats left, no per-ticket registration state.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "What this ticket is called (\"General admission\", \"Estudiantes\"). Worth writing when there is more than one offer, noise when there is only one.",
+          "type": "string",
+          "minLength": 1,
+          "examples": [
+            "General admission",
+            "Estudiantes"
+          ]
+        },
+        "price": {
+          "description": "Amount per attendee, in `currency`. 0 means free — and it is the ONLY way to say free: an absent offers list means the price is unknown. A number, never text: no currency symbol, no thousands separator, no range and no \"desde\", because the whole reason to publish a price as data is that someone can filter and compare on it. A price that cannot be written as one number is several offers.",
+          "type": "number",
+          "minimum": 0,
+          "examples": [
+            0,
+            45,
+            12.5
+          ]
+        },
+        "currency": {
+          "description": "ISO 4217 alpha-3 code, uppercase (EUR, USD, MXN). Required whenever `price` is above 0, and pointless at 0: free is free in every currency, and emitting one there is how Luma ends up publishing a currency for a meetup that costs nothing.",
+          "type": "string",
+          "pattern": "^[A-Z]{3}$",
+          "examples": [
+            "EUR",
+            "USD"
+          ]
+        },
+        "url": {
+          "description": "Where to buy the ticket or register for this particular offer. Distinct from the event's own url: that page describes the event, this one is where money or a seat changes hands. Omit it when registration happens on the event page itself.",
+          "type": "string",
+          "format": "uri",
+          "pattern": "^https?://",
+          "examples": [
+            "https://devfest-levante.example/2026/entradas"
+          ]
+        },
+        "availability": {
+          "description": "Whether this offer can still be taken. Absent never means available — a stale feed that keeps claiming in-stock is worse than one that says nothing. Only the two states an attendee can act on are modelled.",
+          "enum": [
+            "in-stock",
+            "sold-out"
+          ],
+          "examples": [
+            "in-stock",
+            "sold-out"
+          ]
+        },
+        "waitlistUrl": {
+          "description": "Where to join the queue for this offer once it is gone. It exists so \"gone, nothing to do\" and \"gone, but you can queue\" stop being the same document — the third thing an attendee can act on, and the reason it is a URL and not a third availability value: every consumer that already exists keeps reading sold-out, which is TRUE, instead of meeting an enum value it cannot interpret. Distinct from url, where the ticket is bought: nothing is bought in a queue.",
+          "type": "string",
+          "format": "uri",
+          "pattern": "^https?://",
+          "examples": [
+            "https://devfest-levante.example/2026/lista-espera"
+          ]
+        },
+        "opensAt": {
+          "description": "When this offer goes on sale. An INSTANT, with offset or Z — unlike the event's own dates, which are wall clock: a sale opening is a moment a button starts working, not an hour on a poster.",
+          "$ref": "#/$defs/instant",
+          "examples": [
+            "2026-05-01T10:00:00+02:00"
+          ]
+        },
+        "closesAt": {
+          "description": "When this offer stops being available. An INSTANT, with offset or Z, for the same reason as opensAt — and because \"23:59\" without an offset is the classic deadline bug.",
+          "$ref": "#/$defs/instant",
+          "examples": [
+            "2026-07-31T23:59:59+02:00"
+          ]
+        },
+        "translations": {
+          "description": "This offer's name in other languages. Local to the offer it belongs to — never a positional mirror of the offers list. Requires the document's textLanguage, like every other translations map.",
+          "$ref": "#/$defs/offerTranslations",
+          "examples": [
+            {
+              "en": {
+                "name": "Students"
+              }
+            }
+          ]
+        }
+      },
+      "anyOf": [
+        {
+          "description": "An offer must carry a price or a link — ideally both. One with neither says nothing that omitting the whole list does not already say, the same rule location follows with venue and onlineUrl.",
+          "required": [
+            "price"
+          ]
+        },
+        {
+          "required": [
+            "url"
+          ]
+        }
+      ],
+      "allOf": [
+        {
+          "description": "A waitlist for something you can still buy is not a waitlist: the queue only makes sense once the offer is gone. Availability may still be ABSENT — a publisher who knows there is a queue and does not track the ticket state should not be forced to assert sold-out to mention it. Only the incoherent combination is rejected, never the incomplete one.",
+          "if": {
+            "type": "object",
+            "required": [
+              "waitlistUrl"
+            ]
+          },
+          "then": {
+            "type": "object",
+            "properties": {
+              "availability": {
+                "not": {
+                  "const": "in-stock"
+                }
+              }
+            }
+          }
+        },
+        {
+          "description": "A non-zero amount without a currency is not a price: 45 is a different thing in EUR, USD and MXN, and a consumer that has to guess will guess its own.",
+          "if": {
+            "type": "object",
+            "required": [
+              "price"
+            ],
+            "properties": {
+              "price": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              }
+            }
+          },
+          "then": {
+            "type": "object",
+            "required": [
+              "currency"
+            ]
+          }
+        }
+      ]
+    },
+    "cfp": {
+      "description": "An open call for proposals. One per event: unlike organizers, no real producer publishes more than one — the CFP directories that exist (confs.tech, developers.events, Sessionize) all model exactly one link and one deadline. Deliberately small: it says where to submit and until when, not what a submission looks like.",
+      "type": "object",
+      "required": [
+        "url"
+      ],
+      "properties": {
+        "url": {
+          "description": "Where proposals are submitted — the form, or the page describing the call. Required: a CFP nobody can find is not a call, and this is the one piece of it that survives export to every format, inside the text.",
+          "type": "string",
+          "format": "uri",
+          "pattern": "^https?://",
+          "examples": [
+            "https://devfest-levante.example/2026/cfp"
+          ]
+        },
+        "opensAt": {
+          "description": "When the call starts accepting proposals. An INSTANT, with offset or Z. Absent means it is already open — a call that has not opened yet is announced, not published.",
+          "$ref": "#/$defs/instant",
+          "examples": [
+            "2026-05-01T00:00:00+02:00"
+          ]
+        },
+        "closesAt": {
+          "description": "Deadline for proposals. An INSTANT, with offset or Z, never a bare \"23:59\": which midnight it is is the whole question, and \"anywhere on Earth\" is a real answer (-12:00) that a wall-clock field could not express. Absent means unknown, not open forever — and it is what a consumer needs to answer \"which CFPs are open right now\".",
+          "$ref": "#/$defs/instant",
+          "examples": [
+            "2026-07-15T23:59:59+02:00",
+            "2026-07-15T23:59:59-12:00"
+          ]
+        },
+        "coversTravel": {
+          "description": "Whether the event covers a selected speaker's travel. Absent never means false. It is here and \"call for sponsors\" is not because this is what a speaker filters on before deciding whether they can afford to submit.",
+          "type": "boolean",
+          "examples": [
+            true
+          ]
+        },
+        "coversAccommodation": {
+          "description": "Whether the event covers a selected speaker's accommodation. Same rule as coversTravel: absent means unknown.",
+          "type": "boolean",
+          "examples": [
+            true
+          ]
+        }
+      }
+    },
+    "source": {
+      "type": "object",
+      "anyOf": [
+        {
+          "description": "Provenance has to point somewhere: a name a person can read, a URL a machine can follow, ideally both. Either alone is enough, and demanding the name would be worse than accepting the URL — an importer of an `.ics` always knows the address it fetched and often has no publisher name to read (iCalendar's X-WR-CALNAME is optional), so the requirement would be met by inventing one. A fabricated origin is worse than an origin given only as a link. Same rule as offers with price and url, and location with venue and onlineUrl.",
+          "required": [
+            "name"
+          ]
+        },
+        {
+          "required": [
+            "url"
+          ]
+        }
+      ],
+      "properties": {
+        "name": {
+          "description": "Name of the origin (e.g. \"Rust Madrid\", \"Meetup\"), as a person would read it. Write it whenever the origin has a name of its own: a consumer showing where the data came from can derive a label from `url` (its host), but a derived label is a guess.",
+          "type": "string",
+          "minLength": 1,
+          "examples": [
+            "Rust Madrid",
+            "Meetup"
+          ]
+        },
+        "url": {
+          "description": "Link to the original record, so the data can be verified and corrected upstream.",
+          "type": "string",
+          "format": "uri",
+          "pattern": "^https?://",
+          "examples": [
+            "https://calendar.example/ics/rust-madrid"
+          ]
+        },
+        "license": {
+          "description": "License under which the ORIGIN publishes the data. Constrains what may be republished: declaring a license does not grant rights the origin never gave.",
+          "$ref": "#/$defs/license",
+          "examples": [
+            "CC-BY-4.0"
+          ]
+        },
+        "retrievedAt": {
+          "description": "When the data was fetched.",
+          "$ref": "#/$defs/instant",
+          "examples": [
+            "2026-06-01T05:00:00Z"
+          ]
+        }
+      }
+    }
+  }
+}

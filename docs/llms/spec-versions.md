@@ -1,0 +1,16 @@
+# Especificación — OpenTechEvents (OTE Spec)
+
+> ✅ **La especificación vigente es [`v0.3/`](v0.3/)** — schemas ejecutables, prosa normativa y ejemplos validados en CI. La [`v0.1/`](v0.1/) y la [`v0.2/`](v0.2/) quedan congeladas. Qué cambió: [CHANGELOG](../CHANGELOG.md).
+>
+> ⚠️ **Los documentos de esta carpeta (`data-model.md`, `feed.md`, `examples/`) son el boceto ANTERIOR**, generado por IA para abrir el debate. Se conservan por su valor histórico y por las ideas que aún no han entrado en la spec (speakers, promotion, governance…). **No son normativos y no deben implementarse.**
+
+> ⚠️ **Borrador inicial generado por IA, sin revisión humana todavía.**
+> Este contenido es un **boceto propuesto** cuyo único objetivo es **ilustrar la idea** y servir de punto de partida para la discusión. No es una especificación acordada ni estable: nombres, campos y decisiones cambiarán tras la revisión de la comunidad.
+
+Nombre y versión provisionales. El diseño parte de la investigación en [../research/](../research/), en especial de [../research/findings/analysis.md](../research/findings/analysis.md) y [../research/findings/standards.md](../research/findings/standards.md).
+
+## Contenido
+
+- [data-model.md](data-model.md) — modelo de datos propuesto: entidad núcleo, módulos opcionales y mapeo a estándares existentes.
+- [feed.md](feed.md) — formato de **feed** (colección de eventos suscribible), filtrado y mapeo a RSS / JSON Feed / iCal.
+- [examples/](examples/) — ejemplos JSON ilustrativos (datos semi-inventados): evento mínimo, sesión de un meetup, conferencia con CFP y un feed.

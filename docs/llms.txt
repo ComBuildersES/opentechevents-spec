@@ -1,0 +1,66 @@
+# OpenTechEvents (OTE Spec)
+
+> An open specification to describe, publish and share tech community events — meetups,
+> conferences, workshops, online or in person — in one format that directories, calendars and
+> tools can read automatically. It is compatible with iCalendar, RSS and schema.org/Event.
+
+The spec is a draft (0.x): fields can still change. Current version: v0.3.
+
+Everything below in a single file: https://opentechevents.org/llms-full.txt (large — fetch it only if you can hold it,
+otherwise fetch the pieces you need from the list).
+
+## Start here
+
+- [overview.md](https://opentechevents.org/llms/overview.md): What OTE is, who it is for, and how a community adopts it.
+- [spec-v0.3.md](https://opentechevents.org/llms/spec-v0.3.md): The specification itself for v0.3: every field, and the rules a validator cannot check — why an id must never change, why a cancelled event stays published.
+- [reference-v0.3.md](https://opentechevents.org/llms/reference-v0.3.md): Field reference table generated from the schemas: type, required or recommended, allowed values, examples.
+
+## Data model
+
+- [data-model.md](https://opentechevents.org/llms/data-model.md): Why the fields are the fields: what each one models and what it deliberately does not.
+- [feed.md](https://opentechevents.org/llms/feed.md): How a feed collects events, how it is discovered from a site, and how it is kept fresh.
+- [spec-versions.md](https://opentechevents.org/llms/spec-versions.md): Which spec versions exist and what stability each one carries.
+
+## Schemas
+
+- [event.schema.json](https://opentechevents.org/llms/event.schema.json): JSON Schema for a single event — the normative source for validity.
+- [feed.schema.json](https://opentechevents.org/llms/feed.schema.json): JSON Schema for a feed of events.
+- [event.recommended.schema.json](https://opentechevents.org/llms/event.recommended.schema.json): Profile: what makes an event findable and filterable. Failing it is a warning, never an error.
+- [feed.recommended.schema.json](https://opentechevents.org/llms/feed.recommended.schema.json): Profile: what makes a feed subscribable.
+
+## Examples
+
+- [event-all-day.json](https://opentechevents.org/llms/event-all-day.json): Validated documents, one per real case. These pass `npm run validate`.
+- [event-co-organized.json](https://opentechevents.org/llms/event-co-organized.json): Validated documents, one per real case. These pass `npm run validate`.
+- [event-conference-cfp.json](https://opentechevents.org/llms/event-conference-cfp.json): Validated documents, one per real case. These pass `npm run validate`.
+- [event-from-ics.json](https://opentechevents.org/llms/event-from-ics.json): Validated documents, one per real case. These pass `npm run validate`.
+- [event-hackathon.json](https://opentechevents.org/llms/event-hackathon.json): Validated documents, one per real case. These pass `npm run validate`.
+- [event-meetup.json](https://opentechevents.org/llms/event-meetup.json): Validated documents, one per real case. These pass `npm run validate`.
+- [event-minimal.json](https://opentechevents.org/llms/event-minimal.json): Validated documents, one per real case. These pass `npm run validate`.
+- [event-online.json](https://opentechevents.org/llms/event-online.json): Validated documents, one per real case. These pass `npm run validate`.
+- [event-recurring.json](https://opentechevents.org/llms/event-recurring.json): Validated documents, one per real case. These pass `npm run validate`.
+- [feed-community.json](https://opentechevents.org/llms/feed-community.json): Validated documents, one per real case. These pass `npm run validate`.
+- [feed-multipart.json](https://opentechevents.org/llms/feed-multipart.json): Validated documents, one per real case. These pass `npm run validate`.
+- [feed.json](https://opentechevents.org/llms/feed.json): Validated documents, one per real case. These pass `npm run validate`.
+
+## Tools and ecosystem
+
+- [tools.json](https://opentechevents.org/llms/tools.json): The tools listed on the site: validators, generators, importers, and what each one does.
+- [adopters.json](https://opentechevents.org/llms/adopters.json): Communities publishing an OTE feed today.
+- [consumers.json](https://opentechevents.org/llms/consumers.json): Directories and calendars consuming OTE feeds today.
+- [contributing.md](https://opentechevents.org/llms/contributing.md): How to propose a change to the spec, and what gets rejected.
+- [changelog.md](https://opentechevents.org/llms/changelog.md): What changed between versions, and why.
+
+## Research
+
+- [research.md](https://opentechevents.org/llms/research.md): How the research was done and what it was looking for.
+- [research-analysis.md](https://opentechevents.org/llms/research-analysis.md): What the survey concluded and which gaps OTE exists to close.
+- [research-standards.md](https://opentechevents.org/llms/research-standards.md): iCalendar, RSS and schema.org/Event: what each covers and where each stops.
+- [research-platforms.md](https://opentechevents.org/llms/research-platforms.md): What Meetup, Luma, Eventbrite and friends expose, and how exportable it is.
+- [research-json-ld.md](https://opentechevents.org/llms/research-json-ld.md): Which platforms already emit JSON-LD events, and how usable it is in practice.
+- [research-directories.md](https://opentechevents.org/llms/research-directories.md): Existing event directories and how they ingest data.
+
+## Optional
+
+- [Website](https://opentechevents.org/): the same material as pages, with the field reference rendered in English and Spanish.
+- [Repository](https://github.com/OpenTechEvents/opentechevents-spec): issues, discussion and the validator.

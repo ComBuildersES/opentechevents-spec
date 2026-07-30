@@ -50,6 +50,7 @@
     "validate": "node scripts/validate.mjs",
     "build-reference": "node scripts/build-reference.mjs",
     "build-examples": "node scripts/build-examples.mjs",
+    "build-llms": "node scripts/build-llms.mjs",
     "publish-schemas": "mkdir -p docs/schema/v0.1 docs/schema/v0.2 docs/schema/v0.3 && cp spec/v0.1/*.schema.json docs/schema/v0.1/ && cp spec/v0.2/*.schema.json docs/schema/v0.2/ && cp spec/v0.3/*.schema.json docs/schema/v0.3/",
     "prepublishOnly": "npm run validate"
   },

@@ -282,7 +282,7 @@ for (const version of VERSIONS) {
 
 // Chaining these in package.json would break `npm run validate -- my-feed.json`: npm appends the
 // arguments to the END of the script string, so they would land on the wrong command.
-const generated = ["scripts/build-reference.mjs", "scripts/build-examples.mjs"]
+const generated = ["scripts/build-reference.mjs", "scripts/build-examples.mjs", "scripts/build-llms.mjs"]
   .map((script) => spawnSync(process.execPath, [script, "--check"], { stdio: "inherit" }))
   .filter((run) => run.status).length;
 
