@@ -274,11 +274,19 @@
    * it is the same text the markdown reference prints, and a rule phrased twice is a rule that
    * ends up saying two different things. `note` is the schema author's reasoning, when there is
    * one — the part no generated sentence can replace.
+   *
+   * Collapsed by default: the rules are normative, but a reader scanning fields should not have
+   * to scroll past a paragraph of them on every card. The summary keeps the count, so what is
+   * hidden announces itself. A filter forces every block open, for the same reason the map's
+   * branches open: a search that hides its own matches would be useless.
    */
   function appendRules(parent, rules, t, title) {
     if (!rules.length) return;
-    var box = el("div", "field-rules");
-    box.appendChild(el("p", "field-rules-title", title));
+    var box = el("details", "field-rules");
+    if (state.query) box.open = true;
+    var summary = el("summary", "field-rules-title", title);
+    summary.appendChild(el("span", "field-rules-count", String(rules.length)));
+    box.appendChild(summary);
     box.appendChild(el("p", "field-rules-lead", t.rulesLead));
     var list = el("ul", "field-rules-list");
     rules.forEach(function (rule) {

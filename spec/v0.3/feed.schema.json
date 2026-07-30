@@ -88,7 +88,7 @@
       ]
     },
     "translations": {
-      "description": "This feed's own title and description in other languages. Its EVENTS are not translated here: each one carries its own translations, and unlike license or textLanguage this field is never inherited — a feed's title is not an event's name.",
+      "description": "This feed's own title and description in other languages. Its EVENTS are not translated here: each one carries its own translations, and unlike license or textLanguage this field is never inherited — a feed's title is not an event's name. Requires textLanguage, like an event's translations do — see the document's constraints.",
       "$ref": "https://opentechevents.org/schema/v0.3/event.schema.json#/$defs/feedTranslations",
       "examples": [
         {

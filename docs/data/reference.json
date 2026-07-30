@@ -414,8 +414,8 @@
             "2026-10-15"
           ],
           "description": {
-            "en": "Wall-clock start: a date (2026-10-15) for all-day events, or a local date-time (2026-10-15T09:00:00). Never carries a UTC offset — timezone does that.",
-            "es": "Inicio en hora de reloj de pared: una fecha (`2026-10-15`) para eventos de todo el día, o una fecha-hora local (`2026-10-15T09:00:00`). Nunca lleva offset UTC: eso lo aporta `timezone`."
+            "en": "Wall-clock start: a date (2026-10-15) for all-day events, or a local date-time (2026-10-15T09:00:00). Never carries a UTC offset — timezone does that. Which of the two forms you pick is not this field's decision alone: it has to match endDate's — see the document's constraints.",
+            "es": "Inicio en hora de reloj de pared: una fecha (`2026-10-15`) para eventos de todo el día, o una fecha-hora local (`2026-10-15T09:00:00`). Nunca lleva offset UTC: eso lo aporta `timezone`. Cuál de las dos formas usas no lo decide este campo solo: tiene que coincidir con la de `endDate` — ver las restricciones del documento."
           },
           "requiredIn": null
         },
@@ -429,8 +429,8 @@
             "2026-10-16"
           ],
           "description": {
-            "en": "Wall-clock end, in the SAME form as startDate (both dates, or both date-times). If absent, the event is assumed to end on the day it starts.",
-            "es": "Fin en hora de reloj de pared, en la MISMA forma que `startDate` (ambas fechas, o ambas fecha-hora). Si falta, se asume que el evento termina el día que empieza."
+            "en": "Wall-clock end, in the SAME form as startDate (both dates, or both date-times). If absent, the event is assumed to end on the day it starts. That pairing is a rule of the document, not of this field — see the document's constraints.",
+            "es": "Fin en hora de reloj de pared, en la MISMA forma que `startDate` (ambas fechas, o ambas fecha-hora). Si falta, se asume que el evento termina el día que empieza. Ese emparejamiento es una regla del documento, no de este campo — ver las restricciones del documento."
           },
           "requiredIn": null
         },
@@ -1307,8 +1307,8 @@
             }
           ],
           "description": {
-            "en": "The same event's free text in other languages, keyed by BCP 47 tag. The document keeps ONE primary text in its own fields — declared by textLanguage — and this carries the versions of it. Additive on purpose: name and description stay strings, so every existing consumer keeps working and a monolingual publisher writes nothing at all. Never a translation of the language the document is already in.",
-            "es": "El texto libre del mismo evento en otros idiomas, indexado por etiqueta BCP 47. El documento conserva UN texto principal en sus propios campos —el que declara `textLanguage`— y aquí van las versiones de ese texto. Aditivo a propósito: `name` y `description` siguen siendo cadenas, así que ningún consumidor existente se rompe y quien publica en un solo idioma no escribe nada. Nunca una traducción al idioma en que ya está el documento."
+            "en": "The same event's free text in other languages, keyed by BCP 47 tag. The document keeps ONE primary text in its own fields — declared by textLanguage — and this carries the versions of it. Additive on purpose: name and description stay strings, so every existing consumer keeps working and a monolingual publisher writes nothing at all. Never a translation of the language the document is already in. Requires textLanguage — and so does any other translations map in the document, at any depth; see the document's constraints.",
+            "es": "El texto libre del mismo evento en otros idiomas, indexado por etiqueta BCP 47. El documento conserva UN texto principal en sus propios campos —el que declara `textLanguage`— y aquí van las versiones de ese texto. Aditivo a propósito: `name` y `description` siguen siendo cadenas, así que ningún consumidor existente se rompe y quien publica en un solo idioma no escribe nada. Nunca una traducción al idioma en que ya está el documento. Exige `textLanguage` — y lo exige también cualquier otro mapa de traducciones del documento, a cualquier profundidad; ver las restricciones del documento."
           },
           "requiredIn": null
         }
@@ -1492,8 +1492,8 @@
             }
           ],
           "description": {
-            "en": "This feed's own title and description in other languages. Its EVENTS are not translated here: each one carries its own translations, and unlike license or textLanguage this field is never inherited — a feed's title is not an event's name.",
-            "es": "El `title` y la `description` DEL PROPIO FEED en otros idiomas. Sus eventos no se traducen aquí: cada uno lleva sus `translations`, y a diferencia de `license` o `textLanguage` este campo no se hereda nunca — el título de un feed no es el nombre de un evento."
+            "en": "This feed's own title and description in other languages. Its EVENTS are not translated here: each one carries its own translations, and unlike license or textLanguage this field is never inherited — a feed's title is not an event's name. Requires textLanguage, like an event's translations do — see the document's constraints.",
+            "es": "El `title` y la `description` DEL PROPIO FEED en otros idiomas. Sus eventos no se traducen aquí: cada uno lleva sus `translations`, y a diferencia de `license` o `textLanguage` este campo no se hereda nunca — el título de un feed no es el nombre de un evento. Exige `textLanguage`, igual que las `translations` de un evento — ver las restricciones del documento."
           },
           "requiredIn": null
         },

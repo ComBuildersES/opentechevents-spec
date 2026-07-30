@@ -203,7 +203,9 @@
 .field mark { background: #fdf0a8; color: inherit; border-radius: 3px; padding: 0 1px; }
 
 /* What the validator enforces about a whole object. Set apart from the description, because it
-   is not commentary: break one of these and the document is rejected. */
+   is not commentary: break one of these and the document is rejected. Collapsed by default —
+   the count in the summary is what keeps a closed block from hiding that it has anything to say.
+   Same +/– idiom as the FAQ on the home page. */
 .field-rules {
   margin-top: 14px; padding: 12px 14px;
   background: var(--accent-soft); border-radius: var(--radius);
@@ -211,6 +213,17 @@
 .field-rules-title {
   margin: 0; font: 600 .7rem/1 var(--sans); letter-spacing: .04em; text-transform: uppercase;
   color: var(--accent-ink);
+  display: flex; align-items: center; gap: 8px; cursor: pointer; list-style: none;
+}
+.field-rules-title::-webkit-details-marker { display: none; }
+.field-rules-title::after {
+  content: "+"; margin-left: auto; font-size: 1.15rem; line-height: 1; font-weight: 400;
+  color: var(--accent-ink);
+}
+.field-rules[open] > .field-rules-title::after { content: "–"; }
+.field-rules-count {
+  font-variant-numeric: tabular-nums; letter-spacing: 0;
+  background: #fff; color: var(--accent-ink); border-radius: 999px; padding: 2px 7px;
 }
 .field-rules-lead { margin: 6px 0 0; font-size: .8rem; color: var(--ink-soft); }
 .field-rules-list { margin: 8px 0 0; padding-left: 18px; font-size: .9rem; color: var(--ink-soft); }
