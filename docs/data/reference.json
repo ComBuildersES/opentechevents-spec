@@ -440,7 +440,7 @@
         },
         {
           "path": "eligibility.type",
-          "type": "enum: open | members-only | approval-required | invite-only | restricted",
+          "type": "enum: open | members-only | approval-required | restricted",
           "required": true,
           "recommended": false,
           "examples": [
@@ -449,8 +449,8 @@
             "approval-required"
           ],
           "description": {
-            "en": "The kind of door. open: anyone may attend. members-only: you have to belong to something first. approval-required: you sign up and the organiser decides. invite-only: not publicly joinable. restricted: there IS a condition and none of the other values names it — say which in `note`, which is why the schema demands it there. Five values, kept small on purpose: a consumer that has to handle twenty doors handles none.",
-            "es": "Qué clase de puerta. `open`: puede asistir cualquiera. `members-only`: hay que pertenecer a algo antes. `approval-required`: te apuntas y quien organiza decide. `invite-only`: no se puede entrar por cuenta propia. `restricted`: HAY una condición y ninguno de los otros valores la nombra — di cuál en `note`, que es por lo que el schema la exige ahí. Cinco valores, y cortos a propósito: un consumidor que tiene que tratar veinte puertas no trata ninguna."
+            "en": "The kind of door. open: anyone may attend — including an event that sells tickets or runs out of seats, because a price and a capacity are not conditions on WHO you are. members-only: you have to belong to something first. approval-required: you sign up and the organiser DECIDES — Luma's request-to-approve, a Meetup group with an admission question, a workshop that picks a cohort. It is about a judgement on the person, never about capacity: first-come-first-served with limited seats is open, and the seats running out is offers[].availability. restricted: there IS a condition and none of the other values names it — say which in `note`, which is why the schema demands it there. Four values, kept small on purpose: a consumer that has to handle twenty doors handles none. invite-only is deliberately NOT one of them, see the spec prose.",
+            "es": "Qué clase de puerta. `open`: puede asistir cualquiera — incluido un evento con entrada de pago o con las plazas agotadas, porque un precio y un aforo no son condiciones sobre QUIÉN eres. `members-only`: hay que pertenecer a algo antes. `approval-required`: te apuntas y quien organiza DECIDE — el «request to approve» de Luma, un grupo de Meetup con pregunta de admisión, un taller que selecciona a quien asiste. Va de un juicio sobre la persona, nunca de aforo: por orden de llegada con plazas limitadas es `open`, y que se agoten es `offers[].availability`. `restricted`: HAY una condición y ninguno de los otros valores la nombra — di cuál en `note`, que es por lo que el schema la exige ahí. Cuatro valores, y cortos a propósito: un consumidor que tiene que tratar veinte puertas no trata ninguna. `invite-only` NO es uno de ellos, a propósito: ver la prosa de la spec."
           }
         },
         {

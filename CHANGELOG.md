@@ -192,8 +192,7 @@ descubrir y seguir.
 
 - **`eligibility`** (`object`) en el **evento**: quién puede entrar, cuando la
   respuesta no es «cualquiera». `type` obligatorio (`open` \| `members-only` \|
-  `approval-required` \| `invite-only` \| `restricted`); `note` y `url`
-  opcionales.
+  `approval-required` \| `restricted`); `note` y `url` opcionales.
   - **Es la tercera parte de «¿puedo ir?»**, junto a `attendanceMode` y
     `location`: esos dos dicen si el evento **está a tu alcance**, este si **te
     dejan entrar**. Se contradicen sin problema — una sesión online, gratis y
@@ -206,6 +205,20 @@ descubrir y seguir.
     dice explícitamente que es **de qué va** el evento, no quién puede entrar.
     El otro eje que también se cuela ahí —**público y nivel**— sigue sin
     resolver: es pregunta abierta, no este campo.
+  - **`approval-required` es un juicio sobre la persona, no aforo.** Alguien mira
+    tu solicitud y decide (el «request to approve» de Luma, un grupo de Meetup con
+    pregunta de admisión). Un evento al que se entra **por orden de llegada** hasta
+    que se acaban las plazas **no tiene puerta**: es `open`, y que se agoten es
+    `offers[].availability: "sold-out"` (o `capacity`, que sigue siendo extensión).
+    Regla que sostiene el campo: si la respuesta a «¿puedo ir?» cambia sola con el
+    tiempo, **no es `eligibility`** — es taquilla.
+  - **Sin `invite-only`**, y se cae **por alcance, no por forma**: esta spec existe
+    para encontrar eventos y comunidades **en los que se puede participar**, y un
+    evento al que solo se entra por invitación es un club privado. Los casos que
+    rozan el límite —una cena de speakers y patrocinadores, un encuentro de un
+    programa de embajadores— siguen siendo publicables con `restricted`, y con
+    **más** información: su `note` obligatoria dice **quién** puede entrar, donde
+    `invite-only` solo decía «tú no».
   - **`restricted` exige `note`**, con un `if`/`then` como el de `currency`: es
     el escape que mantiene el enum pequeño («solo alumnado de la UAL») sin que
     nadie tenga que meter a martillazos su condición en `members-only`. Y
