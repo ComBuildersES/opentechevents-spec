@@ -75,37 +75,23 @@
       fab: "Ask an AI",
       fabAria: "Ask an AI about the OTE spec",
       title: "Ask an AI about OTE",
-      lead: "Pick an assistant and we open a new conversation in it with the message below already written. It then reads the spec, the schemas, the examples and the research from this site before answering.",
-      what: "What happens when you pick one",
-      bullets: [
-        "The conversation runs in <strong>your own account</strong> with that assistant. We use no API key and pay for nothing, so there is nothing to abuse.",
-        "Nothing is sent from this page and nothing is logged here. The message travels in the link.",
-        "The assistant needs to be able to browse the web. The message asks it to say which source it managed to read before answering — if it does not say, it did not read it, and you should not trust the answer.",
-      ],
+      lead: "No time to read it all and you would rather ask an LLM? (it can still get things wrong). With the prompt below it will try to read the specification, the schemas, the examples and the research on this site before answering.",
       promptLabel: "The message it will start with",
       copy: "Copy message",
       copied: "Copied",
       choose: "Open it in",
       close: "Close",
-      hint: "It reads <a href=\"/llms.txt\">/llms.txt</a> and <a href=\"/llms-full.txt\">/llms-full.txt</a> — the whole repo, generated from the source. Paste the message anywhere else if you prefer another assistant.",
     },
     es: {
       fab: "Pregunta a una IA",
       fabAria: "Pregunta a una IA sobre la especificación OTE",
       title: "Pregunta a una IA sobre OTE",
-      lead: "Elige un asistente y abrimos en él una conversación nueva con el mensaje de abajo ya escrito. A partir de ahí leerá la especificación, los esquemas, los ejemplos y la investigación de esta web antes de responder.",
-      what: "Qué pasa cuando eliges uno",
-      bullets: [
-        "La conversación ocurre en <strong>tu propia cuenta</strong> de ese asistente. Nosotros no usamos ninguna API key ni pagamos nada, así que no hay nada que se pueda abusar.",
-        "Desde esta página no se envía nada ni se registra nada. El mensaje viaja dentro del enlace.",
-        "El asistente necesita poder navegar por la web. El mensaje le pide que diga qué fuente ha conseguido leer antes de responder: si no lo dice, no la ha leído y no te fíes de la respuesta.",
-      ],
+      lead: "¿No tienes tiempo y prefieres preguntarle a un LLM? (aunque pueda cometer errores). Con el siguiente prompt intentará leer la especificación, los esquemas, los ejemplos y la investigación de esta web antes de responder.",
       promptLabel: "El mensaje con el que empieza",
       copy: "Copiar mensaje",
       copied: "Copiado",
       choose: "Ábrelo en",
       close: "Cerrar",
-      hint: "Lee <a href=\"/llms.txt\">/llms.txt</a> y <a href=\"/llms-full.txt\">/llms-full.txt</a> — todo el repositorio, generado desde el código fuente. Si prefieres otro asistente, copia el mensaje y pégalo donde quieras.",
     },
   };
 
@@ -147,19 +133,16 @@
   var dialog = el("dialog", "ask-ai-dialog");
   var heading = el("h2", "ask-ai-title");
   var lead = el("p", "ask-ai-lead");
-  var whatTitle = el("h3", "ask-ai-sub");
-  var bullets = el("ul", "ask-ai-list");
   var promptLabel = el("h3", "ask-ai-sub");
   var promptBox = el("pre", "ask-ai-prompt");
   var copyBtn = el("button", "btn btn-ghost ask-ai-copy");
   copyBtn.type = "button";
   var chooseTitle = el("h3", "ask-ai-sub");
   var agentRow = el("div", "ask-ai-agents");
-  var hint = el("p", "ask-ai-hint");
   var closeBtn = el("button", "ask-ai-close");
   closeBtn.type = "button";
 
-  dialog.append(closeBtn, heading, lead, whatTitle, bullets, promptLabel, promptBox, copyBtn, chooseTitle, agentRow, hint);
+  dialog.append(closeBtn, heading, lead, promptLabel, promptBox, copyBtn, chooseTitle, agentRow);
 
   function render() {
     var s = t();
@@ -169,7 +152,6 @@
     fab.setAttribute("aria-label", s.fabAria);
     heading.textContent = s.title;
     lead.textContent = s.lead;
-    whatTitle.textContent = s.what;
     promptLabel.textContent = s.promptLabel;
     promptBox.textContent = PROMPT[lang];
     copyBtn.textContent = s.copy;
@@ -177,15 +159,6 @@
     closeBtn.textContent = "✕";
     closeBtn.setAttribute("aria-label", s.close);
     dialog.setAttribute("aria-label", s.title);
-
-    bullets.replaceChildren();
-    s.bullets.forEach(function (line) {
-      var li = document.createElement("li");
-      li.innerHTML = line; // our own strings, with inline <strong> only
-      bullets.appendChild(li);
-    });
-
-    hint.innerHTML = s.hint;
 
     agentRow.replaceChildren();
     AGENTS.forEach(function (agent) {

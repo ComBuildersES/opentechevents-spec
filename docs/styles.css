@@ -435,8 +435,6 @@ p > code, li > code {
 .ask-ai-title { font-size: 1.5rem; margin: 0 0 .4em; padding-right: 32px; }
 .ask-ai-lead { font-size: .96rem; color: var(--ink-soft); }
 .ask-ai-sub { font-size: .78rem; text-transform: uppercase; letter-spacing: .07em; color: var(--ink-faint); margin: 22px 0 .6em; }
-.ask-ai-list { margin: 0; padding-left: 20px; font-size: .92rem; color: var(--ink-soft); }
-.ask-ai-list li { margin-bottom: .5em; }
 .ask-ai-prompt {
   max-height: 168px; overflow: auto; margin: 0 0 12px;
   padding: 14px; border: 1px solid var(--line); border-radius: var(--radius);
@@ -445,7 +443,6 @@ p > code, li > code {
 .ask-ai-copy { padding: 8px 14px; font-size: .85rem; }
 .ask-ai-agents { display: flex; flex-wrap: wrap; gap: 10px; }
 .ask-ai-agent { padding: 11px 20px; font-size: .92rem; }
-.ask-ai-hint { margin: 18px 0 0; font-size: .82rem; color: var(--ink-faint); }
 .ask-ai-close {
   position: absolute; top: 14px; right: 14px;
   width: 32px; height: 32px; border-radius: 8px; border: 1px solid transparent;
