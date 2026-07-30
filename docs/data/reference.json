@@ -501,11 +501,12 @@
           "required": false,
           "recommended": false,
           "examples": [
-            "El Cable, Almería"
+            "El Cable, Almería",
+            "Campus Madrid, Calle de Moreno Nieto 2, Madrid"
           ],
           "description": {
-            "en": "Human-readable physical location. Its presence means the event has a physical venue. It is the string every destination can print as-is — iCal LOCATION, the text of an RSS item, schema.org Place.name.",
-            "es": "Lugar físico, legible por personas. Su presencia significa que el evento tiene sede física. Es la cadena que cualquier destino puede imprimir tal cual: `LOCATION` de iCal, el texto de un ítem RSS, `Place.name` de schema.org."
+            "en": "Human-readable physical location, in one line of free text: the name of the place plus as much address as it takes to get there — how much is your call. Its presence means the event has a physical venue. It is not made redundant by address, because joining address's parts back up never gives you the name: a PostalAddress has no field for \"El Cable\" or \"Campus Madrid\", and the name is what people navigate by. In schema.org it is Place.name, a sibling of Place.address.",
+            "es": "Lugar físico legible por personas, en una línea de texto libre: el nombre del sitio más la dirección que haga falta para llegar —cuánta, lo decides tú—. Su presencia significa que el evento tiene sede física. `address` no lo hace redundante, porque juntar sus partes nunca devuelve el nombre: un `PostalAddress` no tiene campo donde quepa «El Cable» ni «Campus Madrid», y el nombre es por lo que la gente se orienta. En schema.org es `Place.name`, hermano de `Place.address`."
           },
           "requiredIn": null
         },

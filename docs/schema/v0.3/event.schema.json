@@ -778,11 +778,12 @@
       "type": "object",
       "properties": {
         "venue": {
-          "description": "Human-readable physical location. Its presence means the event has a physical venue. It is the string every destination can print as-is — iCal LOCATION, the text of an RSS item, schema.org Place.name.",
+          "description": "Human-readable physical location, in one line of free text: the name of the place plus as much address as it takes to get there — how much is your call. Its presence means the event has a physical venue. It is not made redundant by address, because joining address's parts back up never gives you the name: a PostalAddress has no field for \"El Cable\" or \"Campus Madrid\", and the name is what people navigate by. In schema.org it is Place.name, a sibling of Place.address.",
           "type": "string",
           "minLength": 1,
           "examples": [
-            "El Cable, Almería"
+            "El Cable, Almería",
+            "Campus Madrid, Calle de Moreno Nieto 2, Madrid"
           ]
         },
         "address": {
