@@ -1248,7 +1248,7 @@
           "`combuilders:communityId` no es un campo de OTE. OTE se compromete a no acuñar jamás un nombre de campo con dos puntos, así que un campo con prefijo no puede colisionar con el núcleo — hoy ni en la 1.0."
         ]
       },
-      "source": "{\n  \"specVersion\": \"0.3.0\",\n  \"id\": \"https://gdgmadrid.example/eventos/2026-09-devfest-warmup\",\n  \"url\": \"https://gdgmadrid.example/eventos/2026-09-devfest-warmup\",\n  \"name\": \"DevFest Warm-up — GDG Madrid × Python Madrid\",\n  \"description\": \"Sesión conjunta de calentamiento para el DevFest, con charla invitada.\",\n  \"image\": [\n    \"https://gdgmadrid.example/img/2026-09-devfest-warmup.png\"\n  ],\n  \"organizers\": [\n    {\n      \"name\": \"GDG Madrid\",\n      \"url\": \"https://gdgmadrid.example\",\n      \"combuilders:communityId\": \"gdg-madrid\"\n    },\n    {\n      \"name\": \"Python Madrid\",\n      \"url\": \"https://www.meetup.com/python-madrid/\"\n    },\n    {\n      \"type\": \"person\",\n      \"name\": \"Ada Lovelace\",\n      \"url\": \"https://ada.example\"\n    }\n  ],\n  \"startDate\": \"2026-09-24T19:00:00\",\n  \"endDate\": \"2026-09-24T21:00:00\",\n  \"timezone\": \"Europe/Madrid\",\n  \"attendanceMode\": \"in-person\",\n  \"location\": {\n    \"venue\": \"Campus Madrid, Calle de Moreno Nieto 2, Madrid\",\n    \"address\": {\n      \"street\": \"Calle de Moreno Nieto 2\",\n      \"locality\": \"Madrid\",\n      \"postalCode\": \"28005\",\n      \"country\": \"ES\"\n    }\n  },\n  \"tags\": [\n    \"python\",\n    \"cloud\"\n  ],\n  \"languages\": [\n    \"es\"\n  ],\n  \"license\": \"CC-BY-4.0\",\n  \"updatedAt\": \"2026-09-02T17:20:00Z\"\n}",
+      "source": "{\n  \"specVersion\": \"0.3.0\",\n  \"id\": \"https://gdgmadrid.example/eventos/2026-09-devfest-warmup\",\n  \"url\": \"https://gdgmadrid.example/eventos/2026-09-devfest-warmup\",\n  \"name\": \"DevFest Warm-up — GDG Madrid × Python Madrid\",\n  \"description\": \"Sesión conjunta de calentamiento para el DevFest, con charla invitada.\",\n  \"image\": [\n    \"https://gdgmadrid.example/img/2026-09-devfest-warmup.png\"\n  ],\n  \"organizers\": [\n    {\n      \"name\": \"GDG Madrid\",\n      \"url\": \"https://gdgmadrid.example\",\n      \"email\": \"hola@gdgmadrid.example\",\n      \"combuilders:communityId\": \"gdg-madrid\"\n    },\n    {\n      \"name\": \"Python Madrid\",\n      \"url\": \"https://www.meetup.com/python-madrid/\"\n    },\n    {\n      \"type\": \"person\",\n      \"name\": \"Ada Lovelace\",\n      \"url\": \"https://ada.example\"\n    }\n  ],\n  \"startDate\": \"2026-09-24T19:00:00\",\n  \"endDate\": \"2026-09-24T21:00:00\",\n  \"timezone\": \"Europe/Madrid\",\n  \"attendanceMode\": \"in-person\",\n  \"location\": {\n    \"venue\": \"Campus Madrid, Calle de Moreno Nieto 2, Madrid\",\n    \"address\": {\n      \"street\": \"Calle de Moreno Nieto 2\",\n      \"locality\": \"Madrid\",\n      \"postalCode\": \"28005\",\n      \"country\": \"ES\"\n    }\n  },\n  \"tags\": [\n    \"python\",\n    \"cloud\"\n  ],\n  \"languages\": [\n    \"es\"\n  ],\n  \"license\": \"CC-BY-4.0\",\n  \"updatedAt\": \"2026-09-02T17:20:00Z\"\n}",
       "lines": {
         "event.specVersion": [
           2
@@ -1270,67 +1270,70 @@
         ],
         "event.organizers[].name": [
           12,
-          17,
-          22
-        ],
-        "event.organizers[].url": [
-          13,
           18,
           23
         ],
-        "event.organizers[].combuilders:communityId": [
+        "event.organizers[].url": [
+          13,
+          19,
+          24
+        ],
+        "event.organizers[].email": [
           14
         ],
+        "event.organizers[].combuilders:communityId": [
+          15
+        ],
         "event.organizers[].type": [
-          21
+          22
         ],
         "event.organizers": [
           10
         ],
         "event.startDate": [
-          26
-        ],
-        "event.endDate": [
           27
         ],
-        "event.timezone": [
+        "event.endDate": [
           28
         ],
-        "event.attendanceMode": [
+        "event.timezone": [
           29
         ],
-        "event.location.venue": [
-          31
-        ],
-        "event.location.address.street": [
-          33
-        ],
-        "event.location.address.locality": [
-          34
-        ],
-        "event.location.address.postalCode": [
-          35
-        ],
-        "event.location.address.country": [
-          36
-        ],
-        "event.location.address": [
-          32
-        ],
-        "event.location": [
+        "event.attendanceMode": [
           30
         ],
+        "event.location.venue": [
+          32
+        ],
+        "event.location.address.street": [
+          34
+        ],
+        "event.location.address.locality": [
+          35
+        ],
+        "event.location.address.postalCode": [
+          36
+        ],
+        "event.location.address.country": [
+          37
+        ],
+        "event.location.address": [
+          33
+        ],
+        "event.location": [
+          31
+        ],
         "event.tags": [
-          39
+          40
         ],
         "event.languages": [
-          43
+          44
         ],
         "event.license": [
-          46
+          47
         ],
         "event.updatedAt": [
-          47
+          48
         ]
       }
     },
@@ -1370,7 +1373,7 @@
           "`source.license` (lo que permite la fuente) y `license` (lo que permite este documento) son campos distintos. Declarar una licencia no concede derechos que la fuente nunca dio."
         ]
       },
-      "source": "{\n  \"specVersion\": \"0.3.0\",\n  \"id\": \"https://calendar.example/ics/rust-madrid#a1b2c3d4-uid-from-the-ics\",\n  \"name\": \"Rust Madrid — June meetup\",\n  \"description\": \"Talks on WASM and Rust tooling.\",\n  \"organizers\": [\n    {\n      \"name\": \"Rust Madrid\"\n    }\n  ],\n  \"startDate\": \"2026-06-26T19:00:00\",\n  \"endDate\": \"2026-06-26T21:00:00\",\n  \"timezone\": \"Europe/Madrid\",\n  \"location\": {\n    \"venue\": \"Campus Madrid, Calle de Moreno Nieto 2, Madrid\",\n    \"geo\": {\n      \"lat\": 40.4081,\n      \"lon\": -3.7188\n    }\n  },\n  \"tags\": [\n    \"rust\",\n    \"wasm\"\n  ],\n  \"languages\": [\n    \"es\"\n  ],\n  \"license\": \"CC-BY-4.0\",\n  \"source\": {\n    \"name\": \"Rust Madrid\",\n    \"url\": \"https://calendar.example/ics/rust-madrid\",\n    \"license\": \"CC-BY-4.0\",\n    \"retrievedAt\": \"2026-06-01T05:00:00Z\"\n  },\n  \"updatedAt\": \"2026-06-10T18:00:00Z\"\n}",
+      "source": "{\n  \"specVersion\": \"0.3.0\",\n  \"id\": \"https://calendar.example/ics/rust-madrid#a1b2c3d4-uid-from-the-ics\",\n  \"name\": \"Rust Madrid — June meetup\",\n  \"description\": \"Talks on WASM and Rust tooling.\",\n  \"organizers\": [\n    {\n      \"name\": \"Rust Madrid\",\n      \"email\": \"hola@rustmadrid.example\"\n    }\n  ],\n  \"startDate\": \"2026-06-26T19:00:00\",\n  \"endDate\": \"2026-06-26T21:00:00\",\n  \"timezone\": \"Europe/Madrid\",\n  \"location\": {\n    \"venue\": \"Campus Madrid, Calle de Moreno Nieto 2, Madrid\",\n    \"geo\": {\n      \"lat\": 40.4081,\n      \"lon\": -3.7188\n    }\n  },\n  \"tags\": [\n    \"rust\",\n    \"wasm\"\n  ],\n  \"languages\": [\n    \"es\"\n  ],\n  \"license\": \"CC-BY-4.0\",\n  \"source\": {\n    \"name\": \"Rust Madrid\",\n    \"url\": \"https://calendar.example/ics/rust-madrid\",\n    \"license\": \"CC-BY-4.0\",\n    \"retrievedAt\": \"2026-06-01T05:00:00Z\"\n  },\n  \"updatedAt\": \"2026-06-10T18:00:00Z\"\n}",
       "lines": {
         "event.specVersion": [
           2
@@ -1387,59 +1390,62 @@
         "event.organizers[].name": [
           8
         ],
+        "event.organizers[].email": [
+          9
+        ],
         "event.organizers": [
           6
         ],
         "event.startDate": [
-          11
-        ],
-        "event.endDate": [
           12
         ],
-        "event.timezone": [
+        "event.endDate": [
           13
         ],
-        "event.location.venue": [
-          15
-        ],
-        "event.location.geo.lat": [
-          17
-        ],
-        "event.location.geo.lon": [
-          18
-        ],
-        "event.location.geo": [
-          16
-        ],
-        "event.location": [
+        "event.timezone": [
           14
         ],
+        "event.location.venue": [
+          16
+        ],
+        "event.location.geo.lat": [
+          18
+        ],
+        "event.location.geo.lon": [
+          19
+        ],
+        "event.location.geo": [
+          17
+        ],
+        "event.location": [
+          15
+        ],
         "event.tags": [
-          21
+          22
         ],
         "event.languages": [
-          25
+          26
         ],
         "event.license": [
-          28
-        ],
-        "event.source.name": [
-          30
-        ],
-        "event.source.url": [
-          31
-        ],
-        "event.source.license": [
-          32
-        ],
-        "event.source.retrievedAt": [
-          33
-        ],
-        "event.source": [
           29
         ],
+        "event.source.name": [
+          31
+        ],
+        "event.source.url": [
+          32
+        ],
+        "event.source.license": [
+          33
+        ],
+        "event.source.retrievedAt": [
+          34
+        ],
+        "event.source": [
+          30
+        ],
         "event.updatedAt": [
-          35
+          36
         ]
       }
     },
@@ -1479,7 +1485,7 @@
           "`textLanguage` se hereda igual: declarado una vez en el feed, ningún evento lo repite. Es lo que hace que el campo cueste una línea a quien publica en un solo idioma. `translations` no se hereda nunca — traduce el título DEL FEED, no el nombre de sus eventos."
         ]
       },
-      "source": "{\n  \"specVersion\": \"0.3.0\",\n  \"title\": \"Eventos de PyAlmería\",\n  \"description\": \"Meetups mensuales de Python en Almería.\",\n  \"url\": \"https://pyalmeria.example\",\n  \"textLanguage\": \"es\",\n  \"organizers\": [\n    {\n      \"name\": \"PyAlmería\",\n      \"url\": \"https://pyalmeria.example\"\n    }\n  ],\n  \"license\": \"CC-BY-4.0\",\n  \"licenseUrl\": \"https://creativecommons.org/licenses/by/4.0/\",\n  \"updatedAt\": \"2026-07-06T10:00:00Z\",\n  \"events\": [\n    {\n      \"id\": \"https://pyalmeria.example/eventos/2026-06-async\",\n      \"url\": \"https://pyalmeria.example/eventos/2026-06-async\",\n      \"name\": \"PyAlmería — Introducción a async/await\",\n      \"description\": \"Charla introductoria a la programación asíncrona en Python, con ejemplos en vivo.\",\n      \"image\": [\n        \"https://pyalmeria.example/img/2026-06-async.png\"\n      ],\n      \"startDate\": \"2026-06-11T18:30:00\",\n      \"endDate\": \"2026-06-11T20:30:00\",\n      \"timezone\": \"Europe/Madrid\",\n      \"attendanceMode\": \"in-person\",\n      \"location\": {\n        \"venue\": \"El Cable, Almería\",\n        \"address\": {\n          \"street\": \"Calle Poeta Villaespesa 1\",\n          \"locality\": \"Almería\",\n          \"postalCode\": \"04001\",\n          \"country\": \"ES\"\n        }\n      },\n      \"tags\": [\n        \"python\",\n        \"async\"\n      ],\n      \"languages\": [\n        \"es\"\n      ],\n      \"updatedAt\": \"2026-05-28T11:00:00Z\"\n    },\n    {\n      \"id\": \"https://pyalmeria.example/eventos/2026-07-datos\",\n      \"url\": \"https://pyalmeria.example/eventos/2026-07-datos\",\n      \"name\": \"Noche de datos — PyAlmería × PyData Almería\",\n      \"description\": \"Sesión conjunta con PyData Almería.\",\n      \"image\": [\n        \"https://pyalmeria.example/img/2026-07-datos.png\"\n      ],\n      \"organizers\": [\n        {\n          \"name\": \"PyAlmería\",\n          \"url\": \"https://pyalmeria.example\"\n        },\n        {\n          \"name\": \"PyData Almería\",\n          \"url\": \"https://pydata-almeria.example\"\n        }\n      ],\n      \"startDate\": \"2026-07-09T18:30:00\",\n      \"endDate\": \"2026-07-09T21:00:00\",\n      \"timezone\": \"Europe/Madrid\",\n      \"attendanceMode\": \"hybrid\",\n      \"location\": {\n        \"venue\": \"El Cable, Almería\",\n        \"address\": {\n          \"street\": \"Calle Poeta Villaespesa 1\",\n          \"locality\": \"Almería\",\n          \"postalCode\": \"04001\",\n          \"country\": \"ES\"\n        },\n        \"onlineUrl\": \"https://meet.example/pyalmeria\"\n      },\n      \"tags\": [\n        \"python\",\n        \"data\"\n      ],\n      \"languages\": [\n        \"es\"\n      ],\n      \"updatedAt\": \"2026-06-30T16:45:00Z\"\n    }\n  ]\n}",
+      "source": "{\n  \"specVersion\": \"0.3.0\",\n  \"title\": \"Eventos de PyAlmería\",\n  \"description\": \"Meetups mensuales de Python en Almería.\",\n  \"url\": \"https://pyalmeria.example\",\n  \"textLanguage\": \"es\",\n  \"organizers\": [\n    {\n      \"name\": \"PyAlmería\",\n      \"url\": \"https://pyalmeria.example\",\n      \"email\": \"hola@pyalmeria.example\"\n    }\n  ],\n  \"license\": \"CC-BY-4.0\",\n  \"licenseUrl\": \"https://creativecommons.org/licenses/by/4.0/\",\n  \"updatedAt\": \"2026-07-06T10:00:00Z\",\n  \"events\": [\n    {\n      \"id\": \"https://pyalmeria.example/eventos/2026-06-async\",\n      \"url\": \"https://pyalmeria.example/eventos/2026-06-async\",\n      \"name\": \"PyAlmería — Introducción a async/await\",\n      \"description\": \"Charla introductoria a la programación asíncrona en Python, con ejemplos en vivo.\",\n      \"image\": [\n        \"https://pyalmeria.example/img/2026-06-async.png\"\n      ],\n      \"startDate\": \"2026-06-11T18:30:00\",\n      \"endDate\": \"2026-06-11T20:30:00\",\n      \"timezone\": \"Europe/Madrid\",\n      \"attendanceMode\": \"in-person\",\n      \"location\": {\n        \"venue\": \"El Cable, Almería\",\n        \"address\": {\n          \"street\": \"Calle Poeta Villaespesa 1\",\n          \"locality\": \"Almería\",\n          \"postalCode\": \"04001\",\n          \"country\": \"ES\"\n        }\n      },\n      \"tags\": [\n        \"python\",\n        \"async\"\n      ],\n      \"languages\": [\n        \"es\"\n      ],\n      \"updatedAt\": \"2026-05-28T11:00:00Z\"\n    },\n    {\n      \"id\": \"https://pyalmeria.example/eventos/2026-07-datos\",\n      \"url\": \"https://pyalmeria.example/eventos/2026-07-datos\",\n      \"name\": \"Noche de datos — PyAlmería × PyData Almería\",\n      \"description\": \"Sesión conjunta con PyData Almería.\",\n      \"image\": [\n        \"https://pyalmeria.example/img/2026-07-datos.png\"\n      ],\n      \"organizers\": [\n        {\n          \"name\": \"PyAlmería\",\n          \"url\": \"https://pyalmeria.example\",\n          \"email\": \"hola@pyalmeria.example\"\n        },\n        {\n          \"name\": \"PyData Almería\",\n          \"url\": \"https://pydata-almeria.example\"\n        }\n      ],\n      \"startDate\": \"2026-07-09T18:30:00\",\n      \"endDate\": \"2026-07-09T21:00:00\",\n      \"timezone\": \"Europe/Madrid\",\n      \"attendanceMode\": \"hybrid\",\n      \"location\": {\n        \"venue\": \"El Cable, Almería\",\n        \"address\": {\n          \"street\": \"Calle Poeta Villaespesa 1\",\n          \"locality\": \"Almería\",\n          \"postalCode\": \"04001\",\n          \"country\": \"ES\"\n        },\n        \"onlineUrl\": \"https://meet.example/pyalmeria\"\n      },\n      \"tags\": [\n        \"python\",\n        \"data\"\n      ],\n      \"languages\": [\n        \"es\"\n      ],\n      \"updatedAt\": \"2026-06-30T16:45:00Z\"\n    }\n  ]\n}",
       "lines": {
         "feed.specVersion": [
           2
@@ -1498,110 +1504,114 @@
         ],
         "event.organizers[].name": [
           9,
-          57,
-          61
+          58,
+          63
         ],
         "event.organizers[].url": [
           10,
-          58,
-          62
+          59,
+          64
+        ],
+        "event.organizers[].email": [
+          11,
+          60
         ],
         "feed.organizers": [
           7
         ],
         "feed.license": [
-          13
-        ],
-        "feed.licenseUrl": [
           14
         ],
-        "feed.updatedAt": [
+        "feed.licenseUrl": [
           15
         ],
-        "event.id": [
-          18,
-          48
+        "feed.updatedAt": [
+          16
         ],
-        "event.url": [
+        "event.id": [
           19,
           49
         ],
-        "event.name": [
+        "event.url": [
           20,
           50
         ],
-        "event.description": [
+        "event.name": [
           21,
           51
         ],
-        "event.image": [
+        "event.description": [
           22,
           52
         ],
+        "event.image": [
+          23,
+          53
+        ],
         "event.startDate": [
-          25,
-          65
-        ],
-        "event.endDate": [
           26,
-          66
-        ],
-        "event.timezone": [
-          27,
           67
         ],
-        "event.attendanceMode": [
-          28,
+        "event.endDate": [
+          27,
           68
         ],
-        "event.location.venue": [
-          30,
-          70
-        ],
-        "event.location.address.street": [
-          32,
-          72
-        ],
-        "event.location.address.locality": [
-          33,
-          73
-        ],
-        "event.location.address.postalCode": [
-          34,
-          74
-        ],
-        "event.location.address.country": [
-          35,
-          75
-        ],
-        "event.location.address": [
-          31,
-          71
-        ],
-        "event.location": [
-          29,
+        "event.timezone": [
+          28,
           69
         ],
-        "event.tags": [
-          38,
-          79
+        "event.attendanceMode": [
+          29,
+          70
         ],
-        "event.languages": [
-          42,
-          83
+        "event.location.venue": [
+          31,
+          72
         ],
-        "event.updatedAt": [
-          45,
-          86
+        "event.location.address.street": [
+          33,
+          74
         ],
-        "event.organizers": [
-          55
+        "event.location.address.locality": [
+          34,
+          75
         ],
-        "event.location.onlineUrl": [
+        "event.location.address.postalCode": [
+          35,
+          76
+        ],
+        "event.location.address.country": [
+          36,
           77
         ],
+        "event.location.address": [
+          32,
+          73
+        ],
+        "event.location": [
+          30,
+          71
+        ],
+        "event.tags": [
+          39,
+          81
+        ],
+        "event.languages": [
+          43,
+          85
+        ],
+        "event.updatedAt": [
+          46,
+          88
+        ],
+        "event.organizers": [
+          56
+        ],
+        "event.location.onlineUrl": [
+          79
+        ],
         "feed.events": [
-          16
+          17
         ]
       }
     },
@@ -1885,8 +1895,8 @@
       {
         "file": "feed-community.json",
         "lines": [
-          18,
-          48
+          19,
+          49
         ]
       },
       {
@@ -1963,8 +1973,8 @@
       {
         "file": "feed-community.json",
         "lines": [
-          20,
-          50
+          21,
+          51
         ]
       },
       {
@@ -2029,20 +2039,20 @@
       {
         "file": "event-co-organized.json",
         "lines": [
-          26
+          27
         ]
       },
       {
         "file": "event-from-ics.json",
         "lines": [
-          11
+          12
         ]
       },
       {
         "file": "feed-community.json",
         "lines": [
-          25,
-          65
+          26,
+          67
         ]
       },
       {
@@ -2107,20 +2117,20 @@
       {
         "file": "event-co-organized.json",
         "lines": [
-          28
+          29
         ]
       },
       {
         "file": "event-from-ics.json",
         "lines": [
-          13
+          14
         ]
       },
       {
         "file": "feed-community.json",
         "lines": [
-          27,
-          67
+          28,
+          69
         ]
       },
       {
@@ -2177,13 +2187,13 @@
       {
         "file": "event-co-organized.json",
         "lines": [
-          46
+          47
         ]
       },
       {
         "file": "event-from-ics.json",
         "lines": [
-          28
+          29
         ]
       },
       {
@@ -2247,8 +2257,8 @@
       {
         "file": "feed-community.json",
         "lines": [
-          19,
-          49
+          20,
+          50
         ]
       },
       {
@@ -2319,8 +2329,8 @@
       {
         "file": "feed-community.json",
         "lines": [
-          21,
-          51
+          22,
+          52
         ]
       },
       {
@@ -2413,8 +2423,8 @@
       {
         "file": "feed-community.json",
         "lines": [
-          22,
-          52
+          23,
+          53
         ]
       },
       {
@@ -2474,8 +2484,8 @@
         "file": "event-co-organized.json",
         "lines": [
           12,
-          17,
-          22
+          18,
+          23
         ]
       },
       {
@@ -2488,8 +2498,8 @@
         "file": "feed-community.json",
         "lines": [
           9,
-          57,
-          61
+          58,
+          63
         ]
       },
       {
@@ -2549,16 +2559,16 @@
         "file": "event-co-organized.json",
         "lines": [
           13,
-          18,
-          23
+          19,
+          24
         ]
       },
       {
         "file": "feed-community.json",
         "lines": [
           10,
-          58,
-          62
+          59,
+          64
         ]
       },
       {
@@ -2621,7 +2631,7 @@
       {
         "file": "feed-community.json",
         "lines": [
-          55
+          56
         ]
       },
       {
@@ -2680,20 +2690,20 @@
       {
         "file": "event-co-organized.json",
         "lines": [
-          27
+          28
         ]
       },
       {
         "file": "event-from-ics.json",
         "lines": [
-          12
+          13
         ]
       },
       {
         "file": "feed-community.json",
         "lines": [
-          26,
-          66
+          27,
+          68
         ]
       },
       {
@@ -2752,14 +2762,14 @@
       {
         "file": "event-co-organized.json",
         "lines": [
-          29
+          30
         ]
       },
       {
         "file": "feed-community.json",
         "lines": [
-          28,
-          68
+          29,
+          70
         ]
       },
       {
@@ -2812,20 +2822,20 @@
       {
         "file": "event-co-organized.json",
         "lines": [
-          31
+          32
         ]
       },
       {
         "file": "event-from-ics.json",
         "lines": [
-          15
+          16
         ]
       },
       {
         "file": "feed-community.json",
         "lines": [
-          30,
-          70
+          31,
+          72
         ]
       },
       {
@@ -2878,14 +2888,14 @@
       {
         "file": "event-co-organized.json",
         "lines": [
-          33
+          34
         ]
       },
       {
         "file": "feed-community.json",
         "lines": [
-          32,
-          72
+          33,
+          74
         ]
       },
       {
@@ -2937,14 +2947,14 @@
       {
         "file": "event-co-organized.json",
         "lines": [
-          34
+          35
         ]
       },
       {
         "file": "feed-community.json",
         "lines": [
-          33,
-          73
+          34,
+          75
         ]
       },
       {
@@ -3017,14 +3027,14 @@
       {
         "file": "event-co-organized.json",
         "lines": [
-          35
+          36
         ]
       },
       {
         "file": "feed-community.json",
         "lines": [
-          34,
-          74
+          35,
+          76
         ]
       },
       {
@@ -3076,14 +3086,14 @@
       {
         "file": "event-co-organized.json",
         "lines": [
-          36
+          37
         ]
       },
       {
         "file": "feed-community.json",
         "lines": [
-          35,
-          75
+          36,
+          77
         ]
       },
       {
@@ -3136,14 +3146,14 @@
       {
         "file": "event-co-organized.json",
         "lines": [
-          32
+          33
         ]
       },
       {
         "file": "feed-community.json",
         "lines": [
-          31,
-          71
+          32,
+          73
         ]
       },
       {
@@ -3170,7 +3180,7 @@
       {
         "file": "feed-community.json",
         "lines": [
-          77
+          79
         ]
       },
       {
@@ -3196,7 +3206,7 @@
       {
         "file": "event-from-ics.json",
         "lines": [
-          17
+          18
         ]
       }
     ],
@@ -3216,7 +3226,7 @@
       {
         "file": "event-from-ics.json",
         "lines": [
-          18
+          19
         ]
       }
     ],
@@ -3236,7 +3246,7 @@
       {
         "file": "event-from-ics.json",
         "lines": [
-          16
+          17
         ]
       }
     ],
@@ -3288,20 +3298,20 @@
       {
         "file": "event-co-organized.json",
         "lines": [
-          30
+          31
         ]
       },
       {
         "file": "event-from-ics.json",
         "lines": [
-          14
+          15
         ]
       },
       {
         "file": "feed-community.json",
         "lines": [
-          29,
-          69
+          30,
+          71
         ]
       },
       {
@@ -3360,20 +3370,20 @@
       {
         "file": "event-co-organized.json",
         "lines": [
-          39
+          40
         ]
       },
       {
         "file": "event-from-ics.json",
         "lines": [
-          21
+          22
         ]
       },
       {
         "file": "feed-community.json",
         "lines": [
-          38,
-          79
+          39,
+          81
         ]
       },
       {
@@ -3432,20 +3442,20 @@
       {
         "file": "event-co-organized.json",
         "lines": [
-          43
+          44
         ]
       },
       {
         "file": "event-from-ics.json",
         "lines": [
-          25
+          26
         ]
       },
       {
         "file": "feed-community.json",
         "lines": [
-          42,
-          83
+          43,
+          85
         ]
       },
       {
@@ -3594,20 +3604,20 @@
       {
         "file": "event-co-organized.json",
         "lines": [
-          47
+          48
         ]
       },
       {
         "file": "event-from-ics.json",
         "lines": [
-          35
+          36
         ]
       },
       {
         "file": "feed-community.json",
         "lines": [
-          45,
-          86
+          46,
+          88
         ]
       },
       {
@@ -3756,7 +3766,7 @@
       {
         "file": "event-co-organized.json",
         "lines": [
-          21
+          22
         ]
       }
     ],
@@ -3990,7 +4000,7 @@
       {
         "file": "feed-community.json",
         "lines": [
-          13
+          14
         ]
       },
       {
@@ -4010,7 +4020,7 @@
       {
         "file": "feed-community.json",
         "lines": [
-          15
+          16
         ]
       },
       {
@@ -4040,7 +4050,7 @@
       {
         "file": "feed-community.json",
         "lines": [
-          16
+          17
         ]
       },
       {
@@ -4175,11 +4185,32 @@
         ]
       }
     ],
-    "event.organizers[].combuilders:communityId": [
+    "event.organizers[].email": [
       {
         "file": "event-co-organized.json",
         "lines": [
           14
+        ]
+      },
+      {
+        "file": "event-from-ics.json",
+        "lines": [
+          9
+        ]
+      },
+      {
+        "file": "feed-community.json",
+        "lines": [
+          11,
+          60
+        ]
+      }
+    ],
+    "event.organizers[].combuilders:communityId": [
+      {
+        "file": "event-co-organized.json",
+        "lines": [
+          15
         ]
       }
     ],
@@ -4187,7 +4218,7 @@
       {
         "file": "event-from-ics.json",
         "lines": [
-          30
+          31
         ]
       }
     ],
@@ -4195,7 +4226,7 @@
       {
         "file": "event-from-ics.json",
         "lines": [
-          31
+          32
         ]
       }
     ],
@@ -4203,7 +4234,7 @@
       {
         "file": "event-from-ics.json",
         "lines": [
-          32
+          33
         ]
       }
     ],
@@ -4211,7 +4242,7 @@
       {
         "file": "event-from-ics.json",
         "lines": [
-          33
+          34
         ]
       }
     ],
@@ -4219,7 +4250,7 @@
       {
         "file": "event-from-ics.json",
         "lines": [
-          29
+          30
         ]
       }
     ],
@@ -4235,7 +4266,7 @@
       {
         "file": "feed-community.json",
         "lines": [
-          14
+          15
         ]
       },
       {

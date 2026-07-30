@@ -207,6 +207,20 @@
           }
         },
         {
+          "path": "organizers[].email",
+          "type": "string (email)",
+          "required": false,
+          "recommended": false,
+          "examples": [
+            "hola@pyalmeria.example",
+            "info@gdgmadrid.example"
+          ],
+          "description": {
+            "en": "Address for enquiries about the event. A ROLE address (info@, hola@) rather than someone's personal mailbox: a feed is open and crawlable, and what goes in it cannot be unpublished. Optional and deliberately NOT recommended. It exists because without it there is no valid iCal ORGANIZER to emit (a CAL-ADDRESS is in practice a mailto:) and no RSS 2.0 <author>, which requires an email. Written bare, without the mailto: prefix — the exporter adds it. Never populate it from a source that is not itself publicly published.",
+            "es": "Dirección de contacto para preguntas sobre el evento. Una dirección DE ROL (`info@`, `hola@`), no el buzón personal de nadie: un feed es abierto y rastreable, y lo que entra en él ya no se puede despublicar. Opcional y deliberadamente NO recomendado. Existe porque sin él no hay `ORGANIZER` de iCal válido que emitir (un `CAL-ADDRESS` es en la práctica un `mailto:`) ni `<author>` de RSS 2.0, que exige email. Se escribe pelado, sin el prefijo `mailto:` — lo añade quien exporta. Nunca se rellena a partir de una fuente que no esté publicada públicamente."
+          }
+        },
+        {
           "path": "organizers[].type",
           "type": "enum: organization | person",
           "required": false,

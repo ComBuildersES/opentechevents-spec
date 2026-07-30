@@ -669,6 +669,7 @@
       "required": [
         "name"
       ],
+      "$comment": "email is deliberately NOT in the recommended profile: an .ics importer does not always have it, and warning about a missing address would push someone into publishing contact data they chose not to publish.",
       "properties": {
         "name": {
           "description": "Display name of the organiser.",
@@ -687,6 +688,15 @@
           "examples": [
             "https://pyalmeria.example",
             "https://www.meetup.com/pyalmeria/"
+          ]
+        },
+        "email": {
+          "description": "Address for enquiries about the event. A ROLE address (info@, hola@) rather than someone's personal mailbox: a feed is open and crawlable, and what goes in it cannot be unpublished. Optional and deliberately NOT recommended. It exists because without it there is no valid iCal ORGANIZER to emit (a CAL-ADDRESS is in practice a mailto:) and no RSS 2.0 <author>, which requires an email. Written bare, without the mailto: prefix — the exporter adds it. Never populate it from a source that is not itself publicly published.",
+          "type": "string",
+          "format": "email",
+          "examples": [
+            "hola@pyalmeria.example",
+            "info@gdgmadrid.example"
           ]
         },
         "type": {

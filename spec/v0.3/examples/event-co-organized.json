@@ -8,7 +8,7 @@
     "https://gdgmadrid.example/img/2026-09-devfest-warmup.png"
   ],
 
-  "_comment_organizers": "Tres organizadores: dos comunidades y una persona. El primero es el principal — el orden es significativo, porque iCal solo puede expresar UNO (y ni eso: sin email no hay ORGANIZER válido, así que se degrada a X-OTE-ORGANIZER). schema.org y Atom sí aceptan la lista entera.",
+  "_comment_organizers": "Tres organizadores: dos comunidades y una persona. El primero es el principal, y el orden es significativo porque iCal solo puede expresar UNO: aquí ese primero lleva `email`, así que sí se emite un ORGANIZER válido (`ORGANIZER;CN=\"GDG Madrid\":mailto:hola@gdgmadrid.example`) y los otros dos se degradan a X-OTE-ORGANIZER. El email es de ROL, no de nadie: fíjate en que la persona de la lista no lleva. schema.org y Atom aceptan la lista entera.",
 
   "_comment_extensions": "`combuilders:communityId` NO es un campo de OTE: es vocabulario de otro proyecto (un directorio de comunidades), y por eso lleva prefijo. OTE se compromete a no acuñar nunca nombres de campo con `:`, así que no puede colisionar con un campo del núcleo. Un consumidor de OTE lo ignora; el directorio lo lee. Ver la sección «Extensiones» del README.",
 
@@ -16,6 +16,7 @@
     {
       "name": "GDG Madrid",
       "url": "https://gdgmadrid.example",
+      "email": "hola@gdgmadrid.example",
       "combuilders:communityId": "gdg-madrid"
     },
     { "name": "Python Madrid", "url": "https://www.meetup.com/python-madrid/" },

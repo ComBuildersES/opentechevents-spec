@@ -375,13 +375,13 @@ Nuevo en la v0.3. Opcional, y **una lista**, no un objeto:
 
 ```json
 "organizers": [
-  { "name": "GDG Madrid", "url": "https://gdgmadrid.example" },
+  { "name": "GDG Madrid", "url": "https://gdgmadrid.example", "email": "hola@gdgmadrid.example" },
   { "name": "Python Madrid", "url": "https://www.meetup.com/python-madrid/" },
   { "type": "person", "name": "Ada Lovelace", "url": "https://ada.example" }
 ]
 ```
 
-Solo `name` es obligatorio. `url` y `type` (`organization` por defecto, o `person`) son opcionales. **Y nada más**: ni logo, ni email, ni identificadores. El campo describe *quién*, no *cómo contactarle*.
+Solo `name` es obligatorio. `url`, `email` y `type` (`organization` por defecto, o `person`) son opcionales. **Y nada más**: ni logo, ni identificadores. El campo describe **quién organiza y dónde escribirle**, no su ficha completa.
 
 **Es una lista porque la co-organización es lo normal**, no la excepción: dos comunidades que juntan meetup, una comunidad y su anfitrión. Luma ya emite `organizer` como array (organización + persona) y schema.org lo acepta. Ensanchar un objeto a lista más tarde habría sido un cambio que rompe; nace lista. **El orden es significativo**: el primero es el principal, y es el único que sobrevive a iCal.
 
@@ -393,16 +393,51 @@ Tres confusiones que conviene desactivar antes de que ocurran:
 
 **Herencia: reemplazo, no fusión.** Igual que `license`, `feed.organizers` es el valor por defecto de todo evento que no declare el suyo. Un evento que **sí** lo declara **sustituye la lista entera**; no se suma a la heredada. Con fusión no habría forma de *quitar* un organizador heredado, y un evento invitado dentro del feed de una comunidad acabaría atribuido a quien no lo organiza. La consecuencia práctica: en el evento co-organizado de un feed comunitario hay que **repetir** la comunidad del feed junto a la invitada — ver [`examples/feed-community.json`](examples/feed-community.json).
 
+#### `email`: la dirección que hace válido el `ORGANIZER` de iCal
+
+Opcional, **una sola dirección**, y sin el prefijo `mailto:` — lo añade quien exporta:
+
+```json
+"organizers": [
+  { "name": "GDG Madrid", "url": "https://gdgmadrid.example", "email": "hola@gdgmadrid.example" }
+]
+```
+
+**Entra porque hay productor real, y es el de siempre: `.ics`.** Un `VEVENT` publicado trae `ORGANIZER;CN="Rust Madrid":mailto:hola@rustmadrid.example` con muchísima frecuencia, y hasta ahora el importador **tenía el dato delante y no había dónde ponerlo** — el mismo motivo exacto por el que `tags`, `location.geo` y `updatedAt` entraron en la v0.2. La consecuencia era que `.ics` → OTE → `.ics` **perdía el `ORGANIZER`**, la única pérdida que esta página califica de **grave**. Un formato que no puede dar la vuelta a la fuente más publicada del mundo tiene un agujero, no una decisión.
+
+**Y arregla un segundo destino de rebote**: `<author>` de RSS 2.0 **exige un email**, así que sin él la única salida era `dc:creator`. Con `email` se puede emitir el elemento nativo.
+
+**Hay que decir en voz alta lo que este campo no tiene**: ninguna de las cinco plataformas estudiadas ([`research/findings/json-ld-event-platforms.md`](../../research/findings/json-ld-event-platforms.md)) emite email en su JSON-LD. Lo esconden detrás de un formulario, **y hacen bien**. El productor de este campo es iCalendar, no la web de eventos, y por eso el campo llega con más reglas que cualquier otro de la spec.
+
+**El precio es el spam, y es real.** Publicar una dirección en un fichero JSON abierto y rastreable es regalarla a los recolectores, y **lo publicado no se despublica**: sigue en las cachés de quien lo leyó. De ahí las reglas:
+
+1. **Una dirección de rol, no el buzón de nadie.** `info@`, `hola@`, `eventos@`. Con `type: "person"` piénsalo dos veces: la dirección de una persona en un feed rastreable es un problema que sufre ella, no el proyecto.
+2. **Un importador MUST NOT rellenar `email` desde una fuente que no esté publicada públicamente.** Un `.ics` compartido por enlace, un calendario de empresa o una exportación privada **no son publicación**: copiar de ahí a un feed abierto no es traducir un dato, es **cambiarle el nivel de exposición**. Lo que `source.license` ya dice sobre republicación aquí se dice aparte, porque el dato es personal.
+3. **Un consumidor MUST NOT usar `email` para nada que no sea escribir sobre el evento.** Ni listas de correo, ni directorios de contactos, ni bases de datos comerciales. Es una regla que ningún schema puede comprobar, como la de [actualizar `status`](#status-un-evento-cancelado-sigue-publicado), y se cumple igual.
+4. **Quien exporta a JSON-LD lo piensa dos veces.** `Organization.email` existe, y emitirlo mete la dirección en una página pública. Es legítimo —es la web de quien organiza—, pero **Google no lo usa** para el rich result de `Event`: el email entra en esta spec por iCal, no por SEO.
+
+**No es [recomendado](#válido-no-es-lo-mismo-que-útil-los-campos-recomendados)**, y por dos motivos que se suman. Uno, el de siempre: quien importa un `.ics` sin `ORGANIZER` no puede atender el aviso. Y dos, uno nuevo que solo aparece aquí: **un aviso por un email ausente es presionar a alguien para que publique una dirección que decidió no publicar**. El perfil de calidad existe para señalar lo que le falta al evento, no para empujar a nadie a exponer datos de contacto. Es el único campo de la spec que se queda fuera del perfil por una razón que no es técnica.
+
+**Y no añade ninguna regla de herencia.** Es la pregunta que este campo provoca sola —«¿se hereda del feed?»— y la respuesta ya estaba escrita: `email` vive **dentro** de `organizers[]`, y `organizers` se hereda **por reemplazo, no por fusión**. Las consecuencias, que son exactamente las que se quieren:
+
+| Caso | Qué pasa con el email |
+| --- | --- |
+| Feed comunitario, evento sin `organizers` | Hereda la lista entera del feed, email incluido. **Correcto**: es la misma comunidad, y el email *es* el mismo. Una línea en el feed, cero repetición. |
+| Feed comunitario, evento **con** `organizers` | **No hereda nada.** La lista declarada sustituye la entera, así que un evento co-organizado nunca acaba con el email de quien no lo organiza. |
+| Feed de **agregador** | La spec ya obliga a **omitir** `feed.organizers`. Sin lista no hay email que heredar. |
+
+El riesgo que se teme —heredar un email ajeno— **solo existiría si el email se heredara por su cuenta**, con un `feed.organizerEmail` suelto o con fusión campo a campo. Ninguna de las dos cosas se hace, y la [tabla de herencia](#el-feed) sigue teniendo las mismas cuatro filas que antes.
+
 **Traducción a los tres formatos de destino, incluida la pérdida:**
 
 | Destino | Mapeo | Pérdida |
 | --- | --- | --- |
-| **schema.org** | `organizer` (array), `@type` `Organization`/`Person` según `type`, `name`, `url` | Ninguna. Es el destino que mejor encaja junto a Atom. |
-| **Atom** | `<author><name>…</name><uri>…</uri></author>`, repetible | Ninguna. |
-| **RSS 2.0** | `<dc:creator>` | `<author>` de RSS 2.0 **exige un email**, que OTE no modela; por eso `dc:creator`. |
-| **iCal** | `ORGANIZER;CN="…"` | **Grave, y asumida.** `ORGANIZER` es un `CAL-ADDRESS`: en la práctica un `mailto:`. Sin email **no hay `ORGANIZER` válido** que emitir → degrádalo a `X-OTE-ORGANIZER` o a la `DESCRIPTION`. Y `ORGANIZER` es **único**: del segundo en adelante no hay dónde ponerlos. |
+| **schema.org** | `organizer` (array), `@type` `Organization`/`Person` según `type`, `name`, `url`, `email` | Ninguna en el modelo. Emitir `email` es **opcional para quien exporta** (ver la regla 4): Google no lo lee para el `Event`. |
+| **Atom** | `<author><name>…</name><uri>…</uri><email>…</email></author>`, repetible | Ninguna. Es el único destino que recibe los tres campos, y repetido. |
+| **RSS 2.0** | `<author>` si hay `email`; `<dc:creator>` si no | El `<author>` de RSS 2.0 **exige email**: sin él sigue haciendo falta `dc:creator`, que no lleva dirección. |
+| **iCal** | `ORGANIZER;CN="…":mailto:…` si hay `email` | **Sin `email` la pérdida sigue siendo grave**: `ORGANIZER` es un `CAL-ADDRESS`, en la práctica un `mailto:`, así que no hay nada válido que emitir → degrádalo a `X-OTE-ORGANIZER` o a la `DESCRIPTION`. Y `ORGANIZER` es **único** aunque haya email: del segundo organizador en adelante no hay dónde ponerlos. |
 
-Que el email arreglaría iCal es cierto, y aun así se queda fuera de la v0.3: publicar la dirección de quien organiza en un feed abierto y rastreable es regalarla a los recolectores de spam. La pérdida en iCal es el precio, y es un precio deliberado. Si alguien lo necesita de verdad, entra por la vía de siempre —una extensión, en producción— y se gradúa si sobrevive.
+**Un exportador no se inventa la dirección.** Sin `email` no hay `ORGANIZER`, y punto: deducir un `mailto:` del dominio de `url` (`hola@` + el dominio, o el `webmaster@` de siempre) es fabricar un dato de contacto que nadie ha publicado, y encima obligar a quien lo reciba a escribir a una dirección que puede no existir. Es la misma regla que rige toda la spec: **callarse y adivinar son afirmaciones distintas, y solo una es honesta.**
 
 **Por qué no hay `id` ni `communityId`.** Se valoró un identificador que enlazase al organizador con un directorio de comunidades, del estilo `combuilders:mi-comunidad`. Se descarta en la v0.3 por tres razones: exige una **gobernanza de prefijos** (quién asigna `combuilders`, quién resuelve colisiones) que este proyecto no tiene y que acoplaría OTE a otro; contradice la regla de `id` de la propia spec (*una URI bajo un dominio que controlas*, que no necesita registro central porque el DNS ya garantiza la unicidad); y sobre todo **no hay todavía un consumidor real** — el directorio no existe como especificación. Meterlo ahora sería exactamente el diseño especulativo que la sección de Extensiones prohíbe.
 
@@ -467,7 +502,7 @@ La excepción conocida es quien importa un `.ics`: **iCalendar casi nunca trae i
 | **RSS 2.0** | `<enclosure url type length>` con la primera, o `<media:content>` + `<media:description>` para el `alt` | `<enclosure>` **exige `type` y `length`**, que OTE no modela: quien exporte tiene que inferir el MIME por la extensión y hacer un `HEAD` para el tamaño, o usar `media:content`, que no exige ninguno de los dos **y además es el único de los dos que sabe llevar el `alt`**. |
 | **Atom** | `<link rel="enclosure" href="…" type="…">`, repetible; el `alt` va en el `alt=` del `<img>` dentro del `<content type="html">` | Ninguna en el número de imágenes; el `type` tiene el mismo problema que en RSS. |
 
-Que el MIME no esté es la misma clase de decisión que el email de `organizers`: se puede derivar razonablemente en el exportador, y exigirlo en el schema obligaría a quien importa a inventárselo.
+Que el MIME no esté es la decisión **contraria** a la de [`organizers[].email`](#email-la-dirección-que-hace-válido-el-organizer-de-ical), y por el mismo criterio: un tipo MIME se **deriva** sin inventar nada —la extensión del fichero, o un `HEAD`—, así que el exportador lo resuelve solo y el schema no tiene que pedirlo. Un email no se deriva de ninguna parte, y por eso sí está.
 
 ### `textLanguage` y `translations`: en qué idioma está escrito esto
 

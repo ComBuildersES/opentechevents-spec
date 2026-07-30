@@ -38,9 +38,9 @@ descubrir y seguir.
 ### Added
 
 - **`organizers`** (`array`, mín. 1) en el **evento** y en el **feed**. Cada
-  entrada: `name` (obligatorio), `url` y `type` (`organization` por defecto, o
-  `person`) opcionales. **Nada más** — sin logo, email ni identificadores: el
-  campo describe *quién*, no *cómo contactarle*.
+  entrada: `name` (obligatorio), `url`, `email` y `type` (`organization` por
+  defecto, o `person`) opcionales. **Nada más** — sin logo ni identificadores: el
+  campo describe **quién organiza y dónde escribirle**, no su ficha completa.
   - **Es una lista, no un objeto.** La co-organización es lo normal (dos
     comunidades, o comunidad + anfitrión); Luma ya emite `organizer` como array.
     Ensanchar objeto → lista después habría roto. **El orden es significativo**:
@@ -56,6 +56,32 @@ descubrir y seguir.
     del feed.
   - **Un feed de agregador debe OMITIR `organizers`**: no organiza lo que
     publica.
+  - **`email`** (`format: email`, sin el prefijo `mailto:`) entra por el mismo
+    camino que `tags`, `location.geo` y `updatedAt` en la v0.2: **el importador de
+    `.ics` lo tenía delante y no había dónde ponerlo**. Un `VEVENT` publicado trae
+    `ORGANIZER;CN="…":mailto:…` con muchísima frecuencia, y sin este campo
+    `.ics` → OTE → `.ics` **perdía el `ORGANIZER`** — la única pérdida que la spec
+    califica de grave. Arregla además el `<author>` de RSS 2.0, que exige email.
+    Ninguna de las cinco plataformas estudiadas lo emite en su JSON-LD: **el
+    productor es iCalendar, no la web de eventos**, y por eso el campo llega con
+    reglas. Dirección **de rol** (`info@`, `hola@`), no el buzón de nadie; un
+    importador **MUST NOT** rellenarlo desde una fuente que no esté publicada
+    públicamente (copiar de un calendario privado a un feed abierto le cambia el
+    nivel de exposición a una dirección que nadie publicó); un consumidor **MUST
+    NOT** usarlo para nada que no sea escribir sobre el evento; y un exportador
+    **no se inventa** el `mailto:` a partir del dominio de `url` — sin `email` no
+    hay `ORGANIZER`, y punto.
+  - **`email` NO es un campo recomendado**, y es el único de la spec que se queda
+    fuera del perfil por una razón que no es técnica: avisar de un email ausente
+    es presionar a alguien para que publique una dirección que decidió no
+    publicar. (La razón técnica también aplica: quien importa un `.ics` sin
+    `ORGANIZER` no puede atender el aviso.)
+  - **`email` no añade ninguna regla de herencia.** Vive dentro de
+    `organizers[]`, así que hereda con la lista y **por reemplazo**: un evento que
+    declara `organizers` no hereda el email del feed, y un feed de agregador —que
+    debe omitir `organizers`— no tiene ninguno que propagar. El riesgo de heredar
+    un email ajeno solo existiría con un `feed.organizerEmail` suelto o con fusión
+    campo a campo, y no se hace ni lo uno ni lo otro.
 
 - **`partOf`** (`object`) en el **evento**. La serie o el evento multi-parte del
   que este documento es **una ocurrencia**. `id` obligatorio; `name`, `url` y
@@ -490,12 +516,19 @@ descubrir y seguir.
   round-trip sin pérdida la guarda como vocabulario externo con prefijo
   (`"ics:rrule": "FREQ=MONTHLY;BYDAY=2MO"`): informativa, y ningún consumidor de
   OTE está obligado a evaluarla.
-- **`organizers[].email`.** Arreglaría la traducción a iCal (`ORGANIZER` es un
-  `CAL-ADDRESS`, en la práctica un `mailto:`, así que **sin email no hay
-  `ORGANIZER` válido que emitir**). Se queda fuera igualmente: publicar la
-  dirección de quien organiza en un feed abierto y rastreable es regalarla a los
-  recolectores de spam. La pérdida en iCal es un precio deliberado; degrádalo a
-  `X-OTE-ORGANIZER` o a la `DESCRIPTION`.
+- **`organizers[].email` como campo recomendado.** El campo **sí entra** (ver
+  *Added*): sin él no hay `ORGANIZER` de iCal válido que emitir. Lo que se
+  descarta es **recomendarlo**. Publicar una dirección en un feed abierto y
+  rastreable es regalarla a los recolectores de spam, y lo publicado no se
+  despublica; un aviso por su ausencia sería el perfil de calidad empujando a
+  alguien a exponer datos de contacto. Sigue siendo opcional, y quien no lo ponga
+  degrada el `ORGANIZER` a `X-OTE-ORGANIZER` o a la `DESCRIPTION`.
+- **Un `email` heredable a nivel de feed** (`feed.organizerEmail`, o herencia
+  campo a campo dentro de `organizers`). Sería la forma de que un feed de
+  agregador acabara atribuyendo **su** dirección a eventos que no organiza, o de
+  que un evento invitado heredara la de la comunidad anfitriona. El reemplazo de
+  lista que `organizers` ya tiene resuelve el caso comunitario sin abrir ninguno
+  de los dos: el email viaja dentro de su objeto y nunca por su cuenta.
 - **`previousStartDate`** (schema.org), la fecha que tenía un evento
   `rescheduled` antes de moverse. Ninguna de las fuentes estudiadas la emite, y
   `updatedAt` ya dice que el dato cambió. Entra como candidata a núcleo (campo sin
@@ -558,7 +591,9 @@ descubrir y seguir.
   `https://opentechevents.org/schema/v0.3/{event,feed}.schema.json`. Las URLs de
   `v0.1` y `v0.2` siguen sirviéndose sin cambios.
 - **Exportadores a schema.org:** `organizers` → `organizer` (array), con `@type`
-  `Organization` o `Person` según `type`. `offers` → `offers` (array de `Offer`),
+  `Organization` o `Person` según `type`; `email` → `Organization.email`, y
+  emitirlo es **opcional** — mete la dirección en una página pública y Google no
+  lo lee para el rich result de `Event`. `offers` → `offers` (array de `Offer`),
   con `currency` → `priceCurrency` y `availability` → la URL
   `https://schema.org/InStock` o `SoldOut`. `cfp` no tiene destino: menciónalo en
   `description` si quieres que un humano lo vea.
@@ -566,12 +601,15 @@ descubrir y seguir.
   la v0.1): ya son normativos, y con otra forma. `offers` pasa a **lista**, sin
   `isFree` (usa `price: 0`) y sin `capacity` (extensión); `registrationUrl` se
   llama ahora `url`. `cfp` pierde su `timezone`: las fechas límite llevan offset.
-- **Exportadores a Atom / RSS:** Atom → un `<author>` por entrada, con `<name>` y
-  `<uri>`. RSS 2.0 → `<dc:creator>`, **no** `<author>`: el `<author>` de RSS 2.0
-  exige un email que OTE no modela. `textLanguage` → `<language>` del canal (RSS)
-  o `xml:lang` (Atom, que además lo admite por entrada).
-- **Exportadores a iCal:** solo `organizers[0]`, y solo si tienes un email por
-  otra vía; si no, `X-OTE-ORGANIZER`. Los demás no tienen dónde ir.
+- **Exportadores a Atom / RSS:** Atom → un `<author>` por entrada, con `<name>`,
+  `<uri>` y `<email>` si lo hay. RSS 2.0 → `<author>` **si** el organizador trae
+  `email` (el elemento lo exige), y `<dc:creator>` si no. `textLanguage` →
+  `<language>` del canal (RSS) o `xml:lang` (Atom, que además lo admite por
+  entrada).
+- **Exportadores a iCal:** solo `organizers[0]`, y solo si trae `email`:
+  `ORGANIZER;CN="…":mailto:…`. Sin `email`, `X-OTE-ORGANIZER` — **no** un
+  `mailto:` deducido del dominio de `url`. Los demás organizadores no tienen dónde
+  ir.
   `textLanguage` → el parámetro `LANGUAGE` de cada propiedad de texto
   (`SUMMARY;LANGUAGE=ca:…`); de `translations` solo sobrevive el texto principal,
   porque `SUMMARY` no se repite.

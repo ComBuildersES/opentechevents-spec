@@ -4,10 +4,10 @@
   "name": "Rust Madrid — June meetup",
   "description": "Talks on WASM and Rust tooling.",
 
-  "_comment_organizers": "El .ics traía ORGANIZER;CN=\"Rust Madrid\":mailto:hola@rustmadrid.example. De ahí solo sale el nombre: OTE no modela el email del organizador, así que se descarta al importar.",
+  "_comment_organizers": "El .ics traía ORGANIZER;CN=\"Rust Madrid\":mailto:hola@rustmadrid.example, y de ahí salen las dos cosas: nombre y email. Se copia porque este .ics está publicado en una URL pública y su licencia permite republicarlo (ver source); desde un calendario privado o un .ics compartido por enlace NO se copiaría, porque eso es cambiarle el nivel de exposición a una dirección que nadie publicó. Con el email, este evento puede volver a .ics con un ORGANIZER válido.",
 
   "organizers": [
-    { "name": "Rust Madrid" }
+    { "name": "Rust Madrid", "email": "hola@rustmadrid.example" }
   ],
   "startDate": "2026-06-26T19:00:00",
   "endDate": "2026-06-26T21:00:00",

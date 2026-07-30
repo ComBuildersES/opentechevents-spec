@@ -8,10 +8,10 @@
 
   "textLanguage": "es",
 
-  "_comment_organizers": "Feed de una comunidad: `organizers` va arriba y lo hereda todo evento que no declare el suyo. El segundo evento SÍ lo declara, y su lista REEMPLAZA la heredada — no se suma. Por eso PyAlmería aparece repetida ahí: si se omitiera, el evento pasaría a ser solo de PyData Almería.",
+  "_comment_organizers": "Feed de una comunidad: `organizers` va arriba y lo hereda todo evento que no declare el suyo, `email` incluido — una línea en el fichero y ningún evento la repite. El segundo evento SÍ declara `organizers`, y su lista REEMPLAZA la heredada; no se suma. Por eso PyAlmería aparece repetida ahí, con su email otra vez: si se omitiera la entrada, el evento pasaría a ser solo de PyData Almería, y si se omitiera el email, ese evento se quedaría sin ORGANIZER al exportar a .ics. El reemplazo es lo que garantiza que la invitada NUNCA hereda el email de la anfitriona.",
 
   "organizers": [
-    { "name": "PyAlmería", "url": "https://pyalmeria.example" }
+    { "name": "PyAlmería", "url": "https://pyalmeria.example", "email": "hola@pyalmeria.example" }
   ],
   "license": "CC-BY-4.0",
   "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
@@ -47,7 +47,7 @@
       "description": "Sesión conjunta con PyData Almería.",
       "image": ["https://pyalmeria.example/img/2026-07-datos.png"],
       "organizers": [
-        { "name": "PyAlmería", "url": "https://pyalmeria.example" },
+        { "name": "PyAlmería", "url": "https://pyalmeria.example", "email": "hola@pyalmeria.example" },
         { "name": "PyData Almería", "url": "https://pydata-almeria.example" }
       ],
       "startDate": "2026-07-09T18:30:00",
