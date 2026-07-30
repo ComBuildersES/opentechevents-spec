@@ -72,7 +72,7 @@
 
   var STR = {
     en: {
-      fab: "Ask an AI",
+      fab: "Questions? Ask an AI",
       fabAria: "Ask an AI about the OTE spec",
       title: "Ask an AI about OTE",
       lead: "No time to read it all and you would rather ask an LLM? (it can still get things wrong). With the prompt below it will try to read the specification, the schemas, the examples and the research on this site before answering.",
@@ -83,7 +83,7 @@
       close: "Close",
     },
     es: {
-      fab: "Pregunta a una IA",
+      fab: "¿Dudas? Pregunta a una IA",
       fabAria: "Pregunta a una IA sobre la especificación OTE",
       title: "Pregunta a una IA sobre OTE",
       lead: "¿No tienes tiempo y prefieres preguntarle a un LLM? (aunque pueda cometer errores). Con el siguiente prompt intentará leer la especificación, los esquemas, los ejemplos y la investigación de esta web antes de responder.",
@@ -129,6 +129,10 @@
 
   var fab = el("button", "ask-ai-fab");
   fab.type = "button";
+  var fabIcon = el("span", "ask-ai-fab-icon", "✨");
+  var fabLabel = el("span", "ask-ai-fab-label");
+  fabIcon.setAttribute("aria-hidden", "true");
+  fab.append(fabIcon, fabLabel);
 
   var dialog = el("dialog", "ask-ai-dialog");
   var heading = el("h2", "ask-ai-title");
@@ -148,8 +152,8 @@
     var s = t();
     document.documentElement.lang = document.documentElement.lang || lang;
 
-    fab.textContent = "✨ " + s.fab;
-    fab.setAttribute("aria-label", s.fabAria);
+    fabLabel.textContent = s.fab;
+    fab.setAttribute("aria-label", s.fabAria); // the label can be collapsed away; this cannot
     heading.textContent = s.title;
     lead.textContent = s.lead;
     promptLabel.textContent = s.promptLabel;
@@ -188,6 +192,20 @@
 
   fab.addEventListener("click", open);
   closeBtn.addEventListener("click", close);
+
+  // Full width while the reader is still at the top and has read nothing; a circle once they are
+  // into the page, where the offer is still there but the text is in the way. Hover and keyboard
+  // focus bring it back — CSS does that part, this only decides which state we are in.
+  var COLLAPSE_AT = 140;
+  var collapsed = false;
+  function onScroll() {
+    var past = (window.scrollY || document.documentElement.scrollTop) > COLLAPSE_AT;
+    if (past === collapsed) return;
+    collapsed = past;
+    fab.classList.toggle("is-collapsed", collapsed);
+  }
+  window.addEventListener("scroll", onScroll, { passive: true });
+  onScroll(); // a reload halfway down the page must not start expanded
 
   // Clicking the backdrop closes: the dialog element itself is the full-viewport click target,
   // so a click that lands on it and not on a child came from outside the panel.

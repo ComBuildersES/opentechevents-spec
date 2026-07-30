@@ -418,12 +418,26 @@ p > code, li > code {
    control a keyboard user reaches first. */
 .ask-ai-fab {
   position: fixed; right: 20px; bottom: 20px; z-index: 60;
-  padding: 12px 18px; border-radius: 999px; border: 1px solid var(--accent-ink);
+  display: flex; align-items: center; gap: 8px;
+  height: 46px; padding: 0 18px; border-radius: 999px; border: 1px solid var(--accent-ink);
   background: var(--accent); color: #fff; font: 600 .92rem/1 var(--sans); cursor: pointer;
   box-shadow: 0 6px 24px rgba(16, 19, 26, .22);
-  transition: transform .12s ease, box-shadow .12s ease;
+  transition: transform .12s ease, box-shadow .12s ease, padding .2s ease, gap .2s ease;
 }
 .ask-ai-fab:hover { transform: translateY(-1px); box-shadow: 0 8px 28px rgba(16, 19, 26, .28); }
+.ask-ai-fab-icon { font-size: 1.05rem; line-height: 1; }
+/* Collapsing by max-width, not by display:none — the label has to be able to slide back out, and
+   a hidden label is one a screen reader may skip. The button's aria-label carries it regardless. */
+.ask-ai-fab-label {
+  max-width: 16em; overflow: hidden; white-space: nowrap;
+  transition: max-width .22s ease, opacity .16s ease;
+}
+.ask-ai-fab.is-collapsed { width: 46px; padding: 0; gap: 0; justify-content: center; }
+.ask-ai-fab.is-collapsed .ask-ai-fab-label { max-width: 0; opacity: 0; }
+.ask-ai-fab.is-collapsed:hover,
+.ask-ai-fab.is-collapsed:focus-visible { width: auto; padding: 0 18px; gap: 8px; }
+.ask-ai-fab.is-collapsed:hover .ask-ai-fab-label,
+.ask-ai-fab.is-collapsed:focus-visible .ask-ai-fab-label { max-width: 16em; opacity: 1; }
 
 .ask-ai-dialog {
   width: min(620px, calc(100vw - 32px));
@@ -469,4 +483,6 @@ p > code, li > code {
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   .btn:hover { transform: none; }
+  .ask-ai-fab, .ask-ai-fab-label { transition: none; }
+  .ask-ai-fab:hover { transform: none; }
 }
