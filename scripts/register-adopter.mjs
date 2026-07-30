@@ -20,6 +20,7 @@ import { readFileSync, writeFileSync, appendFileSync } from "node:fs";
 import { join } from "node:path";
 import Ajv2020 from "ajv/dist/2020.js";
 import addFormats from "ajv-formats";
+import { annotationKeywords } from "../index.js";
 
 const SPEC = "spec/v0.3";
 const ADOPTERS = join("docs", "data", "adopters.json");
@@ -100,6 +101,8 @@ try {
 // Same Ajv setup as scripts/validate.mjs — see the comment there about strictRequired.
 const ajv = new Ajv2020({ strict: true, strictRequired: false, allErrors: true });
 addFormats(ajv);
+// The schemas carry annotations strict mode would refuse to compile; they constrain nothing.
+for (const kw of annotationKeywords) ajv.addKeyword(kw);
 ajv.addSchema(JSON.parse(readFileSync(join(SPEC, "event.schema.json"), "utf8")));
 const validateFeed = ajv.compile(JSON.parse(readFileSync(join(SPEC, "feed.schema.json"), "utf8")));
 

@@ -31,6 +31,15 @@
       recommended: "recommended",
       recommendedTip: "Valid without it — but a checker warns. These are the fields that decide whether the event can be found, filtered and subscribed to.",
       optional: "optional",
+      defaultBadge: "default: {value}",
+      inheritedBadge: "default: the feed's {parent}",
+      lendsBadge: "default for every event that omits it",
+      lendsTip:
+        "Declared once here, for the whole file: every event in this feed that does not declare its own takes this one. An event that declares it replaces the inherited value, it does not add to it.",
+      inheritedTip:
+        "Inside a feed, an event that omits this field takes the feed's {parent}. That is what makes a feed cheap to publish: said once, never repeated per event.",
+      defaultTip:
+        "What a consumer assumes when the field is absent. Fields without this badge have no default: absent means unknown, never the reassuring value.",
       rulesField: "Rules on this object",
       rulesItem: "Rules on each entry of this list",
       rulesDoc: "Rules on the whole document",
@@ -93,6 +102,15 @@
       recommended: "recomendado",
       recommendedTip: "El documento es válido sin él, pero un checker avisa. Son los campos que deciden si el evento se puede encontrar, filtrar y seguir.",
       optional: "opcional",
+      defaultBadge: "por defecto: {value}",
+      inheritedBadge: "por defecto: el {parent} del feed",
+      lendsBadge: "valor por defecto de todo evento que lo omita",
+      lendsTip:
+        "Se declara una vez aquí, para todo el fichero: cada evento del feed que no declare el suyo toma este. El evento que lo declara reemplaza el valor heredado, no se suma a él.",
+      inheritedTip:
+        "Dentro de un feed, el evento que omite este campo toma el {parent} del feed. Eso es lo que hace barato publicar un feed: se dice una vez y ningún evento lo repite.",
+      defaultTip:
+        "Lo que un consumidor asume cuando el campo no está. Los campos sin esta etiqueta no tienen valor por defecto: su ausencia significa desconocido, nunca el valor tranquilizador.",
       rulesField: "Reglas de este objeto",
       rulesItem: "Reglas de cada entrada de esta lista",
       rulesDoc: "Reglas del documento completo",
@@ -661,6 +679,38 @@
         var head = el("div", "field-head");
         head.appendChild(fieldName(f.path));
         head.appendChild(el("span", "field-type", f.type));
+
+        // The default, when the schema declares one — read from the schema, never from prose, so
+        // it cannot say one thing here and another to the validator. Its absence carries meaning
+        // too: a field with no badge has no default, and missing means unknown. That is said in
+        // the badge's own tooltip, because the reader who needs it is looking at one field.
+        // It sits next to the type, not out on the right with the level: both answer "what goes
+        // in this field", and the level answers a different question — whether it has to be there.
+        if (f.default !== undefined) {
+          var def = el("span", "field-default", t.defaultBadge.replace("{value}", JSON.stringify(f.default)));
+          def.title = t.defaultTip;
+          head.appendChild(def);
+        } else if (f.inheritsFrom) {
+          // The other kind of default: not a literal, but whatever the enclosing feed declared.
+          // Said as a badge for the same reason as the literal one — a reader who has to find it
+          // in the middle of a paragraph is a reader who reads the field as having no default.
+          var parent = f.inheritsFrom.replace(/^feed\./, "");
+          var inh = el("span", "field-default is-inherited");
+          inh.title = t.inheritedTip.replace(/\{parent\}/g, parent);
+          // The feed field it falls back to has its own card on this page, so the name is a link:
+          // "inherits the feed's license" is only useful if you can go and read what that says.
+          var around = t.inheritedBadge.split("{parent}");
+          var link = el("a", "field-default-link", parent);
+          link.href = "#feed-" + f.inheritsFrom.replace(/^feed\./, "");
+          inh.append(around[0], link, around[1] || "");
+          head.appendChild(inh);
+        } else if (f.inheritedBy) {
+          // The same fact, seen from the feed: this is the field a publisher declares once and no
+          // event repeats. Derived from the event's own annotation, so the two sides cannot drift.
+          var lends = el("span", "field-default is-inherited", t.lendsBadge);
+          lends.title = t.lendsTip;
+          head.appendChild(lends);
+        }
 
         var anchor = el("a", "field-anchor", "#");
         anchor.href = "#" + card.id;

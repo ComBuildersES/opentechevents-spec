@@ -127,6 +127,10 @@ const model = {
       required: meta.required,
       recommended: !meta.required && recommended.has(path),
       examples: meta.examples,
+      // Only carried when the schema declares one. Absent here is a claim, not a gap: the field
+      // has no default, and a consumer that meets it missing knows nothing — see the legend.
+      ...(meta.default === undefined ? {} : { default: meta.default }),
+      ...(meta.inheritsFrom === undefined ? {} : { inheritsFrom: meta.inheritsFrom }),
       description: { [BASE_LANG]: meta.description },
     }));
     for (const field of fields) field.requiredIn = requiredIn(fields, field);
@@ -140,6 +144,20 @@ const model = {
     };
   }),
 };
+
+// Inheritance is declared once, on the side that falls back — `event.license` says it takes
+// `feed.license`. The feed field is told from that, never annotated by hand: two annotations
+// facing each other is two chances to disagree about which fields a feed lends its events.
+{
+  const byName = Object.fromEntries(model.schemas.map((s) => [s.name, s]));
+  for (const field of byName.event?.fields ?? []) {
+    if (!field.inheritsFrom) continue;
+    const [schemaName, ...rest] = field.inheritsFrom.split(".");
+    const lender = byName[schemaName]?.fields.find((f) => f.path === rest.join("."));
+    if (!lender) throw new Error(`x-inheritsFrom points at a field that does not exist: ${field.inheritsFrom}`);
+    lender.inheritedBy = `event.${field.path}`;
+  }
+}
 
 // Merge translations, and refuse to ship a half-translated reference.
 const missing = [];
@@ -175,6 +193,9 @@ const md = (lang) => {
       field: "Field",
       type: "Type",
       req: "Level",
+      def: "Default",
+      inherited: (parent) => `the feed's \`${parent.replace(/^feed\./, "")}\``,
+      lends: "every event that omits it",
       desc: "Description",
       ex: "Examples",
       yes: "required",
@@ -185,6 +206,8 @@ const md = (lang) => {
         "**Level** — `required`: the validator rejects the document without it. `recommended`: valid without it, but a checker warns — these are the fields that decide whether the event can be found, filtered and subscribed to. They are read from [`event.recommended.schema.json`](event.recommended.schema.json) and [`feed.recommended.schema.json`](feed.recommended.schema.json).",
       levelInParent:
         "`required within X` means required **inside an object that is itself optional**: a minimal document needs neither, but a document that has an `X` must give the field. Omitting the whole object stays valid.",
+      defaultLegend:
+        "**Default** — the value a consumer assumes when the field is absent. Some are not literals: inside a feed, an event that omits `license`, `organizers`, `textLanguage` or `specVersion` takes the feed's, which is what makes a feed cheap to publish — said once, never repeated per event. A blank cell is a statement, not an omission: the field has **no default**, and absent means *unknown* — never the reassuring value. An event with no `attendanceMode` is not in-person, an offer with no `availability` is not on sale.",
       constraints: "Constraints",
       constraintsLead:
         "Rules the schema enforces on whole objects, which no single field's level can express. Generated from the schemas too — a validator rejects a document that breaks them.",
@@ -196,6 +219,9 @@ const md = (lang) => {
       field: "Campo",
       type: "Tipo",
       req: "Nivel",
+      def: "Por defecto",
+      inherited: (parent) => `el \`${parent.replace(/^feed\./, "")}\` del feed`,
+      lends: "todo evento que lo omita",
       desc: "Descripción",
       ex: "Ejemplos",
       yes: "obligatorio",
@@ -206,6 +232,8 @@ const md = (lang) => {
         "**Nivel** — `obligatorio`: sin él, el validador rechaza el documento. `recomendado`: el documento es válido sin él, pero un checker avisa — son los campos que deciden si el evento se puede encontrar, filtrar y seguir. Se leen de [`event.recommended.schema.json`](event.recommended.schema.json) y [`feed.recommended.schema.json`](feed.recommended.schema.json).",
       levelInParent:
         "`obligatorio dentro de X` significa obligatorio **dentro de un objeto que es opcional**: un documento mínimo no necesita ninguno de los dos, pero un documento que traiga `X` tiene que dar el campo. Omitir el objeto entero sigue siendo válido.",
+      defaultLegend:
+        "**Por defecto** — el valor que un consumidor asume cuando el campo no está. Algunos no son literales: dentro de un feed, el evento que omite `license`, `organizers`, `textLanguage` o `specVersion` toma el del feed, y eso es lo que hace barato publicar un feed — se dice una vez y ningún evento lo repite. Una celda vacía afirma algo, no es un olvido: el campo **no tiene valor por defecto**, y su ausencia significa *desconocido* — nunca el valor tranquilizador. Un evento sin `attendanceMode` no es presencial, una entrada sin `availability` no está a la venta.",
       constraints: "Restricciones",
       constraintsLead:
         "Reglas que el schema impone sobre objetos completos y que el nivel de un campo suelto no puede expresar. También generadas de los schemas: el validador rechaza el documento que las incumple.",
@@ -224,11 +252,19 @@ const md = (lang) => {
     "",
     t.levelInParent,
     "",
+    t.defaultLegend,
+    "",
   ];
 
   for (const schema of model.schemas) {
+    // The column appears only where there is something to put in it: a table of blank cells
+    // teaches nothing, and the legend already says what a blank one means where they exist.
+    const hasDefaults = schema.fields.some((f) => f.default !== undefined || f.inheritsFrom || f.inheritedBy);
     lines.push(`## \`${schema.name}\` — ${schema.title[lang]}`, "", schema.description[lang], "");
-    lines.push(`| ${t.field} | ${t.type} | ${t.req} | ${t.desc} | ${t.ex} |`, "| --- | --- | :---: | --- | --- |");
+    lines.push(
+      `| ${t.field} | ${t.type} | ${t.req} |${hasDefaults ? ` ${t.def} |` : ""} ${t.desc} | ${t.ex} |`,
+      `| --- | --- | :---: |${hasDefaults ? " :---: |" : ""} --- | --- |`
+    );
     for (const f of schema.fields) {
       const ex = f.examples.map((e) => `\`${JSON.stringify(e)}\``).join("<br>") || "—";
       // An enum renders as "a | b | c": unescaped, those pipes become table columns.
@@ -238,8 +274,18 @@ const md = (lang) => {
         : f.recommended
           ? `_${t.rec}_`
           : t.no;
+      const def =
+        f.default !== undefined
+          ? ` \`${JSON.stringify(f.default)}\` |`
+          : f.inheritsFrom
+            ? ` ${t.inherited(f.inheritsFrom)} |`
+            : f.inheritedBy
+              ? ` → ${t.lends} |`
+              : "";
       lines.push(
-        `| \`${f.path}\` | ${cell(f.type)} | ${level} | ${cell(f.description[lang])} | ${cell(ex)} |`
+        `| \`${f.path}\` | ${cell(f.type)} | ${level} |${hasDefaults ? def || " |" : ""} ${cell(
+          f.description[lang]
+        )} | ${cell(ex)} |`
       );
     }
     lines.push("");

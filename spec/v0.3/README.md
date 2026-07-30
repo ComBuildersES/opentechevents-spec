@@ -34,13 +34,16 @@ npm install @opentechevents/schema
 ```js
 import Ajv2020 from "ajv/dist/2020.js";
 import addFormats from "ajv-formats";
-import { eventSchema, feedSchema } from "@opentechevents/schema";
+import { eventSchema, feedSchema, annotationKeywords } from "@opentechevents/schema";
 
 const ajv = new Ajv2020({ strict: true, strictRequired: false });
 addFormats(ajv);
+for (const kw of annotationKeywords) ajv.addKeyword(kw); // anotaciones: no restringen nada
 ajv.addSchema(eventSchema);          // el feed referencia al evento por $id: regístralo antes
 const validateFeed = ajv.compile(feedSchema);
 ```
+
+Los schemas llevan **anotaciones** que ningún keyword estándar sabe decir: `x-inheritsFrom` nombra el campo del feed del que hereda un campo del evento (`event.license` → `feed.license`), porque ese valor por defecto no es un literal, es lo que declare el feed que lo envuelve. No restringen nada: un validador que las ignore acepta exactamente los mismos documentos. JSON Schema permite keywords desconocidos, así que la mayoría de validadores no necesitan hacer nada; Ajv en `strict: true` se niega a compilar un schema que los lleve, y por eso `annotationKeywords` viene en el paquete.
 
 Los perfiles de calidad vienen en el mismo paquete, y se usan **aparte** de la validación: lo que devuelven son avisos, no errores.
 

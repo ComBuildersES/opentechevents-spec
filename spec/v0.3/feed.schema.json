@@ -44,7 +44,7 @@
       ]
     },
     "textLanguage": {
-      "description": "Language this feed's own free text is written in — title and description. Also the DEFAULT for every event that does not declare its own, which is what makes it cheap: a monolingual publisher declares it once for the whole file and no event repeats it. Absent means unknown, never English and never the language of the HTTP response.",
+      "description": "Language this feed's own free text is written in — title and description. What makes it cheap: a monolingual publisher declares it once for the whole file and no event repeats it. Absent means unknown, never English and never the language of the HTTP response.",
       "$ref": "https://opentechevents.org/schema/v0.3/event.schema.json#/$defs/languageTag",
       "examples": [
         "es",
@@ -52,7 +52,7 @@
       ]
     },
     "organizers": {
-      "description": "Who runs the events in this feed — the DEFAULT for every event that does not declare its own. Not the same as title/url, which name whoever publishes the feed: an aggregator publishes events it does not organise, and must leave this out so each event states its own.",
+      "description": "Who runs the events in this feed. Not the same as title/url, which name whoever publishes the feed: an aggregator publishes events it does not organise, and must leave this out so each event states its own.",
       "$ref": "https://opentechevents.org/schema/v0.3/event.schema.json#/$defs/organizers",
       "examples": [
         [
@@ -64,7 +64,7 @@
       ]
     },
     "license": {
-      "description": "License for the feed's contents. Acts as the DEFAULT for every event that does not declare its own. SPDX identifier (full list at https://spdx.org/licenses/) or URL.",
+      "description": "License for the feed's contents. SPDX identifier (full list at https://spdx.org/licenses/) or URL.",
       "$ref": "https://opentechevents.org/schema/v0.3/event.schema.json#/$defs/license",
       "examples": [
         "CC-BY-4.0",

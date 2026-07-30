@@ -20,6 +20,7 @@ import { spawnSync } from "node:child_process";
 import { join, basename } from "node:path";
 import Ajv2020 from "ajv/dist/2020.js";
 import addFormats from "ajv-formats";
+import { annotationKeywords } from "../index.js";
 import { fieldsOf, loadSchemas } from "./schema-model.mjs";
 
 const VERSIONS = ["v0.1", "v0.2", "v0.3"];
@@ -43,6 +44,9 @@ function build(version) {
   // living apart from its properties; the spec does not.
   const ajv = new Ajv2020({ strict: true, strictRequired: false, allErrors: true });
   addFormats(ajv);
+  // The schemas carry annotations strict mode would otherwise refuse to compile. They constrain
+  // nothing: registering them changes which SCHEMAS load, never which documents pass.
+  for (const kw of annotationKeywords) ajv.addKeyword(kw);
 
   const dir = join(SPEC_DIR, version);
   const eventSchema = JSON.parse(readFileSync(join(dir, "event.schema.json"), "utf8"));

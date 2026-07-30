@@ -73,6 +73,15 @@ export function* fieldsOf(schema, registry = {}, node = null, prefix = "", baseP
         description: subschema.description ?? "",
         examples: subschema.examples ?? [],
         enum: subschema.enum,
+        // The value a consumer must assume when the field is absent. Read from the schema so the
+        // description never has to say it: a default written in prose is a default a renderer
+        // cannot show, cannot translate consistently, and cannot be trusted to match the schema.
+        // `undefined` is the honest answer for most fields — absent means unknown, not a value.
+        default: subschema.default,
+        // The feed field this one falls back to inside a feed (`event.license` → `feed.license`).
+        // A default that is not a literal: no standard keyword can say it, so the schemas carry
+        // it as an annotation and the renderers read it from there instead of from prose.
+        inheritsFrom: subschema["x-inheritsFrom"],
         // JSON pointer into the schema, so a validator can compile the field by reference
         // instead of in isolation (an isolated copy cannot resolve #/$defs/… refs).
         pointer: `${pointer}/properties/${name}`,

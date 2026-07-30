@@ -26,3 +26,19 @@ export const schemas = [eventSchema, feedSchema];
 export const eventRecommendedSchema = require("./spec/v0.3/event.recommended.schema.json");
 export const feedRecommendedSchema = require("./spec/v0.3/feed.recommended.schema.json");
 export const recommendedSchemas = [eventRecommendedSchema, feedRecommendedSchema];
+
+/**
+ * Annotation keywords the schemas carry, with the meta-schema each one's value obeys.
+ * They constrain nothing — a validator that ignores them accepts exactly the same documents.
+ * `x-inheritsFrom` names the FEED field an event field falls back to when it omits its own
+ * (`event.license` → `feed.license`), which no standard keyword can say: the default is not a
+ * literal, it is whatever the enclosing feed declared.
+ *
+ * JSON Schema allows unknown keywords, so most validators need nothing. Ajv in `strict: true`
+ * refuses to compile a schema carrying one, so register them first:
+ *
+ *   for (const kw of annotationKeywords) ajv.addKeyword(kw);
+ */
+export const annotationKeywords = [
+  { keyword: "x-inheritsFrom", metaSchema: { type: "string" } },
+];

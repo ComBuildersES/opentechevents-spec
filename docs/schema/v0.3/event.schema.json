@@ -28,6 +28,7 @@
       "properties": {
         "specVersion": {
           "description": "Version of OTE Spec this document adheres to.",
+          "x-inheritsFrom": "feed.specVersion",
           "const": "0.3.0",
           "examples": [
             "0.3.0"
@@ -85,7 +86,8 @@
           ]
         },
         "organizers": {
-          "description": "Who runs the event — not where the data came from (that is source). A list: co-organised events are the norm, not the exception. Inside a feed, an event that omits it inherits the feed's organizers; declaring it REPLACES the inherited list, it does not add to it.",
+          "description": "Who runs the event — not where the data came from (that is source). A list: co-organised events are the norm, not the exception. Declaring it REPLACES the inherited list, it does not add to it.",
+          "x-inheritsFrom": "feed.organizers",
           "$ref": "#/$defs/organizers",
           "examples": [
             [
@@ -134,7 +136,7 @@
           ]
         },
         "attendanceMode": {
-          "description": "What the organiser says this event is. NO DEFAULT: absent means unknown, never in-person.",
+          "description": "What the organiser says this event is. Absent never means in-person.",
           "enum": [
             "in-person",
             "online",
@@ -168,7 +170,7 @@
           ]
         },
         "eligibility": {
-          "description": "Who may attend, when the answer is not \"anyone\". The third part of \"can I go?\", after attendanceMode and location: those two answer whether the event is reachable, this one whether you are allowed in. NO DEFAULT: absent means unknown, never open — an importer reading a .ics cannot know, and staying quiet is not the same claim as saying the door is open.",
+          "description": "Who may attend, when the answer is not \"anyone\". The third part of \"can I go?\", after attendanceMode and location: those two answer whether the event is reachable, this one whether you are allowed in. Absent never means open — an importer reading a .ics cannot know, and staying quiet is not the same claim as saying the door is open.",
           "$ref": "#/$defs/eligibility",
           "examples": [
             {
@@ -186,7 +188,7 @@
           ]
         },
         "tags": {
-          "description": "Free-form topic tags — what the event is ABOUT. Maps to iCal CATEGORIES and schema.org keywords. Not who may attend: that question has its own field, eligibility, because a tag like \"members-only\" is invisible to a consumer that does not already know to look for it. A controlled vocabulary may layer on top later; the field itself stays free. No default: absent means unknown.",
+          "description": "Free-form topic tags — what the event is ABOUT. Maps to iCal CATEGORIES and schema.org keywords. Not who may attend: that question has its own field, eligibility, because a tag like \"members-only\" is invisible to a consumer that does not already know to look for it. A controlled vocabulary may layer on top later; the field itself stays free.",
           "type": "array",
           "items": {
             "type": "string",
@@ -205,7 +207,7 @@
           ]
         },
         "languages": {
-          "description": "Languages SPOKEN at the event, as BCP 47 tags, e.g. [\"es\",\"en\"]. Not the language this document is written in — that is textLanguage, and the two disagree all the time: a bilingual session described in Catalan only. No default: absent means unknown.",
+          "description": "Languages SPOKEN at the event, as BCP 47 tags, e.g. [\"es\",\"en\"]. Not the language this document is written in — that is textLanguage, and the two disagree all the time: a bilingual session described in Catalan only.",
           "type": "array",
           "items": {
             "$ref": "#/$defs/languageTag"
@@ -222,7 +224,8 @@
           ]
         },
         "textLanguage": {
-          "description": "Language THIS DOCUMENT's free text is written in — name, description, and any other prose in it. One BCP 47 tag, not a list: a text is written in one language. A different question from languages, which says what is spoken at the event. Absent means unknown, never the feed's language and never English. Inside a feed, an event that omits it inherits the feed's.",
+          "description": "Language THIS DOCUMENT's free text is written in — name, description, and any other prose in it. One BCP 47 tag, not a list: a text is written in one language. A different question from languages, which says what is spoken at the event. Absent means unknown, never the feed's language and never English.",
+          "x-inheritsFrom": "feed.textLanguage",
           "$ref": "#/$defs/languageTag",
           "examples": [
             "es",
@@ -277,7 +280,7 @@
           ]
         },
         "status": {
-          "description": "What happened to the event, not to the data. An event that is cancelled, postponed or moved online MUST stay published: removing it leaves a dead event in subscribers' calendars. tentative means announced but not confirmed (iCal STATUS:TENTATIVE) — it exists so an importer never has to upgrade an unconfirmed event to scheduled, which is the one value with a default.",
+          "description": "What happened to the event, not to the data. An event that is cancelled, postponed or moved online MUST stay published: removing it leaves a dead event in subscribers' calendars. tentative means announced but not confirmed (iCal STATUS:TENTATIVE) — it exists so an importer never has to upgrade an unconfirmed event to scheduled.",
           "enum": [
             "scheduled",
             "tentative",
@@ -311,6 +314,7 @@
         },
         "license": {
           "description": "License of THIS DATA, not of the event. SPDX identifier (CC0-1.0, CC-BY-4.0…, full list at https://spdx.org/licenses/) or a URL.",
+          "x-inheritsFrom": "feed.license",
           "$ref": "#/$defs/license",
           "examples": [
             "CC-BY-4.0",
@@ -700,7 +704,7 @@
           ]
         },
         "type": {
-          "description": "Organisation or person. Defaults to organisation: a translator has to pick a schema.org @type, and Organization is the tolerant choice.",
+          "description": "Organisation or person. A translator has to pick a schema.org @type either way, and Organization is the tolerant choice.",
           "enum": [
             "organization",
             "person"
@@ -749,7 +753,7 @@
           ]
         },
         "type": {
-          "description": "series: independent occurrences that share an identity (a monthly meetup). multipart: parts of ONE event held on non-consecutive dates (a three-session study jam on non-consecutive Saturdays, one registration). Defaults to series, the tolerant choice. It changes the translation: a series becomes schema.org EventSeries, a multi-part event becomes an Event whose parts are its subEvent.",
+          "description": "series: independent occurrences that share an identity (a monthly meetup). multipart: parts of ONE event held on non-consecutive dates (a three-session study jam on non-consecutive Saturdays, one registration). series is the tolerant choice, and the choice changes the translation: a series becomes schema.org EventSeries, a multi-part event becomes an Event whose parts are its subEvent.",
           "enum": [
             "series",
             "multipart"
@@ -1120,7 +1124,7 @@
           ]
         },
         "availability": {
-          "description": "Whether this offer can still be taken. NO DEFAULT: absent means unknown, never available — a stale feed that keeps claiming in-stock is worse than one that says nothing. Only the two states an attendee can act on are modelled.",
+          "description": "Whether this offer can still be taken. Absent never means available — a stale feed that keeps claiming in-stock is worse than one that says nothing. Only the two states an attendee can act on are modelled.",
           "enum": [
             "in-stock",
             "sold-out"
@@ -1253,7 +1257,7 @@
           ]
         },
         "coversTravel": {
-          "description": "Whether the event covers a selected speaker's travel. NO DEFAULT: absent means unknown, never false. It is here and \"call for sponsors\" is not because this is what a speaker filters on before deciding whether they can afford to submit.",
+          "description": "Whether the event covers a selected speaker's travel. Absent never means false. It is here and \"call for sponsors\" is not because this is what a speaker filters on before deciding whether they can afford to submit.",
           "type": "boolean",
           "examples": [
             true

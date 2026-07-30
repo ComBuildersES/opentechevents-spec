@@ -180,6 +180,7 @@
           "examples": [
             "0.3.0"
           ],
+          "inheritsFrom": "feed.specVersion",
           "description": {
             "en": "Version of OTE Spec this document adheres to.",
             "es": "Versión de OTE Spec a la que se adhiere el documento."
@@ -338,9 +339,10 @@
               }
             ]
           ],
+          "inheritsFrom": "feed.organizers",
           "description": {
-            "en": "Who runs the event — not where the data came from (that is source). A list: co-organised events are the norm, not the exception. Inside a feed, an event that omits it inherits the feed's organizers; declaring it REPLACES the inherited list, it does not add to it.",
-            "es": "Quién organiza el evento — no de dónde salieron los datos (eso es `source`). Es una lista: la co-organización es lo normal, no la excepción. Dentro de un feed, el evento que la omite hereda la del feed; declararla REEMPLAZA la heredada, no se suma a ella."
+            "en": "Who runs the event — not where the data came from (that is source). A list: co-organised events are the norm, not the exception. Declaring it REPLACES the inherited list, it does not add to it.",
+            "es": "Quién organiza el evento — no de dónde salieron los datos (eso es `source`). Es una lista: la co-organización es lo normal, no la excepción. Declararla REEMPLAZA la heredada, no se suma a ella."
           },
           "requiredIn": null
         },
@@ -398,9 +400,10 @@
             "organization",
             "person"
           ],
+          "default": "organization",
           "description": {
-            "en": "Organisation or person. Defaults to organisation: a translator has to pick a schema.org @type, and Organization is the tolerant choice.",
-            "es": "Organización o persona. Por defecto, organización: al traducir hay que elegir un `@type` de schema.org sí o sí, y `Organization` es la opción tolerante."
+            "en": "Organisation or person. A translator has to pick a schema.org @type either way, and Organization is the tolerant choice.",
+            "es": "Organización o persona. Al traducir hay que elegir un `@type` de schema.org sí o sí, y `Organization` es la opción tolerante."
           },
           "requiredIn": null
         },
@@ -461,8 +464,8 @@
             "hybrid"
           ],
           "description": {
-            "en": "What the organiser says this event is. NO DEFAULT: absent means unknown, never in-person.",
-            "es": "Qué dice quien organiza que es este evento. SIN VALOR POR DEFECTO: ausente significa desconocido, nunca presencial."
+            "en": "What the organiser says this event is. Absent never means in-person.",
+            "es": "Qué dice quien organiza que es este evento. Su ausencia nunca significa presencial."
           },
           "requiredIn": null
         },
@@ -682,8 +685,8 @@
             }
           ],
           "description": {
-            "en": "Who may attend, when the answer is not \"anyone\". The third part of \"can I go?\", after attendanceMode and location: those two answer whether the event is reachable, this one whether you are allowed in. NO DEFAULT: absent means unknown, never open — an importer reading a .ics cannot know, and staying quiet is not the same claim as saying the door is open.",
-            "es": "Quién puede asistir, cuando la respuesta no es «cualquiera». La tercera parte de «¿puedo ir?», después de `attendanceMode` y `location`: esos dos dicen si el evento está a tu alcance, este si te dejan entrar. SIN VALOR POR DEFECTO: ausente significa desconocido, nunca abierto — quien importa un `.ics` no puede saberlo, y callarse no es la misma afirmación que decir que la puerta está abierta."
+            "en": "Who may attend, when the answer is not \"anyone\". The third part of \"can I go?\", after attendanceMode and location: those two answer whether the event is reachable, this one whether you are allowed in. Absent never means open — an importer reading a .ics cannot know, and staying quiet is not the same claim as saying the door is open.",
+            "es": "Quién puede asistir, cuando la respuesta no es «cualquiera». La tercera parte de «¿puedo ir?», después de `attendanceMode` y `location`: esos dos dicen si el evento está a tu alcance, este si te dejan entrar. Su ausencia nunca significa abierto — quien importa un `.ics` no puede saberlo, y callarse no es la misma afirmación que decir que la puerta está abierta."
           },
           "requiredIn": null
         },
@@ -766,8 +769,8 @@
             ]
           ],
           "description": {
-            "en": "Free-form topic tags — what the event is ABOUT. Maps to iCal CATEGORIES and schema.org keywords. Not who may attend: that question has its own field, eligibility, because a tag like \"members-only\" is invisible to a consumer that does not already know to look for it. A controlled vocabulary may layer on top later; the field itself stays free. No default: absent means unknown.",
-            "es": "Etiquetas temáticas de forma libre — DE QUÉ va el evento. Mapea a `CATEGORIES` de iCal y a `keywords` de schema.org. No quién puede entrar: esa pregunta tiene su propio campo, `eligibility`, porque una etiqueta como «solo-socios» es invisible para un consumidor que no sepa ya que tiene que buscarla. Más adelante podría superponerse un vocabulario controlado; el campo en sí sigue siendo libre. Sin valor por defecto: ausente significa desconocido."
+            "en": "Free-form topic tags — what the event is ABOUT. Maps to iCal CATEGORIES and schema.org keywords. Not who may attend: that question has its own field, eligibility, because a tag like \"members-only\" is invisible to a consumer that does not already know to look for it. A controlled vocabulary may layer on top later; the field itself stays free.",
+            "es": "Etiquetas temáticas de forma libre — DE QUÉ va el evento. Mapea a `CATEGORIES` de iCal y a `keywords` de schema.org. No quién puede entrar: esa pregunta tiene su propio campo, `eligibility`, porque una etiqueta como «solo-socios» es invisible para un consumidor que no sepa ya que tiene que buscarla. Más adelante podría superponerse un vocabulario controlado; el campo en sí sigue siendo libre."
           },
           "requiredIn": null
         },
@@ -786,8 +789,8 @@
             ]
           ],
           "description": {
-            "en": "Languages SPOKEN at the event, as BCP 47 tags, e.g. [\"es\",\"en\"]. Not the language this document is written in — that is textLanguage, and the two disagree all the time: a bilingual session described in Catalan only. No default: absent means unknown.",
-            "es": "Idiomas que se HABLAN en el evento, como etiquetas BCP 47, p. ej. `[\"es\",\"en\"]`. No el idioma en que está escrito este documento — eso es `textLanguage`, y los dos no coinciden a menudo: una sesión bilingüe descrita solo en catalán. Sin valor por defecto: ausente significa desconocido."
+            "en": "Languages SPOKEN at the event, as BCP 47 tags, e.g. [\"es\",\"en\"]. Not the language this document is written in — that is textLanguage, and the two disagree all the time: a bilingual session described in Catalan only.",
+            "es": "Idiomas que se HABLAN en el evento, como etiquetas BCP 47, p. ej. `[\"es\",\"en\"]`. No el idioma en que está escrito este documento — eso es `textLanguage`, y los dos no coinciden a menudo: una sesión bilingüe descrita solo en catalán."
           },
           "requiredIn": null
         },
@@ -801,9 +804,10 @@
             "ca",
             "en"
           ],
+          "inheritsFrom": "feed.textLanguage",
           "description": {
-            "en": "Language THIS DOCUMENT's free text is written in — name, description, and any other prose in it. One BCP 47 tag, not a list: a text is written in one language. A different question from languages, which says what is spoken at the event. Absent means unknown, never the feed's language and never English. Inside a feed, an event that omits it inherits the feed's.",
-            "es": "Idioma en que está escrito el texto libre de ESTE DOCUMENTO — `name`, `description` y cualquier otra prosa que lleve. Una sola etiqueta BCP 47, no una lista: un texto está escrito en un idioma. Es una pregunta distinta de `languages`, que dice qué se habla en el evento. Ausente significa desconocido, nunca el idioma del feed ni el inglés. Dentro de un feed, el evento que lo omite hereda el del feed."
+            "en": "Language THIS DOCUMENT's free text is written in — name, description, and any other prose in it. One BCP 47 tag, not a list: a text is written in one language. A different question from languages, which says what is spoken at the event. Absent means unknown, never the feed's language and never English.",
+            "es": "Idioma en que está escrito el texto libre de ESTE DOCUMENTO — `name`, `description` y cualquier otra prosa que lleve. Una sola etiqueta BCP 47, no una lista: un texto está escrito en un idioma. Es una pregunta distinta de `languages`, que dice qué se habla en el evento. Ausente significa desconocido, nunca el idioma del feed ni el inglés."
           },
           "requiredIn": null
         },
@@ -913,8 +917,8 @@
             "sold-out"
           ],
           "description": {
-            "en": "Whether this offer can still be taken. NO DEFAULT: absent means unknown, never available — a stale feed that keeps claiming in-stock is worse than one that says nothing. Only the two states an attendee can act on are modelled.",
-            "es": "Si esta oferta se puede coger todavía. SIN VALOR POR DEFECTO: ausente significa desconocido, nunca disponible — un feed desactualizado que sigue afirmando `in-stock` es peor que uno que no dice nada. Solo se modelan los dos estados sobre los que quien asiste puede actuar."
+            "en": "Whether this offer can still be taken. Absent never means available — a stale feed that keeps claiming in-stock is worse than one that says nothing. Only the two states an attendee can act on are modelled.",
+            "es": "Si esta oferta se puede coger todavía. Su ausencia nunca significa disponible — un feed desactualizado que sigue afirmando `in-stock` es peor que uno que no dice nada. Solo se modelan los dos estados sobre los que quien asiste puede actuar."
           },
           "requiredIn": null
         },
@@ -1054,8 +1058,8 @@
             true
           ],
           "description": {
-            "en": "Whether the event covers a selected speaker's travel. NO DEFAULT: absent means unknown, never false. It is here and \"call for sponsors\" is not because this is what a speaker filters on before deciding whether they can afford to submit.",
-            "es": "Si el evento cubre el viaje de quien sea seleccionado. SIN VALOR POR DEFECTO: ausente significa desconocido, nunca `false`. Está aquí, y «call for sponsors» no, porque esto es lo que filtra quien da charlas antes de decidir si se puede permitir enviar una propuesta."
+            "en": "Whether the event covers a selected speaker's travel. Absent never means false. It is here and \"call for sponsors\" is not because this is what a speaker filters on before deciding whether they can afford to submit.",
+            "es": "Si el evento cubre el viaje de quien sea seleccionado. Su ausencia nunca significa `false`. Está aquí, y «call for sponsors» no, porque esto es lo que filtra quien da charlas antes de decidir si se puede permitir enviar una propuesta."
           },
           "requiredIn": null
         },
@@ -1083,9 +1087,10 @@
             "cancelled",
             "moved-online"
           ],
+          "default": "scheduled",
           "description": {
-            "en": "What happened to the event, not to the data. An event that is cancelled, postponed or moved online MUST stay published: removing it leaves a dead event in subscribers' calendars. tentative means announced but not confirmed (iCal STATUS:TENTATIVE) — it exists so an importer never has to upgrade an unconfirmed event to scheduled, which is the one value with a default.",
-            "es": "Qué le ha pasado al evento, no al dato. Un evento cancelado, pospuesto o movido a online DEBE seguir publicado: borrarlo deja un evento muerto en el calendario de quien se suscribió. `tentative` significa anunciado pero sin confirmar (el `STATUS:TENTATIVE` de iCal) — existe para que quien importa no tenga que ascender a `scheduled` un evento que nadie ha confirmado, ya que este es el único campo con valor por defecto."
+            "en": "What happened to the event, not to the data. An event that is cancelled, postponed or moved online MUST stay published: removing it leaves a dead event in subscribers' calendars. tentative means announced but not confirmed (iCal STATUS:TENTATIVE) — it exists so an importer never has to upgrade an unconfirmed event to scheduled.",
+            "es": "Qué le ha pasado al evento, no al dato. Un evento cancelado, pospuesto o movido a online DEBE seguir publicado: borrarlo deja un evento muerto en el calendario de quien se suscribió. `tentative` significa anunciado pero sin confirmar (el `STATUS:TENTATIVE` de iCal) — existe para que quien importa no tenga que ascender a `scheduled` un evento que nadie ha confirmado."
           },
           "requiredIn": null
         },
@@ -1165,9 +1170,10 @@
             "series",
             "multipart"
           ],
+          "default": "series",
           "description": {
-            "en": "series: independent occurrences that share an identity (a monthly meetup). multipart: parts of ONE event held on non-consecutive dates (a three-session study jam on non-consecutive Saturdays, one registration). Defaults to series, the tolerant choice. It changes the translation: a series becomes schema.org EventSeries, a multi-part event becomes an Event whose parts are its subEvent.",
-            "es": "`series`: ocurrencias independientes que comparten identidad (un meetup mensual). `multipart`: partes de UN SOLO evento celebrado en fechas no consecutivas (un study jam de tres sesiones en sábados no consecutivos, con una sola inscripción). Por defecto `series`, que es la opción tolerante. Cambia la traducción: una serie se convierte en `EventSeries` de schema.org; un evento multi-parte, en un `Event` cuyas partes son su `subEvent`."
+            "en": "series: independent occurrences that share an identity (a monthly meetup). multipart: parts of ONE event held on non-consecutive dates (a three-session study jam on non-consecutive Saturdays, one registration). series is the tolerant choice, and the choice changes the translation: a series becomes schema.org EventSeries, a multi-part event becomes an Event whose parts are its subEvent.",
+            "es": "`series`: ocurrencias independientes que comparten identidad (un meetup mensual). `multipart`: partes de UN SOLO evento celebrado en fechas no consecutivas (un study jam de tres sesiones en sábados no consecutivos, con una sola inscripción). `series` es la opción tolerante, y la elección cambia la traducción: una serie se convierte en `EventSeries` de schema.org; un evento multi-parte, en un `Event` cuyas partes son su `subEvent`."
           },
           "requiredIn": null
         },
@@ -1198,6 +1204,7 @@
             "CC-BY-4.0",
             "CC0-1.0"
           ],
+          "inheritsFrom": "feed.license",
           "description": {
             "en": "License of THIS DATA, not of the event. SPDX identifier (CC0-1.0, CC-BY-4.0…, full list at https://spdx.org/licenses/) or a URL.",
             "es": "Licencia de ESTOS DATOS, no del evento. Identificador SPDX (`CC0-1.0`, `CC-BY-4.0`…, lista completa en https://spdx.org/licenses/) o una URL."
@@ -1358,7 +1365,8 @@
             "en": "Version of OTE Spec this feed adheres to. Applies to every event in it.",
             "es": "Versión de OTE Spec a la que se adhiere el feed. Aplica a todos sus eventos."
           },
-          "requiredIn": null
+          "requiredIn": null,
+          "inheritedBy": "event.specVersion"
         },
         {
           "path": "title",
@@ -1412,10 +1420,11 @@
             "ca"
           ],
           "description": {
-            "en": "Language this feed's own free text is written in — title and description. Also the DEFAULT for every event that does not declare its own, which is what makes it cheap: a monolingual publisher declares it once for the whole file and no event repeats it. Absent means unknown, never English and never the language of the HTTP response.",
-            "es": "Idioma en que está escrito el texto libre de este feed — `title` y `description`. Es además el VALOR POR DEFECTO de todo evento que no declare el suyo, y eso es lo que lo hace barato: quien publica en un solo idioma lo declara una vez para todo el fichero y ningún evento lo repite. Ausente significa desconocido, nunca el inglés ni el idioma de la respuesta HTTP."
+            "en": "Language this feed's own free text is written in — title and description. What makes it cheap: a monolingual publisher declares it once for the whole file and no event repeats it. Absent means unknown, never English and never the language of the HTTP response.",
+            "es": "Idioma en que está escrito el texto libre de este feed — `title` y `description`. Y eso es lo que lo hace barato: quien publica en un solo idioma lo declara una vez para todo el fichero y ningún evento lo repite. Ausente significa desconocido, nunca el inglés ni el idioma de la respuesta HTTP."
           },
-          "requiredIn": null
+          "requiredIn": null,
+          "inheritedBy": "event.textLanguage"
         },
         {
           "path": "organizers",
@@ -1431,10 +1440,11 @@
             ]
           ],
           "description": {
-            "en": "Who runs the events in this feed — the DEFAULT for every event that does not declare its own. Not the same as title/url, which name whoever publishes the feed: an aggregator publishes events it does not organise, and must leave this out so each event states its own.",
-            "es": "Quién organiza los eventos de este feed — VALOR POR DEFECTO de todo evento que no declare el suyo. No es lo mismo que `title`/`url`, que nombran a quien publica el feed: un agregador publica eventos que no organiza, y debe omitir este campo para que cada evento declare el suyo."
+            "en": "Who runs the events in this feed. Not the same as title/url, which name whoever publishes the feed: an aggregator publishes events it does not organise, and must leave this out so each event states its own.",
+            "es": "Quién organiza los eventos de este feed. No es lo mismo que `title`/`url`, que nombran a quien publica el feed: un agregador publica eventos que no organiza, y debe omitir este campo para que cada evento declare el suyo."
           },
-          "requiredIn": null
+          "requiredIn": null,
+          "inheritedBy": "event.organizers"
         },
         {
           "path": "license",
@@ -1446,10 +1456,11 @@
             "CC0-1.0"
           ],
           "description": {
-            "en": "License for the feed's contents. Acts as the DEFAULT for every event that does not declare its own. SPDX identifier (full list at https://spdx.org/licenses/) or URL.",
-            "es": "Licencia del contenido del feed. Actúa como VALOR POR DEFECTO de todo evento que no declare la suya. Identificador SPDX (lista completa en https://spdx.org/licenses/) o URL."
+            "en": "License for the feed's contents. SPDX identifier (full list at https://spdx.org/licenses/) or URL.",
+            "es": "Licencia del contenido del feed. Identificador SPDX (lista completa en https://spdx.org/licenses/) o URL."
           },
-          "requiredIn": null
+          "requiredIn": null,
+          "inheritedBy": "event.license"
         },
         {
           "path": "licenseUrl",

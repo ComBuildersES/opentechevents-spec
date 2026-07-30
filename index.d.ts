@@ -22,3 +22,12 @@ export declare const schemas: Record<string, unknown>[];
 export declare const eventRecommendedSchema: Record<string, unknown>;
 export declare const feedRecommendedSchema: Record<string, unknown>;
 export declare const recommendedSchemas: Record<string, unknown>[];
+
+/**
+ * Annotation keywords the schemas carry, with the meta-schema each one's value obeys.
+ * They constrain nothing — a validator that ignores them accepts exactly the same documents.
+ * `x-inheritsFrom` names the FEED field an event field falls back to when it omits its own.
+ * Ajv in `strict: true` refuses to compile a schema carrying one, so register them first:
+ * `for (const kw of annotationKeywords) ajv.addKeyword(kw);`
+ */
+export declare const annotationKeywords: { keyword: string; metaSchema: Record<string, unknown> }[];
