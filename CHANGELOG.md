@@ -150,6 +150,43 @@ descubrir y seguir.
   - **`availability` no tiene valor por defecto**: ausente = desconocido. Un feed
     desactualizado que sigue afirmando `in-stock` es peor que uno callado, porque
     manda a alguien a una taquilla cerrada.
+  - **`waitlistUrl`**: dónde apuntarse a la cola una vez agotada la oferta.
+    «Agotado y nada que hacer» y «agotado, pero puedes hacer cola» dejan de ser
+    el mismo documento.
+    - **No es un tercer valor de `availability`**, y la razón es **cómo degrada**:
+      con `sold-out` + `waitlistUrl`, todo consumidor que ya existe sigue leyendo
+      «agotado», que es **verdad**. Con `availability: "waitlist"`, el que no
+      conozca el valor no tiene lectura segura, y el que parsee
+      `availability !== "sold-out"` ⇒ disponible —lo normal— anunciaría como
+      comprable algo que no lo es. Omitir la cola es una omisión; decir «a la
+      venta» es una mentira.
+    - **`price` no contradice a `sold-out` ni a la cola**: `price` describe el
+      trato, `availability` si puedes actuar sobre él ahora. El caso que más lo
+      necesita —**evento gratuito con aforo limitado**— es `price: 0` +
+      `sold-out` + `waitlistUrl`. Apuntarse a una cola no cuesta dinero.
+    - **El schema rechaza `in-stock` + `waitlistUrl`** con un `if`/`then`: una
+      cola para algo que está a la venta no es una cola. **Permite**
+      `waitlistUrl` sin `availability`: quien no mantiene el estado de la
+      taquilla no debe verse forzado a *afirmar* `sold-out` para mencionar la
+      cola. Se prohíbe lo incoherente, nunca lo incompleto.
+    - Traducción: schema.org **no tiene término** para lista de espera
+      (`BackOrder` y `PreOrder` significan otra cosa) → se emite `SoldOut`, que
+      no es falso, y la cola se degrada al texto. Un valor de enum habría
+      perdido lo mismo.
+    - **Descartado `last-tickets`** (`LimitedAvailability` de schema.org, que
+      Google lee): de las cinco fuentes estudiadas, las tres que emiten
+      `availability` emiten `InStock` y nada más; el umbral no se puede definir
+      —cinco plazas, el 10%, lo que diga el marketing—, así que nadie podría
+      filtrar ni comparar; es el estado más volátil posible; y sobre todo **no
+      cambia la acción**: sigues pudiendo comprar. Eso es urgencia, y la urgencia
+      es aforo — taquilla, que la spec deja fuera.
+
+- **Regla de compatibilidad hacia delante para consumidores** (no es un campo,
+  es normativa): **un valor de enum que no conozcas se trata como desconocido,
+  nunca como el valor tolerante.** Es «ausente = desconocido» aplicada al futuro
+  en vez de al vacío, y sin ella cualquier valor añadido en una versión posterior
+  se convierte en «disponible» o en «presencial» para quien parsea con
+  desigualdades.
   - **Entra porque ya existe ahí fuera**: tres de las cinco fuentes estudiadas
     (Luma, Guild y el ejemplo canónico de Google) emiten `offers` con esta misma
     forma, y Google lo **muestra** en el rich result de `Event`.

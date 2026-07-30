@@ -1015,6 +1015,15 @@
             "sold-out"
           ]
         },
+        "waitlistUrl": {
+          "description": "Where to join the queue for this offer once it is gone. It exists so \"gone, nothing to do\" and \"gone, but you can queue\" stop being the same document — the third thing an attendee can act on, and the reason it is a URL and not a third availability value: every consumer that already exists keeps reading sold-out, which is TRUE, instead of meeting an enum value it cannot interpret. Distinct from url, where the ticket is bought: nothing is bought in a queue.",
+          "type": "string",
+          "format": "uri",
+          "pattern": "^https?://",
+          "examples": [
+            "https://devfest-levante.example/2026/lista-espera"
+          ]
+        },
         "opensAt": {
           "description": "When this offer goes on sale. An INSTANT, with offset or Z — unlike the event's own dates, which are wall clock: a sale opening is a moment a button starts working, not an hour on a poster.",
           "$ref": "#/$defs/instant",
@@ -1055,6 +1064,25 @@
         }
       ],
       "allOf": [
+        {
+          "description": "A waitlist for something you can still buy is not a waitlist: the queue only makes sense once the offer is gone. Availability may still be ABSENT — a publisher who knows there is a queue and does not track the ticket state should not be forced to assert sold-out to mention it. Only the incoherent combination is rejected, never the incomplete one.",
+          "if": {
+            "type": "object",
+            "required": [
+              "waitlistUrl"
+            ]
+          },
+          "then": {
+            "type": "object",
+            "properties": {
+              "availability": {
+                "not": {
+                  "const": "in-stock"
+                }
+              }
+            }
+          }
+        },
         {
           "description": "A non-zero amount without a currency is not a price: 45 is a different thing in EUR, USD and MXN, and a consumer that has to guess will guess its own.",
           "if": {

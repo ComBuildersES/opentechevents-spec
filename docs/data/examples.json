@@ -1014,6 +1014,7 @@
         "event.offers",
         "event.offers[].price",
         "event.offers[].availability",
+        "event.offers[].waitlistUrl",
         "event.offers[].translations",
         "event.cfp",
         "event.cfp.closesAt",
@@ -1032,6 +1033,7 @@
           "Tiered pricing is several `offers`, not one with a range: a price you cannot write as a single number is more than one offer. `availability` says which tier is already gone.",
           "The student tier is `price: 0` and no `currency` — free is free in every currency, and asking for one there is how a free meetup ends up publishing a US dollar amount.",
           "The deadlines carry an offset, unlike the event's own dates. A CFP closing at \"23:59\" is the classic bug: which midnight is the entire question, and \"anywhere on Earth\" is a real answer (`-12:00`).",
+          "The free student places ran out and a queue opened: `sold-out` + `waitlistUrl`, not a third `availability` value. Every consumer that already exists keeps reading \"sold out\" — which is true, you cannot buy — while one that knows the field offers the queue. `price: 0` next to `sold-out` is not a contradiction: `price` describes the deal, `availability` whether you can act on it now.",
           "`offers[].name` is free text on purpose — an enum would take away an organiser's right to name their own tickets — so translating it is the price, and it is done INSIDE the offer. The rest of the offer has no language at all: `price` is a number, `currency` a code, `availability` an enum.",
           "`cfp` has no equivalent in schema.org, iCal or RSS — it degrades to text on export. It is in the core anyway because \"which conferences are accepting proposals right now\" is a question only the publisher can answer, and today it is answered by scraping."
         ],
@@ -1039,11 +1041,12 @@
           "Varios precios son varias `offers`, no una con un rango: un precio que no se puede escribir con un solo número es más de una oferta. `availability` dice cuál se ha agotado ya.",
           "La entrada de estudiantes lleva `price: 0` y ninguna `currency` — lo gratis es gratis en cualquier moneda, y exigirla ahí es como un meetup gratuito acaba publicando un importe en dólares.",
           "Las fechas límite llevan offset, a diferencia de las fechas del propio evento. Un CFP que cierra a las «23:59» es el bug clásico: qué medianoche es exactamente la pregunta, y «anywhere on Earth» es una respuesta real (`-12:00`).",
+          "Las plazas gratuitas de estudiantes se agotaron y se abrió cola: `sold-out` + `waitlistUrl`, no un tercer valor de `availability`. Todo consumidor que ya existe sigue leyendo «agotado» —que es cierto, no puedes comprar— mientras el que conoce el campo ofrece la cola. `price: 0` junto a `sold-out` no es contradictorio: `price` describe el trato, `availability` si puedes actuar sobre él ahora.",
           "`offers[].name` es texto libre a propósito —un enum le quitaría a quien organiza el derecho a nombrar sus entradas—, así que traducirlo es el precio, y se hace DENTRO de la oferta. El resto de la oferta no lleva idioma: `price` es un número, `currency` un código y `availability` un enum.",
           "`cfp` no tiene equivalente en schema.org, iCal ni RSS: al exportar se degrada a texto. Está en el núcleo igualmente porque «qué conferencias aceptan propuestas ahora mismo» solo lo puede contestar quien publica, y hoy se contesta scrapeando."
         ]
       },
-      "source": "{\n  \"specVersion\": \"0.3.0\",\n  \"id\": \"https://devfest-levante.example/2026\",\n  \"url\": \"https://devfest-levante.example/2026\",\n  \"name\": \"DevFest Levante 2026\",\n  \"description\": \"Conferencia de desarrollo del sureste, edición 2026. Dos días, tres tracks.\",\n  \"image\": [\n    \"https://devfest-levante.example/img/2026-16x9.png\"\n  ],\n  \"organizers\": [\n    {\n      \"name\": \"GDG Levante\",\n      \"url\": \"https://gdglevante.example\"\n    }\n  ],\n  \"startDate\": \"2026-10-16\",\n  \"endDate\": \"2026-10-17\",\n  \"timezone\": \"Europe/Madrid\",\n  \"attendanceMode\": \"in-person\",\n  \"location\": {\n    \"venue\": \"Las Naves, Carrer de Joan Verdeguer 16, València\",\n    \"address\": {\n      \"street\": \"Carrer de Joan Verdeguer 16\",\n      \"locality\": \"València\",\n      \"region\": \"Comunitat Valenciana\",\n      \"postalCode\": \"46024\",\n      \"country\": \"ES\"\n    }\n  },\n  \"tags\": [\n    \"cloud\",\n    \"ai\",\n    \"web\"\n  ],\n  \"languages\": [\n    \"es\",\n    \"en\"\n  ],\n  \"textLanguage\": \"es\",\n  \"offers\": [\n    {\n      \"name\": \"Early bird\",\n      \"price\": 35,\n      \"currency\": \"EUR\",\n      \"url\": \"https://devfest-levante.example/2026/entradas\",\n      \"availability\": \"sold-out\",\n      \"closesAt\": \"2026-06-30T23:59:59+02:00\"\n    },\n    {\n      \"name\": \"General\",\n      \"price\": 45,\n      \"currency\": \"EUR\",\n      \"url\": \"https://devfest-levante.example/2026/entradas\",\n      \"availability\": \"in-stock\",\n      \"opensAt\": \"2026-07-01T00:00:00+02:00\"\n    },\n    {\n      \"name\": \"Estudiantes\",\n      \"price\": 0,\n      \"url\": \"https://devfest-levante.example/2026/entradas#estudiantes\",\n      \"availability\": \"in-stock\",\n      \"translations\": {\n        \"en\": {\n          \"name\": \"Students\"\n        }\n      }\n    }\n  ],\n  \"cfp\": {\n    \"url\": \"https://devfest-levante.example/2026/cfp\",\n    \"opensAt\": \"2026-05-01T00:00:00+02:00\",\n    \"closesAt\": \"2026-07-15T23:59:59+02:00\",\n    \"coversTravel\": true,\n    \"coversAccommodation\": true\n  },\n  \"status\": \"scheduled\",\n  \"license\": \"CC-BY-4.0\",\n  \"updatedAt\": \"2026-05-04T09:00:00Z\"\n}",
+      "source": "{\n  \"specVersion\": \"0.3.0\",\n  \"id\": \"https://devfest-levante.example/2026\",\n  \"url\": \"https://devfest-levante.example/2026\",\n  \"name\": \"DevFest Levante 2026\",\n  \"description\": \"Conferencia de desarrollo del sureste, edición 2026. Dos días, tres tracks.\",\n  \"image\": [\n    \"https://devfest-levante.example/img/2026-16x9.png\"\n  ],\n  \"organizers\": [\n    {\n      \"name\": \"GDG Levante\",\n      \"url\": \"https://gdglevante.example\"\n    }\n  ],\n  \"startDate\": \"2026-10-16\",\n  \"endDate\": \"2026-10-17\",\n  \"timezone\": \"Europe/Madrid\",\n  \"attendanceMode\": \"in-person\",\n  \"location\": {\n    \"venue\": \"Las Naves, Carrer de Joan Verdeguer 16, València\",\n    \"address\": {\n      \"street\": \"Carrer de Joan Verdeguer 16\",\n      \"locality\": \"València\",\n      \"region\": \"Comunitat Valenciana\",\n      \"postalCode\": \"46024\",\n      \"country\": \"ES\"\n    }\n  },\n  \"tags\": [\n    \"cloud\",\n    \"ai\",\n    \"web\"\n  ],\n  \"languages\": [\n    \"es\",\n    \"en\"\n  ],\n  \"textLanguage\": \"es\",\n  \"offers\": [\n    {\n      \"name\": \"Early bird\",\n      \"price\": 35,\n      \"currency\": \"EUR\",\n      \"url\": \"https://devfest-levante.example/2026/entradas\",\n      \"availability\": \"sold-out\",\n      \"closesAt\": \"2026-06-30T23:59:59+02:00\"\n    },\n    {\n      \"name\": \"General\",\n      \"price\": 45,\n      \"currency\": \"EUR\",\n      \"url\": \"https://devfest-levante.example/2026/entradas\",\n      \"availability\": \"in-stock\",\n      \"opensAt\": \"2026-07-01T00:00:00+02:00\"\n    },\n    {\n      \"name\": \"Estudiantes\",\n      \"price\": 0,\n      \"url\": \"https://devfest-levante.example/2026/entradas#estudiantes\",\n      \"availability\": \"sold-out\",\n      \"waitlistUrl\": \"https://devfest-levante.example/2026/lista-espera\",\n      \"translations\": {\n        \"en\": {\n          \"name\": \"Students\"\n        }\n      }\n    }\n  ],\n  \"cfp\": {\n    \"url\": \"https://devfest-levante.example/2026/cfp\",\n    \"opensAt\": \"2026-05-01T00:00:00+02:00\",\n    \"closesAt\": \"2026-07-15T23:59:59+02:00\",\n    \"coversTravel\": true,\n    \"coversAccommodation\": true\n  },\n  \"status\": \"scheduled\",\n  \"license\": \"CC-BY-4.0\",\n  \"updatedAt\": \"2026-05-04T09:00:00Z\"\n}",
       "lines": {
         "event.specVersion": [
           2
@@ -1147,44 +1150,47 @@
         "event.offers[].opensAt": [
           55
         ],
+        "event.offers[].waitlistUrl": [
+          62
+        ],
         "event.offers[].translations.en.name": [
-          64
+          65
         ],
         "event.offers[].translations.en": [
-          63
+          64
         ],
         "event.offers[].translations": [
-          62
+          63
         ],
         "event.offers": [
           40
         ],
         "event.cfp.url": [
-          70
-        ],
-        "event.cfp.opensAt": [
           71
         ],
-        "event.cfp.closesAt": [
+        "event.cfp.opensAt": [
           72
         ],
-        "event.cfp.coversTravel": [
+        "event.cfp.closesAt": [
           73
         ],
-        "event.cfp.coversAccommodation": [
+        "event.cfp.coversTravel": [
           74
         ],
+        "event.cfp.coversAccommodation": [
+          75
+        ],
         "event.cfp": [
-          69
+          70
         ],
         "event.status": [
-          76
-        ],
-        "event.license": [
           77
         ],
-        "event.updatedAt": [
+        "event.license": [
           78
+        ],
+        "event.updatedAt": [
+          79
         ]
       }
     },
@@ -2144,7 +2150,7 @@
       {
         "file": "event-conference-cfp.json",
         "lines": [
-          77
+          78
         ]
       },
       {
@@ -3481,7 +3487,7 @@
       {
         "file": "event-conference-cfp.json",
         "lines": [
-          76
+          77
         ]
       },
       {
@@ -3533,7 +3539,7 @@
       {
         "file": "event-conference-cfp.json",
         "lines": [
-          78
+          79
         ]
       },
       {
@@ -4016,23 +4022,7 @@
         ]
       }
     ],
-    "event.offers[].translations.en.name": [
-      {
-        "file": "event-conference-cfp.json",
-        "lines": [
-          64
-        ]
-      }
-    ],
-    "event.offers[].translations.en": [
-      {
-        "file": "event-conference-cfp.json",
-        "lines": [
-          63
-        ]
-      }
-    ],
-    "event.offers[].translations": [
+    "event.offers[].waitlistUrl": [
       {
         "file": "event-conference-cfp.json",
         "lines": [
@@ -4040,15 +4030,31 @@
         ]
       }
     ],
-    "event.cfp.url": [
+    "event.offers[].translations.en.name": [
       {
         "file": "event-conference-cfp.json",
         "lines": [
-          70
+          65
         ]
       }
     ],
-    "event.cfp.opensAt": [
+    "event.offers[].translations.en": [
+      {
+        "file": "event-conference-cfp.json",
+        "lines": [
+          64
+        ]
+      }
+    ],
+    "event.offers[].translations": [
+      {
+        "file": "event-conference-cfp.json",
+        "lines": [
+          63
+        ]
+      }
+    ],
+    "event.cfp.url": [
       {
         "file": "event-conference-cfp.json",
         "lines": [
@@ -4056,7 +4062,7 @@
         ]
       }
     ],
-    "event.cfp.closesAt": [
+    "event.cfp.opensAt": [
       {
         "file": "event-conference-cfp.json",
         "lines": [
@@ -4064,7 +4070,7 @@
         ]
       }
     ],
-    "event.cfp.coversTravel": [
+    "event.cfp.closesAt": [
       {
         "file": "event-conference-cfp.json",
         "lines": [
@@ -4072,7 +4078,7 @@
         ]
       }
     ],
-    "event.cfp.coversAccommodation": [
+    "event.cfp.coversTravel": [
       {
         "file": "event-conference-cfp.json",
         "lines": [
@@ -4080,11 +4086,19 @@
         ]
       }
     ],
+    "event.cfp.coversAccommodation": [
+      {
+        "file": "event-conference-cfp.json",
+        "lines": [
+          75
+        ]
+      }
+    ],
     "event.cfp": [
       {
         "file": "event-conference-cfp.json",
         "lines": [
-          69
+          70
         ]
       }
     ],

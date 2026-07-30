@@ -594,9 +594,26 @@ Un meetup gratuito es **una sola entrada**:
 
 **`availability` tiene dos valores, `in-stock` y `sold-out`, y no tiene valor por defecto.** Son los dos estados sobre los que quien asiste puede actuar. Ausente significa desconocido, y eso es deliberado: **un feed desactualizado que sigue afirmando `in-stock` es peor que uno que se calla**, porque manda a alguien a una página de entradas agotadas. Quien no mantenga el dato al día, que lo omita.
 
+**Regla para quien consume, y vale para todos los enums de la spec: un valor que no conozcas se trata como desconocido, nunca como el valor tolerante.** Escrito como `availability !== "sold-out"` ⇒ disponible —que es como se escribe esto casi siempre— cualquier valor futuro se convierte en «a la venta», y eso manda a alguien a comprar lo que no se puede comprar. Es la misma regla que «ausente = desconocido», aplicada al futuro en vez de al vacío.
+
+**`waitlistUrl`: agotado con cola no es lo mismo que agotado.** Cuando las plazas se acaban hay dos situaciones distintas —no hay nada que hacer, o puedes ponerte en la cola— y hasta ahora eran el mismo documento:
+
+```json
+{ "name": "Estudiantes", "price": 0, "availability": "sold-out",
+  "waitlistUrl": "https://devfest-levante.example/2026/lista-espera" }
+```
+
+**Y por qué no es un tercer valor de `availability`.** Fue la primera idea, y pierde en lo único que importa aquí: **cómo degrada**. Con `availability: "waitlist"`, un consumidor que no conozca el valor no tiene ninguna lectura segura, y el que lo parsee con `availability !== "sold-out"` —lo normal— acaba anunciando como disponible algo que no lo está. Con `sold-out` + `waitlistUrl`, **todo consumidor que existe hoy sigue leyendo «agotado», que es verdad**: no puedes comprar. El que conozca el campo, además, ofrece la cola. Callarse sobre la cola es una omisión; decir «a la venta» es una mentira, y esta spec elige la omisión siempre.
+
+**`price` no contradice a `sold-out`, ni a la cola.** Los dos ejes son ortogonales por diseño: `price` describe **el trato**, `availability` describe **si puedes actuar sobre él ahora**. «45 €, agotado» ya era un documento normal en la v0.3; con cola significa lo mismo que significaba `price` antes de comprar — **lo que costará si entras**. Apuntarse a una cola no cuesta dinero, y nada en el modelo insinúa lo contrario. Por eso el caso que más lo necesita —el **evento gratuito con aforo limitado**, que es el pan de cada día de un meetup— se escribe `price: 0` + `sold-out` + `waitlistUrl`, y quien lo lea sin entender colas ve «gratis, agotado».
+
+**El schema rechaza `in-stock` + `waitlistUrl`**, con un `if`/`then` como el de `currency`: una cola para algo que está a la venta no es una cola. Lo que **sí** permite es `waitlistUrl` sin `availability`: quien sabe que hay cola y no mantiene el estado de la taquilla al día no debería verse forzado a **afirmar** `sold-out` para poder mencionarla. Se prohíbe la combinación incoherente, nunca la incompleta.
+
+**Lo que se descartó por el camino: `last-tickets`.** schema.org tiene el término (`LimitedAvailability`, y Google lo lee), y aun así se queda fuera por tres razones que se refuerzan: de las cinco fuentes estudiadas, **las tres que emiten `availability` emiten `InStock` y nada más**; el umbral no se puede definir —¿cinco plazas, el 10%, lo que decida el marketing?—, así que nadie podría comparar ni filtrar, que es el argumento por el que `price` es un número y no «desde 45 €»; y es **el estado más volátil posible**, incompatible con un fichero que se publica cada noche. Sobre todo, **no cambia la acción**: sigues pudiendo comprar. Cambia la urgencia, y la urgencia es aforo — o sea taquilla, que esta spec deja fuera.
+
 **`opensAt` y `closesAt` son INSTANTES, con offset o `Z`** — a diferencia de `startDate`, que es reloj de pared. No es una incoherencia: una venta que abre es **el momento en que un botón empieza a funcionar**, no una hora en un cartel. [Detalle abajo, junto al mismo caso en el CFP](#fechas-límite-por-qué-llevan-offset-y-startdate-no).
 
-**Lo que `offers` no modela**, y no por olvido: **aforo** (`maximumAttendeeCapacity`, que Guild sí emite), **plazas restantes**, códigos de descuento, cuotas por equipo, y la **inscripción única** de un evento multi-parte. Todo eso es *ticketing*: estado que cambia solo, que caduca en minutos y que un fichero JSON publicado cada noche no puede sostener. `offers` describe **la entrada, no la taquilla**. Si necesitas aforo hoy, ponlo como extensión sin prefijo (ver [`examples/event-meetup.json`](examples/event-meetup.json)) y dilo en el issue.
+**Lo que `offers` no modela**, y no por olvido: **aforo** (`maximumAttendeeCapacity`, que Guild sí emite), **plazas restantes**, **cuánta gente hay en la cola**, códigos de descuento, cuotas por equipo, y la **inscripción única** de un evento multi-parte. Todo eso es *ticketing*: estado que cambia solo, que caduca en minutos y que un fichero JSON publicado cada noche no puede sostener. `offers` describe **la entrada, no la taquilla**. Si necesitas aforo hoy, ponlo como extensión sin prefijo (ver [`examples/event-meetup.json`](examples/event-meetup.json)) y dilo en el issue.
 
 **Por qué no hay `isFree`.** Estaba en el boceto anterior, y es redundante: `price: 0` ya lo dice. Dos formas de afirmar lo mismo son dos formas de contradecirse — `{"isFree": true, "price": 45}` es un documento que valida y no significa nada —, y obliga a todo consumidor a decidir cuál gana. Por lo mismo, `registrationUrl` se llama aquí `url`: el objeto ya se llama «oferta».
 
@@ -606,7 +623,7 @@ Entra por la vía de siempre: de las cinco fuentes estudiadas ([`research/findin
 
 | Destino | Mapeo | Pérdida |
 | --- | --- | --- |
-| **schema.org** | `offers` (array de `Offer`): `price` → `price`, `currency` → `priceCurrency`, `url` → `url`, `availability` → `https://schema.org/InStock` \| `SoldOut`, `opensAt` → `validFrom`, `closesAt` → `validThrough`, `name` → `name` | Ninguna. Es 1:1 con el término que Google lee hoy; las propuestas más recientes de «participation offer» no las emite ningún productor real, así que se mapea a lo que se consume. |
+| **schema.org** | `offers` (array de `Offer`): `price` → `price`, `currency` → `priceCurrency`, `url` → `url`, `availability` → `https://schema.org/InStock` \| `SoldOut`, `opensAt` → `validFrom`, `closesAt` → `validThrough`, `name` → `name` | **Solo `waitlistUrl`.** El resto es 1:1 con el término que Google lee hoy. schema.org **no tiene término** para lista de espera —`BackOrder` y `PreOrder` significan otra cosa—, así que se emite `SoldOut`, que no es falso, y la cola se degrada al texto. Un valor de enum habría perdido exactamente lo mismo. |
 | **iCal** | Nada nativo | **Total.** [RFC 5545](https://www.rfc-editor.org/rfc/rfc5545) no modela precio ni entradas: no hay propiedad donde ponerlo. Un exportador puede llevarlo a la `DESCRIPTION` («Entrada general: 45 €») o a un `X-OTE-PRICE`, y quien no lo entienda ve el evento entero igual. |
 | **RSS / Atom** | Nada nativo: va dentro del texto del ítem | **Toda la estructura.** Un canal de anuncios que no dice el precio en el cuerpo está ocultando lo primero que se pregunta. |
 

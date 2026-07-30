@@ -48,12 +48,15 @@
       "name": "Estudiantes",
       "price": 0,
       "url": "https://devfest-levante.example/2026/entradas#estudiantes",
-      "availability": "in-stock",
+      "availability": "sold-out",
+      "waitlistUrl": "https://devfest-levante.example/2026/lista-espera",
       "translations": {
         "en": { "name": "Students" }
       }
     }
   ],
+
+  "_comment_waitlist": "Las plazas gratuitas de estudiantes se agotaron, y hay cola. `sold-out` + `waitlistUrl` en vez de un `availability: \"waitlist\"`: así un consumidor que no conozca el campo sigue leyendo «agotado», que es cierto — no puedes comprar —, mientras el que lo conozca ofrece la cola. `price: 0` con `sold-out` no es contradictorio: `price` describe el trato, `availability` si puedes actuar sobre él ahora. Y `waitlistUrl` con `in-stock` lo rechaza el schema: una cola para algo que está a la venta no es una cola.",
 
   "_comment_translations": "`offers[].name` es texto LIBRE a propósito: quien organiza nombra sus entradas como quiera, y un enum se lo impediría. El precio de esa libertad es que hay que traducirlo, y se traduce DENTRO de la oferta — no con un espejo posicional (`translations.es.offers[0].name`), que colgaría la traducción de la tarifa equivocada en cuanto alguien reordene la lista. Los demás campos de la oferta no llevan idioma: `price` es un número, `currency` un código y `availability` un enum. Cualquier mapa de traducciones del documento, a la profundidad que esté, exige `textLanguage`.",
   "cfp": {

@@ -657,6 +657,19 @@
           }
         },
         {
+          "path": "offers[].waitlistUrl",
+          "type": "string (uri)",
+          "required": false,
+          "recommended": false,
+          "examples": [
+            "https://devfest-levante.example/2026/lista-espera"
+          ],
+          "description": {
+            "en": "Where to join the queue for this offer once it is gone. It exists so \"gone, nothing to do\" and \"gone, but you can queue\" stop being the same document — the third thing an attendee can act on, and the reason it is a URL and not a third availability value: every consumer that already exists keeps reading sold-out, which is TRUE, instead of meeting an enum value it cannot interpret. Distinct from url, where the ticket is bought: nothing is bought in a queue.",
+            "es": "Dónde apuntarse a la cola de esta oferta una vez agotada. Existe para que «agotado y nada que hacer» y «agotado, pero puedes hacer cola» dejen de ser el mismo documento — es la tercera cosa sobre la que quien asiste puede actuar, y la razón de que sea una URL y no un tercer valor de `availability`: así todo consumidor que ya existe sigue leyendo `sold-out`, que es VERDAD, en vez de encontrarse un valor de enum que no sabe interpretar. Distinta de `url`, donde se compra la entrada: en una cola no se compra nada."
+          }
+        },
+        {
           "path": "offers[].opensAt",
           "type": "string",
           "required": false,
