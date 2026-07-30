@@ -177,7 +177,7 @@
             {
               "type": "members-only",
               "note": "Miembros del Discord de Rust Girona",
-              "url": "https://rustgirona.example/discord"
+              "url": "https://rustgirona.example/join"
             },
             {
               "type": "restricted",
@@ -940,7 +940,7 @@
           "format": "uri",
           "pattern": "^https?://",
           "examples": [
-            "https://rustgirona.example/discord"
+            "https://rustgirona.example/join"
           ]
         },
         "translations": {

@@ -673,7 +673,7 @@
             {
               "type": "members-only",
               "note": "Miembros del Discord de Rust Girona",
-              "url": "https://rustgirona.example/discord"
+              "url": "https://rustgirona.example/join"
             },
             {
               "type": "restricted",
@@ -723,7 +723,7 @@
           "required": false,
           "recommended": false,
           "examples": [
-            "https://rustgirona.example/discord"
+            "https://rustgirona.example/join"
           ],
           "description": {
             "en": "Where the condition is explained or met: the page to join the community, request an invitation, apply. Distinct from offers[].url, which is where a seat or money changes hands — here nothing is bought, a door is opened.",

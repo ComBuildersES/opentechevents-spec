@@ -600,7 +600,7 @@ Nuevo en la v0.3. Opcional, **un objeto**, y solo `type` es obligatorio:
 "eligibility": {
   "type": "members-only",
   "note": "Miembros del Discord de Rust Girona",
-  "url": "https://rustgirona.example/discord"
+  "url": "https://rustgirona.example/join"
 }
 ```
 

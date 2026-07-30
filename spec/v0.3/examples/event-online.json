@@ -33,7 +33,7 @@
   "eligibility": {
     "type": "members-only",
     "note": "Membres del Discord de Rust Girona",
-    "url": "https://rustgirona.example/discord",
+    "url": "https://rustgirona.example/join",
     "translations": {
       "es": { "note": "Miembros del Discord de Rust Girona" }
     }
