@@ -507,6 +507,14 @@ descubrir y seguir.
   ahora enseñan la misma forma. `npm run validate` lo comprueba en los ejemplos
   de `v0.3`; las versiones congeladas conservan el suyo. El orden y el porqué,
   en [«El orden de los campos»](spec/v0.3/README.md#el-orden-de-los-campos-no-es-normativo-pero-hay-uno).
+- **Nueva regla normativa de consumo, sin cambio de schema:** un consumidor o
+  agregador **MAY descartar** un evento que no traiga ni `url`, ni `location`,
+  ni `cfp.url`, y cuyo feed tampoco declare `url`. Ningún documento deja de
+  validar —la validez la sigue decidiendo `event.schema.json`— pero queda dicho
+  que validez y visibilidad son decisiones distintas: un evento sin ningún sitio
+  a donde mandar a quien lo lee no obliga a nadie a listarlo. El detalle y la
+  cadena de reservas (`url` → `location` → `cfp.url` → `feed.url`), en
+  [«Sin `url` ni `location`»](spec/v0.3/README.md#sin-url-ni-location-válido-pero-descartable).
 
 ### Migration — cómo actualizar una herramienta
 

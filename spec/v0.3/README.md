@@ -101,7 +101,7 @@ Por eso hay **dos schemas y dos preguntas distintas**:
 | [`event.schema.json`](event.schema.json) | ¿Es esto un evento OTE? | **Error.** El documento se rechaza. |
 | [`event.recommended.schema.json`](event.recommended.schema.json) | ¿Sirve para algo? | **Aviso.** El documento sigue siendo válido. |
 
-**Regla normativa: una herramienta MAY avisar de un campo recomendado que falta, y MUST NOT rechazar el documento por ello.** Convertir una recomendación en un error reintroduce por la puerta de atrás justo lo que la permisividad evita: quien importa un `.ics` pelado se ve obligado a inventarse el dato o a tirar el evento.
+**Regla normativa: una herramienta MAY avisar de un campo recomendado que falta, y MUST NOT rechazar el documento por ello.** Convertir una recomendación en un error reintroduce por la puerta de atrás justo lo que la permisividad evita: quien importa un `.ics` pelado se ve obligado a inventarse el dato o a tirar el evento. Que no se pueda rechazar el documento no obliga a nadie a **listarlo**: eso es [otra decisión, y es de quien consume](#sin-url-ni-location-válido-pero-descartable).
 
 Los perfiles son schemas normales, publicados bajo su propio `$id` y distribuidos en el paquete npm. Referencian a los de base por `$ref`, así que hay que registrar primero los de base:
 
@@ -120,10 +120,10 @@ El criterio **no** es «estaría bien tenerlo»: es **qué se rompe en los tres 
 
 | Campo | Qué se pierde sin él |
 | --- | --- |
-| `url` | RSS y Atom no tienen otro sitio donde llevar el enlace: la entrada deja de ser pinchable. Es lo que convierte un dato en algo a lo que ir. |
+| `url` | RSS y Atom no tienen otro sitio donde llevar el enlace: la entrada deja de ser pinchable. Es lo que convierte un dato en algo a lo que ir — y sin él ni `location`, [un agregador puede descartar el evento](#sin-url-ni-location-válido-pero-descartable). |
 | `description` | Lo que muestra literalmente todo destino: `DESCRIPTION` en iCal, el cuerpo de la entrada en RSS/Atom, el snippet en schema.org. |
 | `image` | La imagen es lo que hace que el evento **se vea** donde se lista: Google la pide para el `Event` (como recomendada), y es lo único que llena una tarjeta en cualquier interfaz. Además, el aviso es **accionable**: las cinco plataformas estudiadas ya emiten una, así que quien no la manda casi siempre la tiene y no la ha mapeado. |
-| `location` | Google lo exige para el `Event`; en iCal es `LOCATION`. Sin él nadie puede contestar «¿me pilla cerca?». |
+| `location` | Google lo exige para el `Event`; en iCal es `LOCATION`. Sin él nadie puede contestar «¿me pilla cerca?» — y es [la última reserva cuando no hay `url`](#sin-url-ni-location-válido-pero-descartable). |
 | `attendanceMode` | La primera pregunta de quien busca: ¿puedo ir desde casa? No se deriva de `location` de forma fiable — [por eso son campos distintos](#location-y-attendancemode-no-son-redundantes). |
 | `tags` | **El campo del descubrimiento por interés.** Sin él, filtrar por tema exige adivinar a partir del título. Va a `CATEGORIES` en iCal y a `keywords` en schema.org. |
 | `languages` | Un evento en un idioma que no hablas es ruido, y no es el título quien lo dice. |
@@ -141,6 +141,28 @@ El criterio **no** es «estaría bien tenerlo»: es **qué se rompe en los tres 
 **`offers`, `cfp` y `eligibility` tampoco son recomendados**, y no es un descuido. `cfp` porque la inmensa mayoría de los eventos no tiene convocatoria: avisar de su ausencia sería avisar a cada meetup de que no es una conferencia. `eligibility` porque quien importa un `.ics` no tiene forma de saber si hay puerta, y un aviso ahí solo puede atenderse **inventando** un `open` que nadie ha afirmado — que es justo lo que el campo existe para evitar. `offers` porque el aviso no es accionable de forma fiable — un exportador de `.ics` no tiene el precio en ninguna parte, y ninguna de las cinco fuentes estudiadas lo emite de forma universal. Recomendar es prometer que **quien publica puede arreglarlo**; donde no se puede, un aviso solo enseña a ignorar los avisos.
 
 El perfil del feed es corto a propósito ([`feed.recommended.schema.json`](feed.recommended.schema.json)): `url` y `description`. Casi toda la calidad de un feed está en sus eventos, y un checker aplica el perfil de evento a cada uno por separado —  **con la herencia ya resuelta**, o todo evento de un feed comunitario avisaría por unos `organizers` que el feed ya declaró.
+
+#### Sin `url` ni `location`: válido pero descartable
+
+Que ninguna herramienta pueda **rechazar** un documento por un campo recomendado no significa que todo evento válido tenga derecho a ser publicado por otros. Son dos decisiones distintas, y conviene decirlo sin rodeos:
+
+| Decisión | Quién la toma | Qué dice esta spec |
+| --- | --- | --- |
+| ¿Es válido el documento? | El validador | Lo decide [`event.schema.json`](event.schema.json), y solo él. Un campo recomendado que falta **nunca** invalida nada. |
+| ¿Le doy visibilidad? | Quien consume: agregador, directorio, calendario, buscador | Es **suyo**. La validez no obliga a nadie a listar un evento. |
+
+**Regla normativa: un consumidor o agregador MAY descartar —o dejar sin listar, o listar al final— un evento que no traiga ni `url`, ni `location`, ni `cfp.url`, y cuyo feed tampoco declare `url`.** No es un incumplimiento de la spec: es la consecuencia de que no haya **ningún** sitio a donde mandar a quien lea el anuncio.
+
+El motivo es que un evento así no responde a ninguna de las dos preguntas que hacen que un anuncio sirva: **«¿dónde amplío información?»** (`url`) y **«¿dónde se celebra?»** (`location`). Sin ninguna de las dos, lo único que queda es un nombre y una fecha. Un agregador que lo liste no está dando visibilidad al evento: está publicando algo que frustra a quien lo pincha —porque no hay nada que pinchar— y gastando el hueco de una tarjeta en un dato que nadie puede usar. **Anunciar un evento al que no se puede ir ni sobre el que se puede leer más no es difundirlo.**
+
+La cadena de reservas importa, y por eso la regla es tan concreta:
+
+- **`url` es la respuesta normal.** Es lo que convierte el dato en algo a lo que ir.
+- **`location`** salva el caso del `.ics` pelado: casi todo `.ics` real trae `LOCATION` aunque no traiga `URL`, y con un sitio y una hora ya se puede aparecer. `location.onlineUrl` cuenta doble: es sitio **y** enlace.
+- **`cfp.url`** salva a la conferencia cuyo único enlace publicado, de momento, es la convocatoria.
+- **`feed.url`** salva al resto: un evento sin enlace propio dentro de un feed que sí lo tiene **sigue siendo navegable** —«visto en X»—, y descartarlo sería castigar una jerarquía que funciona. Es la razón por la que la regla no se limita al evento.
+
+Para quien publica, el arreglo es de una línea: si el evento no tiene página propia, manda `url` apuntando a la de la comunidad, o declara `url` en el feed. Cualquiera de las dos basta.
 
 #### Dos ausencias que son la parte interesante
 
