@@ -43,6 +43,14 @@
         "https://pyalmeria.example"
       ]
     },
+    "textLanguage": {
+      "description": "Language this feed's own free text is written in — title and description. Also the DEFAULT for every event that does not declare its own, which is what makes it cheap: a monolingual publisher declares it once for the whole file and no event repeats it. Absent means unknown, never English and never the language of the HTTP response.",
+      "$ref": "https://opentechevents.org/schema/v0.3/event.schema.json#/$defs/languageTag",
+      "examples": [
+        "es",
+        "ca"
+      ]
+    },
     "organizers": {
       "description": "Who runs the events in this feed — the DEFAULT for every event that does not declare its own. Not the same as title/url, which name whoever publishes the feed: an aggregator publishes events it does not organise, and must leave this out so each event states its own.",
       "$ref": "https://opentechevents.org/schema/v0.3/event.schema.json#/$defs/organizers",
@@ -79,6 +87,18 @@
         "2026-07-06T10:00:00Z"
       ]
     },
+    "translations": {
+      "description": "This feed's own title and description in other languages. Its EVENTS are not translated here: each one carries its own translations, and unlike license or textLanguage this field is never inherited — a feed's title is not an event's name.",
+      "$ref": "https://opentechevents.org/schema/v0.3/event.schema.json#/$defs/feedTranslations",
+      "examples": [
+        {
+          "en": {
+            "title": "Rust Girona events",
+            "description": "Weekly online Rust coding sessions, in Catalan and Spanish."
+          }
+        }
+      ]
+    },
     "events": {
       "description": "Events in this feed. Each one inherits the feed's specVersion and license unless it declares its own.",
       "type": "array",
@@ -86,5 +106,22 @@
         "$ref": "https://opentechevents.org/schema/v0.3/event.schema.json#/$defs/event"
       }
     }
-  }
+  },
+  "allOf": [
+    {
+      "description": "Same rule as an event: a map of translations is unusable without knowing which language the primary text is in. A feed that translates its title must say what language that title is in.",
+      "if": {
+        "type": "object",
+        "required": [
+          "translations"
+        ]
+      },
+      "then": {
+        "type": "object",
+        "required": [
+          "textLanguage"
+        ]
+      }
+    }
+  ]
 }

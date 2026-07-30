@@ -423,29 +423,39 @@
       "fields": [
         "event.attendanceMode",
         "event.location.onlineUrl",
-        "event.languages"
+        "event.eligibility",
+        "event.eligibility.type",
+        "event.languages",
+        "event.textLanguage",
+        "event.translations"
       ],
       "title": {
-        "en": "Online-only session",
-        "es": "Sesión solo online"
+        "en": "Online-only session, in two languages, behind a community door",
+        "es": "Sesión solo online, en dos idiomas y detrás de una puerta de comunidad"
       },
       "summary": {
-        "en": "No venue, just a joining URL — and a weekly series behind it.",
-        "es": "Sin sede, solo URL de conexión — y una serie semanal detrás."
+        "en": "No venue, just a joining URL — a weekly series behind it, a membership in front of it, and a text that exists in Catalan and Spanish.",
+        "es": "Sin sede, solo URL de conexión — con una serie semanal detrás, una membresía delante y un texto que existe en catalán y castellano."
       },
       "points": {
         "en": [
           "`location` carries `onlineUrl` and nothing else. An empty `location: {}` is invalid: saying nothing is already done by omitting the field.",
-          "`languages` uses BCP 47 tags. Absent means unknown, never a default.",
+          "`eligibility` is the third part of \"can I go?\": `attendanceMode` and `location` say the event is within reach of anyone with a connection, this says there is still a door — the voice channel lives inside the community's Discord. Its `url` is where the condition is met, not where a seat is bought: that is `offers[].url`.",
+          "`languages` and `textLanguage` are not the same data, and here they disagree: Catalan and Spanish are SPOKEN at the session, and the document is WRITTEN in Catalan only. Neither derives from the other, and both use BCP 47 tags.",
+          "`translations` carries the Spanish version of `name` and `description` — while those two fields stay plain strings, so a v0.2 consumer reads this document without noticing the field exists. There is no `ca` entry: that would be the same text twice.",
+          "Text that lives INSIDE an object is translated where it lives: `eligibility.translations` and `partOf.translations`, never a positional mirror like `translations.es.partOf.name`. `location.venue` and `organizers[].name` are never translated at all — they are proper nouns.",
           "Weekly sessions are published the same way monthly ones are: one document per session, grouped by `partOf`."
         ],
         "es": [
           "`location` lleva `onlineUrl` y nada más. Un `location: {}` vacío es inválido: decir nada ya se hace omitiendo el campo.",
-          "`languages` usa etiquetas BCP 47. Ausente significa desconocido, nunca un valor por defecto.",
+          "`eligibility` es la tercera parte de «¿puedo ir?»: `attendanceMode` y `location` dicen que el evento está al alcance de cualquiera con conexión, y este dice que aun así hay una puerta — el canal de voz está dentro del Discord de la comunidad. Su `url` es donde se cumple la condición, no donde se compra una plaza: eso es `offers[].url`.",
+          "`languages` y `textLanguage` no son el mismo dato, y aquí no coinciden: en la sesión se HABLA catalán y castellano, y el documento está ESCRITO solo en catalán. Ninguno se deriva del otro, y los dos usan etiquetas BCP 47.",
+          "`translations` lleva la versión castellana de `name` y `description` — mientras esos dos campos siguen siendo cadenas, así que un consumidor de v0.2 lee este documento sin enterarse de que el campo existe. No hay entrada `ca`: sería el mismo texto dos veces.",
+          "El texto que vive DENTRO de un objeto se traduce donde vive: `eligibility.translations` y `partOf.translations`, nunca un espejo posicional del estilo `translations.es.partOf.name`. `location.venue` y `organizers[].name` no se traducen jamás — son nombres propios.",
           "Las sesiones semanales se publican igual que las mensuales: un documento por sesión, agrupadas por `partOf`."
         ]
       },
-      "source": "{\n  \"specVersion\": \"0.3.0\",\n  \"id\": \"https://rustgirona.example/sessions/2026-07-31\",\n  \"url\": \"https://rustgirona.example/sessions/2026-07-31\",\n  \"name\": \"Sessió setmanal de codificació — Rust Girona\",\n  \"description\": \"Cada semana nos juntamos en línea para picar Rust un rato. Canal de voz de Discord; el enlace está en la página del evento.\",\n  \"image\": [\n    \"https://rustgirona.example/img/sessio-setmanal.png\"\n  ],\n  \"organizers\": [\n    {\n      \"name\": \"Rust Girona\",\n      \"url\": \"https://rustgirona.example\"\n    },\n    {\n      \"type\": \"person\",\n      \"name\": \"Ivan Fraixedes\",\n      \"url\": \"https://ifraixedes.example\"\n    }\n  ],\n  \"startDate\": \"2026-07-31T18:00:00\",\n  \"endDate\": \"2026-07-31T19:00:00\",\n  \"timezone\": \"Europe/Madrid\",\n  \"attendanceMode\": \"online\",\n  \"location\": {\n    \"onlineUrl\": \"https://discord.example/rust-girona\"\n  },\n  \"tags\": [\n    \"rust\",\n    \"pair-programming\"\n  ],\n  \"languages\": [\n    \"ca\",\n    \"es\"\n  ],\n  \"status\": \"scheduled\",\n  \"partOf\": {\n    \"id\": \"https://rustgirona.example/sessions\",\n    \"name\": \"Sessió setmanal de codificació\",\n    \"url\": \"https://rustgirona.example/sessions\"\n  },\n  \"license\": \"CC-BY-4.0\",\n  \"updatedAt\": \"2026-07-24T08:00:00Z\"\n}",
+      "source": "{\n  \"specVersion\": \"0.3.0\",\n  \"id\": \"https://rustgirona.example/sessions/2026-07-31\",\n  \"url\": \"https://rustgirona.example/sessions/2026-07-31\",\n  \"name\": \"Sessió setmanal de codificació — Rust Girona\",\n  \"description\": \"Cada setmana ens trobem en línia per picar Rust una estona. Canal de veu de Discord; l'enllaç és a la pàgina de l'esdeveniment.\",\n  \"image\": [\n    \"https://rustgirona.example/img/sessio-setmanal.png\"\n  ],\n  \"organizers\": [\n    {\n      \"name\": \"Rust Girona\",\n      \"url\": \"https://rustgirona.example\"\n    },\n    {\n      \"type\": \"person\",\n      \"name\": \"Ivan Fraixedes\",\n      \"url\": \"https://ifraixedes.example\"\n    }\n  ],\n  \"startDate\": \"2026-07-31T18:00:00\",\n  \"endDate\": \"2026-07-31T19:00:00\",\n  \"timezone\": \"Europe/Madrid\",\n  \"attendanceMode\": \"online\",\n  \"location\": {\n    \"onlineUrl\": \"https://discord.example/rust-girona\"\n  },\n  \"eligibility\": {\n    \"type\": \"members-only\",\n    \"note\": \"Membres del Discord de Rust Girona\",\n    \"url\": \"https://rustgirona.example/discord\",\n    \"translations\": {\n      \"es\": {\n        \"note\": \"Miembros del Discord de Rust Girona\"\n      }\n    }\n  },\n  \"tags\": [\n    \"rust\",\n    \"pair-programming\"\n  ],\n  \"languages\": [\n    \"ca\",\n    \"es\"\n  ],\n  \"textLanguage\": \"ca\",\n  \"status\": \"scheduled\",\n  \"partOf\": {\n    \"id\": \"https://rustgirona.example/sessions\",\n    \"name\": \"Sessió setmanal de codificació\",\n    \"url\": \"https://rustgirona.example/sessions\",\n    \"translations\": {\n      \"es\": {\n        \"name\": \"Sesión semanal de programación\"\n      }\n    }\n  },\n  \"license\": \"CC-BY-4.0\",\n  \"updatedAt\": \"2026-07-24T08:00:00Z\",\n  \"translations\": {\n    \"es\": {\n      \"name\": \"Sesión semanal de programación — Rust Girona\",\n      \"description\": \"Cada semana nos juntamos en línea para picar Rust un rato. Canal de voz de Discord; el enlace está en la página del evento.\"\n    }\n  }\n}",
       "lines": {
         "event.specVersion": [
           2
@@ -497,32 +507,77 @@
         "event.location": [
           25
         ],
-        "event.tags": [
-          28
+        "event.eligibility.type": [
+          29
         ],
-        "event.languages": [
+        "event.eligibility.note": [
+          30
+        ],
+        "event.eligibility.url": [
+          31
+        ],
+        "event.eligibility.translations.es.note": [
+          34
+        ],
+        "event.eligibility.translations.es": [
+          33
+        ],
+        "event.eligibility.translations": [
           32
         ],
-        "event.status": [
-          36
+        "event.eligibility": [
+          28
         ],
-        "event.partOf.id": [
+        "event.tags": [
           38
         ],
-        "event.partOf.name": [
-          39
-        ],
-        "event.partOf.url": [
-          40
-        ],
-        "event.partOf": [
-          37
-        ],
-        "event.license": [
+        "event.languages": [
           42
         ],
+        "event.textLanguage": [
+          46
+        ],
+        "event.status": [
+          47
+        ],
+        "event.partOf.id": [
+          49
+        ],
+        "event.partOf.name": [
+          50
+        ],
+        "event.partOf.url": [
+          51
+        ],
+        "event.partOf.translations.es.name": [
+          54
+        ],
+        "event.partOf.translations.es": [
+          53
+        ],
+        "event.partOf.translations": [
+          52
+        ],
+        "event.partOf": [
+          48
+        ],
+        "event.license": [
+          58
+        ],
         "event.updatedAt": [
-          43
+          59
+        ],
+        "event.translations.es.name": [
+          62
+        ],
+        "event.translations.es.description": [
+          63
+        ],
+        "event.translations.es": [
+          61
+        ],
+        "event.translations": [
+          60
         ]
       }
     },
@@ -959,6 +1014,7 @@
         "event.offers",
         "event.offers[].price",
         "event.offers[].availability",
+        "event.offers[].translations",
         "event.cfp",
         "event.cfp.closesAt",
         "event.cfp.coversTravel"
@@ -976,16 +1032,18 @@
           "Tiered pricing is several `offers`, not one with a range: a price you cannot write as a single number is more than one offer. `availability` says which tier is already gone.",
           "The student tier is `price: 0` and no `currency` — free is free in every currency, and asking for one there is how a free meetup ends up publishing a US dollar amount.",
           "The deadlines carry an offset, unlike the event's own dates. A CFP closing at \"23:59\" is the classic bug: which midnight is the entire question, and \"anywhere on Earth\" is a real answer (`-12:00`).",
+          "`offers[].name` is free text on purpose — an enum would take away an organiser's right to name their own tickets — so translating it is the price, and it is done INSIDE the offer. The rest of the offer has no language at all: `price` is a number, `currency` a code, `availability` an enum.",
           "`cfp` has no equivalent in schema.org, iCal or RSS — it degrades to text on export. It is in the core anyway because \"which conferences are accepting proposals right now\" is a question only the publisher can answer, and today it is answered by scraping."
         ],
         "es": [
           "Varios precios son varias `offers`, no una con un rango: un precio que no se puede escribir con un solo número es más de una oferta. `availability` dice cuál se ha agotado ya.",
           "La entrada de estudiantes lleva `price: 0` y ninguna `currency` — lo gratis es gratis en cualquier moneda, y exigirla ahí es como un meetup gratuito acaba publicando un importe en dólares.",
           "Las fechas límite llevan offset, a diferencia de las fechas del propio evento. Un CFP que cierra a las «23:59» es el bug clásico: qué medianoche es exactamente la pregunta, y «anywhere on Earth» es una respuesta real (`-12:00`).",
+          "`offers[].name` es texto libre a propósito —un enum le quitaría a quien organiza el derecho a nombrar sus entradas—, así que traducirlo es el precio, y se hace DENTRO de la oferta. El resto de la oferta no lleva idioma: `price` es un número, `currency` un código y `availability` un enum.",
           "`cfp` no tiene equivalente en schema.org, iCal ni RSS: al exportar se degrada a texto. Está en el núcleo igualmente porque «qué conferencias aceptan propuestas ahora mismo» solo lo puede contestar quien publica, y hoy se contesta scrapeando."
         ]
       },
-      "source": "{\n  \"specVersion\": \"0.3.0\",\n  \"id\": \"https://devfest-levante.example/2026\",\n  \"url\": \"https://devfest-levante.example/2026\",\n  \"name\": \"DevFest Levante 2026\",\n  \"description\": \"Conferencia de desarrollo del sureste, edición 2026. Dos días, tres tracks.\",\n  \"image\": [\n    \"https://devfest-levante.example/img/2026-16x9.png\"\n  ],\n  \"organizers\": [\n    {\n      \"name\": \"GDG Levante\",\n      \"url\": \"https://gdglevante.example\"\n    }\n  ],\n  \"startDate\": \"2026-10-16\",\n  \"endDate\": \"2026-10-17\",\n  \"timezone\": \"Europe/Madrid\",\n  \"attendanceMode\": \"in-person\",\n  \"location\": {\n    \"venue\": \"Las Naves, Carrer de Joan Verdeguer 16, València\",\n    \"address\": {\n      \"street\": \"Carrer de Joan Verdeguer 16\",\n      \"locality\": \"València\",\n      \"region\": \"Comunitat Valenciana\",\n      \"postalCode\": \"46024\",\n      \"country\": \"ES\"\n    }\n  },\n  \"tags\": [\n    \"cloud\",\n    \"ai\",\n    \"web\"\n  ],\n  \"languages\": [\n    \"es\",\n    \"en\"\n  ],\n  \"offers\": [\n    {\n      \"name\": \"Early bird\",\n      \"price\": 35,\n      \"currency\": \"EUR\",\n      \"url\": \"https://devfest-levante.example/2026/entradas\",\n      \"availability\": \"sold-out\",\n      \"closesAt\": \"2026-06-30T23:59:59+02:00\"\n    },\n    {\n      \"name\": \"General\",\n      \"price\": 45,\n      \"currency\": \"EUR\",\n      \"url\": \"https://devfest-levante.example/2026/entradas\",\n      \"availability\": \"in-stock\",\n      \"opensAt\": \"2026-07-01T00:00:00+02:00\"\n    },\n    {\n      \"name\": \"Estudiantes\",\n      \"price\": 0,\n      \"url\": \"https://devfest-levante.example/2026/entradas#estudiantes\",\n      \"availability\": \"in-stock\"\n    }\n  ],\n  \"cfp\": {\n    \"url\": \"https://devfest-levante.example/2026/cfp\",\n    \"opensAt\": \"2026-05-01T00:00:00+02:00\",\n    \"closesAt\": \"2026-07-15T23:59:59+02:00\",\n    \"coversTravel\": true,\n    \"coversAccommodation\": true\n  },\n  \"status\": \"scheduled\",\n  \"license\": \"CC-BY-4.0\",\n  \"updatedAt\": \"2026-05-04T09:00:00Z\"\n}",
+      "source": "{\n  \"specVersion\": \"0.3.0\",\n  \"id\": \"https://devfest-levante.example/2026\",\n  \"url\": \"https://devfest-levante.example/2026\",\n  \"name\": \"DevFest Levante 2026\",\n  \"description\": \"Conferencia de desarrollo del sureste, edición 2026. Dos días, tres tracks.\",\n  \"image\": [\n    \"https://devfest-levante.example/img/2026-16x9.png\"\n  ],\n  \"organizers\": [\n    {\n      \"name\": \"GDG Levante\",\n      \"url\": \"https://gdglevante.example\"\n    }\n  ],\n  \"startDate\": \"2026-10-16\",\n  \"endDate\": \"2026-10-17\",\n  \"timezone\": \"Europe/Madrid\",\n  \"attendanceMode\": \"in-person\",\n  \"location\": {\n    \"venue\": \"Las Naves, Carrer de Joan Verdeguer 16, València\",\n    \"address\": {\n      \"street\": \"Carrer de Joan Verdeguer 16\",\n      \"locality\": \"València\",\n      \"region\": \"Comunitat Valenciana\",\n      \"postalCode\": \"46024\",\n      \"country\": \"ES\"\n    }\n  },\n  \"tags\": [\n    \"cloud\",\n    \"ai\",\n    \"web\"\n  ],\n  \"languages\": [\n    \"es\",\n    \"en\"\n  ],\n  \"textLanguage\": \"es\",\n  \"offers\": [\n    {\n      \"name\": \"Early bird\",\n      \"price\": 35,\n      \"currency\": \"EUR\",\n      \"url\": \"https://devfest-levante.example/2026/entradas\",\n      \"availability\": \"sold-out\",\n      \"closesAt\": \"2026-06-30T23:59:59+02:00\"\n    },\n    {\n      \"name\": \"General\",\n      \"price\": 45,\n      \"currency\": \"EUR\",\n      \"url\": \"https://devfest-levante.example/2026/entradas\",\n      \"availability\": \"in-stock\",\n      \"opensAt\": \"2026-07-01T00:00:00+02:00\"\n    },\n    {\n      \"name\": \"Estudiantes\",\n      \"price\": 0,\n      \"url\": \"https://devfest-levante.example/2026/entradas#estudiantes\",\n      \"availability\": \"in-stock\",\n      \"translations\": {\n        \"en\": {\n          \"name\": \"Students\"\n        }\n      }\n    }\n  ],\n  \"cfp\": {\n    \"url\": \"https://devfest-levante.example/2026/cfp\",\n    \"opensAt\": \"2026-05-01T00:00:00+02:00\",\n    \"closesAt\": \"2026-07-15T23:59:59+02:00\",\n    \"coversTravel\": true,\n    \"coversAccommodation\": true\n  },\n  \"status\": \"scheduled\",\n  \"license\": \"CC-BY-4.0\",\n  \"updatedAt\": \"2026-05-04T09:00:00Z\"\n}",
       "lines": {
         "event.specVersion": [
           2
@@ -1056,65 +1114,77 @@
         "event.languages": [
           35
         ],
-        "event.offers[].name": [
-          41,
-          49,
-          57
+        "event.textLanguage": [
+          39
         ],
-        "event.offers[].price": [
+        "event.offers[].name": [
           42,
           50,
           58
         ],
-        "event.offers[].currency": [
+        "event.offers[].price": [
           43,
-          51
-        ],
-        "event.offers[].url": [
-          44,
-          52,
+          51,
           59
         ],
-        "event.offers[].availability": [
+        "event.offers[].currency": [
+          44,
+          52
+        ],
+        "event.offers[].url": [
           45,
           53,
           60
         ],
+        "event.offers[].availability": [
+          46,
+          54,
+          61
+        ],
         "event.offers[].closesAt": [
-          46
+          47
         ],
         "event.offers[].opensAt": [
-          54
+          55
         ],
-        "event.offers": [
-          39
-        ],
-        "event.cfp.url": [
+        "event.offers[].translations.en.name": [
           64
         ],
-        "event.cfp.opensAt": [
-          65
-        ],
-        "event.cfp.closesAt": [
-          66
-        ],
-        "event.cfp.coversTravel": [
-          67
-        ],
-        "event.cfp.coversAccommodation": [
-          68
-        ],
-        "event.cfp": [
+        "event.offers[].translations.en": [
           63
         ],
-        "event.status": [
+        "event.offers[].translations": [
+          62
+        ],
+        "event.offers": [
+          40
+        ],
+        "event.cfp.url": [
           70
         ],
-        "event.license": [
+        "event.cfp.opensAt": [
           71
         ],
-        "event.updatedAt": [
+        "event.cfp.closesAt": [
           72
+        ],
+        "event.cfp.coversTravel": [
+          73
+        ],
+        "event.cfp.coversAccommodation": [
+          74
+        ],
+        "event.cfp": [
+          69
+        ],
+        "event.status": [
+          76
+        ],
+        "event.license": [
+          77
+        ],
+        "event.updatedAt": [
+          78
         ]
       }
     },
@@ -1357,6 +1427,7 @@
       "fields": [
         "feed.organizers",
         "feed.license",
+        "feed.textLanguage",
         "feed.events"
       ],
       "title": {
@@ -1371,15 +1442,17 @@
         "en": [
           "Repeating `\"license\": \"CC-BY-4.0\"` in 200 events is noise, not rigour: an event that omits it inherits the feed's.",
           "An event that declares `organizers` REPLACES the inherited list. With merging there would be no way to remove an inherited organiser.",
-          "That is why the second event repeats the feed's own community next to the guest one: leaving it out would attribute the event to the guest alone."
+          "That is why the second event repeats the feed's own community next to the guest one: leaving it out would attribute the event to the guest alone.",
+          "`textLanguage` inherits the same way: declared once on the feed, no event repeats it. That is what makes the field cost one line for a monolingual publisher. `translations` never inherits — it translates the FEED's title, not its events' names."
         ],
         "es": [
           "Repetir `\"license\": \"CC-BY-4.0\"` en 200 eventos es ruido, no rigor: el evento que la omite hereda la del feed.",
           "El evento que declara `organizers` REEMPLAZA la lista heredada. Con fusión no habría forma de quitar un organizador heredado.",
-          "Por eso el segundo evento repite la comunidad del propio feed junto a la invitada: omitirla atribuiría el evento solo a la invitada."
+          "Por eso el segundo evento repite la comunidad del propio feed junto a la invitada: omitirla atribuiría el evento solo a la invitada.",
+          "`textLanguage` se hereda igual: declarado una vez en el feed, ningún evento lo repite. Es lo que hace que el campo cueste una línea a quien publica en un solo idioma. `translations` no se hereda nunca — traduce el título DEL FEED, no el nombre de sus eventos."
         ]
       },
-      "source": "{\n  \"specVersion\": \"0.3.0\",\n  \"title\": \"Eventos de PyAlmería\",\n  \"description\": \"Meetups mensuales de Python en Almería.\",\n  \"url\": \"https://pyalmeria.example\",\n  \"organizers\": [\n    {\n      \"name\": \"PyAlmería\",\n      \"url\": \"https://pyalmeria.example\"\n    }\n  ],\n  \"license\": \"CC-BY-4.0\",\n  \"licenseUrl\": \"https://creativecommons.org/licenses/by/4.0/\",\n  \"updatedAt\": \"2026-07-06T10:00:00Z\",\n  \"events\": [\n    {\n      \"id\": \"https://pyalmeria.example/eventos/2026-06-async\",\n      \"url\": \"https://pyalmeria.example/eventos/2026-06-async\",\n      \"name\": \"PyAlmería — Introducción a async/await\",\n      \"description\": \"Charla introductoria a la programación asíncrona en Python, con ejemplos en vivo.\",\n      \"image\": [\n        \"https://pyalmeria.example/img/2026-06-async.png\"\n      ],\n      \"startDate\": \"2026-06-11T18:30:00\",\n      \"endDate\": \"2026-06-11T20:30:00\",\n      \"timezone\": \"Europe/Madrid\",\n      \"attendanceMode\": \"in-person\",\n      \"location\": {\n        \"venue\": \"El Cable, Almería\",\n        \"address\": {\n          \"street\": \"Calle Poeta Villaespesa 1\",\n          \"locality\": \"Almería\",\n          \"postalCode\": \"04001\",\n          \"country\": \"ES\"\n        }\n      },\n      \"tags\": [\n        \"python\",\n        \"async\"\n      ],\n      \"languages\": [\n        \"es\"\n      ],\n      \"updatedAt\": \"2026-05-28T11:00:00Z\"\n    },\n    {\n      \"id\": \"https://pyalmeria.example/eventos/2026-07-datos\",\n      \"url\": \"https://pyalmeria.example/eventos/2026-07-datos\",\n      \"name\": \"Noche de datos — PyAlmería × PyData Almería\",\n      \"description\": \"Sesión conjunta con PyData Almería.\",\n      \"image\": [\n        \"https://pyalmeria.example/img/2026-07-datos.png\"\n      ],\n      \"organizers\": [\n        {\n          \"name\": \"PyAlmería\",\n          \"url\": \"https://pyalmeria.example\"\n        },\n        {\n          \"name\": \"PyData Almería\",\n          \"url\": \"https://pydata-almeria.example\"\n        }\n      ],\n      \"startDate\": \"2026-07-09T18:30:00\",\n      \"endDate\": \"2026-07-09T21:00:00\",\n      \"timezone\": \"Europe/Madrid\",\n      \"attendanceMode\": \"hybrid\",\n      \"location\": {\n        \"venue\": \"El Cable, Almería\",\n        \"address\": {\n          \"street\": \"Calle Poeta Villaespesa 1\",\n          \"locality\": \"Almería\",\n          \"postalCode\": \"04001\",\n          \"country\": \"ES\"\n        },\n        \"onlineUrl\": \"https://meet.example/pyalmeria\"\n      },\n      \"tags\": [\n        \"python\",\n        \"data\"\n      ],\n      \"languages\": [\n        \"es\"\n      ],\n      \"updatedAt\": \"2026-06-30T16:45:00Z\"\n    }\n  ]\n}",
+      "source": "{\n  \"specVersion\": \"0.3.0\",\n  \"title\": \"Eventos de PyAlmería\",\n  \"description\": \"Meetups mensuales de Python en Almería.\",\n  \"url\": \"https://pyalmeria.example\",\n  \"textLanguage\": \"es\",\n  \"organizers\": [\n    {\n      \"name\": \"PyAlmería\",\n      \"url\": \"https://pyalmeria.example\"\n    }\n  ],\n  \"license\": \"CC-BY-4.0\",\n  \"licenseUrl\": \"https://creativecommons.org/licenses/by/4.0/\",\n  \"updatedAt\": \"2026-07-06T10:00:00Z\",\n  \"events\": [\n    {\n      \"id\": \"https://pyalmeria.example/eventos/2026-06-async\",\n      \"url\": \"https://pyalmeria.example/eventos/2026-06-async\",\n      \"name\": \"PyAlmería — Introducción a async/await\",\n      \"description\": \"Charla introductoria a la programación asíncrona en Python, con ejemplos en vivo.\",\n      \"image\": [\n        \"https://pyalmeria.example/img/2026-06-async.png\"\n      ],\n      \"startDate\": \"2026-06-11T18:30:00\",\n      \"endDate\": \"2026-06-11T20:30:00\",\n      \"timezone\": \"Europe/Madrid\",\n      \"attendanceMode\": \"in-person\",\n      \"location\": {\n        \"venue\": \"El Cable, Almería\",\n        \"address\": {\n          \"street\": \"Calle Poeta Villaespesa 1\",\n          \"locality\": \"Almería\",\n          \"postalCode\": \"04001\",\n          \"country\": \"ES\"\n        }\n      },\n      \"tags\": [\n        \"python\",\n        \"async\"\n      ],\n      \"languages\": [\n        \"es\"\n      ],\n      \"updatedAt\": \"2026-05-28T11:00:00Z\"\n    },\n    {\n      \"id\": \"https://pyalmeria.example/eventos/2026-07-datos\",\n      \"url\": \"https://pyalmeria.example/eventos/2026-07-datos\",\n      \"name\": \"Noche de datos — PyAlmería × PyData Almería\",\n      \"description\": \"Sesión conjunta con PyData Almería.\",\n      \"image\": [\n        \"https://pyalmeria.example/img/2026-07-datos.png\"\n      ],\n      \"organizers\": [\n        {\n          \"name\": \"PyAlmería\",\n          \"url\": \"https://pyalmeria.example\"\n        },\n        {\n          \"name\": \"PyData Almería\",\n          \"url\": \"https://pydata-almeria.example\"\n        }\n      ],\n      \"startDate\": \"2026-07-09T18:30:00\",\n      \"endDate\": \"2026-07-09T21:00:00\",\n      \"timezone\": \"Europe/Madrid\",\n      \"attendanceMode\": \"hybrid\",\n      \"location\": {\n        \"venue\": \"El Cable, Almería\",\n        \"address\": {\n          \"street\": \"Calle Poeta Villaespesa 1\",\n          \"locality\": \"Almería\",\n          \"postalCode\": \"04001\",\n          \"country\": \"ES\"\n        },\n        \"onlineUrl\": \"https://meet.example/pyalmeria\"\n      },\n      \"tags\": [\n        \"python\",\n        \"data\"\n      ],\n      \"languages\": [\n        \"es\"\n      ],\n      \"updatedAt\": \"2026-06-30T16:45:00Z\"\n    }\n  ]\n}",
       "lines": {
         "feed.specVersion": [
           2
@@ -1393,112 +1466,115 @@
         "feed.url": [
           5
         ],
-        "event.organizers[].name": [
-          8,
-          56,
-          60
+        "feed.textLanguage": [
+          6
         ],
-        "event.organizers[].url": [
+        "event.organizers[].name": [
           9,
           57,
           61
         ],
+        "event.organizers[].url": [
+          10,
+          58,
+          62
+        ],
         "feed.organizers": [
-          6
+          7
         ],
         "feed.license": [
-          12
-        ],
-        "feed.licenseUrl": [
           13
         ],
-        "feed.updatedAt": [
+        "feed.licenseUrl": [
           14
         ],
-        "event.id": [
-          17,
-          47
+        "feed.updatedAt": [
+          15
         ],
-        "event.url": [
+        "event.id": [
           18,
           48
         ],
-        "event.name": [
+        "event.url": [
           19,
           49
         ],
-        "event.description": [
+        "event.name": [
           20,
           50
         ],
-        "event.image": [
+        "event.description": [
           21,
           51
         ],
-        "event.startDate": [
-          24,
-          64
+        "event.image": [
+          22,
+          52
         ],
-        "event.endDate": [
+        "event.startDate": [
           25,
           65
         ],
-        "event.timezone": [
+        "event.endDate": [
           26,
           66
         ],
-        "event.attendanceMode": [
+        "event.timezone": [
           27,
           67
         ],
-        "event.location.venue": [
-          29,
-          69
-        ],
-        "event.location.address.street": [
-          31,
-          71
-        ],
-        "event.location.address.locality": [
-          32,
-          72
-        ],
-        "event.location.address.postalCode": [
-          33,
-          73
-        ],
-        "event.location.address.country": [
-          34,
-          74
-        ],
-        "event.location.address": [
-          30,
-          70
-        ],
-        "event.location": [
+        "event.attendanceMode": [
           28,
           68
         ],
+        "event.location.venue": [
+          30,
+          70
+        ],
+        "event.location.address.street": [
+          32,
+          72
+        ],
+        "event.location.address.locality": [
+          33,
+          73
+        ],
+        "event.location.address.postalCode": [
+          34,
+          74
+        ],
+        "event.location.address.country": [
+          35,
+          75
+        ],
+        "event.location.address": [
+          31,
+          71
+        ],
+        "event.location": [
+          29,
+          69
+        ],
         "event.tags": [
-          37,
-          78
+          38,
+          79
         ],
         "event.languages": [
-          41,
-          82
+          42,
+          83
         ],
         "event.updatedAt": [
-          44,
-          85
+          45,
+          86
         ],
         "event.organizers": [
-          54
+          55
         ],
         "event.location.onlineUrl": [
-          76
+          77
         ],
         "feed.events": [
-          15
+          16
         ]
       }
     },
@@ -1782,8 +1858,8 @@
       {
         "file": "feed-community.json",
         "lines": [
-          17,
-          47
+          18,
+          48
         ]
       },
       {
@@ -1860,8 +1936,8 @@
       {
         "file": "feed-community.json",
         "lines": [
-          19,
-          49
+          20,
+          50
         ]
       },
       {
@@ -1938,8 +2014,8 @@
       {
         "file": "feed-community.json",
         "lines": [
-          24,
-          64
+          25,
+          65
         ]
       },
       {
@@ -2016,8 +2092,8 @@
       {
         "file": "feed-community.json",
         "lines": [
-          26,
-          66
+          27,
+          67
         ]
       },
       {
@@ -2050,7 +2126,7 @@
       {
         "file": "event-online.json",
         "lines": [
-          42
+          58
         ]
       },
       {
@@ -2068,7 +2144,7 @@
       {
         "file": "event-conference-cfp.json",
         "lines": [
-          71
+          77
         ]
       },
       {
@@ -2144,8 +2220,8 @@
       {
         "file": "feed-community.json",
         "lines": [
-          18,
-          48
+          19,
+          49
         ]
       },
       {
@@ -2216,8 +2292,8 @@
       {
         "file": "feed-community.json",
         "lines": [
-          20,
-          50
+          21,
+          51
         ]
       },
       {
@@ -2282,8 +2358,8 @@
       {
         "file": "feed-community.json",
         "lines": [
-          21,
-          51
+          22,
+          52
         ]
       },
       {
@@ -2356,9 +2432,9 @@
       {
         "file": "feed-community.json",
         "lines": [
-          8,
-          56,
-          60
+          9,
+          57,
+          61
         ]
       },
       {
@@ -2425,9 +2501,9 @@
       {
         "file": "feed-community.json",
         "lines": [
-          9,
-          57,
-          61
+          10,
+          58,
+          62
         ]
       },
       {
@@ -2490,7 +2566,7 @@
       {
         "file": "feed-community.json",
         "lines": [
-          54
+          55
         ]
       },
       {
@@ -2561,8 +2637,8 @@
       {
         "file": "feed-community.json",
         "lines": [
-          25,
-          65
+          26,
+          66
         ]
       },
       {
@@ -2627,8 +2703,8 @@
       {
         "file": "feed-community.json",
         "lines": [
-          27,
-          67
+          28,
+          68
         ]
       },
       {
@@ -2693,8 +2769,8 @@
       {
         "file": "feed-community.json",
         "lines": [
-          29,
-          69
+          30,
+          70
         ]
       },
       {
@@ -2753,8 +2829,8 @@
       {
         "file": "feed-community.json",
         "lines": [
-          31,
-          71
+          32,
+          72
         ]
       },
       {
@@ -2812,8 +2888,8 @@
       {
         "file": "feed-community.json",
         "lines": [
-          32,
-          72
+          33,
+          73
         ]
       },
       {
@@ -2892,8 +2968,8 @@
       {
         "file": "feed-community.json",
         "lines": [
-          33,
-          73
+          34,
+          74
         ]
       },
       {
@@ -2951,8 +3027,8 @@
       {
         "file": "feed-community.json",
         "lines": [
-          34,
-          74
+          35,
+          75
         ]
       },
       {
@@ -3011,8 +3087,8 @@
       {
         "file": "feed-community.json",
         "lines": [
-          30,
-          70
+          31,
+          71
         ]
       },
       {
@@ -3039,7 +3115,7 @@
       {
         "file": "feed-community.json",
         "lines": [
-          76
+          77
         ]
       },
       {
@@ -3169,8 +3245,8 @@
       {
         "file": "feed-community.json",
         "lines": [
-          28,
-          68
+          29,
+          69
         ]
       },
       {
@@ -3197,7 +3273,7 @@
       {
         "file": "event-online.json",
         "lines": [
-          28
+          38
         ]
       },
       {
@@ -3241,8 +3317,8 @@
       {
         "file": "feed-community.json",
         "lines": [
-          37,
-          78
+          38,
+          79
         ]
       },
       {
@@ -3269,7 +3345,7 @@
       {
         "file": "event-online.json",
         "lines": [
-          32
+          42
         ]
       },
       {
@@ -3313,8 +3389,8 @@
       {
         "file": "feed-community.json",
         "lines": [
-          41,
-          82
+          42,
+          83
         ]
       },
       {
@@ -3335,9 +3411,9 @@
       {
         "file": "event-conference-cfp.json",
         "lines": [
-          42,
-          50,
-          58
+          43,
+          51,
+          59
         ]
       }
     ],
@@ -3351,9 +3427,9 @@
       {
         "file": "event-conference-cfp.json",
         "lines": [
-          44,
-          52,
-          59
+          45,
+          53,
+          60
         ]
       }
     ],
@@ -3367,7 +3443,7 @@
       {
         "file": "event-conference-cfp.json",
         "lines": [
-          39
+          40
         ]
       }
     ],
@@ -3387,7 +3463,7 @@
       {
         "file": "event-online.json",
         "lines": [
-          36
+          47
         ]
       },
       {
@@ -3405,7 +3481,7 @@
       {
         "file": "event-conference-cfp.json",
         "lines": [
-          70
+          76
         ]
       },
       {
@@ -3431,7 +3507,7 @@
       {
         "file": "event-online.json",
         "lines": [
-          43
+          59
         ]
       },
       {
@@ -3457,7 +3533,7 @@
       {
         "file": "event-conference-cfp.json",
         "lines": [
-          72
+          78
         ]
       },
       {
@@ -3475,8 +3551,8 @@
       {
         "file": "feed-community.json",
         "lines": [
-          44,
-          85
+          45,
+          86
         ]
       },
       {
@@ -3505,7 +3581,7 @@
       {
         "file": "event-online.json",
         "lines": [
-          38
+          49
         ]
       },
       {
@@ -3527,7 +3603,7 @@
       {
         "file": "event-online.json",
         "lines": [
-          39
+          50
         ]
       },
       {
@@ -3549,7 +3625,7 @@
       {
         "file": "event-online.json",
         "lines": [
-          40
+          51
         ]
       },
       {
@@ -3571,7 +3647,7 @@
       {
         "file": "event-online.json",
         "lines": [
-          37
+          48
         ]
       },
       {
@@ -3602,6 +3678,132 @@
         "file": "event-co-organized.json",
         "lines": [
           21
+        ]
+      }
+    ],
+    "event.eligibility.type": [
+      {
+        "file": "event-online.json",
+        "lines": [
+          29
+        ]
+      }
+    ],
+    "event.eligibility.note": [
+      {
+        "file": "event-online.json",
+        "lines": [
+          30
+        ]
+      }
+    ],
+    "event.eligibility.url": [
+      {
+        "file": "event-online.json",
+        "lines": [
+          31
+        ]
+      }
+    ],
+    "event.eligibility.translations.es.note": [
+      {
+        "file": "event-online.json",
+        "lines": [
+          34
+        ]
+      }
+    ],
+    "event.eligibility.translations.es": [
+      {
+        "file": "event-online.json",
+        "lines": [
+          33
+        ]
+      }
+    ],
+    "event.eligibility.translations": [
+      {
+        "file": "event-online.json",
+        "lines": [
+          32
+        ]
+      }
+    ],
+    "event.eligibility": [
+      {
+        "file": "event-online.json",
+        "lines": [
+          28
+        ]
+      }
+    ],
+    "event.textLanguage": [
+      {
+        "file": "event-online.json",
+        "lines": [
+          46
+        ]
+      },
+      {
+        "file": "event-conference-cfp.json",
+        "lines": [
+          39
+        ]
+      }
+    ],
+    "event.partOf.translations.es.name": [
+      {
+        "file": "event-online.json",
+        "lines": [
+          54
+        ]
+      }
+    ],
+    "event.partOf.translations.es": [
+      {
+        "file": "event-online.json",
+        "lines": [
+          53
+        ]
+      }
+    ],
+    "event.partOf.translations": [
+      {
+        "file": "event-online.json",
+        "lines": [
+          52
+        ]
+      }
+    ],
+    "event.translations.es.name": [
+      {
+        "file": "event-online.json",
+        "lines": [
+          62
+        ]
+      }
+    ],
+    "event.translations.es.description": [
+      {
+        "file": "event-online.json",
+        "lines": [
+          63
+        ]
+      }
+    ],
+    "event.translations.es": [
+      {
+        "file": "event-online.json",
+        "lines": [
+          61
+        ]
+      }
+    ],
+    "event.translations": [
+      {
+        "file": "event-online.json",
+        "lines": [
+          60
         ]
       }
     ],
@@ -3695,7 +3897,7 @@
       {
         "file": "feed-community.json",
         "lines": [
-          6
+          7
         ]
       }
     ],
@@ -3709,7 +3911,7 @@
       {
         "file": "feed-community.json",
         "lines": [
-          12
+          13
         ]
       },
       {
@@ -3729,7 +3931,7 @@
       {
         "file": "feed-community.json",
         "lines": [
-          14
+          15
         ]
       },
       {
@@ -3759,7 +3961,7 @@
       {
         "file": "feed-community.json",
         "lines": [
-          15
+          16
         ]
       },
       {
@@ -3773,9 +3975,9 @@
       {
         "file": "event-conference-cfp.json",
         "lines": [
-          41,
-          49,
-          57
+          42,
+          50,
+          58
         ]
       }
     ],
@@ -3783,8 +3985,8 @@
       {
         "file": "event-conference-cfp.json",
         "lines": [
-          43,
-          51
+          44,
+          52
         ]
       }
     ],
@@ -3792,9 +3994,9 @@
       {
         "file": "event-conference-cfp.json",
         "lines": [
-          45,
-          53,
-          60
+          46,
+          54,
+          61
         ]
       }
     ],
@@ -3802,7 +4004,7 @@
       {
         "file": "event-conference-cfp.json",
         "lines": [
-          46
+          47
         ]
       }
     ],
@@ -3810,11 +4012,11 @@
       {
         "file": "event-conference-cfp.json",
         "lines": [
-          54
+          55
         ]
       }
     ],
-    "event.cfp.url": [
+    "event.offers[].translations.en.name": [
       {
         "file": "event-conference-cfp.json",
         "lines": [
@@ -3822,11 +4024,35 @@
         ]
       }
     ],
+    "event.offers[].translations.en": [
+      {
+        "file": "event-conference-cfp.json",
+        "lines": [
+          63
+        ]
+      }
+    ],
+    "event.offers[].translations": [
+      {
+        "file": "event-conference-cfp.json",
+        "lines": [
+          62
+        ]
+      }
+    ],
+    "event.cfp.url": [
+      {
+        "file": "event-conference-cfp.json",
+        "lines": [
+          70
+        ]
+      }
+    ],
     "event.cfp.opensAt": [
       {
         "file": "event-conference-cfp.json",
         "lines": [
-          65
+          71
         ]
       }
     ],
@@ -3834,7 +4060,7 @@
       {
         "file": "event-conference-cfp.json",
         "lines": [
-          66
+          72
         ]
       }
     ],
@@ -3842,7 +4068,7 @@
       {
         "file": "event-conference-cfp.json",
         "lines": [
-          67
+          73
         ]
       }
     ],
@@ -3850,7 +4076,7 @@
       {
         "file": "event-conference-cfp.json",
         "lines": [
-          68
+          74
         ]
       }
     ],
@@ -3858,7 +4084,7 @@
       {
         "file": "event-conference-cfp.json",
         "lines": [
-          63
+          69
         ]
       }
     ],
@@ -3910,11 +4136,19 @@
         ]
       }
     ],
+    "feed.textLanguage": [
+      {
+        "file": "feed-community.json",
+        "lines": [
+          6
+        ]
+      }
+    ],
     "feed.licenseUrl": [
       {
         "file": "feed-community.json",
         "lines": [
-          13
+          14
         ]
       },
       {

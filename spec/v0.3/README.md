@@ -136,7 +136,9 @@ El criterio **no** es «estaría bien tenerlo»: es **qué se rompe en los tres 
 
 **Lo recomendado es `location`, no `location.address`.** Qué hace falta saber del sitio depende del tipo de evento: a uno online la dirección postal no le aplica, y a un meetup en un bar el nombre del bar es todo lo que hay y todo lo que hace falta. `address` es lo que necesita quien exporta a schema.org para que Google valide la dirección por partes ([detalle abajo](#locationaddress-la-dirección-que-se-valida-por-partes)), y es una mejora real cuando se tiene — pero un aviso que la mitad de los eventos no puede atender es un aviso que enseña a ignorar los avisos.
 
-**`offers` y `cfp` tampoco son recomendados**, y no es un descuido. `cfp` porque la inmensa mayoría de los eventos no tiene convocatoria: avisar de su ausencia sería avisar a cada meetup de que no es una conferencia. `offers` porque el aviso no es accionable de forma fiable — un exportador de `.ics` no tiene el precio en ninguna parte, y ninguna de las cinco fuentes estudiadas lo emite de forma universal. Recomendar es prometer que **quien publica puede arreglarlo**; donde no se puede, un aviso solo enseña a ignorar los avisos.
+**`textLanguage` tampoco es recomendado**, y es el que más cerca estuvo: cuesta una línea por feed y desbloquea cosas reales (el `lang` del HTML, la voz del lector de pantalla, la ordenación alfabética). Se queda fuera por el mismo criterio que todo lo demás: **quien importa un `.ics` no lo tiene** —Google Calendar no emite el parámetro `LANGUAGE`— y el único modo de atender el aviso sería adivinar el idioma a partir del texto. Un aviso que solo se puede callar inventando no es accionable. Para quien escribe su propio feed, en cambio, la recomendación de esta página se sostiene sola: **decláralo**.
+
+**`offers`, `cfp` y `eligibility` tampoco son recomendados**, y no es un descuido. `cfp` porque la inmensa mayoría de los eventos no tiene convocatoria: avisar de su ausencia sería avisar a cada meetup de que no es una conferencia. `eligibility` porque quien importa un `.ics` no tiene forma de saber si hay puerta, y un aviso ahí solo puede atenderse **inventando** un `open` que nadie ha afirmado — que es justo lo que el campo existe para evitar. `offers` porque el aviso no es accionable de forma fiable — un exportador de `.ics` no tiene el precio en ninguna parte, y ninguna de las cinco fuentes estudiadas lo emite de forma universal. Recomendar es prometer que **quien publica puede arreglarlo**; donde no se puede, un aviso solo enseña a ignorar los avisos.
 
 El perfil del feed es corto a propósito ([`feed.recommended.schema.json`](feed.recommended.schema.json)): `url` y `description`. Casi toda la calidad de un feed está en sus eventos, y un checker aplica el perfil de evento a cada uno por separado —  **con la herencia ya resuelta**, o todo evento de un feed comunitario avisaría por unos `organizers` que el feed ya declaró.
 
@@ -158,14 +160,15 @@ JSON no tiene orden: un documento con las claves barajadas es **exactamente igua
 specVersion                                    ← contra qué versión se valida
 id, url, name, description, image, organizers  ← qué es y quién lo hace
 startDate, endDate, timezone                   ← cuándo
-attendanceMode, location                       ← ¿puedo ir?
-tags, languages                                ← ¿me interesa?
+attendanceMode, location, eligibility          ← ¿puedo ir?
+tags, languages, textLanguage                  ← ¿me interesa, y en qué idioma está escrito?
 offers, cfp                                    ← ¿cuánto cuesta, y puedo participar?
 status, partOf                                 ← qué le ha pasado, y de qué forma parte
 license, source, updatedAt                     ← datos sobre el dato
+translations                                   ← todo lo de arriba, en otro idioma
 ```
 
-Se lee como se rellena: primero lo que hace falta para **anunciar** el evento, al final la fontanería que solo importa a quien lo consume. No es alfabético, que separaría `startDate` de `endDate` y `id` de `url`; ni por obligatoriedad, que cambiaría en cada versión que recomiende un campo nuevo.
+Se lee como se rellena: primero lo que hace falta para **anunciar** el evento, al final la fontanería que solo importa a quien lo consume. `eligibility` va con `attendanceMode` y `location` —y no pegado a `offers`, donde también encajaría— porque las tres contestan **la misma pregunta**: si el evento está a tu alcance y si te dejan entrar. El precio viene después, y solo importa si la respuesta fue sí. `textLanguage` va pegado a `languages` para que la [diferencia entre los dos](#textlanguage-y-translations-en-qué-idioma-está-escrito-esto) se vea en la misma pantalla, y `translations` va **al final**, después incluso de la fontanería: es un bloque voluminoso que repite campos ya declarados arriba, y ponerlo en medio enterraría las veinte líneas que todo consumidor lee de verdad. No es alfabético, que separaría `startDate` de `endDate` y `id` de `url`; ni por obligatoriedad, que cambiaría en cada versión que recomiende un campo nuevo.
 
 Importa porque es lo que se ve en los tres sitios donde alguien mira de verdad: el **ejemplo que copia**, la **tabla de referencia** —generada leyendo el schema en orden de declaración— y el **autocompletado del editor**. Que los tres coincidan es la diferencia entre una forma que se memoriza y una que hay que consultar cada vez. `npm run validate` lo comprueba en los ejemplos de esta versión.
 
@@ -283,6 +286,8 @@ Nueva en la v0.3, opcional, y **hermana de `venue`, no sustituta**:
 **Todas las partes son opcionales, y omitir es la forma correcta de no saber.** Una clave ausente significa desconocido. `""` y `null` **no son válidos** —cada parte es una cadena de al menos un carácter—, y esa es una decisión con caso real detrás: Guild emite hoy un `PostalAddress` con los cinco subcampos a `null`, que es publicar un desconocido con forma de dato. `"address": {}` también se rechaza, por el mismo motivo que `location: {}`.
 
 **`country` es un código ISO 3166-1 alfa-2 en mayúsculas** (`ES`, `US`), y es la única parte con formato exigido. Un nombre de país tiene una grafía por idioma —«España», «Spain», «Espagne»— y un consumidor que agrupe eventos por país vería tres países donde hay uno. Convertir el nombre en código es **consultar una tabla, no inventar**: por eso aquí sí se exige, y no se exige en `region`, donde no hay tabla universal que valga (provincia, estado, condado o *Land*, según el país).
+
+**`locality` y `region` se escriben UNA vez, y no se traducen.** «València» y «Valencia», «Girona» y «Gerona», «Donostia» y «San Sebastián» son grafías reales del mismo sitio, y aquí no hay tabla que consultar como la de `country`. La regla, que es recomendación y no validación: **escribe la grafía más reconocible para la audiencia mayoritaria del evento**, la que esa gente teclearía al buscar. No pongas las dos, no las metas en `translations` —[no está cubierto a propósito](#traducciones-locales-el-texto-que-vive-dentro-de-un-objeto)— y recuerda que quien necesite precisión sin idioma ya la tiene: `location.geo` no tiene grafías.
 
 **No se modelan** ni `addressType`, ni segunda línea de dirección, ni `postOfficeBoxNumber`: `street` es una línea, y las plantas o puertas van en ella. Ningún productor real emite más, y la sección de [Extensiones](#extensiones) prohíbe el diseño especulativo.
 
@@ -427,6 +432,131 @@ La excepción conocida es quien importa un `.ics`: **iCalendar casi nunca trae i
 
 Que el MIME no esté es la misma clase de decisión que el email de `organizers`: se puede derivar razonablemente en el exportador, y exigirlo en el schema obligaría a quien importa a inventárselo.
 
+### `textLanguage` y `translations`: en qué idioma está escrito esto
+
+Nuevos en la v0.3, los dos opcionales. Son **dos campos porque son dos problemas**, y solo el segundo tiene que ver con eventos multilingües:
+
+```json
+"name": "Sessió setmanal de codificació — Rust Girona",
+"description": "Cada setmana ens trobem en línia per picar Rust una estona.",
+"languages": ["ca", "es"],
+"textLanguage": "ca",
+"translations": {
+  "es": {
+    "name": "Sesión semanal de programación — Rust Girona",
+    "description": "Cada semana nos juntamos en línea para picar Rust un rato."
+  }
+}
+```
+
+**`languages` y `textLanguage` no son el mismo dato**, y este ejemplo es exactamente por qué: en la sesión **se habla** catalán y castellano, y el documento **está escrito** solo en catalán. Ninguno de los dos se deriva del otro, y confundirlos es el riesgo real de esta pareja: `languages` contesta «¿lo entenderé si voy?», `textLanguage` contesta «¿en qué idioma está este texto?». La descripción de `languages` ahora lo dice en el propio schema, porque es donde alguien lo va a leer.
+
+**`textLanguage` es una etiqueta, no una lista.** Un texto está escrito en un idioma. Sin él, un consumidor no puede poner `lang="ca"` en el HTML —lo que decide la separación de sílabas, la voz del lector de pantalla y el diccionario del corrector—, ni ordenar alfabéticamente bien, ni decidir si traducir automáticamente. Nada de eso se puede adivinar del texto sin adivinar.
+
+**Se hereda del feed, y ahí está lo barato.** Como `license` y `organizers`: el feed lo declara una vez y todo evento que no lo declare lo hereda. Para quien publica en un solo idioma —el 99%— el coste de este campo es **una línea en todo el fichero**. Ausente significa **desconocido**: ni el inglés, ni el idioma de la cabecera HTTP, ni el del feed si el feed tampoco lo dice.
+
+**`translations` es un mapa, y el texto principal sigue siendo una cadena.** Es la decisión que sostiene todo lo demás:
+
+- **`name` y `description` no cambian de forma.** Un consumidor de v0.2 lee un documento con `translations` y no se entera de que existe. La alternativa —mapas de idioma en el propio campo, `"name": {"ca": "…", "es": "…"}`, que es el `@container: @language` de JSON-LD— es técnicamente más limpia y **rompe `name` para todos los consumidores que existen hoy**, gravando al 99% monolingüe para servir al 1%. Descartada por eso.
+- **Un mapa y no una lista, porque el idioma es la clave.** Una entrada por idioma, y **ninguna forma de publicar dos versiones en castellano** que se contradigan.
+- **El texto que vive dentro de un objeto se traduce donde vive**, con un `translations` local a ese objeto: `offers[].translations`, `eligibility.translations`, `partOf.translations`. [Detalle abajo](#traducciones-locales-el-texto-que-vive-dentro-de-un-objeto).
+- **Nunca se traduce al idioma en que ya está el documento.** Una entrada `ca` en un documento con `textLanguage: "ca"` es el mismo texto dos veces, y dos formas de afirmar lo mismo son dos formas de contradecirse — el argumento de [`isFree`](#offers-cuánto-cuesta-y-dónde-se-saca-la-entrada). **El schema no lo puede comprobar** (comparar el valor de un campo con el nombre de una clave está fuera de JSON Schema), así que es una regla normativa que vigila quien publica, como la de [actualizar `status`](#status-un-evento-cancelado-sigue-publicado).
+- **Un mapa vacío es inválido**, igual que `location: {}`: decir nada ya se hace omitiendo el campo. Y las claves tienen que ser etiquetas BCP 47 — `"castellano"` no valida, que es justo el error que se comete a mano.
+
+**Cualquier `translations` del documento exige `textLanguage`.** Es la **única dependencia entre campos de toda la spec**, y el schema la comprueba con un `if`/`then` — **a cualquier profundidad**: una traducción dentro de una oferta también la activa, porque el idioma del texto principal es propiedad del documento entero, no de cada objeto. Sin ella, un mapa de traducciones es inservible: nadie puede saber cuál de las entradas duplica el texto principal, ni a qué está cayendo de vuelta si no encuentra su idioma. El orden de lectura de un consumidor es: **el idioma que pide → `translations` → el texto principal**, y ese último paso necesita saber en qué idioma está.
+
+#### Traducciones locales: el texto que vive dentro de un objeto
+
+`name` y `description` no son el único texto libre de un evento. Hay más dentro de objetos y de listas, y **se traduce donde vive**:
+
+```json
+"offers": [
+  { "name": "Estudiantes", "price": 0, "translations": { "en": { "name": "Students" } } }
+],
+"eligibility": {
+  "type": "members-only",
+  "note": "Membres del Discord de Rust Girona",
+  "translations": { "es": { "note": "Miembros del Discord de Rust Girona" } }
+}
+```
+
+**Nunca un espejo posicional.** `translations.es.offers[0].name` es la forma que esta spec **rechaza**: una lista no tiene claves estables, así que basta con que alguien reordene las ofertas para que la traducción quede colgada de la tarifa equivocada — **y nada dejaría de validar**. Un mapa local no puede desalinearse: vive dentro del objeto que traduce.
+
+**Qué se traduce y qué no**, porque el texto libre de un evento no es todo la misma clase de cadena:
+
+| Clase | Ejemplos | Qué hace la spec |
+| --- | --- | --- |
+| **Prosa y rótulos** | `name`, `description`, `offers[].name`, `eligibility.note`, `partOf.name` | **Se traducen**, con `translations` — el del evento para los dos primeros, uno local para el resto. |
+| **Nombres propios** | `organizers[].name`, `location.venue` | **No se traducen nunca.** «PyAlmería» es «PyAlmería» en todos los idiomas, y traducir el nombre de una sede es inventarse un sitio. |
+| **Etiquetas** | `tags` | **No se traducen en el dato**, y aquí la spec deja una arista: `tags` es texto libre, así que un evento etiquetado `["aprenentatge-automàtic"]` y otro `["machine-learning"]` no se encuentran entre sí. La recomendación práctica es **etiquetar en el idioma del ecosistema técnico**, que es de hecho lo que ya pasa (`rust`, `wasm`, `ai`), y dejar la presentación a la interfaz. Un vocabulario controlado encima lo resolvería del todo; sigue siendo [pregunta abierta](#otras). |
+| **Valores cerrados** | `eligibility.type`, `status`, `attendanceMode`, `offers[].availability` | **No necesitan traducción**: un enum es **multilingüe gratis**. `members-only` se renderiza en el idioma de quien lee, y el dato no cambia. Es el mejor argumento a favor de los enums de toda la spec. |
+| **Códigos** | `address.country`, `languages`, `textLanguage`, `offers[].currency` | Ya resueltos, y por esto mismo: `ES` en vez de «España» es [una decisión que la spec ya tomó](#locationaddress-la-dirección-que-se-valida-por-partes). |
+| **Identificadores** | `id`, `partOf.id`, todas las `url` | **Jamás.** Un `id` con dos grafías son dos eventos, y una serie con dos `id` son dos series. |
+
+**`offers[].name` merece una nota**, porque es el caso donde había alternativa: un `kind` con enum (`general`, `early-bird`, `student`) habría sido multilingüe gratis, como `eligibility.type`. **Se descarta**: quitaría a quien organiza el derecho a nombrar sus propias entradas, que es una libertad real y usada. Texto libre es la decisión; traducirlo es su precio, y por eso `offers[].translations` existe.
+
+**Lo que sigue sin traducirse, y la recomendación en su lugar:** `location.address.locality` y `region`, donde **València/Valencia** o **Girona/Gerona** son dos grafías reales del mismo sitio y no hay tabla como la de países. No se modela: escribe **la grafía más reconocible para la audiencia mayoritaria del evento**, y deja que el resto lo resuelva `geo` — unas coordenadas no tienen idioma.
+
+**En el feed, lo mismo con una diferencia importante.** `feed.textLanguage` describe el `title` y la `description` **del feed** y además es el valor por defecto de sus eventos; `feed.translations` traduce **el título del feed, nunca sus eventos**. Y **no se hereda**: el título de un feed no es el nombre de un evento. Un publicador completamente bilingüe tiene además la salida que ya usa cualquier web —**un feed por idioma** (`/feed.ca.json`, `/feed.es.json`, cada uno con su `textLanguage`)—, y sigue siendo la opción más simple cuando *todo* el contenido está duplicado.
+
+**Cómo entra, y qué le falta.** El listón de esta spec es que exista productor real, y hay que decirlo con claridad: **`textLanguage` lo cumple** —iCalendar tiene `LANGUAGE` como parámetro nativo desde el [RFC 5545](https://www.rfc-editor.org/rfc/rfc5545), RSS tiene `<language>` y JSON-LD tiene `@language`: los tres destinos saben recibirlo— y **`translations` no**: ninguna de las cinco plataformas estudiadas publica texto multilingüe por evento, porque cada una sirve una página por idioma. Entra igualmente, y por una razón concreta: en catalán, euskera, galego y valenciano el evento bilingüe **es el caso normal**, y hoy la única salida es meter los dos idiomas dentro de la misma cadena, que es peor que no tener el campo. Es la deuda declarada de esta pareja: si en la práctica nadie lo emite, sobra, y sobrará en voz alta.
+
+**Traducción a los tres formatos de destino, incluida la pérdida:**
+
+| Destino | Mapeo | Pérdida |
+| --- | --- | --- |
+| **schema.org / JSON-LD** | `textLanguage` → `@language` del contexto o del valor; `translations` → mapas de idioma (`{"@language":"es","@value":"…"}` por entrada) | **Ninguna.** Es el único destino que recibe los dos campos completos, con estructura. |
+| **iCal** | `textLanguage` → el parámetro `LANGUAGE` de cada propiedad de texto (`SUMMARY;LANGUAGE=ca:…`), nativo en RFC 5545 | **`translations`.** `SUMMARY` no se repite: solo sobrevive el texto principal. El resto va a la `DESCRIPTION` («ES: Sesión semanal…») o a un `X-OTE-TRANSLATION`. |
+| **RSS / Atom** | `textLanguage` → `<language>` del canal (RSS) o `xml:lang` (Atom, que además lo admite por entrada) | **`translations` en RSS**, que solo tiene idioma a nivel de canal. Atom aguanta más porque `xml:lang` es por elemento. |
+
+Que solo JSON-LD lo reciba entero es aceptable por la regla de siempre: quien ignore los dos campos **sigue viendo un evento correcto**, en un idioma concreto. Es pérdida de estructura, no de información.
+
+### `eligibility`: quién puede entrar — y por qué no es un `tag`
+
+Nuevo en la v0.3. Opcional, **un objeto**, y solo `type` es obligatorio:
+
+```json
+"eligibility": {
+  "type": "members-only",
+  "note": "Miembros del Discord de Rust Girona",
+  "url": "https://rustgirona.example/discord"
+}
+```
+
+Un evento sin condiciones lo dice con una línea, y **dice algo**:
+
+```json
+"eligibility": { "type": "open" }
+```
+
+**Es la tercera parte de «¿puedo ir?».** `attendanceMode` dice si hay que desplazarse y `location` dónde; los dos contestan si el evento **está a tu alcance**. Ninguno contesta si **te dejan entrar**. Son preguntas distintas y se contradicen sin problema: la sesión semanal de Rust Girona es online, gratis y abierta a cualquiera con conexión —y aun así el canal de voz está dentro de un Discord al que hay que pertenecer. Hasta ahora ese requisito solo vivía en la prosa de `description`, que es exactamente donde un consumidor no puede filtrarlo.
+
+**Cinco valores, y el enum es el punto.** `open` (puede asistir cualquiera), `members-only` (hay que pertenecer a algo antes), `approval-required` (te apuntas y quien organiza decide), `invite-only` (no se entra por cuenta propia) y `restricted` (hay condición, y ninguno de los otros la nombra). Corto a propósito: un consumidor que tiene que tratar veinte puertas no trata ninguna, y la razón de que esto sea un enum y no texto libre es que **«¿puedo ir?» es una casilla de filtro**, no un párrafo.
+
+**`restricted` es el escape, y exige `note`.** Es lo que mantiene el enum pequeño y honesto: sin un catch-all, toda condición que no encaje —«solo alumnado de la UAL», los eventos con requisito de identidad de una comunidad— acaba metida a martillazos en `members-only`, que es afirmar algo que nadie afirmó. Y `restricted` a secas no dice nada, así que el schema **rechaza el documento** si falta `note`: es la misma condicional que exige `currency` en cuanto `price` pasa de 0. Cumple el papel que `tentative` cumple en `status`: el valor que evita que quien importa tenga que mentir.
+
+**Sin valor por defecto: ausente significa desconocido, nunca `open`.** Misma regla que `attendanceMode` y `offers`. Quien importa un `.ics` no tiene el dato en ninguna parte, y un valor por defecto convertiría cada evento importado en una afirmación —«abierto a cualquiera»— que nadie ha hecho. El corolario es que **`"type": "open"` sí aporta información**, al contrario que `"status": "scheduled"`: aquí callarse no significa lo mismo que decirlo. Es el único par de la spec donde esa diferencia se ve tan de cerca.
+
+**Por qué no son `tags`.** Es como se hace hoy, y por eso el campo existe: en cuanto `["rust","members-only","principiantes"]` es una lista libre, el consumidor tiene que **adivinar** cuál de esas cadenas es una condición de acceso, y ninguna interfaz puede ofrecer una casilla «solo eventos a los que puedo entrar» sin un vocabulario que la lista libre no tiene. `tags` es **de qué va** el evento; se queda libre justo por eso, y su descripción ahora lo dice. El otro eje que hoy también se cuela en `tags` —**el público y el nivel** («principiantes», «estudiantes»)— sigue sin resolver: es una [pregunta abierta](#otras), no este campo. La puerta y la recomendación no son lo mismo.
+
+**Por qué un objeto y no una cadena** (`"eligibility": "members-only"`). Porque *qué* comunidad es un dato que quien publica ya tiene hoy, y en `members-only` sin nombrarla el campo se queda a medias. Ensanchar cadena → objeto después es un cambio que rompe —el precio que se pagó al declararlo en [`image`](#image-el-cartel-y-por-qué-es-una-lista-de-cadenas)—, así que se paga ahora, que es gratis. Solo `type` es obligatorio: quien no tenga más, escribe una línea.
+
+**Y no va dentro de `offers`.** Se valoró, porque el eje por tramo existe de verdad —la tarifa de estudiante pide carné, la de socio pide alta— y aun así se descarta: `offers` es **opcional y ausente en la mayoría de los eventos** (ninguno de los 24 del feed de referencia lo trae, y un exportador de `.ics` no tiene precio que emitir), así que la puerta desaparecería justo donde más eventos hay. Además «¿puedo ir?» es propiedad **del evento**, no del tramo de precio: si vive solo en `offers`, cada consumidor tiene que plegar N ofertas en una respuesta, y dos formas de afirmar lo mismo son dos formas de contradecirse — el argumento por el que [no hay `isFree`](#offers-cuánto-cuesta-y-dónde-se-saca-la-entrada). Si aparece un productor real con requisito por tramo, `offers[].eligibility` entrará **reutilizando este mismo enum**, y hasta entonces no se paga por un caso hipotético.
+
+**Lo que `eligibility` no modela**: aforo y plazas restantes (eso es [taquilla](#offers-cuánto-cuesta-y-dónde-se-saca-la-entrada)), el estado de *tu* solicitud, códigos de acceso, listas de invitados, edad mínima como campo aparte, ni el código de conducta. Describe **la condición, no el trámite**.
+
+**Cómo entra**, porque el listón de esta spec es que alguien lo emita de verdad: ninguna plataforma lo publica **estructurado** —schema.org no tiene término para la puerta—, pero todas lo tienen **como funcionalidad**: la aprobación previa de Luma, los eventos solo para miembros de un grupo de Meetup, los eventos privados de Eventbrite, el canal cerrado de Discord. Es el mismo caso que [`cfp`](#cfp-la-convocatoria-de-charlas--y-el-primer-campo-que-no-viaja-a-ninguna-parte): el dato existe y se publica en HTML, y quien lo quiere estructurado hoy tiene que adivinarlo. Su valor está **dentro del ecosistema OTE**, no en la traducción.
+
+**Traducción a los tres formatos de destino, incluida la pérdida:**
+
+| Destino | Mapeo | Pérdida |
+| --- | --- | --- |
+| **schema.org** | Sin término propio. Lo más cercano es `audience` (`Audience.audienceType`), que es **texto libre y otra cosa** —a quién va dirigido, no quién tiene permiso—; `note` y `url` van dentro de `description`. | **La estructura, no el dato.** El texto llega; el filtro no. Y ojo con dos falsos amigos: `Offer.eligibleCustomerType` es B2B/B2C, y `isAccessibleForFree` es el precio, no la puerta. |
+| **iCal** | Nada nativo → `X-OTE-ELIGIBILITY` y el texto en `DESCRIPTION` («Solo miembros del Discord de Rust Girona») | **La estructura.** Falso amigo a evitar: `CLASS:PRIVATE` de [RFC 5545](https://www.rfc-editor.org/rfc/rfc5545) es la **visibilidad del dato en un calendario**, no el permiso de entrada al evento. Mapear ahí sería decir otra cosa. |
+| **RSS / Atom** | Nada nativo: va dentro del texto del ítem | **La estructura.** Un anuncio que no dice que hace falta ser socio manda a alguien a una puerta cerrada. |
+
+Que solo llegue como texto es aceptable por la regla de siempre: un cliente de calendario que ignora `eligibility` **sigue mostrando un evento correcto**. Es pérdida de estructura, no de información — y la información sobrevive porque `note` está pensada precisamente para que la lea una persona.
+
 ### `offers`: cuánto cuesta, y dónde se saca la entrada
 
 Nuevo en la v0.3. Opcional, y **una lista**:
@@ -524,6 +654,17 @@ Obligatorio: `specVersion`, `title`, `license`, `updatedAt`, `events`.
 
 **`organizers` se hereda igual, con una diferencia**: la lista del evento **reemplaza** la del feed, no se suma a ella (el porqué, arriba). Y un feed de **agregador** debe **omitir** `organizers`: no organiza lo que publica, y ponerlo ahí atribuiría mal cada evento del feed.
 
+**`textLanguage` también se hereda** —una línea en el feed y ningún evento la repite— y **`translations` no se hereda nunca**: el `title` de un feed no es el `name` de un evento, así que `feed.translations` traduce el feed y cada evento lleva las suyas. [Detalle arriba](#textlanguage-y-translations-en-qué-idioma-está-escrito-esto).
+
+**Resumen de qué se hereda**, porque son cuatro campos con tres comportamientos distintos:
+
+| Campo del feed | Cómo llega al evento |
+| --- | --- |
+| `specVersion`, `license` | **Valor por defecto.** El evento que lo declara gana; suelto, es obligatorio declararlo. |
+| `textLanguage` | **Valor por defecto.** Igual que `license`. |
+| `organizers` | **Valor por defecto por REEMPLAZO**: la lista del evento sustituye la entera, no se fusiona. |
+| `translations` | **No se hereda.** Traduce el texto del feed, y nada más. |
+
 Por eso el schema del evento tiene dos capas: `$defs/event` (lo común) y el documento de nivel superior, que añade `specVersion` y `license` como obligatorios. El feed referencia `$defs/event`.
 
 El feed es un **formato de intercambio, no una API**: sin paginación, sin filtrado, sin autenticación, sin federación.
@@ -565,6 +706,8 @@ OTE no sabe qué significa `combuilders:communityId` y no le hace falta saberlo.
 
 Deduplicación entre fuentes, sincronización, publicación automática en plataformas, modelado de ponentes/agenda/patrocinadores, y **la taquilla**: aforo, plazas restantes, códigos de descuento e inscripción única de un evento multi-parte. `offers` describe **la entrada**, no el estado de la venta; `cfp` describe **la convocatoria**, no la revisión de propuestas.
 
+Tampoco resuelve **las grafías de una localidad**: `location.address.locality` y `region` se escriben una sola vez, en la grafía más reconocible para la audiencia del evento — «València» o «Valencia», no las dos. Lo demás sí se traduce, y [donde vive](#traducciones-locales-el-texto-que-vive-dentro-de-un-objeto).
+
 El objetivo es describir **el evento**, no el registro en una base de datos.
 
 ## Preguntas abiertas
@@ -596,6 +739,8 @@ Pendiente de decidir. Si se acepta, sería una **serialización equivalente** de
 
 ### Otras
 
+- **Público y nivel.** [`eligibility`](#eligibility-quién-puede-entrar--y-por-qué-no-es-un-tag) resuelve la **puerta** («¿me dejan entrar?») y saca de `tags` ese eje. Queda el otro que hoy también se cuela ahí: «¿es para mí?» — «principiantes», «estudiantes», «senior». Es **recomendación, no permiso**, y por eso no cabe en `eligibility`. Un `level` con enum (`beginner` / `intermediate` / `advanced`) sería filtrable y lo etiquetan conferencias reales; un `audience` de texto libre, copiado de schema.org, solo movería el problema de sitio. No entra hasta que haya productor real: mientras tanto, `tags` sigue aceptándolo, con lo que eso cuesta.
+- **`eligibility` por tramo de entrada.** El eje existe —la tarifa de estudiante pide carné— y el hueco está reservado: `offers[].eligibility`, reutilizando el mismo enum, en cuanto alguien lo emita de verdad.
 - **`id` de un evento importado de un `.ics` sin URL.** Hoy los ejemplos usan `<url-del-ics>#<UID>`. Funciona y es estable, pero ata el `id` al calendario de origen: si la comunidad se muda, el `id` que acuñó el importador ya no está bajo un dominio que ella controle.
 - **Serialización.** El schema es JSON. YAML es cómodo para escribir a mano (los issues usan YAML) y se mapea 1:1. ¿Se declaran ambos normativos?
 - **`license` obligatoria en el evento suelto**: ¿es una barrera de entrada demasiado alta para quien solo quiere publicar su meetup?

@@ -4,6 +4,10 @@
   "description": "Meetups mensuales de Python en Almería.",
   "url": "https://pyalmeria.example",
 
+  "_comment_textLanguage": "Un feed monolingüe declara el idioma de su texto UNA vez y ningún evento lo repite: se hereda, como `license` y `organizers`. Es el caso del 99% — y es lo que hace que el campo cueste una línea en todo el fichero. `translations` no se hereda nunca: traduce el título DEL FEED, no el nombre de sus eventos.",
+
+  "textLanguage": "es",
+
   "_comment_organizers": "Feed de una comunidad: `organizers` va arriba y lo hereda todo evento que no declare el suyo. El segundo evento SÍ lo declara, y su lista REEMPLAZA la heredada — no se suma. Por eso PyAlmería aparece repetida ahí: si se omitiera, el evento pasaría a ser solo de PyData Almería.",
 
   "organizers": [

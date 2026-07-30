@@ -13,7 +13,7 @@ versión nueva**: los documentos `0.1.0` siguen validando contra `spec/v0.1/`.
 
 ## [0.3.0] — 2026-07-29
 
-Seis campos nuevos y dos valores nuevos de `status`, todo **opcional y
+Nueve campos nuevos y dos valores nuevos de `status`, todo **opcional y
 retrocompatible** (por eso MINOR): un documento `0.2.0` válido, con solo cambiar
 `specVersion` a `"0.3.0"`, sigue siendo válido.
 
@@ -190,6 +190,124 @@ descubrir y seguir.
     degrada a texto en la `DESCRIPTION` o en el cuerpo del ítem, o a un
     `X-OTE-CFP-URL`.
 
+- **`eligibility`** (`object`) en el **evento**: quién puede entrar, cuando la
+  respuesta no es «cualquiera». `type` obligatorio (`open` \| `members-only` \|
+  `approval-required` \| `invite-only` \| `restricted`); `note` y `url`
+  opcionales.
+  - **Es la tercera parte de «¿puedo ir?»**, junto a `attendanceMode` y
+    `location`: esos dos dicen si el evento **está a tu alcance**, este si **te
+    dejan entrar**. Se contradicen sin problema — una sesión online, gratis y
+    abierta a cualquiera con conexión cuyo canal de voz está dentro de un Discord
+    al que hay que pertenecer.
+  - **Sustituye a la práctica de meterlo en `tags`.** En una lista libre,
+    `["rust","members-only"]` obliga al consumidor a **adivinar** cuál de esas
+    cadenas es una condición de acceso, y ninguna interfaz puede ofrecer un
+    filtro «solo eventos a los que puedo entrar». La descripción de `tags` ahora
+    dice explícitamente que es **de qué va** el evento, no quién puede entrar.
+    El otro eje que también se cuela ahí —**público y nivel**— sigue sin
+    resolver: es pregunta abierta, no este campo.
+  - **`restricted` exige `note`**, con un `if`/`then` como el de `currency`: es
+    el escape que mantiene el enum pequeño («solo alumnado de la UAL») sin que
+    nadie tenga que meter a martillazos su condición en `members-only`. Y
+    `restricted` a secas no dice nada.
+  - **Sin valor por defecto**: ausente = desconocido, **nunca `open`**. Quien
+    importa un `.ics` no tiene el dato, y un defecto convertiría cada evento
+    importado en una afirmación que nadie hizo. Corolario: `"type": "open"` **sí
+    aporta información**, al contrario que `"status": "scheduled"`.
+  - **Un objeto, no una cadena**: *qué* comunidad es un dato que quien publica ya
+    tiene, y ensanchar cadena → objeto después rompe. Solo `type` es obligatorio.
+  - **No va dentro de `offers`**, aunque el eje por tramo exista (la tarifa de
+    estudiante pide carné): `offers` está ausente en la mayoría de los eventos y
+    nunca llega desde un `.ics`, así que la puerta desaparecería donde más
+    eventos hay. `offers[].eligibility` queda **reservado**, con este mismo enum,
+    para cuando haya productor real.
+  - **No modela** aforo ni plazas (eso es taquilla), el estado de *tu* solicitud,
+    códigos de acceso, listas de invitados ni el código de conducta: describe
+    **la condición, no el trámite**.
+  - Traducción: **nada estructurado en ninguno de los tres destinos** — el caso
+    de `cfp`. Se degrada al texto (`DESCRIPTION`, cuerpo del ítem,
+    `description`), que es para lo que está `note`, o a un `X-OTE-ELIGIBILITY`.
+    Tres falsos amigos a evitar: `CLASS:PRIVATE` de iCal es la **visibilidad del
+    dato**, `Offer.eligibleCustomerType` de schema.org es B2B/B2C, y
+    `isAccessibleForFree` es el precio. Ninguno es la puerta.
+
+- **`textLanguage`** (etiqueta BCP 47) en el **evento** y en el **feed**: el
+  idioma en que está escrito el **texto libre del documento**.
+  - **No es `languages`, y no se derivan.** `languages` son los idiomas que se
+    **hablan** en el evento; `textLanguage` es el idioma en que está **escrito**
+    este texto. Una sesión bilingüe descrita solo en catalán es
+    `languages: ["ca","es"]` + `textLanguage: "ca"`. La descripción de
+    `languages` ahora lo dice en el schema, que es donde alguien lo leerá.
+  - **Una etiqueta, no una lista**: un texto está escrito en un idioma.
+  - **Se hereda del feed**, como `license` y `organizers`: quien publica en un
+    solo idioma lo declara **una vez en todo el fichero**. Ausente = desconocido,
+    nunca el inglés ni el idioma de la respuesta HTTP.
+  - **Desbloquea cosas concretas** que hoy no se pueden ni adivinar: el `lang`
+    del HTML —del que dependen la separación de sílabas, el lector de pantalla y
+    el corrector—, la ordenación alfabética correcta y la decisión de traducir
+    automáticamente o no.
+  - Traducción: **los tres destinos lo reciben**. `LANGUAGE` es un parámetro
+    nativo de iCal (`SUMMARY;LANGUAGE=ca:…`, RFC 5545), RSS tiene `<language>`,
+    Atom `xml:lang` y JSON-LD `@language`.
+
+- **`translations`** (`object` indexado por etiqueta BCP 47) en el **evento**
+  (`name`, `description`) y en el **feed** (`title`, `description`): el mismo
+  texto en otros idiomas.
+  - **Aditivo: `name` y `description` siguen siendo cadenas.** Un consumidor de
+    v0.2 lee un documento con `translations` sin enterarse de que existe. La
+    alternativa —mapas de idioma en el propio campo, `"name": {"ca":…,"es":…}`,
+    el `@container: @language` de JSON-LD— es más limpia y **rompe `name` para
+    todos los consumidores actuales**, gravando al 99% monolingüe para servir al
+    1%. Descartada por eso.
+  - **Un mapa, no una lista**, porque el idioma **es** la clave: una entrada por
+    idioma y ninguna forma de publicar dos versiones en castellano que se
+    contradigan. Claves BCP 47 (`"castellano"` no valida) y **mapa vacío
+    inválido**, como `location: {}`.
+  - **El texto que vive dentro de un objeto se traduce donde vive**, con un
+    `translations` local: `offers[].translations` (`name`),
+    `eligibility.translations` (`note`) y `partOf.translations` (`name`).
+    **Nunca un espejo posicional** (`translations.es.offers[0].name`): una lista
+    no tiene claves estables, así que reordenar las ofertas colgaría la
+    traducción de la tarifa equivocada **sin que nada dejara de validar**.
+  - **Lo que NO se traduce, y por qué.** Nombres propios (`organizers[].name`,
+    `location.venue`): «PyAlmería» es «PyAlmería» en todos los idiomas.
+    Identificadores (`id`, `partOf.id`, las `url`): dos grafías serían dos
+    eventos. Códigos (`country`, `currency`, `languages`) y **enums**
+    (`eligibility.type`, `status`, `attendanceMode`, `availability`): un valor
+    cerrado es **multilingüe gratis** — se renderiza en el idioma de quien lee y
+    el dato no cambia. Y `tags`, que al ser texto libre deja una arista real
+    —`["aprenentatge-automàtic"]` y `["machine-learning"]` no se encuentran—:
+    la recomendación es etiquetar en el idioma del ecosistema técnico.
+  - **`offers[].name` sigue siendo texto libre**: se valoró un `kind` con enum,
+    que habría sido multilingüe gratis, y se descarta porque le quitaría a quien
+    organiza el derecho a nombrar sus propias entradas. Libertad ahora, y
+    `offers[].translations` es su precio.
+  - **`locality` y `region` no se traducen**: «València»/«Valencia» son grafías
+    del mismo sitio y no hay tabla como la de países. Regla, no validación:
+    **la grafía más reconocible para la audiencia mayoritaria del evento**. Quien
+    necesite precisión sin idioma tiene `location.geo`, que no tiene grafías.
+  - **Cualquier `translations` del documento exige `textLanguage`**, con un
+    `if`/`then` y **a cualquier profundidad**: una traducción dentro de una oferta
+    también lo activa. Es la **única dependencia entre campos de la spec**. Sin
+    saber en qué idioma está el texto principal, nadie puede saber cuál entrada
+    lo duplica ni a qué está cayendo de vuelta.
+  - **Nunca se traduce al idioma que ya declara `textLanguage`** — sería el mismo
+    texto dos veces. Regla **normativa que el schema no puede comprobar**:
+    comparar el valor de un campo con el nombre de una clave está fuera de JSON
+    Schema.
+  - **En el feed no se hereda**: `feed.translations` traduce el título DEL FEED,
+    nunca el nombre de sus eventos. `feed.textLanguage` sí se hereda.
+  - **Deuda declarada**: a diferencia del resto de campos de esta versión,
+    **ningún productor real lo emite** — cada plataforma sirve una página por
+    idioma. Entra porque en catalán, euskera, galego y valenciano el evento
+    bilingüe **es el caso normal**, y hoy la única salida es meter dos idiomas
+    dentro de la misma cadena, que es peor. Sigue en pie la alternativa de **un
+    feed por idioma** (`/feed.ca.json`, `/feed.es.json`). Si nadie lo emite, se
+    retirará igual de en voz alta.
+  - Traducción: **solo JSON-LD lo recibe entero** (mapas de idioma). En iCal no
+    hay dónde —`SUMMARY` no se repite— y en RSS el idioma es del canal; Atom
+    aguanta algo más porque `xml:lang` es por elemento.
+
 - **Fechas límite como INSTANTES** (`cfp.opensAt`, `cfp.closesAt`,
   `offers[].opensAt`, `offers[].closesAt`): exigen offset o `Z`, a diferencia de
   `startDate`/`endDate`, que son reloj de pared. No es una incoherencia: un evento
@@ -362,9 +480,18 @@ descubrir y seguir.
   llama ahora `url`. `cfp` pierde su `timezone`: las fechas límite llevan offset.
 - **Exportadores a Atom / RSS:** Atom → un `<author>` por entrada, con `<name>` y
   `<uri>`. RSS 2.0 → `<dc:creator>`, **no** `<author>`: el `<author>` de RSS 2.0
-  exige un email que OTE no modela.
+  exige un email que OTE no modela. `textLanguage` → `<language>` del canal (RSS)
+  o `xml:lang` (Atom, que además lo admite por entrada).
 - **Exportadores a iCal:** solo `organizers[0]`, y solo si tienes un email por
   otra vía; si no, `X-OTE-ORGANIZER`. Los demás no tienen dónde ir.
+  `textLanguage` → el parámetro `LANGUAGE` de cada propiedad de texto
+  (`SUMMARY;LANGUAGE=ca:…`); de `translations` solo sobrevive el texto principal,
+  porque `SUMMARY` no se repite.
+- **Consumidores con interfaz multilingüe:** el orden de resolución es **el
+  idioma que pide quien lee → `translations[idioma]` → el texto principal**, y
+  ese último paso necesita `textLanguage` para saber en qué idioma está lo que
+  está mostrando. Ausente = desconocido: no lo supongas del feed ni del
+  `Accept-Language`.
 - **Importadores (`.ics` → OTE):** `ORGANIZER;CN="…"` → `organizers[0].name`. El
   `mailto:` se descarta. **`RRULE`/`RDATE` → expandir**: un documento por
   ocurrencia, todos con el mismo `partOf.id`; `EXDATE` → no emitir ese documento;

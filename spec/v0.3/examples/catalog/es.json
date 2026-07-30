@@ -47,11 +47,14 @@
       ]
     },
     "event-online.json": {
-      "title": "Sesión solo online",
-      "summary": "Sin sede, solo URL de conexión — y una serie semanal detrás.",
+      "title": "Sesión solo online, en dos idiomas y detrás de una puerta de comunidad",
+      "summary": "Sin sede, solo URL de conexión — con una serie semanal detrás, una membresía delante y un texto que existe en catalán y castellano.",
       "points": [
         "`location` lleva `onlineUrl` y nada más. Un `location: {}` vacío es inválido: decir nada ya se hace omitiendo el campo.",
-        "`languages` usa etiquetas BCP 47. Ausente significa desconocido, nunca un valor por defecto.",
+        "`eligibility` es la tercera parte de «¿puedo ir?»: `attendanceMode` y `location` dicen que el evento está al alcance de cualquiera con conexión, y este dice que aun así hay una puerta — el canal de voz está dentro del Discord de la comunidad. Su `url` es donde se cumple la condición, no donde se compra una plaza: eso es `offers[].url`.",
+        "`languages` y `textLanguage` no son el mismo dato, y aquí no coinciden: en la sesión se HABLA catalán y castellano, y el documento está ESCRITO solo en catalán. Ninguno se deriva del otro, y los dos usan etiquetas BCP 47.",
+        "`translations` lleva la versión castellana de `name` y `description` — mientras esos dos campos siguen siendo cadenas, así que un consumidor de v0.2 lee este documento sin enterarse de que el campo existe. No hay entrada `ca`: sería el mismo texto dos veces.",
+        "El texto que vive DENTRO de un objeto se traduce donde vive: `eligibility.translations` y `partOf.translations`, nunca un espejo posicional del estilo `translations.es.partOf.name`. `location.venue` y `organizers[].name` no se traducen jamás — son nombres propios.",
         "Las sesiones semanales se publican igual que las mensuales: un documento por sesión, agrupadas por `partOf`."
       ]
     },
@@ -88,6 +91,7 @@
         "Varios precios son varias `offers`, no una con un rango: un precio que no se puede escribir con un solo número es más de una oferta. `availability` dice cuál se ha agotado ya.",
         "La entrada de estudiantes lleva `price: 0` y ninguna `currency` — lo gratis es gratis en cualquier moneda, y exigirla ahí es como un meetup gratuito acaba publicando un importe en dólares.",
         "Las fechas límite llevan offset, a diferencia de las fechas del propio evento. Un CFP que cierra a las «23:59» es el bug clásico: qué medianoche es exactamente la pregunta, y «anywhere on Earth» es una respuesta real (`-12:00`).",
+        "`offers[].name` es texto libre a propósito —un enum le quitaría a quien organiza el derecho a nombrar sus entradas—, así que traducirlo es el precio, y se hace DENTRO de la oferta. El resto de la oferta no lleva idioma: `price` es un número, `currency` un código y `availability` un enum.",
         "`cfp` no tiene equivalente en schema.org, iCal ni RSS: al exportar se degrada a texto. Está en el núcleo igualmente porque «qué conferencias aceptan propuestas ahora mismo» solo lo puede contestar quien publica, y hoy se contesta scrapeando."
       ]
     },
@@ -116,7 +120,8 @@
       "points": [
         "Repetir `\"license\": \"CC-BY-4.0\"` en 200 eventos es ruido, no rigor: el evento que la omite hereda la del feed.",
         "El evento que declara `organizers` REEMPLAZA la lista heredada. Con fusión no habría forma de quitar un organizador heredado.",
-        "Por eso el segundo evento repite la comunidad del propio feed junto a la invitada: omitirla atribuiría el evento solo a la invitada."
+        "Por eso el segundo evento repite la comunidad del propio feed junto a la invitada: omitirla atribuiría el evento solo a la invitada.",
+        "`textLanguage` se hereda igual: declarado una vez en el feed, ningún evento lo repite. Es lo que hace que el campo cueste una línea a quien publica en un solo idioma. `translations` no se hereda nunca — traduce el título DEL FEED, no el nombre de sus eventos."
       ]
     },
     "feed.json": {

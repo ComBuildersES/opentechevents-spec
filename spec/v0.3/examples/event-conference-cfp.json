@@ -26,6 +26,7 @@
   },
   "tags": ["cloud", "ai", "web"],
   "languages": ["es", "en"],
+  "textLanguage": "es",
   "offers": [
     {
       "name": "Early bird",
@@ -47,9 +48,14 @@
       "name": "Estudiantes",
       "price": 0,
       "url": "https://devfest-levante.example/2026/entradas#estudiantes",
-      "availability": "in-stock"
+      "availability": "in-stock",
+      "translations": {
+        "en": { "name": "Students" }
+      }
     }
   ],
+
+  "_comment_translations": "`offers[].name` es texto LIBRE a propósito: quien organiza nombra sus entradas como quiera, y un enum se lo impediría. El precio de esa libertad es que hay que traducirlo, y se traduce DENTRO de la oferta — no con un espejo posicional (`translations.es.offers[0].name`), que colgaría la traducción de la tarifa equivocada en cuanto alguien reordene la lista. Los demás campos de la oferta no llevan idioma: `price` es un número, `currency` un código y `availability` un enum. Cualquier mapa de traducciones del documento, a la profundidad que esté, exige `textLanguage`.",
   "cfp": {
     "url": "https://devfest-levante.example/2026/cfp",
     "opensAt": "2026-05-01T00:00:00+02:00",

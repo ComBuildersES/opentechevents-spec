@@ -10,11 +10,11 @@ Todos **se validan en CI** contra [`../event.schema.json`](../event.schema.json)
 | [`event-meetup.json`](event-meetup.json) | Meetup híbrido, con `image` (el mismo cartel en tres recortes), `offers` con `price: 0` —así se dice «gratis»— y una extensión (ver abajo). |
 | [`event-conference-cfp.json`](event-conference-cfp.json) | Conferencia con **tres tipos de entrada** (`offers`, uno ya agotado) y **CFP abierto** (`cfp`), ambos normativos desde la v0.3. |
 | [`event-co-organized.json`](event-co-organized.json) | **Tres organizadores** —dos comunidades y una persona— y un campo de **vocabulario externo con prefijo** (`combuilders:communityId`). |
-| [`event-online.json`](event-online.json) | Evento **solo online**: `location` con `onlineUrl` y sin sede física, más `partOf` de una serie semanal. |
+| [`event-online.json`](event-online.json) | Evento **solo online**: `location` con `onlineUrl` y sin sede física, `partOf` de una serie semanal, **`eligibility`** —está al alcance de cualquiera con conexión y aun así hay una puerta (`members-only`)— y **bilingüe**: `textLanguage: "ca"` con `translations.es`, junto a un `languages: ["ca","es"]` que dice otra cosa. |
 | [`event-hackathon.json`](event-hackathon.json) | **Hackathon** continuo de fin de semana: cruza la medianoche y por eso **no** lleva `partOf` — es un evento, no dos sesiones. |
 | [`event-recurring.json`](event-recurring.json) | **Una ocurrencia** de un meetup mensual, con [`partOf`](../README.md#recurrencia-y-eventos-multi-parte-partof). La recurrencia **se expande al publicar**: un documento por edición, nunca una regla dentro del feed. |
 | [`feed.json`](feed.json) | Un **feed de agregador**: sus eventos heredan `specVersion` y `license`, pero **no** `organizers` — el agregador no organiza lo que publica, así que lo omite y cada evento declara el suyo. |
-| [`feed-community.json`](feed-community.json) | Un **feed de comunidad**: `organizers` va en el feed y lo heredan sus eventos. El segundo evento lo declara y **reemplaza** la lista heredada — por eso repite la comunidad del feed. |
+| [`feed-community.json`](feed-community.json) | Un **feed de comunidad**: `organizers` y **`textLanguage`** van en el feed y los heredan sus eventos. El segundo evento declara `organizers` y **reemplaza** la lista heredada — por eso repite la comunidad del feed. |
 | [`feed-multipart.json`](feed-multipart.json) | Un **evento multi-parte**: un study jam en tres sesiones, en sábados no consecutivos, como **tres documentos** con el mismo `partOf` (`type: multipart`). No como un evento de quince días. |
 | [`invalid/`](invalid/) | Documentos que **deben ser rechazados**. El CI falla si el validador los acepta: un schema que solo acepta no es un schema. |
 

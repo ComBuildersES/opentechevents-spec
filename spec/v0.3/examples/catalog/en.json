@@ -60,12 +60,23 @@
     {
       "file": "event-online.json",
       "cases": ["online", "recurring"],
-      "fields": ["event.attendanceMode", "event.location.onlineUrl", "event.languages"],
-      "title": "Online-only session",
-      "summary": "No venue, just a joining URL — and a weekly series behind it.",
+      "fields": [
+        "event.attendanceMode",
+        "event.location.onlineUrl",
+        "event.eligibility",
+        "event.eligibility.type",
+        "event.languages",
+        "event.textLanguage",
+        "event.translations"
+      ],
+      "title": "Online-only session, in two languages, behind a community door",
+      "summary": "No venue, just a joining URL — a weekly series behind it, a membership in front of it, and a text that exists in Catalan and Spanish.",
       "points": [
         "`location` carries `onlineUrl` and nothing else. An empty `location: {}` is invalid: saying nothing is already done by omitting the field.",
-        "`languages` uses BCP 47 tags. Absent means unknown, never a default.",
+        "`eligibility` is the third part of \"can I go?\": `attendanceMode` and `location` say the event is within reach of anyone with a connection, this says there is still a door — the voice channel lives inside the community's Discord. Its `url` is where the condition is met, not where a seat is bought: that is `offers[].url`.",
+        "`languages` and `textLanguage` are not the same data, and here they disagree: Catalan and Spanish are SPOKEN at the session, and the document is WRITTEN in Catalan only. Neither derives from the other, and both use BCP 47 tags.",
+        "`translations` carries the Spanish version of `name` and `description` — while those two fields stay plain strings, so a v0.2 consumer reads this document without noticing the field exists. There is no `ca` entry: that would be the same text twice.",
+        "Text that lives INSIDE an object is translated where it lives: `eligibility.translations` and `partOf.translations`, never a positional mirror like `translations.es.partOf.name`. `location.venue` and `organizers[].name` are never translated at all — they are proper nouns.",
         "Weekly sessions are published the same way monthly ones are: one document per session, grouped by `partOf`."
       ]
     },
@@ -107,13 +118,14 @@
     {
       "file": "event-conference-cfp.json",
       "cases": ["conference"],
-      "fields": ["event.offers", "event.offers[].price", "event.offers[].availability", "event.cfp", "event.cfp.closesAt", "event.cfp.coversTravel"],
+      "fields": ["event.offers", "event.offers[].price", "event.offers[].availability", "event.offers[].translations", "event.cfp", "event.cfp.closesAt", "event.cfp.coversTravel"],
       "title": "Conference with tickets and an open call for papers",
       "summary": "Three ticket tiers and a call for proposals — the two things people search a conference for, and neither of them was in v0.2.",
       "points": [
         "Tiered pricing is several `offers`, not one with a range: a price you cannot write as a single number is more than one offer. `availability` says which tier is already gone.",
         "The student tier is `price: 0` and no `currency` — free is free in every currency, and asking for one there is how a free meetup ends up publishing a US dollar amount.",
         "The deadlines carry an offset, unlike the event's own dates. A CFP closing at \"23:59\" is the classic bug: which midnight is the entire question, and \"anywhere on Earth\" is a real answer (`-12:00`).",
+        "`offers[].name` is free text on purpose — an enum would take away an organiser's right to name their own tickets — so translating it is the price, and it is done INSIDE the offer. The rest of the offer has no language at all: `price` is a number, `currency` a code, `availability` an enum.",
         "`cfp` has no equivalent in schema.org, iCal or RSS — it degrades to text on export. It is in the core anyway because \"which conferences are accepting proposals right now\" is a question only the publisher can answer, and today it is answered by scraping."
       ]
     },
@@ -145,13 +157,14 @@
     {
       "file": "feed-community.json",
       "cases": ["feed", "co-organized"],
-      "fields": ["feed.organizers", "feed.license", "feed.events"],
+      "fields": ["feed.organizers", "feed.license", "feed.textLanguage", "feed.events"],
       "title": "A community feed, and how inheritance works",
       "summary": "`license` and `organizers` sit on the feed and flow down. One event overrides them — and that override replaces, it does not merge.",
       "points": [
         "Repeating `\"license\": \"CC-BY-4.0\"` in 200 events is noise, not rigour: an event that omits it inherits the feed's.",
         "An event that declares `organizers` REPLACES the inherited list. With merging there would be no way to remove an inherited organiser.",
-        "That is why the second event repeats the feed's own community next to the guest one: leaving it out would attribute the event to the guest alone."
+        "That is why the second event repeats the feed's own community next to the guest one: leaving it out would attribute the event to the guest alone.",
+        "`textLanguage` inherits the same way: declared once on the feed, no event repeats it. That is what makes the field cost one line for a monolingual publisher. `translations` never inherits — it translates the FEED's title, not its events' names."
       ]
     },
     {

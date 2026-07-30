@@ -170,8 +170,26 @@
             }
           ]
         },
+        "eligibility": {
+          "description": "Who may attend, when the answer is not \"anyone\". The third part of \"can I go?\", after attendanceMode and location: those two answer whether the event is reachable, this one whether you are allowed in. NO DEFAULT: absent means unknown, never open — an importer reading a .ics cannot know, and staying quiet is not the same claim as saying the door is open.",
+          "$ref": "#/$defs/eligibility",
+          "examples": [
+            {
+              "type": "open"
+            },
+            {
+              "type": "members-only",
+              "note": "Miembros del Discord de Rust Girona",
+              "url": "https://rustgirona.example/discord"
+            },
+            {
+              "type": "restricted",
+              "note": "Solo alumnado de la Universidad de Almería"
+            }
+          ]
+        },
         "tags": {
-          "description": "Free-form topic tags. Maps to iCal CATEGORIES and schema.org keywords. A controlled vocabulary may layer on top later; the field itself stays free. No default: absent means unknown.",
+          "description": "Free-form topic tags — what the event is ABOUT. Maps to iCal CATEGORIES and schema.org keywords. Not who may attend: that question has its own field, eligibility, because a tag like \"members-only\" is invisible to a consumer that does not already know to look for it. A controlled vocabulary may layer on top later; the field itself stays free. No default: absent means unknown.",
           "type": "array",
           "items": {
             "type": "string",
@@ -190,11 +208,10 @@
           ]
         },
         "languages": {
-          "description": "BCP 47 tags, e.g. [\"es\",\"en\"]. No default: absent means unknown.",
+          "description": "Languages SPOKEN at the event, as BCP 47 tags, e.g. [\"es\",\"en\"]. Not the language this document is written in — that is textLanguage, and the two disagree all the time: a bilingual session described in Catalan only. No default: absent means unknown.",
           "type": "array",
           "items": {
-            "type": "string",
-            "pattern": "^[A-Za-z]{2,3}(-[A-Za-z0-9]{2,8})*$"
+            "$ref": "#/$defs/languageTag"
           },
           "minItems": 1,
           "examples": [
@@ -205,6 +222,15 @@
               "es",
               "en"
             ]
+          ]
+        },
+        "textLanguage": {
+          "description": "Language THIS DOCUMENT's free text is written in — name, description, and any other prose in it. One BCP 47 tag, not a list: a text is written in one language. A different question from languages, which says what is spoken at the event. Absent means unknown, never the feed's language and never English. Inside a feed, an event that omits it inherits the feed's.",
+          "$ref": "#/$defs/languageTag",
+          "examples": [
+            "es",
+            "ca",
+            "en"
           ]
         },
         "offers": {
@@ -312,9 +338,82 @@
           "examples": [
             "2026-06-10T18:00:00Z"
           ]
+        },
+        "translations": {
+          "description": "The same event's free text in other languages, keyed by BCP 47 tag. The document keeps ONE primary text in its own fields — declared by textLanguage — and this carries the versions of it. Additive on purpose: name and description stay strings, so every existing consumer keeps working and a monolingual publisher writes nothing at all. Never a translation of the language the document is already in.",
+          "$ref": "#/$defs/translations",
+          "examples": [
+            {
+              "es": {
+                "name": "Sesión semanal de programación — Rust Girona",
+                "description": "Cada semana nos juntamos en línea para picar Rust un rato."
+              }
+            }
+          ]
         }
       },
       "allOf": [
+        {
+          "description": "A map of translations is unusable without knowing which language the primary text is in: a consumer cannot tell which entry duplicates it, nor what it is falling back to. So ANY translations map in the document — the event's own, or one inside offers, eligibility or partOf — requires textLanguage. It is the one place where a field of this spec depends on another being present, and it holds at every depth because the primary language is a property of the whole document, not of each object.",
+          "if": {
+            "type": "object",
+            "anyOf": [
+              {
+                "required": [
+                  "translations"
+                ]
+              },
+              {
+                "required": [
+                  "eligibility"
+                ],
+                "properties": {
+                  "eligibility": {
+                    "required": [
+                      "translations"
+                    ],
+                    "type": "object"
+                  }
+                }
+              },
+              {
+                "required": [
+                  "partOf"
+                ],
+                "properties": {
+                  "partOf": {
+                    "required": [
+                      "translations"
+                    ],
+                    "type": "object"
+                  }
+                }
+              },
+              {
+                "required": [
+                  "offers"
+                ],
+                "properties": {
+                  "offers": {
+                    "contains": {
+                      "required": [
+                        "translations"
+                      ],
+                      "type": "object"
+                    },
+                    "type": "array"
+                  }
+                }
+              }
+            ]
+          },
+          "then": {
+            "type": "object",
+            "required": [
+              "textLanguage"
+            ]
+          }
+        },
         {
           "description": "startDate and endDate must be of the same form: two all-day dates, or two local date-times.",
           "oneOf": [
@@ -372,6 +471,177 @@
       "type": "string",
       "minLength": 2,
       "pattern": "^([A-Za-z0-9.+-]+|https?://.+)$"
+    },
+    "languageTag": {
+      "description": "A BCP 47 language tag: \"es\", \"ca\", \"en\", \"es-MX\", \"zh-Hant\". Shared by languages (spoken at the event), textLanguage (the document's own text) and the keys of translations, so the three can never drift into three notions of what a language is.",
+      "type": "string",
+      "pattern": "^[A-Za-z]{2,3}(-[A-Za-z0-9]{2,8})*$"
+    },
+    "languageMap": {
+      "description": "The shape every translations map shares, wherever it appears: keys are BCP 47 tags, and an empty map is invalid — saying nothing is already done by omitting the field, the same rule location follows. Defined once so the five maps of this spec can never drift into five notions of what a language key is.",
+      "type": "object",
+      "minProperties": 1,
+      "propertyNames": {
+        "$ref": "#/$defs/languageTag"
+      }
+    },
+    "translations": {
+      "description": "Free text in other languages, keyed by BCP 47 tag. A map and not a list because the language IS the key: one entry per language, and no way to publish two Spanish versions that contradict each other.",
+      "type": "object",
+      "allOf": [
+        {
+          "$ref": "#/$defs/languageMap"
+        }
+      ],
+      "additionalProperties": {
+        "$ref": "#/$defs/translation"
+      }
+    },
+    "translation": {
+      "description": "One language's version of an event's OWN free text: name and description, the two fields every destination format prints. Not a mirror of the whole event — text that lives inside offers, eligibility or partOf is translated where it lives, by that object's own translations map. A positional mirror (translations.es.offers[0].name) is the one shape this spec refuses: a list has no stable keys, so reordering the offers would silently attach a translation to the wrong tier.",
+      "type": "object",
+      "minProperties": 1,
+      "properties": {
+        "name": {
+          "description": "The event's name in this language.",
+          "type": "string",
+          "minLength": 1,
+          "examples": [
+            "Sesión semanal de programación — Rust Girona"
+          ]
+        },
+        "description": {
+          "description": "The event's description in this language. Plain text or Markdown, like the field it translates.",
+          "type": "string",
+          "minLength": 1,
+          "examples": [
+            "Cada semana nos juntamos en línea para picar Rust un rato."
+          ]
+        }
+      }
+    },
+    "feedTranslations": {
+      "description": "A feed's OWN title and description in other languages, keyed by BCP 47 tag. Never its events': each event carries its own translations, because each event has its own text and its own languages.",
+      "type": "object",
+      "allOf": [
+        {
+          "$ref": "#/$defs/languageMap"
+        }
+      ],
+      "additionalProperties": {
+        "$ref": "#/$defs/feedTranslation"
+      }
+    },
+    "offerTranslations": {
+      "description": "This offer's name in other languages. Local to the offer, so no consumer has to line up two lists by position. It exists because offers[].name stays FREE TEXT on purpose: a kind enum (general, early-bird, student) would have been multilingual for free, and it would also have taken away the organiser's right to name their own tickets. Free text is the choice; translating it is the price.",
+      "type": "object",
+      "allOf": [
+        {
+          "$ref": "#/$defs/languageMap"
+        }
+      ],
+      "additionalProperties": {
+        "$ref": "#/$defs/offerTranslation"
+      }
+    },
+    "offerTranslation": {
+      "description": "One language's version of an offer's free text. Only name: price is a number, currency is a code, availability is an enum — none of them has a language.",
+      "type": "object",
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "name": {
+          "description": "This ticket's name in this language.",
+          "type": "string",
+          "minLength": 1,
+          "examples": [
+            "Students",
+            "Estudiantes"
+          ]
+        }
+      }
+    },
+    "eligibilityTranslations": {
+      "description": "This condition's note in other languages. Only note is translated: type is an enum, and an enum is multilingual for free — a consumer renders members-only in the reader's language without anyone translating the data.",
+      "type": "object",
+      "allOf": [
+        {
+          "$ref": "#/$defs/languageMap"
+        }
+      ],
+      "additionalProperties": {
+        "$ref": "#/$defs/eligibilityTranslation"
+      }
+    },
+    "eligibilityTranslation": {
+      "description": "One language's version of the condition in words.",
+      "type": "object",
+      "required": [
+        "note"
+      ],
+      "properties": {
+        "note": {
+          "description": "The condition, in this language.",
+          "type": "string",
+          "minLength": 1,
+          "examples": [
+            "Miembros del Discord de Rust Girona"
+          ]
+        }
+      }
+    },
+    "partOfTranslations": {
+      "description": "The series' or multi-part event's name in other languages. The id is never translated: it is an identifier, and translating it would split one series into two.",
+      "type": "object",
+      "allOf": [
+        {
+          "$ref": "#/$defs/languageMap"
+        }
+      ],
+      "additionalProperties": {
+        "$ref": "#/$defs/partOfTranslation"
+      }
+    },
+    "partOfTranslation": {
+      "description": "One language's version of the series' display name.",
+      "type": "object",
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "name": {
+          "description": "The series' or multi-part event's name in this language.",
+          "type": "string",
+          "minLength": 1,
+          "examples": [
+            "Sesión semanal de programación"
+          ]
+        }
+      }
+    },
+    "feedTranslation": {
+      "description": "One language's version of a feed's own free text.",
+      "type": "object",
+      "minProperties": 1,
+      "properties": {
+        "title": {
+          "description": "The feed's title in this language.",
+          "type": "string",
+          "minLength": 1,
+          "examples": [
+            "Rust Girona events"
+          ]
+        },
+        "description": {
+          "description": "The feed's description in this language.",
+          "type": "string",
+          "minLength": 1,
+          "examples": [
+            "Weekly online Rust coding sessions, in Catalan and Spanish."
+          ]
+        }
+      }
     },
     "organizers": {
       "description": "Who runs the event or the feed. Kept deliberately small: a name, and where to find them.",
@@ -465,6 +735,17 @@
           "examples": [
             "series",
             "multipart"
+          ]
+        },
+        "translations": {
+          "description": "The series' display name in other languages. Its id stays untranslated — an identifier with two spellings is two series.",
+          "$ref": "#/$defs/partOfTranslations",
+          "examples": [
+            {
+              "es": {
+                "name": "Sesión semanal de programación"
+              }
+            }
           ]
         }
       }
@@ -600,6 +881,81 @@
         }
       }
     },
+    "eligibility": {
+      "description": "The door: whether there is a condition to get in, and what it is. An enum so a consumer can filter on it, plus a note so a human can read the part no enum can carry. It models the CONDITION, not the ticketing: no capacity, no seats left, no per-attendee approval state.",
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "description": "The kind of door. open: anyone may attend. members-only: you have to belong to something first. approval-required: you sign up and the organiser decides. invite-only: not publicly joinable. restricted: there IS a condition and none of the other values names it — say which in `note`, which is why the schema demands it there. Five values, kept small on purpose: a consumer that has to handle twenty doors handles none.",
+          "enum": [
+            "open",
+            "members-only",
+            "approval-required",
+            "invite-only",
+            "restricted"
+          ],
+          "examples": [
+            "open",
+            "members-only",
+            "approval-required"
+          ]
+        },
+        "note": {
+          "description": "The condition in words, for a person to read: which community, which university, which company. REQUIRED when type is restricted, because \"restricted\" on its own tells nobody anything; worth writing whenever the enum value alone leaves a question. This is the part that survives export to every format, inside the text.",
+          "type": "string",
+          "minLength": 1,
+          "examples": [
+            "Miembros del Discord de Rust Girona",
+            "Solo alumnado de la Universidad de Almería"
+          ]
+        },
+        "url": {
+          "description": "Where the condition is explained or met: the page to join the community, request an invitation, apply. Distinct from offers[].url, which is where a seat or money changes hands — here nothing is bought, a door is opened.",
+          "type": "string",
+          "format": "uri",
+          "pattern": "^https?://",
+          "examples": [
+            "https://rustgirona.example/discord"
+          ]
+        },
+        "translations": {
+          "description": "The note in other languages. type needs none: an enum carries no language, and a consumer renders it in the reader's.",
+          "$ref": "#/$defs/eligibilityTranslations",
+          "examples": [
+            {
+              "es": {
+                "note": "Miembros del Discord de Rust Girona"
+              }
+            }
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "description": "restricted means \"there is a door the enum cannot name\". Without a note it names nothing, and a consumer can only show the word itself — which is how a field meant to answer \"can I go?\" ends up asking it.",
+          "if": {
+            "type": "object",
+            "required": [
+              "type"
+            ],
+            "properties": {
+              "type": {
+                "const": "restricted"
+              }
+            }
+          },
+          "then": {
+            "type": "object",
+            "required": [
+              "note"
+            ]
+          }
+        }
+      ]
+    },
     "offers": {
       "description": "Ways of attending, with their price. A list because an event may sell several kinds of ticket, and because the answer to \"is it free?\" has to survive an event that is free for students and paid for everyone else.",
       "type": "array",
@@ -672,6 +1028,17 @@
           "$ref": "#/$defs/instant",
           "examples": [
             "2026-07-31T23:59:59+02:00"
+          ]
+        },
+        "translations": {
+          "description": "This offer's name in other languages. Local to the offer it belongs to — never a positional mirror of the offers list. Requires the document's textLanguage, like every other translations map.",
+          "$ref": "#/$defs/offerTranslations",
+          "examples": [
+            {
+              "en": {
+                "name": "Students"
+              }
+            }
           ]
         }
       },
