@@ -117,6 +117,10 @@
       "title": "Reach beyond your own bubble",
       "body": "Directories and aggregators will be able to pick up your events the moment you publish them, and reach each person in the channel they already use — not the one you happen to pick. Your meetup can show up where people are actually looking."
     },
+    "b7": {
+      "title": "And you show up better in Google",
+      "body": "Google and other search engines read <code>schema.org/Event</code> to show <a href=\"https://developers.google.com/search/docs/appearance/structured-data/event\" target=\"_blank\" rel=\"noopener\">event rich results</a>: date, venue and price right there in the search results. OTE wasn't designed for SEO, but it maps onto that vocabulary almost 1:1 — so if you can touch your site's HTML, the same tooling that builds your feed will be able to generate the JSON-LD for you to paste in. One file, four destinations."
+    },
     "b3": {
       "title": "Own your data",
       "body": "Your events live at your URL, in an open format. If a platform shuts down, changes its API or its pricing, your history and your feed are still yours."
@@ -216,6 +220,10 @@
       {
         "q": "How is this different from schema.org/Event?",
         "a": "schema.org/Event isn't a rival to OTE, it's a mapping target: OTE serialises to JSON-LD almost 1:1 and can be exported to schema.org so Google and aggregators like dev.events pick you up. The difference is that schema.org describes <em>one</em> event embedded in <em>one</em> HTML page — there's no notion of a feed: you can't subscribe to «all of a community's events» or consume them without scraping HTML — its vocabulary is huge and almost entirely optional, and it ships no validation. OTE fills those gaps: a subscribable feed (one URL, N events, with an <code>updatedAt</code>) as a plain JSON file, a small <strong>validatable</strong> core, and online/hybrid and CFP as first-class fields. In one line: OTE = schema.org's data model + RSS/iCal's distribution model, without making you choose."
+      },
+      {
+        "q": "Does this help my SEO?",
+        "a": "Yes, but two things are worth keeping apart. Your OTE feed (<code>events.json</code>) is for directories, calendars and bots: Google won't index it as if it were your page. What Google does read is the <strong><code>schema.org/Event</code> JSON-LD embedded in your event's HTML</strong>, and from that it can show <a href=\"https://developers.google.com/search/docs/appearance/structured-data/event\" target=\"_blank\" rel=\"noopener\">rich results</a> with date, venue and price. Because OTE serialises to that vocabulary almost 1:1, the event you've already written is enough to generate that snippet and paste it into your page — so the SEO comes for free, with no hand-written markup to maintain on the side. Two honest caveats: you need your own event page and the ability to edit its HTML, and the schema.org exporter is still <em>proposed</em>, not built (see the tools section)."
       },
       {
         "q": "How much work is this really?",

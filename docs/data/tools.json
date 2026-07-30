@@ -182,14 +182,14 @@
     {
       "status": "proposed",
       "audience": ["organizers", "developers"],
-      "order": 60,
+      "order": 15,
       "name": {
         "en": "OTE → schema.org/Event",
         "es": "OTE → schema.org/Event"
       },
       "desc": {
-        "en": "Generate a schema.org/Event JSON-LD snippet from an OTE event, ready to paste into an event page for better SEO and interoperability with existing crawlers.",
-        "es": "Genera un snippet JSON-LD schema.org/Event desde un evento OTE, listo para pegar en la página del evento y mejorar SEO e interoperabilidad con crawlers existentes."
+        "en": "Generate a schema.org/Event JSON-LD snippet from an OTE event, ready to paste into an event page. It is what turns an event you already wrote into Google's event rich results — date, venue and price shown in search — with no hand-written markup to keep in sync.",
+        "es": "Genera un snippet JSON-LD schema.org/Event desde un evento OTE, listo para pegar en la página del evento. Es lo que convierte un evento que ya has escrito en los resultados enriquecidos de Google —fecha, sede y precio en la búsqueda— sin marcado a mano que mantener sincronizado."
       },
       "category": {
         "en": "Transform",
