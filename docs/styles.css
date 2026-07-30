@@ -184,6 +184,25 @@ t { color: #e08a6b; }
 .code-line { display: block; }
 .code-line.is-hit { background: rgba(127,179,255,.15); box-shadow: inset 2px 0 0 #7fb3ff; }
 
+/* The hero samples once app.js has folded them: indentation is structural, not spaces, so a
+   wrapped URL stays inside its own level instead of scrolling the block sideways. */
+.json-tree { font: .8rem/1.75 var(--mono); color: #d5dae4; }
+.json-tree .jbody { padding-left: 1.15em; }
+.jline, .jtoggle { display: block; white-space: pre-wrap; overflow-wrap: anywhere; padding-left: 1em; }
+.jtoggle {
+  width: 100%; text-align: left; margin: 0; padding-right: 0; border: 0; border-radius: 4px;
+  background: none; font: inherit; color: inherit; cursor: pointer;
+}
+.jtoggle:hover { background: rgba(127,179,255,.12); }
+.jtoggle:focus-visible { outline: 2px solid #7fb3ff; outline-offset: 1px; }
+.jcaret { display: inline-block; width: 1em; margin-left: -1em; color: #6f7787; transition: transform .12s ease; }
+.jnode:not(.is-collapsed) > .jtoggle .jcaret { transform: rotate(90deg); }
+.jnode:not(.is-collapsed) > .jtoggle .jbrief { display: none; }
+.jnode.is-collapsed > .jbody { display: none; }
+/* The closing bracket belongs to the line that opened it, not to the contents it closes. */
+.jline.jclose { margin-left: -1.15em; }
+.jbrief { color: #6f7787; }
+
 /* ---------- sections ---------- */
 .section { padding: 84px 0; }
 .section-alt { background: var(--bg-alt); border-block: 1px solid var(--line); }

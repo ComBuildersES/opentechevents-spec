@@ -70,6 +70,8 @@
                   aria-selected="true" aria-controls="sample-meetup" data-i18n="hero.tabMeetup">Meetup</button>
           <button type="button" class="code-tab" role="tab" id="tab-conference"
                   aria-selected="false" aria-controls="sample-conference" data-i18n="hero.tabConference">Conference</button>
+          <button type="button" class="code-tab" role="tab" id="tab-feed"
+                  aria-selected="false" aria-controls="sample-feed" data-i18n="hero.tabFeed">Feed</button>
         </div>
 
         <figure class="hero-code" id="sample-meetup" role="tabpanel" aria-labelledby="tab-meetup">
@@ -81,6 +83,7 @@
   <k>"name"</k>: <s>"PyAlmería — Intro to async/await"</s>,
   <k>"organizers"</k>: [{ <k>"name"</k>: <s>"PyAlmería"</s> }],
   <k>"startDate"</k>: <s>"2026-06-11T18:30:00"</s>,
+  <k>"endDate"</k>: <s>"2026-06-11T20:30:00"</s>,
   <k>"timezone"</k>: <s>"Europe/Madrid"</s>,
   <k>"attendanceMode"</k>: <s>"hybrid"</s>,
   <k>"location"</k>: {
@@ -89,7 +92,10 @@
     <k>"geo"</k>: { <k>"lat"</k>: 36.8381, <k>"lon"</k>: -2.4597 }
   },
   <k>"tags"</k>: [<s>"python"</s>, <s>"async"</s>],
+  <k>"languages"</k>: [<s>"es"</s>],
+  <k>"eligibility"</k>: { <k>"type"</k>: <s>"open"</s> },
   <k>"partOf"</k>: { <k>"id"</k>: <s>"https://pyalmeria.example/meetups"</s> },
+  <k>"status"</k>: <s>"scheduled"</s>,
   <k>"license"</k>: <s>"CC-BY-4.0"</s>
 }</code></pre>
         </figure>
@@ -101,10 +107,14 @@
   <k>"id"</k>: <s>"https://devfest-levante.example/2026"</s>,
   <k>"url"</k>: <s>"https://devfest-levante.example/2026"</s>,
   <k>"name"</k>: <s>"DevFest Levante 2026"</s>,
-  <k>"organizers"</k>: [{
-    <k>"name"</k>: <s>"GDG Levante"</s>,
-    <k>"url"</k>: <s>"https://gdglevante.example"</s>
-  }],
+  <k>"description"</k>: <s>"Dos días, tres tracks: cloud, IA y web."</s>,
+  <k>"image"</k>: [
+    { <k>"url"</k>: <s>"https://devfest-levante.example/img/2026-16x9.png"</s>,
+      <k>"alt"</k>: <s>"Cartel naranja con la fecha «16-17 oct» sobre la Ciudad de las Artes"</s> }
+  ],
+  <k>"organizers"</k>: [
+    { <k>"name"</k>: <s>"GDG Levante"</s>, <k>"url"</k>: <s>"https://gdglevante.example"</s> }
+  ],
   <k>"startDate"</k>: <s>"2026-10-16"</s>,
   <k>"endDate"</k>: <s>"2026-10-17"</s>,
   <k>"timezone"</k>: <s>"Europe/Madrid"</s>,
@@ -112,7 +122,48 @@
   <k>"location"</k>: { <k>"venue"</k>: <s>"Las Naves, Valencia"</s> },
   <k>"tags"</k>: [<s>"cloud"</s>, <s>"ai"</s>, <s>"web"</s>],
   <k>"languages"</k>: [<s>"es"</s>, <s>"en"</s>],
+  <k>"textLanguage"</k>: <s>"es"</s>,
+  <k>"translations"</k>: {
+    <k>"en"</k>: { <k>"description"</k>: <s>"Two days, three tracks: cloud, AI and web."</s> }
+  },
+  <k>"offers"</k>: [
+    { <k>"name"</k>: <s>"Early bird"</s>, <k>"price"</k>: 35, <k>"currency"</k>: <s>"EUR"</s>, <k>"availability"</k>: <s>"sold-out"</s> },
+    { <k>"name"</k>: <s>"General"</s>, <k>"price"</k>: 45, <k>"currency"</k>: <s>"EUR"</s>, <k>"availability"</k>: <s>"in-stock"</s>,
+      <k>"url"</k>: <s>"https://devfest-levante.example/2026/entradas"</s> }
+  ],
+  <k>"cfp"</k>: {
+    <k>"url"</k>: <s>"https://devfest-levante.example/2026/cfp"</s>,
+    <k>"closesAt"</k>: <s>"2026-07-15T23:59:59+02:00"</s>,
+    <k>"coversTravel"</k>: true
+  },
+  <k>"status"</k>: <s>"scheduled"</s>,
   <k>"license"</k>: <s>"CC-BY-4.0"</s>
+}</code></pre>
+        </figure>
+
+        <figure class="hero-code" id="sample-feed" role="tabpanel" aria-labelledby="tab-feed" hidden>
+          <figcaption><span class="dot"></span><span class="dot"></span><span class="dot"></span> <code>events.json</code></figcaption>
+          <pre data-ote="feed"><code>{
+  <k>"specVersion"</k>: <s>"0.3.0"</s>,
+  <k>"title"</k>: <s>"PyAlmería — eventos"</s>,
+  <k>"url"</k>: <s>"https://pyalmeria.example"</s>,
+  <k>"organizers"</k>: [{ <k>"name"</k>: <s>"PyAlmería"</s> }],
+  <k>"license"</k>: <s>"CC-BY-4.0"</s>,
+  <k>"updatedAt"</k>: <s>"2026-05-29T08:00:00Z"</s>,
+  <k>"events"</k>: [
+    {
+      <k>"id"</k>: <s>"https://pyalmeria.example/2026-06-async"</s>,
+      <k>"name"</k>: <s>"Intro to async/await"</s>,
+      <k>"startDate"</k>: <s>"2026-06-11T18:30:00"</s>,
+      <k>"timezone"</k>: <s>"Europe/Madrid"</s>
+    },
+    {
+      <k>"id"</k>: <s>"https://pyalmeria.example/2026-07-testing"</s>,
+      <k>"name"</k>: <s>"Testing con pytest"</s>,
+      <k>"startDate"</k>: <s>"2026-07-09T18:30:00"</s>,
+      <k>"timezone"</k>: <s>"Europe/Madrid"</s>
+    }
+  ]
 }</code></pre>
         </figure>
 

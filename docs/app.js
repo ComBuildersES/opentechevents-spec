@@ -323,6 +323,118 @@
     });
   })();
 
+  /* The hero samples, folded. They carry real offers, a CFP and translations now, and a block
+     that scrolls sideways for thirty lines teaches nobody the shape of an event. So the static
+     <pre> — which is what a reader without JS keeps — is re-read as JSON and rendered as a tree:
+     top level open, every nested object folded, long URLs wrapped instead of pushed off-screen. */
+  (function heroTree() {
+    // Above this, an object on one line is a wall of text; below it, folding hides nothing.
+    var INLINE_MAX = 58;
+
+    function el(name, className, text) {
+      var node = document.createElement(name);
+      if (className) node.className = className;
+      if (text != null) node.textContent = text;
+      return node;
+    }
+
+    function isBranch(v) { return v !== null && typeof v === 'object'; }
+
+    function scalar(v) {
+      return typeof v === 'string'
+        ? el('s', null, JSON.stringify(v))
+        : el('span', 'tok-lit', JSON.stringify(v));
+    }
+
+    // { "type": "open" } or a list of tags reads fine inline, and folding it would cost a click
+    // to reveal something shorter than the line that hid it. Only flat, short values qualify.
+    function inline(value) {
+      var arr = Array.isArray(value);
+      var keys = arr ? value.map(function (_, i) { return i; }) : Object.keys(value);
+      if (keys.some(function (k) { return isBranch(value[k]); })) return null;
+      if (JSON.stringify(value).length > INLINE_MAX) return null;
+
+      var frag = document.createDocumentFragment();
+      frag.appendChild(document.createTextNode(arr ? '[' : '{ '));
+      keys.forEach(function (k, i) {
+        if (i) frag.appendChild(document.createTextNode(', '));
+        if (!arr) {
+          frag.appendChild(el('k', null, JSON.stringify(k)));
+          frag.appendChild(document.createTextNode(': '));
+        }
+        frag.appendChild(scalar(value[k]));
+      });
+      frag.appendChild(document.createTextNode(arr ? ']' : ' }'));
+      return frag;
+    }
+
+    // key is null inside an array, where an item has no name of its own.
+    function entry(key, value, last, into) {
+      var comma = last ? '' : ',';
+      var flat = isBranch(value) ? inline(value) : scalar(value);
+
+      if (flat) {
+        var line = el('div', 'jline');
+        if (key !== null) {
+          line.appendChild(el('k', null, JSON.stringify(key)));
+          line.appendChild(document.createTextNode(': '));
+        }
+        line.appendChild(flat);
+        line.appendChild(document.createTextNode(comma));
+        into.appendChild(line);
+        return;
+      }
+
+      var arr = Array.isArray(value);
+      var keys = arr ? value.map(function (_, i) { return i; }) : Object.keys(value);
+      var close = (arr ? ']' : '}') + comma;
+
+      var node = el('div', 'jnode is-collapsed');
+      var head = el('button', 'jtoggle');
+      head.type = 'button';
+      head.setAttribute('aria-expanded', 'false');
+      head.appendChild(el('span', 'jcaret', '▸'));
+      if (key !== null) {
+        head.appendChild(el('k', null, JSON.stringify(key)));
+        head.appendChild(document.createTextNode(': '));
+      }
+      head.appendChild(document.createTextNode(arr ? '[' : '{'));
+      head.appendChild(el('span', 'jbrief', ' … ' + close));
+      node.appendChild(head);
+
+      var body = el('div', 'jbody');
+      keys.forEach(function (k, i) {
+        entry(arr ? null : k, value[k], i === keys.length - 1, body);
+      });
+      body.appendChild(el('div', 'jline jclose', close));
+      node.appendChild(body);
+
+      head.addEventListener('click', function () {
+        var folded = node.classList.toggle('is-collapsed');
+        head.setAttribute('aria-expanded', String(!folded));
+      });
+      into.appendChild(node);
+    }
+
+    function tree(doc) {
+      var root = el('div', 'json-tree');
+      var keys = Object.keys(doc);
+      var body = el('div', 'jbody');
+      root.appendChild(el('div', 'jline', '{'));
+      keys.forEach(function (k, i) { entry(k, doc[k], i === keys.length - 1, body); });
+      root.appendChild(body);
+      root.appendChild(el('div', 'jline', '}'));
+      return root;
+    }
+
+    document.querySelectorAll('.hero-code pre[data-ote]').forEach(function (pre) {
+      var doc;
+      try { doc = JSON.parse(pre.textContent); } catch (e) { return; } // static markup stays
+      pre.textContent = '';
+      pre.appendChild(tree(doc));
+    });
+  })();
+
   document.querySelectorAll('.tools-filters .chip').forEach(function (chip) {
     chip.addEventListener('click', function () {
       state.filter = chip.dataset.filter;
