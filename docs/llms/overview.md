@@ -148,9 +148,21 @@ Ver [Cómo contribuir](#cómo-contribuir).
 
 ## Cómo contribuir
 
-El proyecto está en fase de diseño y **toda aportación es bienvenida**: experiencias, necesidades de tu comunidad, referencias de estándares y propuestas concretas. Lo que más falta ahora son **casos reales que rompan el modelo** y **comunidades dispuestas a publicar un feed**.
+El proyecto está en fase de diseño y **toda aportación es bienvenida**: experiencias, necesidades de tu comunidad, referencias de estándares y propuestas concretas. Lo que más falta ahora son **casos reales que rompan el modelo** y **gente que diga en público que adoptaría esto** — sin eso, ningún directorio se molesta en leer el formato.
 
-👉 Léete [**CONTRIBUTING.md**](CONTRIBUTING.md): explica cómo debatir la spec, cómo adherirse, cómo aparecer en la web y cómo reclamar una herramienta del ecosistema.
+**Publicar un feed no es el único modo de ayudar, ni el primero:**
+
+| Qué | Cuánto cuesta | Por dónde |
+| --- | --- | --- |
+| Comprometerte a adoptarla cuando sea estable | 2 min | [issue de apoyo](https://github.com/OpenTechEvents/opentechevents-spec/issues/new?template=supporter.yml) |
+| Dar un testimonio publicable | 5 min | [Discussions](https://github.com/OpenTechEvents/opentechevents-spec/discussions) |
+| Contar un evento que la spec no sabe describir | 10 min | [issue de caso real](https://github.com/OpenTechEvents/opentechevents-spec/issues/new?template=case.yml) |
+| Difundirlo o presentarnos a alguien | variable | [issue de embajador](https://github.com/OpenTechEvents/opentechevents-spec/issues/new?template=ambassador.yml) |
+| Publicar un feed / consumirlos / montar una herramienta | ~1 h y más | [CONTRIBUTING.md](CONTRIBUTING.md) |
+
+¿Prefieres hablarlo en una llamada de 20 minutos en vez de escribir un issue? [Reserva hueco](https://calendar.app.google/ZQuRkVw53h8nC2uQA); y si no te encaja ninguno, dilo en [Discussions](https://github.com/OpenTechEvents/opentechevents-spec/discussions).
+
+👉 La lista completa está en [**CONTRIBUTING.md**](CONTRIBUTING.md): cómo apoyar sin publicar nada, cómo debatir la spec, cómo adherirse, cómo aparecer en la web, cómo traducir y cómo reclamar una herramienta del ecosistema.
 
 ## Contribuidores
 

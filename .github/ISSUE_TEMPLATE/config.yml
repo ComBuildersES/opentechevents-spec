@@ -1,0 +1,17 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Talk to us (1-on-1, book a slot)
+    url: https://calendar.app.google/ZQuRkVw53h8nC2uQA
+    about: >-
+      Rather have a 20-minute call than write an issue? Pick a slot. Whoever organises events
+      has better things to do than learn our issue templates. No slot that suits you? Open a
+      discussion and we'll find one.
+  - name: Leave a testimonial
+    url: https://github.com/OpenTechEvents/opentechevents-spec/discussions/new?category=general
+    about: A quote about why this matters to you. We publish them (with your OK) on the site.
+  - name: Questions and ideas
+    url: https://github.com/OpenTechEvents/opentechevents-spec/discussions
+    about: Anything that isn't a concrete change to the spec.
+  - name: Read the spec
+    url: https://opentechevents.org/spec/
+    about: Field reference, generated from the schemas.

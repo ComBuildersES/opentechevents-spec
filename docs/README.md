@@ -55,6 +55,7 @@ Two of them render **generated** data, and neither is edited by hand:
 | File | What it feeds |
 | --- | --- |
 | [`data/adopters.json`](data/adopters.json) | Communities publishing their events in OTE |
+| [`data/supporters.json`](data/supporters.json) | Who backs the project without necessarily publishing: pledges, endorsements, ambassadors, advisors, offers of resources |
 | [`data/consumers.json`](data/consumers.json) | Directories/apps/people consuming OTE feeds, plus testimonials |
 | [`data/tools.json`](data/tools.json) | Ecosystem tools (`status`: `working` \| `wip` \| `proposed`) |
 
@@ -73,5 +74,20 @@ Adding yourself is a one-entry PR:
 ```
 
 `logo` is optional — entries without one fall back to their initials.
+
+A supporter entry looks the same, plus a `tier` (one or several of `pledge`, `endorse`,
+`ambassador`, `advisor`, `resources`). The tier is **not** free text: it renders through
+`support.tiers.*` in the i18n files, so "pledged to adopt" can never quietly read as "already
+adopted". That distinction is the whole point of keeping the two lists apart.
+
+```json
+{
+  "name": "PyAlmería",
+  "url": "https://pyalmeria.example",
+  "tier": ["pledge", "ambassador"],
+  "since": "2026-07",
+  "desc": { "en": "Will publish once 1.0 lands", "es": "Publicará cuando salga la 1.0" }
+}
+```
 
 [`data/tools.json`](data/tools.json) is the canonical tools catalogue rendered by the website and developer docs.

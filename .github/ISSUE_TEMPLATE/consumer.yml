@@ -1,0 +1,68 @@
+name: Register as a consumer
+description: A directory, app, newsletter or bot that reads OTE feeds — get listed on the site.
+title: "[Consumer] "
+labels: ["consumer"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Every consumer makes adopting worth more, so this list is what convinces the next
+        community to publish. Planning to consume rather than already consuming? Say so —
+        we list intent separately from what's live.
+
+        The [developer docs](https://opentechevents.org/developers/) cover discovery,
+        validation and the published schemas.
+  - type: input
+    id: name
+    attributes:
+      label: Project name
+      placeholder: dev.events
+    validations:
+      required: true
+  - type: input
+    id: url
+    attributes:
+      label: URL
+      placeholder: https://dev.events
+    validations:
+      required: true
+  - type: dropdown
+    id: kind
+    attributes:
+      label: What it is
+      options:
+        - Directory
+        - Aggregator
+        - Newsletter
+        - Calendar
+        - Bot
+        - App
+        - Other
+    validations:
+      required: true
+  - type: dropdown
+    id: status
+    attributes:
+      label: Status
+      options:
+        - Already consuming OTE feeds
+        - Building it now
+        - Intends to, once the spec is stable
+    validations:
+      required: true
+  - type: textarea
+    id: desc
+    attributes:
+      label: One line about it
+      placeholder: Directory of developer conferences worldwide.
+    validations:
+      required: true
+  - type: textarea
+    id: friction
+    attributes:
+      label: What made it hard (optional)
+      description: >-
+        Anything ambiguous, missing or annoying while implementing. This is how the spec gets
+        fixed before 1.0 — please be blunt.
+    validations:
+      required: false

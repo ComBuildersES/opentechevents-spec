@@ -129,6 +129,19 @@
     });
   }
 
+  /* Supporters are the same card as an adopter, with one difference: their meta line is not
+     free text but their tier(s), so "pledged to adopt" cannot quietly read as "already adopted". */
+  function renderSupporters(items) {
+    var labelled = (items || []).map(function (item) {
+      var tiers = [].concat(item.tier || []);
+      var label = tiers.map(function (tier) {
+        return get(state.dict, 'support.tiers.' + tier) || tier;
+      }).join(' · ');
+      return Object.assign({}, item, { kind: label || undefined });
+    });
+    renderEntries(labelled, 'supporters-list', 'supporters-empty');
+  }
+
   function renderTestimonials(items) {
     var container = document.getElementById('testimonials');
     container.replaceChildren();
@@ -239,6 +252,7 @@
     applyDict();
     renderEntries((state.data.adopters || {}).adopters, 'adopters-list', 'adopters-empty');
     renderEntries((state.data.consumers || {}).consumers, 'consumers-list', 'consumers-empty');
+    renderSupporters((state.data.supporters || {}).supporters);
     renderTestimonials((state.data.consumers || {}).testimonials);
     renderTools();
     renderFaq();
@@ -451,10 +465,11 @@
     loadJson('i18n/' + state.lang + '.json'),
     loadJson('data/adopters.json'),
     loadJson('data/consumers.json'),
-    loadJson('data/tools.json')
+    loadJson('data/tools.json'),
+    loadJson('data/supporters.json')
   ]).then(function (results) {
     state.dict = results[0];
-    state.data = { adopters: results[1], consumers: results[2], tools: results[3] };
+    state.data = { adopters: results[1], consumers: results[2], tools: results[3], supporters: results[4] };
     renderAll();
   }).catch(function (err) {
     console.error('[OTE] failed to load site data', err);

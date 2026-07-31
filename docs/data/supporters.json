@@ -1,0 +1,5 @@
+{
+  "_comment": "People, communities, projects and companies backing OTE without necessarily publishing a feed. Fields: name (required), url, logo, tier (required, see below), desc {en,es}, since (YYYY-MM). One entry can carry several tiers: \"tier\": [\"pledge\", \"ambassador\"].",
+  "_comment_tiers": "pledge = commits to adopt OTE once there is a stable spec · endorse = publicly backs the idea · ambassador = spreads the word (talks, articles, intros) · advisor = reviews the spec / brings real cases · resources = hosting, design, data, a slot at their event. Quotes go in consumers.json → testimonials.",
+  "supporters": []
+}

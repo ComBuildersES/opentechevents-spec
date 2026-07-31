@@ -17,7 +17,8 @@
     "examples": "Ejemplos",
     "reference": "Referencia",
     "developers": "Desarrolladores",
-    "tools": "Herramientas"
+    "tools": "Herramientas",
+    "support": "Apoya"
   },
   "hero": {
     "eyebrow": "Especificación abierta · Borrador 0.x",
@@ -202,6 +203,65 @@
     "linkOpen": "Abrir la herramienta",
     "linkPkg": "Ver paquete npm",
     "linkPkgs": "Ver paquetes npm"
+  },
+  "support": {
+    "title": "Formas de ayudar que no son publicar un feed",
+    "lead": "Publicar un feed es el paso más grande, y no es el primero. Una spec tan temprana necesita gente que la rompa, gente que hable de ella y gente que diga en voz alta que la usaría — eso último es justo lo que hace que un directorio decida que el formato merece la pena leerlo. Elige lo que menos te cueste.",
+    "w1": {
+      "title": "Comprométete a adoptarla",
+      "body": "«Publicaremos OTE cuando haya una spec estable.» Dos minutos, sin código y sin comprometerte a nada vinculante — y ahora mismo es lo más útil que puedes hacer."
+    },
+    "w2": {
+      "title": "Deja un testimonio",
+      "body": "Por qué este problema importa en tu comunidad, con tus palabras. Lo publicamos aquí, con tu nombre, cuando nos digas que sí."
+    },
+    "w3": {
+      "title": "Rompe el modelo",
+      "body": "Un evento tuyo que la spec no sepa describir. No hace falta que traigas solución: el caso <em>es</em> la aportación, y vale más que pedir un campo."
+    },
+    "w4": {
+      "title": "Habla de esto",
+      "body": "Una charla, una lightning talk, un artículo, un podcast, un hilo. Pídenos slides, una demo o que alguien copresente contigo — no tienes por qué fabricarte el material."
+    },
+    "w5": {
+      "title": "Preséntanos a alguien",
+      "body": "¿Conoces a quien mantiene un directorio, un calendario, una plataforma o la web de una conferencia? Un mensaje tuyo vale más que cincuenta correos fríos nuestros."
+    },
+    "w6": {
+      "title": "Hablemos 1 a 1",
+      "body": "Coge hueco en el calendario: veinte minutos, sin plantilla de issue y sin vocabulario de GitHub. Si organizas eventos, tus pegas son la razón de que esto exista: tráelas."
+    },
+    "w7": {
+      "title": "Lee los feeds",
+      "body": "Un directorio, una newsletter, un bot o un calendario que consuma OTE. Cada consumidor hace que adherirse compense más para cada organizador — este es el lado del bucle que falta."
+    },
+    "w8": {
+      "title": "Monta una herramienta",
+      "body": "Las ideas de arriba no tienen dueño. Reclama una o trae la tuya: un exportador, un widget, un importador, un validador para tu stack."
+    },
+    "w9": {
+      "title": "Tradúcela",
+      "body": "La web y las descripciones de los campos están en inglés y español. Un tercer idioma abre una región entera de comunidades que no leen ninguno de los dos."
+    },
+    "w10": {
+      "title": "Ofrece lo que tengas",
+      "body": "Hosting para el agregador, diseño, una revisión legal o de accesibilidad, un montón de eventos históricos contra los que probar, un hueco en tu evento. No todo lo útil es código."
+    },
+    "talk": "¿Prefieres hablarlo a escribirlo? <a href=\"https://calendar.app.google/ZQuRkVw53h8nC2uQA\">Reserva veinte minutos</a> — y si no te encaja ningún hueco, <a href=\"https://github.com/OpenTechEvents/opentechevents-spec/discussions\">dilo en un hilo</a> y buscamos uno.",
+    "badge": "¿Ya lo apoyas? Ponte una <a href=\"https://github.com/OpenTechEvents/opentechevents-spec/tree/main/docs/badge\">chapa en tu README</a> — es la forma más barata de contarle a la siguiente comunidad que esto existe.",
+    "tiers": {
+      "pledge": "Se compromete a adoptarla",
+      "endorse": "Apoya OTE",
+      "ambassador": "Embajador",
+      "advisor": "Asesora",
+      "resources": "Aporta recursos"
+    },
+    "wall": {
+      "title": "Quién lo está apoyando",
+      "empty": "Todavía no hay nadie aquí — el estado honesto de un proyecto tan joven. Llegar pronto se nota: esta lista es corta y es pública.",
+      "emptyCta": "Añade tu nombre",
+      "machine": "Esta lista también son datos: pinta <a href=\"/data/supporters.json\"><code>supporters.json</code></a>. Compromisos, apoyos, embajadores y ofertas de ayuda — en una lista aparte de <a href=\"#adopters\">quién publica ya</a>, porque prometer y hacerlo no son lo mismo."
+    }
   },
   "faq": {
     "title": "Preguntas frecuentes",

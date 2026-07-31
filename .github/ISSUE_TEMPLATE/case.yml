@@ -1,0 +1,49 @@
+name: A real event the spec can't describe
+description: Your event doesn't fit the current model. No solution needed — the case is the contribution.
+title: "[Case] "
+labels: ["case", "spec"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This is the most valuable issue you can open. The spec is a draft precisely so that
+        it breaks now, against real events, rather than later against a v1.0 nobody can change.
+
+        **You do not need to propose a field or a fix.** Describe the event and what is lost.
+  - type: textarea
+    id: event
+    attributes:
+      label: The event
+      description: What it is, who runs it, what makes it awkward. A link to it if it's public.
+      placeholder: >-
+        A monthly meetup that alternates between two cities, with one online session every
+        quarter, co-organised by three communities that each announce it on their own site.
+    validations:
+      required: true
+  - type: textarea
+    id: breaks
+    attributes:
+      label: What breaks
+      description: >-
+        Which part of the spec can't hold it? What gets lost, guessed or duplicated if you
+        publish it anyway — and how would it show up wrong in a directory?
+    validations:
+      required: true
+  - type: textarea
+    id: today
+    attributes:
+      label: How you handle it today
+      description: >-
+        What Meetup, your `.ics`, your website or your spreadsheet does with this case. If
+        iCalendar, RSS or schema.org already solve it, say so — compatibility is a design
+        principle here, not an extra.
+    validations:
+      required: false
+  - type: textarea
+    id: json
+    attributes:
+      label: Your attempt (optional)
+      description: The JSON you'd write if you had to publish it today, however wrong.
+      render: json
+    validations:
+      required: false

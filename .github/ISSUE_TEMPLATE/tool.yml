@@ -1,0 +1,51 @@
+name: Propose or claim a tool
+description: Build something on OTE, or claim one of the ideas that has no owner yet.
+title: "[Tool] "
+labels: ["tool", "ecosystem"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        The catalogue lives in [`docs/data/tools.json`](https://github.com/OpenTechEvents/opentechevents-spec/blob/main/docs/data/tools.json)
+        and is rendered at [opentechevents.org#tools](https://opentechevents.org#tools).
+        **None of the proposed ideas has an owner.** Claim one here before you start, so two
+        people don't build the same thing.
+  - type: input
+    id: name
+    attributes:
+      label: Tool
+      placeholder: OTE → iCalendar exporter
+    validations:
+      required: true
+  - type: dropdown
+    id: intent
+    attributes:
+      label: What this issue is
+      options:
+        - I want to claim an existing idea from the list
+        - I'm proposing a new idea (I may not build it)
+        - I already built it — please list it
+    validations:
+      required: true
+  - type: textarea
+    id: desc
+    attributes:
+      label: What it does
+      description: Who it's for (organisers, attendees, developers) and what problem it removes.
+    validations:
+      required: true
+  - type: input
+    id: url
+    attributes:
+      label: Repository or URL (optional)
+    validations:
+      required: false
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope you're committing to (if claiming)
+      description: >-
+        What the first usable version does — and what it deliberately won't do. Agreeing this
+        up front is what keeps a claim from turning into a stalled placeholder.
+    validations:
+      required: false

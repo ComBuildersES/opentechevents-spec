@@ -1,0 +1,65 @@
+name: Support OTE
+description: Back the idea publicly — a pledge to adopt, an endorsement, or resources you can offer.
+title: "[Supporter] "
+labels: ["supporter"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        You don't have to publish a feed to help. Saying **"we'll adopt this once it's
+        stable"** is, right now, one of the most useful things anyone can do: it is what
+        makes a directory decide the format is worth reading.
+
+        We list supporters on [opentechevents.org](https://opentechevents.org#support).
+        No commitment is binding — you can withdraw by commenting on this issue.
+  - type: input
+    id: name
+    attributes:
+      label: Name
+      description: Person, community, project or company.
+      placeholder: PyAlmería
+    validations:
+      required: true
+  - type: input
+    id: url
+    attributes:
+      label: URL
+      placeholder: https://pyalmeria.example
+    validations:
+      required: false
+  - type: checkboxes
+    id: tiers
+    attributes:
+      label: How you want to support it
+      description: Pick everything that applies.
+      options:
+        - label: "**Pledge** — we intend to publish (or consume) OTE once there is a stable spec"
+        - label: "**Endorse** — we back the idea publicly and want to be listed as a supporter"
+        - label: "**Advisor** — we'll review drafts and bring real cases when the spec touches ours"
+        - label: "**Resources** — we can offer something concrete (see below)"
+  - type: textarea
+    id: resources
+    attributes:
+      label: What you can offer (optional)
+      description: >-
+        Hosting, a domain, design, illustration, historical event data for testing, a slot
+        at your event, a room for an adoption workshop, legal or accessibility review…
+      placeholder: We can host the aggregator, and give you a lightning-talk slot in October.
+    validations:
+      required: false
+  - type: textarea
+    id: context
+    attributes:
+      label: Anything we should know
+      description: >-
+        What would have to be true for you to actually adopt it? Blockers are more useful
+        to us than compliments.
+    validations:
+      required: false
+  - type: input
+    id: logo
+    attributes:
+      label: Logo URL (optional)
+      description: Square-ish, ideally SVG or PNG on a transparent background.
+    validations:
+      required: false

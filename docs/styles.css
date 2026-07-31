@@ -403,6 +403,21 @@ p > code, li > code {
 .badge-wip { background: #fdf0dc; color: var(--warn); }
 .badge-proposed { background: var(--bg-alt); color: var(--ink-faint); }
 
+/* ---------- support ---------- */
+.support-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
+.support-card {
+  display: flex; flex-direction: column; gap: 6px;
+  background: #fff; border: 1px solid var(--line); border-radius: var(--radius);
+  padding: 20px; color: inherit;
+}
+.support-card:hover { text-decoration: none; border-color: var(--accent); box-shadow: 0 8px 24px -18px rgba(16,19,26,.5); }
+.support-icon { font-size: 1.35rem; line-height: 1; }
+.support-name { font-weight: 650; font-size: 1rem; color: var(--accent); }
+.support-card:hover .support-name { color: var(--accent-ink); }
+.support-desc { font-size: .89rem; color: var(--ink-soft); }
+.support-badge-note { margin: 20px 0 0; font-size: .9rem; color: var(--ink-soft); }
+.support-wall-title { margin: 56px 0 20px; padding-top: 40px; border-top: 1px solid var(--line); }
+
 /* ---------- faq ---------- */
 .faq details {
   border-bottom: 1px solid var(--line); padding: 18px 0;

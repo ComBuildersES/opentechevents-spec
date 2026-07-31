@@ -1,0 +1,61 @@
+name: Spread the word (ambassador)
+description: Write, talk, translate or introduce us to a community, directory or conference.
+title: "[Ambassador] "
+labels: ["ambassador", "outreach"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        A spec nobody has heard of gets no feedback. Telling the right person about OTE is
+        worth more than most pull requests — especially **warm introductions**: if you know
+        whoever maintains a directory, a calendar or a conference site, one message from you
+        beats fifty cold emails from us.
+
+        Ambassadors get listed on [opentechevents.org](https://opentechevents.org#support)
+        and recognised with [all-contributors](https://allcontributors.org).
+  - type: input
+    id: name
+    attributes:
+      label: Who you are
+      placeholder: Ada Lovelace — organiser at PyAlmería
+    validations:
+      required: true
+  - type: checkboxes
+    id: what
+    attributes:
+      label: What you're up for
+      options:
+        - label: Writing an article, a thread or a newsletter piece
+        - label: Giving a talk or a lightning talk in my community
+        - label: A podcast, an interview or a stream
+        - label: Introducing you to a community, directory, platform or conference
+        - label: Opening an issue asking a third-party project to support OTE
+        - label: Translating the site or the spec into another language
+  - type: textarea
+    id: targets
+    attributes:
+      label: Who or where
+      description: >-
+        Communities, directories, platforms, conferences or publications you can reach.
+        If it's an introduction, say who you know and we'll take it from there.
+      placeholder: |
+        - I can present it at the local GDG in September (~80 people)
+        - I know the maintainer of <directory>, happy to introduce you
+    validations:
+      required: true
+  - type: textarea
+    id: needs
+    attributes:
+      label: What you need from us
+      description: >-
+        Slides, a demo, a diagram, a 15-minute call to get up to speed, someone to co-present,
+        a review of your draft. Ask — that's the point of this issue.
+    validations:
+      required: false
+  - type: input
+    id: when
+    attributes:
+      label: Rough date (optional)
+      placeholder: September 2026
+    validations:
+      required: false

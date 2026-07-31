@@ -179,63 +179,6 @@ Example: https://guild.host/events/ontologas-anlisis-bayesiano-fg0e21
 Example https://developers.google.com/search/docs/appearance/structured-data/event
 
 ```html
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "Event",
-  "name": "🦜 Ontologías, análisis bayesiano e IA soberana",
-  "description": "PyData Madrid vuelve en junio para hablar de Python, datos, visualización, inteligencia artificial, ¡y lo que surja!\n\nNuestra última reunión antes del parón veraniego se realizará en las instalaciones de Informática del Ayuntamiento de Madrid (calle Albarracín 33), quienes generosamente nos ceden su espacio Ágora.\n\nTendremos el placer de contar con tres charlas:\n\nMadrid Inteligencia Artificial (MAIA), el grupo de IA del Ayuntamiento de Madrid (18:45-19:15) hablará sobre LoRO, una ontología desarrollada por el Ayuntamiento de Madrid para la anotación de documentos normativos locales y la construcción de grafos de conocimiento jurídico (en español).\n\nCarlos Gil Bellosta (19:15-19:45), CEO en Circiter, presentará \"Kepler y Bayes se encuentran en un bar\", sobre el famoso resultado de Kepler sobre las órbitas elípticas y reivindicando métodos bayesianos y análisis de datos pequeños (en español).\n\nJosé Manuel Pandelo (19:50-20:00), AI Engineer en Indra, dará una charla rápida sobre los componentes abiertos necesarios para crear arquitecturas de IA soberanas y resilientes (en español).\n\nDespués de la reunión, iremos a un bar cercano a hacer networking.\n\nRecomendaciones generales:\n\n¿Sabes mucho de Python y Datos? ¿Sabes poco y quieres saber más? ¡En ambos casos, te damos la bienvenida!\n\nAplica \"la regla del comecocos\": si estás en un círculo, deja siempre un hueco para que otra persona se pueda unir.\n\nPuede haber asistentes que no hablen bien español y que se manejen mejor en inglés. Sé paciente y ¡No dejes que se aburran!\n\nEn los eventos PyData rige un Código de Conducta https://pydata.org/code-of-conduct/ el resumen traducido: sé amable, abstente de insultar y de hacer bromas sexistas, racistas, o excluyentes en general, y nada de insinuaciones sexuales a otras personas.\n\nPyData Madrid returns in June to talk about Python, data, visualization, artificial intelligence, and whatever else comes up!\n\nOur last event of the year will take place at Informática del Ayuntamiento de Madrid (33 Albarracín st.), who generously provides us with a venue, their Ágora space.\n\nThis time, we are excited to present these two talks:\n\nMadrid Inteligencia Artificial (MAIA), the AI group at Ayuntamiento de Madrid (18:45-19:15) will talk about LoRO, an ontology developed by the Municipality of Madrid for the annotation of local regulatory documents and the construction of regulatory knowledge graphs (in Spanish).\n\nCarlos Gil Bellosta (19:15-19:45), CEO at Circiter, will give a talk titled \"Kepler and Bayes meet in a bar\", about the famous result by Kepler on elliptic orbits and defending bayesian methods and small data (in Spanish).\n\nJosé Manuel Pandelo (19:50-20:00), AI Engineer at Indra, will give a lightning talk about architectures for sovereign and resilient AI (in Spanish).\n\nAfter the meeting, we will go to a nearby bar to do some networking.\n\nGeneral recommendations:\n\nAre you an expert in Python and Data? Are you a beginner and want to learn more? In both cases, you are very welcome!\n\nApply the \"Pac-man rule\": if you're in a circle, leave a gap so that someone else can join.\n\nIf you don't speak good Spanish, we will do our best to make you feel comfortable. But be mindful that other attendees might want to use their native language in larger conversations. Use this opportunity to practice your Spanish! If you are bored, feel free to approach the organizers and say «Hi!»\n\nAt PyData events there is a Code of Conduct https://pydata.org/code-of-conduct/ Super short version: be kind (all else is details), abstain from insulting others or making sexist, racist, or other exclusionary jokes, and do absolutely not make sexual advances to other attendees.\n",
-  "url": "https://guild.host/events/ontologas-anlisis-bayesiano-fg0e21",
-  "organizer": {
-    "@type": "Organization",
-    "name": "PyData Madrid",
-    "url": "https://guild.host/pydata-madrid",
-    "logo": "https://guild.host/i/r/dpr1_fitcontain_h500_w500_sigDus0tJkXwzSSb78-/16473d89-226d-411b-9da0-097df9047e0e.png"
-  },
-  "startDate": "2026-06-24T16:30:00+00:00",
-  "endDate": "2026-06-24T18:00:00+00:00",
-  "eventAttendanceMode": "https://schema.org/MixedEventAttendanceMode",
-  "eventStatus": "https://schema.org/EventScheduled",
-  "location": [
-    {
-      "@type": "VirtualLocation",
-      "url": "https://stream.place/madrid.pydata.org"
-    },
-    {
-      "@type": "Place",
-      "name": "Informática Ayuntamiento de Madrid",
-      "telephone": "",
-      "address": {
-        "@type": "PostalAddress",
-        "streetAddress": null,
-        "addressLocality": null,
-        "postalCode": null,
-        "addressRegion": null,
-        "addressCountry": null
-      }
-    }
-  ],
-  "image": [
-    "https://guild.host/social/event/ontologas-anlisis-bayesiano-fg0e21/card.png?2026-06-24T10:46:04.79445",
-    "https://guild.host/i/r/dpr1_fitcover_h630_w1200_sigrlJ405_Mc1rVXWiJ/db3c754c-694a-448d-8f4b-598df52feb60.png"
-  ],
-  "maximumAttendeeCapacity": 80,
-  "offers": [
-    {
-      "@type": "Offer",
-      "name": "Free",
-      "price": "0",
-      "priceCurrency": "USD",
-      "url": "https://guild.host/events/ontologas-anlisis-bayesiano-fg0e21",
-      "availability": "https://schema.org/InStock",
-      "validFrom": "2026-06-16T07:46:18.310423"
-    }
-  ]
-}
-</script>
-
-## Google expectations
-
 <html>
   <head>
     <title>The Adventures of Kira and Morrison</title>

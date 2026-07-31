@@ -17,7 +17,8 @@
     "examples": "Examples",
     "reference": "Reference",
     "developers": "Developers",
-    "tools": "Tools"
+    "tools": "Tools",
+    "support": "Support it"
   },
   "hero": {
     "eyebrow": "Open specification · Draft 0.x",
@@ -202,6 +203,65 @@
     "linkOpen": "Open the tool",
     "linkPkg": "View npm package",
     "linkPkgs": "View npm packages"
+  },
+  "support": {
+    "title": "Ways to help that aren't publishing a feed",
+    "lead": "Publishing a feed is the biggest step, and it isn't the first one. A spec this early needs people who break it, people who talk about it, and people who say out loud that they'd use it — that last one is what makes a directory decide the format is worth reading. Pick whichever costs you least.",
+    "w1": {
+      "title": "Pledge to adopt it",
+      "body": "«We'll publish OTE once there's a stable spec.» Two minutes, no code, no commitment that binds you — and right now it's the single most useful thing you can do."
+    },
+    "w2": {
+      "title": "Leave a testimonial",
+      "body": "Why this problem matters in your community, in your own words. We publish it here, with your name on it, once you say it's fine."
+    },
+    "w3": {
+      "title": "Break the model",
+      "body": "An event of yours that the spec can't describe. You don't need to bring a solution: the case <em>is</em> the contribution, and it's worth more than a field request."
+    },
+    "w4": {
+      "title": "Talk about it",
+      "body": "A talk, a lightning talk, an article, a podcast, a thread. Ask us for slides, a demo or someone to co-present — you shouldn't have to build the material yourself."
+    },
+    "w5": {
+      "title": "Introduce us",
+      "body": "You know whoever maintains a directory, a calendar, a platform or a conference site? One message from you beats fifty cold emails from us."
+    },
+    "w6": {
+      "title": "Talk to us, 1-on-1",
+      "body": "Pick a slot in the calendar: twenty minutes, no issue template, no GitHub vocabulary. If you organise events, your objections are the reason this thing exists — bring them."
+    },
+    "w7": {
+      "title": "Read the feeds",
+      "body": "A directory, a newsletter, a bot or a calendar that consumes OTE. Every consumer makes adopting worth more for every organiser — this is the side of the loop that's missing."
+    },
+    "w8": {
+      "title": "Build a tool",
+      "body": "The ideas above have no owner. Claim one, or bring your own — an exporter, a widget, an importer, a validator for your stack."
+    },
+    "w9": {
+      "title": "Translate it",
+      "body": "The site and the field descriptions are in English and Spanish. A third language opens a whole region of communities that can't read either."
+    },
+    "w10": {
+      "title": "Offer what you have",
+      "body": "Hosting for the aggregator, design, a legal or accessibility review, a pile of historical events to test against, a slot at your event. Not everything useful is code."
+    },
+    "talk": "Prefer talking to writing? <a href=\"https://calendar.app.google/ZQuRkVw53h8nC2uQA\">Book twenty minutes</a> — and if no slot suits you, <a href=\"https://github.com/OpenTechEvents/opentechevents-spec/discussions\">say so in a discussion</a> and we'll find one.",
+    "badge": "Already backing it? Put a <a href=\"https://github.com/OpenTechEvents/opentechevents-spec/tree/main/docs/badge\">badge in your README</a> — it's the cheapest way to tell the next community this exists.",
+    "tiers": {
+      "pledge": "Pledged to adopt",
+      "endorse": "Endorses OTE",
+      "ambassador": "Ambassador",
+      "advisor": "Advisor",
+      "resources": "Offers resources"
+    },
+    "wall": {
+      "title": "Who's backing it",
+      "empty": "Nobody listed here yet — the honest state of a project this young. Being early is visible: this list is short, and it's public.",
+      "emptyCta": "Add your name",
+      "machine": "This list is data too: it renders <a href=\"/data/supporters.json\"><code>supporters.json</code></a>. Pledges, endorsements, ambassadors and offers of help — listed separately from <a href=\"#adopters\">who already publishes</a>, because promising and shipping are not the same thing."
+    }
   },
   "faq": {
     "title": "Frequently asked questions",
