@@ -78,6 +78,7 @@ Campos por tipo:
 | P020 | Restringir `id`/`partOf.id` a URLs HTTP(S) bajo dominio | Implementada (`6b780bf`) |
 | P021 | Quitar la copia inline del ejemplo mínimo en README, enlazar solo | Implementada (`74aa7b2`) |
 | P022 | Rechazar `offers[].currency` sin `offers[].price` | Implementada (`85f1a36`) |
+| P023 | Listar los keywords custom (reglas de validez) en `reference.*.md` | Aprobada — pendiente de implementación |
 
 *(actualizar esta tabla a mano al cerrar cada ciclo; sirve de índice rápido, el detalle vive en las entradas de abajo)*
 
@@ -1582,3 +1583,61 @@ Confirmado con hhkaos que, con esta justificación corregida, sigue mereciendo l
   - `spec/v0.3/i18n/es.json` — traducción de la regla nueva y de la descripción de `currency` añadidas en el mismo commit; reordenadas las claves `event.offers[]#1`-`#3` que la nueva regla desplazó (mismo cuidado que evitó repetir el fallo de P016).
   - Regenerados por script: `reference.en.md`, `reference.es.md`, `docs/data/reference.json`, `docs/data/examples.json`, `docs/schema/v0.3/event.schema.json`, `docs/llms*`.
 - **Notas:** Verificado con `npm run validate` (repo completo, limpio): `currency` sin `price` se rechaza, `price: 0`+`currency` y `price: 45`+`currency` siguen validando, `price` sin `currency` sigue rechazándose (regla previa intacta). Ningún ejemplo real del corpus se vio afectado. Pendiente de que hhkaos revise el resultado.
+
+## [2026-08-03] CODEX — PROPUESTA #P023: Listar los keywords custom en `reference.*.md`
+
+- **Área:** `scripts/build-reference.mjs`, `scripts/schema-model.mjs`, `spec/v0.3/reference.en.md`, `spec/v0.3/reference.es.md`, `docs/data/reference.json`
+- **Problema:** La sección `Constraints` de `reference.en.md` y `reference.es.md` promete listar las reglas que el schema ejecutable impone sobre objetos completos, pero hoy solo enumera restricciones expresadas como `allOf`/`anyOf`/`dependentRequired` estándar. Las restricciones implementadas como keywords custom (`orderedDates`, `distinctTranslationLanguages`, `distinctPartOfId`, `uniqueEventIds`, `eventsNotNewerThanFeed`, `eventsRespectInheritedTextLanguage`) quedan fuera o aparecen solo parcialmente escondidas en descripciones de campo. El validador sí rechaza esos documentos, pero la referencia generada —que es la tabla que un implementador consulta para saber qué valida— no muestra varias reglas de validez. Esto no cambia el formato OTE, pero sí es riesgo real antes de v1.0: una referencia incompleta hace que productores generen feeds que parecen conformes leyendo la tabla y luego fallan en CI, especialmente en reglas críticas de identidad (`id` duplicados, `partOf.id` propio) y sincronización (`updatedAt` de evento posterior al feed).
+- **Evidencia:** `spec/v0.3/reference.en.md:89-91` introduce la sección como "Rules the schema enforces on whole objects, which no single field's level can express. Generated from the schemas too — a validator rejects a document that breaks them." La versión española dice lo mismo en `spec/v0.3/reference.es.md:89-91`: "Reglas que el schema impone sobre objetos completos y que el nivel de un campo suelto no puede expresar. También generadas de los schemas: el validador rechaza el documento que las incumple." Sin embargo, el bloque de evento que sigue (`spec/v0.3/reference.en.md:93-103`, `spec/v0.3/reference.es.md:93-103`) no lista que `endDate` no puede ser anterior a `startDate`, que ninguna `translations` puede repetir `textLanguage`, ni que `partOf.id` no puede ser igual al `id` del evento. El bloque de feed es todavía más claro: `spec/v0.3/reference.en.md:123-127` y `spec/v0.3/reference.es.md:123-127` solo listan la regla de `feed.translations` con `textLanguage`, aunque el schema ejecutable declara cuatro keywords en la raíz del feed: `spec/v0.3/feed.schema.json:111-114` contiene `distinctTranslationLanguages`, `uniqueEventIds`, `eventsNotNewerThanFeed` y `eventsRespectInheritedTextLanguage`. El schema de evento también declara keywords que no aparecen como restricciones generadas: `spec/v0.3/event.schema.json:1035-1037` contiene `orderedDates`, `distinctTranslationLanguages` y `distinctPartOfId`.
+
+  El validador real sí aplica esas reglas omitidas por la referencia:
+
+  ```text
+  $ npm run validate -- spec/v0.3/examples/invalid/feed-duplicate-event-ids.json
+
+    FAIL  spec/v0.3/examples/invalid/feed-duplicate-event-ids.json (feed, v0.3)
+  data events must not repeat the same id
+
+  1 failure(s)
+
+  $ npm run validate -- spec/v0.3/examples/invalid/feed-event-updated-after-feed.json
+
+    FAIL  spec/v0.3/examples/invalid/feed-event-updated-after-feed.json (feed, v0.3)
+  data no event may be updated after the feed itself was generated
+
+  1 failure(s)
+
+  $ npm run validate -- spec/v0.3/examples/invalid/feed-event-no-effective-textlanguage.json
+
+    FAIL  spec/v0.3/examples/invalid/feed-event-no-effective-textlanguage.json (feed, v0.3)
+  data every event's translations must have an effective textLanguage (own or inherited from the feed) and must not repeat it
+
+  1 failure(s)
+
+  $ npm run validate -- spec/v0.3/examples/invalid/event-partof-self-reference.json
+
+    FAIL  spec/v0.3/examples/invalid/event-partof-self-reference.json (event, v0.3)
+  data partOf.id must not equal the event's own id
+
+  1 failure(s)
+  ```
+
+  La causa está en el generador: `scripts/build-reference.mjs:117` consume `constraintsOf(schema, registry)`, pero las frases disponibles en `scripts/build-reference.mjs:38-57` cubren `anyOfRequired`, `dependent`, `conditional`, `conditionalNot`, `minProperties` y `prose`; no hay modelo/frase para keywords custom de objeto. En cambio `index.js:172-330` demuestra que esos keywords son restricciones de validez reales, con mensajes de error propios.
+- **Propuesta:** Enseñar a `constraintsOf()` y al modelo de referencia a exponer los keywords custom que ya forman parte de la validez, con frases generadas y traducibles como el resto de reglas. Como mínimo, la referencia debe listar: `orderedDates` (`endDate` no anterior a `startDate`), `distinctTranslationLanguages` (ningún mapa `translations` repite `textLanguage`), `distinctPartOfId` (`partOf.id` no igual al `id` del evento), `uniqueEventIds` (sin `id` duplicados dentro de `feed.events`), `eventsNotNewerThanFeed` (ningún `events[].updatedAt` posterior a `feed.updatedAt`) y `eventsRespectInheritedTextLanguage` (las traducciones de eventos en feed usan el `textLanguage` efectivo propio o heredado, y no lo repiten). Regenerar `reference.en.md`, `reference.es.md` y `docs/data/reference.json` desde el script; no cambiar la semántica de los schemas.
+- **Impacto en compatibilidad:** No rompe documentos ni cambia validación: es documentación generada y datos de referencia. Sí puede revelar reglas que ya eran obligatorias y que hoy estaban mal visibles, reduciendo sorpresas para implementadores antes de v1.0. El único coste de mantenimiento es dar a cada keyword custom una frase estable y su traducción, igual que ya se hace con las reglas estándar.
+- **Alternativas consideradas:** (1) Dejar estas reglas solo en `README.md`/`DECISIONS.md`: descartado porque la propia referencia afirma que sus `Constraints` salen de los schemas y listan lo que rechaza el validador. (2) Meter las frases a mano en `reference.*.md`: descartado porque esos ficheros son generados y el encabezado dice "do not edit by hand"; volverían a desincronizarse. (3) Reescribir los keywords custom como `allOf` estándar para que el generador los vea: descartado porque varias reglas comparan campos o elementos entre sí y existen precisamente porque JSON Schema estándar no las expresa de forma portable. (4) No listar keywords custom porque ya aparecen indirectamente en descripciones de campo: descartado porque no todos aparecen en ambos idiomas ni en el lugar correcto; por ejemplo `reference.es.md:119` reduce `feed.updatedAt` a "Cuándo se generó este feed" y `reference.es.md:121` no menciona la unicidad de `events[].id`, mientras que el validador rechaza ambas reglas.
+
+## [2026-08-03] CLAUDE — REVISION #P023: Listar los keywords custom en `reference.*.md`
+
+- **Veredicto:** APROBAR
+- **Valoración:** Verificado de forma independiente y a fondo. Confirmé que ninguno de los seis keywords custom (`orderedDates`, `distinctTranslationLanguages`, `distinctPartOfId`, `uniqueEventIds`, `eventsNotNewerThanFeed`, `eventsRespectInheritedTextLanguage`) aparece mencionado en `scripts/schema-model.mjs` ni `scripts/build-reference.mjs` de ninguna forma — no hay ni un solo `grep` que los encuentre. Repasé yo mismo la sección "Constraints" generada (`reference.en.md:89-103` para evento, `:123-127` para feed) y confirmo la lista exacta de lo que falta: no está "endDate no puede ser anterior a startDate" (aunque sí está la regla distinta de "misma forma"), no está "ninguna traducción repite textLanguage" (solo está la regla de que textLanguage sea obligatorio, que es otra cosa), no está "partOf.id ≠ id propio", y del lado del feed solo aparece una de las cuatro reglas de la raíz. Repetí las cuatro comprobaciones de `npm run validate` citadas contra el repo real y los mensajes de error coinciden EXACTAMENTE con los citados en la propuesta, carácter a carácter.
+- **Conecta con un hallazgo mío propio de esta misma auditoría.** En P015 encontré y corregí un bug relacionado en `schema-model.mjs`: el "prose fallback" para bloques `if`/`then` no parseables solo miraba dentro de `node.allOf`, no `node` mismo cuando era pasado directamente — lo arreglé para ESE caso concreto. P023 es la generalización correcta y más amplia de la misma clase de problema: el generador de referencia nunca tuvo ningún modelo en absoluto para keywords custom de objeto (`orderedDates`, `uniqueEventIds`, etc.), independientemente de si se expresan vía `if`/`then` o vía un flag booleano simple (`"orderedDates": true`). No es una propuesta nueva sin relación con nada — es cerrar la categoría completa de un hueco que ya había tocado parcialmente.
+- **Trade-offs:** Ninguno real — es documentación generada, no toca ningún schema ni cambia qué documentos son válidos. El único coste es de mantenimiento futuro (cada keyword custom nuevo necesitará su frase, igual que ya ocurre con las reglas estándar), que es exactamente el mismo coste que ya se paga hoy y no un coste nuevo.
+- **Recomendación para v1.0:** Fijar antes de v1.0, con prioridad alta: la referencia es literalmente el documento que promete "esto es lo que el validador rechaza", y hoy omite reglas de identidad (`id` duplicados, `partOf.id` propio) y de sincronización (`updatedAt` del feed) — exactamente las categorías de reglas donde un productor real tiene más probabilidad de toparse con un rechazo inesperado en CI sin haber podido anticiparlo leyendo la documentación.
+- **Pendiente de:** decisión humana (hhkaos)
+
+## [2026-08-03] HUMANO — DECISION #P023
+
+- **Decisión:** APROBADA
+- **Notas:** Aprobada tal cual la propuesta de Codex.
+
