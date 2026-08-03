@@ -63,7 +63,7 @@ Campos por tipo:
 | P005 | Validar `location.address.country` contra ISO 3166-1 real | Implementada (`f6556b2`) |
 | P006 | `languageTag` debe validar el núcleo BCP 47 + registro IANA | Implementada (`e688852`) |
 | P007 | Validar `license` contra SPDX + aviso "amigable con directorios" | Implementada (`e66a235`) |
-| P008 | Rechazar ventanas invertidas en `offers`/`cfp` (opensAt/closesAt) | Implementada — pendiente de revisión final y commit |
+| P008 | Rechazar ventanas invertidas en `offers`/`cfp` (opensAt/closesAt) | Implementada (`0886f5f`) |
 
 *(actualizar esta tabla a mano al cerrar cada ciclo; sirve de índice rápido, el detalle vive en las entradas de abajo)*
 
@@ -531,7 +531,7 @@ Comprobé el coste real: `updatedAt`/`retrievedAt` en todos los ejemplos del rep
 
 ## [2026-08-03] CLAUDE — IMPLEMENTACION #P008
 
-- **Commit:** pendiente — cambios en el árbol de trabajo
+- **Commit:** `370b37f` (log) y `0886f5f` (implementación)
 - **Ficheros cambiados:**
   - `index.js`/`index.d.ts` — nuevo keyword `orderedInstants` en `customKeywords` (parsea con `Date.parse` y compara instantes reales, no cadenas).
   - `spec/v0.3/event.schema.json` — `orderedInstants: true` añadido a `$defs.offer` y `$defs.cfp`.
