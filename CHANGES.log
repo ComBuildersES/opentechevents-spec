@@ -81,6 +81,7 @@ Campos por tipo:
 | P023 | Listar los keywords custom (reglas de validez) en `reference.*.md` | Implementada (`2880f88`) |
 | P024 | Exigir al menos un campo OTE en traducciones de evento/feed | Implementada (`fece3a7`) |
 | P025 | Recorrer `additionalProperties` en el generador de referencia | Implementada (`85ee7aa`) |
+| P026 | Impedir claves de `translations` equivalentes tras normalizar BCP 47 | Aprobada — pendiente de implementación |
 
 *(actualizar esta tabla a mano al cerrar cada ciclo; sirve de índice rápido, el detalle vive en las entradas de abajo)*
 
@@ -1941,3 +1942,144 @@ Confirmado con hhkaos que, con esta justificación corregida, sigue mereciendo l
   - `spec/v0.3/i18n/es.json` — 8 traducciones de campo nuevas (`translations.*.name`/`.description` en evento y feed, y las de `image[]`/`eligibility`/`offers[]`/`partOf`) y 2 traducciones de regla nuevas (`event.translations.*#0`, `feed.translations.*#0`).
   - Regenerados por script: `reference.en.md`, `reference.es.md`, `docs/data/reference.json`, `docs/data/examples.json`, `docs/schema/v0.3/*.schema.json`, `docs/llms*`.
 - **Notas:** Verificado con `npm run validate` (repo completo, limpio, sin traducciones faltantes, sin crash). Confirmado explícitamente que los nuevos `examples[]` de `translations.*.name`, `feed.translations.*.title`, etc. se validan de verdad contra el schema real (no solo que el build no falle) — es la primera vez que ese chequeo se ejecuta sobre estos campos, y es precisamente el que expuso el bug de `pointer` cruzado. Pendiente de que hhkaos revise el resultado.
+
+## [2026-08-04] CODEX — PROPUESTA #P026: Impedir claves de traducción duplicadas al comparar BCP 47 sin mayúsculas
+
+- **Área:** `index.js`, `spec/v0.3/event.schema.json`, `spec/v0.3/feed.schema.json`, `spec/v0.3/reference.en.md`, `spec/v0.3/reference.es.md`, `spec/v0.3/examples/invalid/`
+- **Problema:** Cada mapa `translations` promete una sola entrada por idioma, pero hoy puede llevar dos claves que son la misma etiqueta BCP 47 escrita con distinta capitalización (`en-US` y `EN-us`). JSON las ve como claves distintas, así que el schema las acepta; OTE, en cambio, ya decidió en D010 que las etiquetas de idioma se comparan sin distinguir mayúsculas. El resultado es una contradicción interna dentro del mismo documento: dos valores distintos afirman ser la traducción al mismo idioma, sin criterio normativo para elegir cuál exportar a schema.org/JSON-LD como `@language: "en-US"`, cuál llevar a iCalendar `LANGUAGE`, o cuál usar para cubrir `languages` en el perfil recomendado. Endurecer esto después de v1.0 sería un breaking change para documentos que hoy podrían publicar dos traducciones contradictorias bajo la misma etiqueta normalizada.
+- **Evidencia:** La intención de unicidad está en el schema y en la prosa. `spec/v0.3/event.schema.json:2314-2324` define `$defs.translations`; su descripción en `spec/v0.3/event.schema.json:2315` dice "A map and not a list because the language IS the key: one entry per language, and no way to publish two Spanish versions that contradict each other." La regla compartida de mapa está en `spec/v0.3/event.schema.json:2306-2312`: `languageMap` valida las claves con `propertyNames` contra `$defs.languageTag`, pero no impone unicidad tras normalizar mayúsculas. La referencia generada mantiene la misma semántica: `spec/v0.3/reference.en.md:91` dice que `translations` va "keyed by BCP 47 tag"; `spec/v0.3/reference.es.md:91` dice "indexado por etiqueta BCP 47". La prosa normativa lo formula explícitamente en `spec/v0.3/README.md:554`: "**Un mapa y no una lista, porque el idioma es la clave.** Una entrada por idioma, y **ninguna forma de publicar dos versiones en castellano** que se contradigan."
+
+  El repo ya trata la diferencia de mayúsculas como equivalencia real para estas mismas claves. `spec/v0.3/DECISIONS.md:215` dice que "RFC 5646 §2.1.1 states language tags are compared case-insensitively, so `translations: {"ES": {...}}` names the exact same conflict"; `spec/v0.3/DECISIONS.md:217` decidió rechazar cualquier mapa `translations` que lleve una clave igual a `textLanguage`, "compared case-insensitively." El código implementado lo confirma: `index.js:207-208` comenta que `"es" and "ES" name the same language and both must be caught`, pero la comprobación actual en `index.js:210-222` solo compara cada clave contra `textLanguage.toLowerCase()`, no las claves entre sí. Los ejemplos inválidos existentes cubren ese alcance estrecho: `spec/v0.3/examples/invalid/event-translations-repeats-textlanguage-case-insensitive.json:2` dice que `"ES" vs "es"` es el mismo idioma, y `spec/v0.3/examples/invalid/event-offer-translations-repeats-textlanguage.json:2` confirma que el mismo fallo vale en mapas anidados.
+
+  Verificación de que el validador real sí rechaza la repetición case-insensitive contra `textLanguage`, incluida la herencia desde feed:
+
+  ```text
+  $ npm run validate -- spec/v0.3/examples/invalid/event-translations-repeats-textlanguage-case-insensitive.json spec/v0.3/examples/invalid/event-offer-translations-repeats-textlanguage.json spec/v0.3/examples/invalid/feed-translations-repeats-inherited-textlanguage.json
+
+    FAIL  spec/v0.3/examples/invalid/event-translations-repeats-textlanguage-case-insensitive.json (event, v0.3)
+  data a translations map must not repeat textLanguage's own language
+    FAIL  spec/v0.3/examples/invalid/event-offer-translations-repeats-textlanguage.json (event, v0.3)
+  data a translations map must not repeat textLanguage's own language
+    FAIL  spec/v0.3/examples/invalid/feed-translations-repeats-inherited-textlanguage.json (feed, v0.3)
+  data every event's translations must have an effective textLanguage (own or inherited from the feed) and must not repeat it
+
+  3 failure(s)
+  ```
+
+  JSON mínimo que hoy valida aunque el mismo mapa contiene dos entradas equivalentes (`en-US` y `EN-us`):
+
+  ```json
+  {
+    "specVersion": "0.3.0",
+    "id": "https://example.org/events/duplicate-normalized-translation-keys",
+    "name": "Nombre base",
+    "startDate": "2026-09-01T10:00",
+    "timezone": "Europe/Madrid",
+    "textLanguage": "es",
+    "translations": {
+      "en-US": {
+        "name": "US English name"
+      },
+      "EN-us": {
+        "name": "Second US English name"
+      }
+    },
+    "license": "CC0-1.0"
+  }
+  ```
+
+  El mismo hueco existe en mapas locales y en `feed.translations`:
+
+  ```json
+  {
+    "specVersion": "0.3.0",
+    "id": "https://example.org/events/offer-duplicate-normalized-translation-keys",
+    "name": "Nombre base",
+    "startDate": "2026-09-01T10:00",
+    "timezone": "Europe/Madrid",
+    "textLanguage": "es",
+    "offers": [
+      {
+        "price": 0,
+        "translations": {
+          "en-US": {
+            "name": "Free ticket"
+          },
+          "EN-us": {
+            "name": "No-cost ticket"
+          }
+        }
+      }
+    ],
+    "license": "CC0-1.0"
+  }
+  ```
+
+  ```json
+  {
+    "specVersion": "0.3.0",
+    "title": "Feed base",
+    "textLanguage": "es",
+    "translations": {
+      "en-US": {
+        "title": "US English feed title"
+      },
+      "EN-us": {
+        "title": "Second US English feed title"
+      }
+    },
+    "license": "CC0-1.0",
+    "updatedAt": "2026-08-04T10:00:00Z",
+    "events": []
+  }
+  ```
+
+  Resultado ejecutado contra el validador real:
+
+  ```text
+  $ npm run validate -- /private/tmp/ote-audit/event-duplicate-normalized-translation-keys.json /private/tmp/ote-audit/event-offer-duplicate-normalized-translation-keys.json /private/tmp/ote-audit/feed-duplicate-normalized-translation-keys.json
+
+    ok    /private/tmp/ote-audit/event-duplicate-normalized-translation-keys.json (event, v0.3)
+    warn  /private/tmp/ote-audit/event-duplicate-normalized-translation-keys.json — missing recommended: url, description, image, organizers, attendanceMode, location, tags, languages, updatedAt, endDate
+    ok    /private/tmp/ote-audit/event-offer-duplicate-normalized-translation-keys.json (event, v0.3)
+    warn  /private/tmp/ote-audit/event-offer-duplicate-normalized-translation-keys.json — missing recommended: url, description, image, organizers, attendanceMode, location, tags, languages, updatedAt, endDate
+    ok    /private/tmp/ote-audit/feed-duplicate-normalized-translation-keys.json (feed, v0.3)
+    warn  /private/tmp/ote-audit/feed-duplicate-normalized-translation-keys.json — feed missing recommended: url, description, textLanguage
+
+  Valid.
+  3 recommendation(s) — valid either way. See the field reference.
+  ```
+
+  También pasa cuando el evento está dentro de un feed y hereda `textLanguage`, que fue precisamente el caso que P015/D016 tuvo que tratar con cuidado:
+
+  ```text
+  $ npm run validate -- /private/tmp/ote-audit/feed-event-duplicate-normalized-translation-keys.json
+
+    ok    /private/tmp/ote-audit/feed-event-duplicate-normalized-translation-keys.json (feed, v0.3)
+    warn  /private/tmp/ote-audit/feed-event-duplicate-normalized-translation-keys.json — feed missing recommended: url, description, textLanguage
+    warn  /private/tmp/ote-audit/feed-event-duplicate-normalized-translation-keys.json — events[0] (https://example.org/events/feed-event-duplicate-normalized-translation-keys) missing recommended: url, description, image, organizers, attendanceMode, location, tags, languages, updatedAt, endDate
+
+  Valid.
+  2 recommendation(s) — valid either way. See the field reference.
+  ```
+
+  Observación sobre ejemplos existentes: recorrí `spec/v0.3/examples/**/*.json`, excluyendo `examples/invalid/` y `examples/catalog/`, buscando mapas `translations` con claves duplicadas tras `toLowerCase()`; resultado: `No valid examples with case-insensitive duplicate translation keys.`
+- **Propuesta:** Ampliar la validación de mapas `translations` para que, en cada mapa individual, las claves sean únicas tras normalización case-insensitive de la etiqueta completa. Alcance deliberadamente igual al de D010: detectar `en-US`/`EN-us` o `ES`/`es`, no inferir que `en` y `en-US` son el mismo idioma, ni resolver alias/preferred-values de IANA. La implementación puede extender el keyword existente `distinctTranslationLanguages` para que además de comparar contra `textLanguage` compruebe duplicados normalizados dentro de cada mapa que ya recorre (`translations`, `eligibility.translations`, `partOf.translations`, `offers[].translations`, `image[].translations`) y cubrir `feed.translations` con el mismo keyword en la raíz del feed. Para eventos embebidos que heredan `textLanguage`, revisar `eventsRespectInheritedTextLanguage` o compartir un helper de mapas para no dejar fuera el caso que la evidencia demuestra. Añadir casos negativos para evento top-level, traducción local (`offers[].translations`) y feed/embedded feed, incluyendo al menos un caso con `en-US`/`EN-us`.
+- **Impacto en compatibilidad:** Restrictivo solo para documentos que ya contienen dos claves del mismo mapa que difieren únicamente en mayúsculas. El corpus válido del repo no contiene ningún caso así, verificado por script. El cambio no toca la decisión más amplia que D010 dejó fuera: tags distintos pero relacionados (`en` vs `en-US`, macrolenguas, alias o preferred-values) seguirían siendo distintos hasta que exista evidencia real para reabrir esa política.
+- **Alternativas consideradas:** (1) Hacerlo solo como warning recomendado: descartado porque dos entradas bajo la misma etiqueta normalizada son dos respuestas contradictorias a la misma pregunta, la misma categoría que D010 ya trató como error. (2) Canonicalizar silenciosamente claves al consumir: descartado porque haría depender la semántica del orden de lectura del objeto JSON y de qué valor gana al colisionar. (3) Prohibir mayúsculas en `languageTag` para evitar el problema de raíz: descartado porque BCP 47 permite mayúsculas/minúsculas y D010 ya resolvió el caso con comparación case-insensitive, no con una forma canónica obligatoria. (4) Resolver equivalencias más amplias (`en` vs `en-US`, aliases o preferred-values): descartado porque `spec/v0.3/DECISIONS.md:217` lo separa explícitamente como "a materially larger question with no demonstrated need here"; esta propuesta no la reabre. (5) Elegí este hueco frente a los otros tres pendientes porque tiene una decisión previa que lo sostiene directamente y evidencia ejecutable clara. `attendanceMode`/`location` tiene impacto schema.org, pero `spec/v0.3/README.md:293` ya dice "Si se contradicen, manda `attendanceMode`" y `spec/v0.3/README.md:358` permite conservar `location.venue` en `moved-online`, así que convertirlo en error base contradice una política existente. Traducir campos ausentes en el idioma principal tiene trade-offs editoriales reconocidos en D022. `tags`/`languages` duplicados exactos son reales, pero de menor impacto semántico que dos traducciones contradictorias bajo la misma etiqueta BCP 47 normalizada.
+
+## [2026-08-04] CLAUDE — REVISION #P026: Impedir claves de traducción duplicadas al comparar BCP 47 sin mayúsculas
+
+- **Veredicto:** APROBAR
+- **Valoración:** Verificado de forma independiente los cuatro casos citados (evento top-level, `offers[].translations`, `feed.translations`, y evento embebido en feed heredando `textLanguage`). En el primer intento del cuarto caso obtuve un resultado distinto al de la propuesta (`false` en vez de `true`) — antes de darlo por sospechoso, revisé mi propio JSON de prueba: me había dejado `feed.textLanguage` sin declarar, así que el rechazo venía de una regla previa y no relacionada (P015: sin idioma efectivo, ninguna traducción es válida). Repetí la prueba con `feed.textLanguage` puesto, y ahí sí reproduje exactamente `true` — el hueco es real en los cuatro casos, tal como afirma la propuesta; mi primer resultado discrepante era un error mío, no suyo, y lo señalo porque es exactamente el tipo de comprobación que hay que rehacer antes de aceptar o rechazar evidencia, no asumir. Repasé también la cita de `DECISIONS.md:215,217` (RFC 5646 §2.1.1, comparación case-insensitive) y el escaneo del corpus — ambos coinciden.
+- **Extiende D010 sin reabrirlo, y la propuesta lo demuestra en vez de solo afirmarlo.** El alcance declarado (detectar la MISMA etiqueta en mayúsculas distintas, no inferir relación entre etiquetas distintas como `en`/`en-US`) es idéntico al que D010 ya fijó, citando la misma línea de `DECISIONS.md` donde esa exclusión quedó escrita ("a materially larger question with no demonstrated need here"). No hay ambigüedad de alcance que resolver.
+- **La elección frente a los otros tres pendientes está bien argumentada, y la comprobé.** Confirmé que `README.md:293` dice efectivamente "Si se contradicen, manda `attendanceMode`" — es decir, la spec ya tiene una regla explícita de PRECEDENCIA para el caso `attendanceMode`/`location`, no un vacío; convertirlo en error de schema base contradiría esa política ya escrita, no la implementaría. Esto confirma que P026 es la elección correcta de esta ronda, no solo la más cómoda.
+- **Trade-offs:** Mismos que D010 en su momento — ninguno real. Es la mitad que faltaba de una regla ya aprobada, no una regla nueva de cero.
+- **Recomendación para v1.0:** Fijar antes de v1.0. Mismo argumento que D010: dos traducciones contradictorias bajo la misma etiqueta normalizada es exactamente el tipo de ambigüedad que un consumidor no puede resolver por sí solo, y cerrarlo después obligaría a invalidar documentos que ya hubieran publicado esa forma.
+- **Pendiente de:** decisión humana (hhkaos)
+
+## [2026-08-04] HUMANO — DECISION #P026
+
+- **Decisión:** APROBADA
+- **Notas:** Aprobada tal cual la propuesta de Codex.
+
