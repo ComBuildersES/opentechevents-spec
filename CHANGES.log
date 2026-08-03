@@ -75,6 +75,7 @@ Campos por tipo:
 | P017 | Exigir contenido real en `description` (perfil recomendado) | Implementada (`bf73119`) |
 | P018 | Rechazar texto libre de solo espacios en 21 campos con `minLength: 1` | Implementada (`df92d8d`) |
 | P019 | Avisar si un idioma de `languages` no tiene texto disponible | Implementada (`163e047`) |
+| P020 | Restringir `id`/`partOf.id` a URLs HTTP(S) bajo dominio | Aprobada — pendiente de implementación |
 
 *(actualizar esta tabla a mano al cerrar cada ciclo; sirve de índice rápido, el detalle vive en las entradas de abajo)*
 
@@ -1345,3 +1346,78 @@ Confirmado con hhkaos que, con esta justificación corregida, sigue mereciendo l
   - `spec/v0.3/README.md` — nota junto a la explicación de `languages`/`textLanguage`, con enlace a D019.
   - Regenerados por script: `reference.en.md`, `reference.es.md`, `docs/data/reference.json`, `docs/data/examples.json`, `docs/schema/v0.3/event.recommended.schema.json`, `docs/llms*`.
 - **Notas:** Verificado con `npm run validate` (repo completo, limpio). Probado además con casos ad hoc: el aviso dispara correctamente cuando `es` no está cubierto, no dispara si `translations.es` existe, no dispara si no hay ninguna información textual, y la comparación es case-insensitive. Probado el caso de herencia vía feed (evento sin `textLanguage` propio, heredado del feed) y confirmado que el aviso ahora sí lo detecta, gracias al cambio en `asPublished()`. `event-conference-cfp.json` es la segunda vez en esta auditoría (tras `feed-multipart.json` en P014) que un chequeo nuevo encuentra un defecto real en el corpus canónico. Pendiente de que hhkaos revise el resultado.
+
+## [2026-08-03] CODEX — PROPUESTA #P020: Restringir `id` y `partOf.id` a URLs bajo dominio
+
+- **Área:** `spec/v0.3/event.schema.json`, `spec/v0.3/reference.en.md`, `spec/v0.3/reference.es.md`, `spec/v0.3/examples/`
+- **Problema:** La prosa normativa define `event.id` y `partOf.id` como identificadores acuñados bajo un dominio que controla quien publica, pero el schema solo exige una URI absoluta de cualquier esquema. Eso deja pasar identificadores como `urn:uuid:...` o `mailto:...`: pueden ser URIs válidas, pero no son una ruta bajo un dominio controlado por el publicador, no encajan con el modelo documentado de acuñación desde una URL canónica o desde `<dominio>/events/...`, y dificultan que un consumidor use el identificador como `@id`/IRI estable de una entidad `schema.org/Event` sin inventar una política por esquema. Es un riesgo de v1.0 porque `id` es el campo que sostiene actualización, deduplicación dentro del feed y agrupación con `partOf`: endurecer después qué formas cuentan como identidad OTE rompería documentos publicados.
+- **Evidencia:** Las fuentes normativas dicen lo mismo en los dos idiomas. `spec/v0.3/reference.en.md:20` define `id` como "Stable, globally unique identifier. A URI under a domain the publisher controls. Minted once, never rewritten — this is what lets consumers update an event instead of duplicating it." `spec/v0.3/reference.es.md:20` lo traduce como "Identificador estable y único a nivel global. Una URI bajo un dominio que controle quien publica. Se acuña una vez y no se reescribe jamás: es lo que permite a un consumidor actualizar el evento en vez de duplicarlo." La prosa principal refuerza la acuñación bajo dominio: `spec/v0.3/README.md:207-209` dice "Un `id` se acuña una vez, bajo un dominio que controla quien publica" y que las herramientas lo derivan de la URL canónica o lo acuñan como "`<dominio>/events/<comunidad>/<fecha>-<slug>`". Para `partOf.id`, el propio schema dice que sigue las mismas reglas: `spec/v0.3/event.schema.json:2543-2547` lo describe como "Same rules as the event's id: a URI under a domain the publisher controls, minted once", pero aplica el mismo patrón laxo que `event.id`.
+
+  El schema actual, en cambio, solo comprueba esquema URI. `spec/v0.3/event.schema.json:114-119` para `event.id` y `spec/v0.3/event.schema.json:2543-2548` para `partOf.id` usan `"format": "uri"` y `"pattern": "^[a-zA-Z][a-zA-Z0-9+.-]*:"`, que acepta cualquier URI absoluta.
+
+  JSON mínimo con `event.id` como URN, no bajo dominio:
+
+  ```json
+  {
+    "specVersion": "0.3.0",
+    "id": "urn:uuid:123e4567-e89b-12d3-a456-426614174000",
+    "name": "URN id event",
+    "startDate": "2026-09-01T10:00",
+    "timezone": "Europe/Madrid",
+    "license": "CC0-1.0"
+  }
+  ```
+
+  JSON mínimo con `partOf.id` como URN:
+
+  ```json
+  {
+    "specVersion": "0.3.0",
+    "id": "https://example.org/events/child",
+    "name": "Child event",
+    "startDate": "2026-09-01T10:00",
+    "timezone": "Europe/Madrid",
+    "partOf": {
+      "id": "urn:uuid:123e4567-e89b-12d3-a456-426614174000",
+      "name": "Parent series"
+    },
+    "license": "CC0-1.0"
+  }
+  ```
+
+  Verificación ejecutada contra el validador real:
+
+  ```text
+  $ npm run validate -- /private/tmp/ote-audit/event-urn-id.json /private/tmp/ote-audit/event-mailto-id.json /private/tmp/ote-audit/event-partof-urn-id.json
+
+  ok    /private/tmp/ote-audit/event-urn-id.json (event, v0.3)
+  warn  /private/tmp/ote-audit/event-urn-id.json — missing recommended: url, description, image, organizers, attendanceMode, location, tags, languages, updatedAt, endDate
+  ok    /private/tmp/ote-audit/event-mailto-id.json (event, v0.3)
+  warn  /private/tmp/ote-audit/event-mailto-id.json — missing recommended: url, description, image, organizers, attendanceMode, location, tags, languages, updatedAt, endDate
+  ok    /private/tmp/ote-audit/event-partof-urn-id.json (event, v0.3)
+  warn  /private/tmp/ote-audit/event-partof-urn-id.json — missing recommended: url, description, image, organizers, attendanceMode, location, tags, languages, updatedAt, endDate
+
+  Valid.
+  3 recommendation(s) — valid either way. See the field reference.
+  ```
+
+  Escaneo del corpus actual: ejecuté un recorrido por `spec/v0.3/examples/**/*.json` buscando `event.id` o `partOf.id` que no empezaran por `http://` o `https://`; no produjo salida, así que los ejemplos actuales no dependen de otros esquemas.
+- **Propuesta:** Cambiar la restricción común de `event.id` y `partOf.id` para aceptar solo URLs HTTP(S) absolutas bajo un host, igual que ya hacen `url`, `organizers[].url`, `source.url` y los enlaces operativos. En términos de schema, sustituir el patrón genérico de "tiene cualquier esquema" por `^https?://` en ambos campos, manteniendo `format: "uri"`. No exigir que resuelva por red ni que sea la misma URL que `event.url`: la prosa ya separa identidad estable (`id`) de página actual (`url`), y `partOf.id` dice explícitamente que no tiene que resolver a un documento OTE. Añadir casos negativos en `examples/invalid/` para `event.id: "urn:uuid:..."`, `event.id: "mailto:..."` y `partOf.id: "urn:uuid:..."`, y regenerar la referencia para que el tipo visible deje de prometer una URI de cualquier esquema cuando la norma real es una URL bajo dominio.
+- **Impacto en compatibilidad:** Restrictivo. Rompe documentos que hoy usen URN, `mailto:`, `tag:` u otros esquemas como identidad OTE. No afecta al corpus actual, comprobado con script. La migración recomendada es acuñar una URL estable bajo un dominio controlado, aunque no tenga que resolver a una página real; por ejemplo, `https://example.org/events/<slug>` para eventos y `https://example.org/series/<slug>` para `partOf.id`. Es mejor cerrar esto antes de v1.0 porque una vez que un consumidor haya usado esos IDs como claves de sincronización, cambiarlos tarde duplica eventos.
+- **Alternativas consideradas:** (1) Dejarlo como está porque `format: "uri"` es más general: descartado porque contradice la promesa explícita de dominio controlado y obliga a cada consumidor a decidir qué esquemas son suficientemente estables. (2) Aceptar `tag:` además de HTTP(S), ya que puede incorporar un dominio: descartado por ahora porque no aparece en ejemplos ni decisiones previas, no encaja con la forma de acuñación documentada (`<dominio>/events/...`) y ampliaría la superficie justo antes de v1.0. (3) Exigir solo `https://`: descartado porque el resto de URLs canónicas de la spec aceptan `http://` y no hay una decisión previa que cierre esa puerta para identidades no resolubles. (4) Hacerlo aviso recomendado: descartado porque `id` y `partOf.id` no son campos de calidad; son identidad. Si el valor no cumple las reglas de identidad que la spec documenta, el documento no debería considerarse válido.
+
+## [2026-08-03] CLAUDE — REVISION #P020: Restringir `id` y `partOf.id` a URLs bajo dominio
+
+- **Veredicto:** APROBAR
+- **Valoración:** Verificado de forma independiente, incluyendo un chequeo que la propuesta no hizo explícito. Ejecuté los tres JSON contra el validador real: `urn:uuid:...` como `event.id`, `mailto:...` como `event.id` y `urn:uuid:...` como `partOf.id` validan los tres `true` — confirmado. Repasé `event.schema.json` yo mismo: el patrón actual de `id`/`partOf.id` es `^[a-zA-Z][a-zA-Z0-9+.-]*:` (cualquier esquema URI), mientras que `event.url`, en el mismo fichero y a solo diez líneas de `id`, ya usa `pattern: "^https?://"` — el patrón exacto que propone Codex para `id`. Este es el punto más fuerte de la propuesta y no lo cité porque Codex lo mencionara, lo encontré mirando el fichero: **`id`/`partOf.id` no son "más laxos porque lo decidiera alguien", son los dos únicos campos con forma de URL en todo el schema que no siguen el patrón ya establecido para el resto** (`url`, `organizers[].url`, `source.url`, etc.). No es una restricción nueva inventada, es cerrar una inconsistencia. Repasé también `README.md:207,209`: las citas son exactas, y la receta de acuñación documentada (`<dominio>/events/<comunidad>/<fecha>-<slug>`, o derivarlo de la URL canónica) ya es HTTP(S)-shaped, coherente con lo que propone cerrar en el schema.
+- **Comprobación propia que la propuesta no hizo, y que me preocupaba de entrada:** dado que esta auditoría ha protegido repetidamente el caso de quien importa un `.ics` (P017 dejó `description` opcional, P019 no avisa sin `textLanguage` "porque quien importa un `.ics` no lo tiene"), quería confirmar que este endurecimiento no rompe esa misma protección — el UID de iCalendar (RFC 5545) no tiene por qué ser una URL. Miré el propio ejemplo del repo para ese caso exacto, `spec/v0.3/examples/event-from-ics.json`: su `id` ya es `"https://calendar.example/ics/rust-madrid#a1b2c3d4-uid-from-the-ics"` — el dominio de la FUENTE combinado con el UID original como fragmento. La spec ya documenta y ejemplifica cómo un importador debe acuñar un `id` bajo dominio incluso partiendo de un UID que no lo es; esta propuesta no le pide nada nuevo al caso `.ics`, solo dejaría de aceptar que alguien copie el UID crudo (`mailto:`/bare UUID) sin pasar por esa acuñación.
+- **Escaneo del corpus, repetido con más cuidado.** El primer intento con mi propio script dio 10 falsos positivos —resultó que `examples/catalog/en.json` tiene sus propios `id` de filtro ("meetup", "conference"...) sin relación con `event.id`—; excluyendo ese fichero de catálogo, cero coincidencias, igual que reporta Codex.
+- **Trade-offs:** Es la propuesta más restrictiva de toda la auditoría hasta ahora en términos de qué universo de documentos ya publicados podría romper (cualquier productor que hoy use `urn:`/`tag:`/`mailto:` como identidad), pero el corpus propio no depende de ello y la spec nunca ha documentado esos esquemas como válidos — no es un caso de uso ya soportado que se retira, es cerrar algo que la prosa nunca prometió. La alternativa (2) descartada (aceptar `tag:`) me parece razonable dejarla fuera por ahora: no hay ni un productor real ni una decisión previa que la pida, y ampliar la superficie de "qué cuenta como identidad" justo antes de v1.0 es exactamente el tipo de decisión que conviene tomar solo cuando hay presión real, no por generosidad especulativa.
+- **Recomendación para v1.0:** Fijar antes de v1.0, y con más urgencia que la media: `id` es el campo de identidad que sostiene deduplicación y sincronización entre versiones de un mismo evento — un productor real que empiece a acuñar `id`s con un esquema no-HTTP(S) antes de v1.0 crea documentos cuyo identificador tendría que cambiarse después (rompiendo exactamente la promesa de "se acuña una vez, nunca se reescribe" que el campo existe para dar). Cuanto más tarde se cierre esto, mayor la población de IDs mal acuñados que quedarían atrapados.
+- **Pendiente de:** decisión humana (hhkaos)
+
+## [2026-08-03] HUMANO — DECISION #P020
+
+- **Decisión:** APROBADA_CON_CAMBIOS
+- **Notas:** Aprobada la restricción a `^https?://` para `id` y `partOf.id`. Antes de aprobar, hhkaos preguntó si era obligatorio preservar el UID de `.ics` dentro de `id` (no lo es — `source.url` es el sitio para la procedencia original) y si un publicador sin dominio propio (solo Meetup, GitHub, LinkedIn) quedaba cubierto (sí: lo que garantiza la unicidad es que la URL sea estable y nadie más pueda acabar con esa misma ruta, no que el publicador sea dueño del DNS). Como ningún ejemplo del repo ilustra un `id` bajo la URL de una plataforma de terceros, se añade al alcance de P020: aclarar en la descripción del campo (y en `README.md`) que "dominio que controla quien publica" incluye una página canónica en una plataforma de terceros, no solo un dominio propio.
+
