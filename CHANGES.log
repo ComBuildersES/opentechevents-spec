@@ -1,0 +1,151 @@
+# CHANGES.log — Auditoría de spec/v0.3 rumbo a v1.0
+
+Registro compartido entre **Codex** (auditor, rol schema.org) y **Claude Code** (revisor, rol diseño de especificaciones) para decidir si `spec/v0.3/` está lo bastante sólida para congelarse como v1.0. Es el mecanismo de *hand-off*: cualquiera de los dos debe poder retomar el trabajo leyendo solo este fichero, sin memoria de la conversación anterior.
+
+Objetivo de fondo: minimizar el riesgo de que v1.0 necesite *breaking changes* una vez haya implementaciones reales apoyadas en ella. Ver los principios de diseño en el [README](README.md) y lo normativo en [`spec/v0.3/README.md`](spec/v0.3/README.md).
+
+**Ningún cambio se implementa en `spec/v0.3/` sin una entrada `DECISION: APROBADA` escrita por el humano (hhkaos).**
+
+## Flujo
+
+1. **Codex** audita `spec/v0.3/` (schemas, prosa normativa, ejemplos) y escribe una entrada `PROPUESTA` por cada hallazgo — una a la vez.
+2. **Claude Code** revisa la `PROPUESTA` pendiente más antigua sin `REVISION` todavía, valora problema, evidencia y trade-offs, y escribe una entrada `REVISION` con su veredicto.
+3. El **humano** decide y escribe (o dicta para que Claude Code escriba) una entrada `DECISION`.
+4. Solo tras `DECISION: APROBADA` se implementa el cambio; quien lo implemente añade una entrada `IMPLEMENTACION` con el commit.
+5. **No se abre una `PROPUESTA` nueva mientras la anterior no tenga `DECISION`**, salvo que el humano pida explícitamente trabajar varias en paralelo.
+
+## Formato de entrada
+
+Cabecera igual para todas:
+
+```
+## [YYYY-MM-DD] <AUTOR> — <TIPO> #<ID>: <título corto>
+```
+
+- `AUTOR`: `CODEX` | `CLAUDE` | `HUMANO`
+- `TIPO`: `PROPUESTA` | `REVISION` | `DECISION` | `IMPLEMENTACION`
+- `ID`: correlativo (`P001`, `P002`…). Propuesta, revisión, decisión e implementación del mismo asunto comparten `ID`.
+
+Campos por tipo:
+
+**PROPUESTA** (Codex)
+- **Área:** qué ficheros/schemas afecta (`event.schema.json`, `feed.schema.json`, `reference.*.md`, `examples/`…)
+- **Problema:** qué falla y por qué importa de cara a v1.0
+- **Evidencia:** documento de ejemplo concreto (JSON) o cita textual que demuestra el problema — si es "un schema demasiado laxo valida esto", el JSON que lo prueba va aquí
+- **Propuesta:** el cambio concreto sugerido
+- **Impacto en compatibilidad:** ¿rompe documentos v0.3 existentes? ¿Es aditivo, o requiere migración?
+- **Alternativas consideradas:** qué otras soluciones se descartaron y por qué
+
+**REVISION** (Claude Code)
+- **Veredicto:** `APROBAR` | `APROBAR_CON_CAMBIOS` | `RECHAZAR` | `NECESITA_MAS_INFO`
+- **Valoración:** análisis de fondo — ¿el problema es real?, ¿la evidencia lo sostiene?
+- **Trade-offs:** qué se gana y qué se pierde o complica con el cambio propuesto
+- **Recomendación para v1.0:** cómo encaja (o no) en una versión que no se puede tocar después
+- **Pendiente de:** decisión humana
+
+**DECISION** (Humano)
+- **Decisión:** `APROBADA` | `APROBADA_CON_CAMBIOS` | `RECHAZADA` | `APLAZADA`
+- **Notas:** condiciones, matices o razón del aplazamiento
+
+**IMPLEMENTACION** (quien la ejecute)
+- **Commit:** hash o referencia
+- **Ficheros cambiados**
+- **Notas**
+
+## Estado
+
+| ID | Título | Estado |
+| --- | --- | --- |
+| P001 | Validar fechas y horas reales, no solo su forma | Implementada — pendiente de revisión final y commit |
+| P002 | Validar `timezone` contra la lista IANA real | Implementada — pendiente de revisión final y commit |
+
+*(actualizar esta tabla a mano al cerrar cada ciclo; sirve de índice rápido, el detalle vive en las entradas de abajo)*
+
+---
+
+<!-- Las entradas empiezan aquí, en orden cronológico. -->
+
+## [2026-08-03] CODEX — PROPUESTA #P001: Validar fechas y horas reales, no solo su forma
+
+- **Área:** `event.schema.json`, `feed.schema.json`, `reference.en.md`, `reference.es.md`, `examples/`
+- **Problema:** Las definiciones temporales comprueban únicamente la forma léxica mediante expresiones regulares. No restringen los rangos del mes, día, hora, minuto, segundo ni offset, ni comprueban que el día exista en el mes indicado. Por ello un documento puede declarar un evento en una fecha imposible y seguir siendo válido. Esto contradice la semántica normativa de `startDate` como fecha o fecha-hora y rompe la conversión fiable a `schema.org/Event.startDate` e iCalendar `DTSTART`: un exportador tendría que rechazar después un documento que OTE declaró válido o producir una fecha inválida. Endurecer esta validación tras v1.0 sería un breaking change para cualquier documento aceptado con valores imposibles. El mismo defecto está compartido por `$defs.date`, `$defs.dateTime` y `$defs.instant`, por lo que alcanza también `endDate`, `updatedAt`, `source.retrievedAt`, `offers[].opensAt`/`closesAt`, `cfp.opensAt`/`closesAt` y `feed.updatedAt`.
+- **Evidencia:** Este evento mínimo satisface hoy todos los `required` y AJV lo acepta: `startDate` encaja en `^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}(:\\d{2})?$`, aunque ni el mes 99, ni el día 99, ni la hora 99 ni el minuto 99 existen.
+
+  ```json
+  {
+    "specVersion": "0.3.0",
+    "id": "https://example.org/events/impossible",
+    "name": "Impossible date",
+    "startDate": "2026-99-99T99:99",
+    "timezone": "Europe/Madrid",
+    "license": "CC0-1.0"
+  }
+  ```
+
+  La prosa, en cambio, define `startDate` como «una fecha (`2026-10-15`) [...] o una fecha-hora local (`2026-10-15T09:00:00`)» (`reference.es.md`, fila `startDate`; equivalente en `reference.en.md`) y afirma que `timezone` convierte ese reloj de pared «en un instante inequívoco». Un valor imposible no es ninguna de esas dos cosas. La misma laxitud permite, por ejemplo, `updatedAt: "2026-13-40T25:61:61+99:99"` en los schemas de evento y feed.
+- **Propuesta:** Hacer que las tres definiciones temporales compartidas validen valores calendáricos reales. Usar el `format: "date"` estándar para `$defs.date` y `format: "date-time"` para `$defs.instant` (manteniendo en este último la exigencia explícita de offset o `Z`). Para `$defs.dateTime`, que deliberadamente no lleva offset y por ello no puede usar directamente el `date-time` RFC 3339 estándar, sustituir la expresión regular puramente posicional por una restricción calendar-aware que rechace meses, días y horas inexistentes, incluidos los días inválidos para cada mes y el 29 de febrero fuera de año bisiesto. Añadir casos negativos de CI para los tres tipos y documentar en ambas referencias que «fecha/fecha-hora» implica validez calendárica, no solo el patrón visual.
+- **Impacto en compatibilidad:** Restrictivo. Rompe únicamente documentos que hoy contienen fechas, horas u offsets imposibles; esos documentos no pueden mapearse correctamente a schema.org ni iCalendar y no deberían considerarse implementaciones válidas. Los ejemplos existentes usan valores calendáricos reales y no requieren migración.
+- **Alternativas consideradas:** (1) Mantener los regex actuales y delegar la comprobación al consumidor: descartado porque convierte la validez OTE en una promesa falsa y hace que distintos exportadores acepten conjuntos distintos. (2) Aplicar solo rangos simples (`01`–`12`, `00`–`23`, etc.): mejora el caso mostrado, pero todavía aceptaría `2026-02-31` y aplazaría el mismo breaking change. (3) Usar `format: "date-time"` también para `startDate`: descartado porque RFC 3339 exige offset, contrario a la decisión deliberada de representar el evento como reloj de pared más `timezone`.
+
+## [2026-08-03] CLAUDE — REVISION #P001: Validar fechas y horas reales, no solo su forma
+
+- **Veredicto:** APROBAR_CON_CAMBIOS
+- **Valoración:** Problema real y evidencia verificada de forma independiente, no solo aceptada de oficio. Instalé dependencias (no estaban) y corrí el JSON del ejemplo contra el validador real del repo (`npm run validate -- impossible-date.json`): resultado `ok … Valid.` — `2026-99-99T99:99` pasa hoy sin ningún aviso. Confirmé también en `event.schema.json:463-486` que `$defs.date`, `$defs.dateTime` y `$defs.instant` son regex puramente posicionales, y que la cita de `reference.es.md` (fila `startDate`) es literal. La afinidad con `iCalendar DTSTART` y `schema.org Event.startDate` que argumenta la propuesta es correcta: ninguno de los dos acepta un mes o día que no exista, así que un exportador hoy heredaría el problema o tendría que inventar su propia revalidación — justo la duplicación de trabajo que esta spec existe para evitar.
+
+  Un dato que refuerza la propuesta y que Codex no cita: el repo ya tiene una convención madura de casos negativos en `spec/v0.3/examples/invalid/` (32 ficheros), verificados en CI por `scripts/validate.mjs` con el comentario explícito «A schema that only ever accepts is not a schema». Una fecha imposible es exactamente el tipo de caso que esa carpeta existe para cubrir y hoy no cubre — esto no es una `feature` nueva que la spec no contemplara, es un hueco en algo que el proyecto ya se exige a sí mismo.
+
+  También confirmé que `ajv-formats` ya está registrado en `scripts/validate.mjs` (`addFormats(ajv)`), así que activar `format: "date"` / `format: "date-time"` no añade una dependencia nueva ni cambia la config del validador — son formatos que `ajv-formats` ya valida de forma calendárica real (incluidos los días por mes y años bisiestos vía su tabla interna), no solo por regex.
+- **Trade-offs:** El coste de implementación es asimétrico entre las tres definiciones. `$defs.date` → `format: "date"` y `$defs.instant` → `format: "date-time"` son cambios triviales de una palabra, ya cubiertos por `ajv-formats`. `$defs.dateTime` es el caso incómodo: es reloj de pared sin offset por diseño (para no chocar con `timezone`), y no existe un `format` estándar de JSON Schema para "fecha-hora local calendáricamente válida" — ni `ajv-formats` lo trae. La propuesta dice «sustituir el regex por una restricción calendar-aware», pero eso no se puede expresar como un patrón regex razonable (los días por mes y el bisiesto no son regulares); en la práctica exige un `format` o *keyword* Ajv personalizado con lógica de calendario, similar a lo que ya hace el proyecto con `annotationKeywords`. Es un coste real pero acotado — y ya hay precedente en el propio repo de registrar keywords custom en Ajv.
+
+  Beneficio: cierra una laguna de validez sin coste de compatibilidad real. Ningún `.ics`, ninguna exportación de Google Calendar, Meetup ni Eventbrite puede emitir jamás un `29 de febrero` fuera de año bisiesto o una `hora 99` — son literalmente imposibles de producir por un calendario real. La permisividad deliberada de esta spec (campos opcionales, sin inventar datos) es una decisión distinta de aceptar valores que ningún sistema de calendario puede generar; no hay tensión entre ambas.
+- **Recomendación para v1.0:** Debe resolverse **antes** de congelar v1.0, no después. El propio argumento de la propuesta es correcto: endurecer esto tras la congelación sería un *breaking change* de manual — y el coste de arreglarlo ahora es mínimo (ningún documento real deja de validar) mientras que el coste de arreglarlo después es máximo (documentos ya publicados con fechas imposibles, que además no pueden existir si vinieron de una fuente real). Es exactamente el tipo de gap que esta auditoría existe para encontrar.
+
+  Pido un ajuste antes de pasar a decisión: que la propuesta (o su implementación) concrete el mecanismo para `$defs.dateTime` como un *keyword*/`format` Ajv personalizado — no "un regex calendar-aware", que no es una cosa que exista — y que las pruebas negativas nuevas se añadan en `examples/invalid/` siguiendo la convención ya establecida del repo, con el `_comment` explicando el porqué como ya hacen los demás ficheros de esa carpeta.
+- **Pendiente de:** decisión humana (hhkaos)
+
+## [2026-08-03] HUMANO — DECISION #P001
+
+- **Decisión:** APROBADA_CON_CAMBIOS
+- **Notas:** Aprobada con el matiz pedido en la revisión: `$defs.dateTime` se implementa como *keyword*/`format` Ajv personalizado, no como regex calendar-aware. Se implementa junto con P002 en el mismo cambio, porque tocan los mismos ficheros (fechas y zona horaria).
+
+## [2026-08-03] CLAUDE — PROPUESTA #P002: Validar que `timezone` sea una zona IANA real, no solo una cadena con forma de zona
+
+- **Área:** `event.schema.json` (`$defs.event.properties.timezone`); posible copia equivalente si `feed.schema.json` declara el mismo patrón para el `timezone` que hereda el evento
+- **Problema:** Encontrado al revisar P001 y señalado por petición explícita de hhkaos de avisar de decisiones discutibles en el schema. `timezone` es obligatorio y su única función normativa es «convertir un `startDate` de reloj de pared en un instante inequívoco» (`reference.es.md`, fila `timezone`). Hoy solo se valida la forma del texto (`^[A-Za-z_]+(?:/[A-Za-z0-9_+-]+)+$|^UTC$`, `event.schema.json:131`), no que la zona exista de verdad en la base de datos IANA. Un valor inventado o mal escrito pasa la validación y rompe exactamente la promesa que el campo existe para cumplir — mismo patrón de fallo que P001, en un campo distinto.
+- **Evidencia:** `{"specVersion":"0.3.0","id":"https://x.example/1","name":"X","startDate":"2026-06-11T18:30:00","timezone":"Europe/Atlantida","license":"CC0-1.0"}` tiene forma válida (`Area/Location`) y no existe como zona real; el regex actual lo acepta.
+- **Propuesta:** Generar un `enum` con los nombres canónicos de zona IANA (p. ej. a partir de `Intl.supportedValuesOf('timeZone')` de Node, que ya da la lista canónica sin alias obsoletos) mediante un script nuevo (`scripts/update-timezones.mjs` o similar), comprobado en CI igual que ya se hace con `docs/schema/` (`scripts/validate.mjs`, sección "published copies"). Sustituir el `pattern` actual por ese `enum`. Tratarlo como **error** de validación, no como aviso: `timezone` es obligatorio y su ausencia de sentido invalida el documento igual que una fecha imposible.
+- **Impacto en compatibilidad:** Restrictivo. Rompe únicamente documentos con una zona horaria que no existe — ningún generador real (Google Calendar, Meetup, sistemas de calendario en general) puede emitir una zona inventada, porque todos parten de la misma base IANA. Nombres renombrados (p. ej. `Europe/Kiev` → `Europe/Kyiv`) siguen resolviendo vía alias en la propia base de datos, así que no hay riesgo de romper documentos existentes por renombres históricos.
+- **Alternativas consideradas:** (1) Dejarlo como está (solo forma): descartado por hhkaos — el objetivo explícito es que las fechas/horas sean fiables y no den lugar a confusión por cambios de horario entre países, y un campo obligatorio que no garantiza referirse a una zona real no cumple eso. (2) Validación "semántica"/dinámica en cada implementación (cada consumidor comprueba con el `Intl` de su lenguaje): descartado porque obliga a escribir código a medida en cada implementación, rompiendo la promesa de la spec de que cualquier validador JSON Schema genérico valida el documento completo sin lógica adicional — la misma razón por la que ya se usa `ajv-formats` para fechas en vez de un chequeo aparte. (3) Aviso en vez de error: descartado por la misma razón que (1); es del mismo veredicto por el que P001 no se plantea como aviso.
+
+## [2026-08-03] HUMANO — DECISION #P002
+
+- **Decisión:** APROBADA
+- **Notas:** Enum generado (no mantenimiento manual), tratado como error. Motivación explícita del humano: quiere fechas y horas fiables, sin confusión ni errores por cambios de zona horaria entre países — este campo es exactamente donde eso se decide.
+
+## [2026-08-03] CLAUDE — NOTA #P002: la fuente de la lista no puede ser `Intl.supportedValuesOf('timeZone')`
+
+Encontrado al empezar a implementar la `DECISION: APROBADA` de arriba, antes de escribir ningún fichero. La propuesta original decía que `Intl.supportedValuesOf('timeZone')` de Node da «la lista canónica sin alias obsoletos» — comprobado en la práctica, eso es **falso** de un modo que rompe justo el objetivo de la decisión (fiabilidad, cero mantenimiento sorpresa):
+
+```
+node -e "const z=Intl.supportedValuesOf('timeZone'); console.log(z.includes('Europe/Kiev'), z.includes('Europe/Kyiv'));"
+// true false
+```
+
+Cuando Ucrania renombró su zona en 2022 (`Europe/Kiev` → `Europe/Kyiv`), la versión de ICU empaquetada con este Node todavía considera canónico el nombre viejo (`Kiev`) y ni siquiera reconoce el nuevo (`Kyiv`) en `supportedValuesOf` — aunque ambos resuelven igual vía `Intl.DateTimeFormat`. Mismo caso con India (`Asia/Calcutta` vs `Asia/Kolkata`). Qué nombre es "el canónico" depende de qué versión de Node/ICU ejecute el script generador, no de la realidad — regenerar la lista en una máquina con Node más nuevo podría invalidar documentos que hoy validan, o al revés. Es la misma inestabilidad que esta propuesta existe para evitar, solo que trasladada del campo `timezone` al propio script de mantenimiento.
+
+**Corrección, consultada y confirmada con hhkaos:** la fuente pasa a ser el release oficial de IANA (`https://data.iana.org/time-zones/tzdata-latest.tar.gz`), no `Intl`. El `enum` se genera parseando las líneas `Zone` y `Link` de los ficheros de zona (`backward`, `africa`, `antarctica`, `asia`, `australasia`, `etcetera`, `europe`, `northamerica`, `southamerica`), lo que incluye tanto los nombres actuales como los alias históricos que siguen resolviendo (`Kiev` y `Kyiv`, ambos). Más trabajo de implementación que tirar de `Intl`, pero no depende de qué máquina/versión de Node regenere la lista — sigue siendo un enum generado, no mantenido a mano, tal y como decidió la `DECISION` de arriba; solo cambia de dónde se genera.
+
+## [2026-08-03] CLAUDE — IMPLEMENTACION #P001 #P002
+
+- **Commit:** sin commit todavía — cambios en el árbol de trabajo, a la espera de que hhkaos revise antes de confirmar
+- **Ficheros cambiados:**
+  - `spec/v0.3/event.schema.json` — `$defs.date` → `format: "date"`; `$defs.instant` → `format: "date-time"`; `$defs.dateTime` → `format: "ote-local-date-time"` (custom); `properties.timezone` → `enum` generado (597 identificadores IANA, canónicos + alias) en vez de `pattern`, con `$comment` de procedencia (versión tzdata `2026c`).
+  - `index.js` / `index.d.ts` — nuevo export `customFormats` (paralelo a `annotationKeywords`): función `isOteLocalDateTime` con lógica de calendario real (mismo criterio días-por-mes/bisiesto que usa `ajv-formats` internamente).
+  - `scripts/validate.mjs` — registra `customFormats` junto a `annotationKeywords`.
+  - `scripts/update-timezones.mjs` — nuevo, script de mantenimiento manual (no en CI): descarga el release oficial de IANA, parsea `Zone`/`Link`, escribe el `enum` en `event.schema.json`.
+  - `spec/v0.3/examples/invalid/` — 4 casos nuevos: `event-impossible-startdate.json`, `event-impossible-datetime.json`, `event-impossible-instant.json`, `event-invalid-timezone.json`.
+  - `spec/v0.3/i18n/es.json` — traducción de `event.timezone` actualizada a la nueva descripción.
+  - `spec/v0.3/README.md` — nota normativa añadida en «Fechas: reloj de pared, no instantes», con enlace a `DECISIONS.md`; fila nueva en la tabla de artefactos.
+  - `spec/v0.3/DECISIONS.md` — **nuevo**, a petición de hhkaos: registro en inglés de decisiones de diseño (D001, D002, D003 completas; índice de las ya argumentadas en `README.md`), para poder reabrirlas a propósito en el futuro.
+  - Regenerados por script, sin edición manual: `spec/v0.3/reference.en.md`, `spec/v0.3/reference.es.md`, `docs/data/reference.json`, `docs/schema/v0.3/event.schema.json`, `docs/llms*`.
+- **Notas:** Verificado con `npm run validate` (repo completo: `All examples validate.`) y contra los dos documentos de evidencia originales — `2026-99-99T99:99` y `Europe/Atlantida` ahora se rechazan; `Europe/Kiev` (alias histórico pre-2022) sigue validando. Pendiente de que hhkaos revise el diff y decida si se commitea.
