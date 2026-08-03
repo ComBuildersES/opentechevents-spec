@@ -484,6 +484,24 @@ This is deliberately a **warning, not a validity error** — added to `event.rec
 
 ---
 
+### D024 — `tags` and `languages` must not carry exact duplicate entries
+
+**Status:** Decided 2026-08-04. See `CHANGES.log` #P027 — the last of the six gaps confirmed in the external report P024/D022 triaged.
+
+**Context.** Neither `tags` nor `languages` declared `uniqueItems`, so `tags: ["rust", "rust"]` and `languages: ["es", "es"]` both validated — an exact repeat that adds no information (the same iCal `CATEGORIES`/schema.org `keywords` entry, or the same spoken language, asserted twice). Confirmed against the real validator, confirmed the repo's own corpus has no such case, and confirmed a full recommended-complete document carrying both duplicates produces no warning either — the problem was invisible at every level, not just the base schema.
+
+**Decision.** Added `uniqueItems: true` to both arrays. Deliberately narrow: this catches only byte-identical repeats, not `"Rust"` vs `"rust"` or `"es"` vs `"ES"` — `tags` stays free-form vocabulary by design (`README.md` keeps it uncontrolled on purpose), and `languages` case-insensitivity was deliberately left for its own evidence rather than riding in on this decision or on D023, which only settled that question for `translations` map keys.
+
+**A related question raised and deferred, not folded in.** Before approving, hhkaos asked whether `attendanceMode`/`location` disagreeing (e.g. `attendanceMode: "online"` with only `location.venue`, no `onlineUrl`) should at least warn, even though `README.md`'s own precedence rule ("Si se contradicen, manda `attendanceMode`") correctly keeps it out of base validity. Agreed this is a reasonable recommended-tier candidate — warn when `attendanceMode` names a mode whose one load-bearing `location` detail (`onlineUrl` for `online`, `venue` for `in-person`, both for `hybrid`) is missing — but it is unrelated to `tags`/`languages` uniqueness and deserves its own proposal and evidence, not to be implemented as a rider on this decision.
+
+**Alternatives considered.** (1) Leave it to consumers to de-duplicate: rejected, pushes the same cleanup onto every schema.org/iCal exporter and every filter reading the document. (2) Recommended-tier warning instead of a base error: rejected — a document carrying both duplicates produced NO warning either, so the problem would stay invisible at every level; an exact repeat is the same claim twice, not reduced usefulness. (3) Normalize `tags` (case, whitespace, synonyms) or compare `languages` case-insensitively: rejected for this decision — `tags` is free-form by design, and broader `languages` equivalence needs its own evidence rather than inheriting D023's narrower, already-justified scope for `translations` keys specifically.
+
+**Compatibility impact.** Restrictive only for documents that already carry an exact duplicate in one of these two arrays — confirmed the repo's own corpus has none. No wire-format change.
+
+**Revisit if:** real evidence emerges for case-insensitive or vocabulary-normalized comparison of `tags`/`languages` — a materially larger question than exact-duplicate rejection, matching the same scoping discipline D007/D010/D023 already apply to language tags specifically.
+
+---
+
 ## Indexed decisions
 
 Already argued in full in `README.md`; summarized here for discoverability.

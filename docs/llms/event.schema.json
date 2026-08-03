@@ -874,6 +874,7 @@
             "pattern": "\\S"
           },
           "minItems": 1,
+          "uniqueItems": true,
           "examples": [
             [
               "rust",
@@ -892,6 +893,7 @@
             "$ref": "#/$defs/languageTag"
           },
           "minItems": 1,
+          "uniqueItems": true,
           "examples": [
             [
               "es"

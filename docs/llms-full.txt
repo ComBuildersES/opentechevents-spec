@@ -691,7 +691,7 @@ No hace falta esperar a nadie para usarlo: es un campo de extensión con prefijo
 
 Los tres son **opcionales** y entraron por la misma razón: el importador de `.ics` los tenía delante en cada `VEVENT` y no había dónde ponerlos. Ninguno es una idea especulativa; los tres tienen ya un productor real. Detalle en el [CHANGELOG](../../CHANGELOG.md).
 
-- **`tags`** — lista libre de temáticas (`["rust","wasm"]`). Mapea a `CATEGORIES` de iCal y a `keywords` de schema.org. **Libre a propósito**: quien organiza etiqueta como quiera. Un vocabulario controlado (para no ensuciar interfaces de filtro o suscripción) podría superponerse más adelante **sin** cerrar el campo. Ausente = desconocido, no «sin temática».
+- **`tags`** — lista libre de temáticas (`["rust","wasm"]`). Mapea a `CATEGORIES` de iCal y a `keywords` de schema.org. **Libre a propósito**: quien organiza etiqueta como quiera. Un vocabulario controlado (para no ensuciar interfaces de filtro o suscripción) podría superponerse más adelante **sin** cerrar el campo. Ausente = desconocido, no «sin temática». Sí se rechaza el duplicado exacto (`["rust","rust"]`): no es libertad de vocabulario, es la misma etiqueta afirmada dos veces. `languages` tiene la misma regla, por el mismo motivo — ver [DECISIONS.md, D024](DECISIONS.md#d024--tags-and-languages-must-not-carry-exact-duplicate-entries).
   > **`CATEGORIES` no viaja por Google Calendar** (no lo emite ni lo lee). Un importador puede recuperar temáticas de una convención de *hashtags* (`#rust`) en la `description` — pero eso es **comportamiento del importador, no del schema**: aquí `tags` es siempre la lista estructurada.
 
 - **`location.geo`** — punto WGS-84 `{ lat, lon }` en grados decimales. Mapea a `GEO` de iCal y a `Place.geo` de schema.org. Es **independiente de `venue`** (texto libre): un punto en el mapa, no un nombre. Va **dentro de `location`** —hermano de `venue`/`onlineUrl`— igual que schema.org anida `geo` dentro de `Place`; no cuelga de `venue`, porque `venue` es una cadena, no un objeto. `geo` no basta por sí solo para satisfacer `location`: sigue haciendo falta `venue` u `onlineUrl`.
@@ -2573,6 +2573,7 @@ Source: spec/v0.3/event.schema.json — JSON Schema for a single event — the n
             "pattern": "\\S"
           },
           "minItems": 1,
+          "uniqueItems": true,
           "examples": [
             [
               "rust",
@@ -2591,6 +2592,7 @@ Source: spec/v0.3/event.schema.json — JSON Schema for a single event — the n
             "$ref": "#/$defs/languageTag"
           },
           "minItems": 1,
+          "uniqueItems": true,
           "examples": [
             [
               "es"
