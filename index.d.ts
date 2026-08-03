@@ -31,3 +31,10 @@ export declare const recommendedSchemas: Record<string, unknown>[];
  * `for (const kw of annotationKeywords) ajv.addKeyword(kw);`
  */
 export declare const annotationKeywords: { keyword: string; metaSchema: Record<string, unknown> }[];
+
+/**
+ * Formats the schemas use beyond what ajv-formats provides. Ajv in `strict: true` refuses to
+ * compile a schema referencing an unregistered format, so register them first:
+ * `for (const f of customFormats) ajv.addFormat(f.name, f.validate);`
+ */
+export declare const customFormats: { name: string; validate: (value: string) => boolean }[];

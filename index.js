@@ -42,3 +42,39 @@ export const recommendedSchemas = [eventRecommendedSchema, feedRecommendedSchema
 export const annotationKeywords = [
   { keyword: "x-inheritsFrom", metaSchema: { type: "string" } },
 ];
+
+const DAYS_IN_MONTH = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+
+function isLeapYear(year) {
+  return year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0);
+}
+
+const WALL_CLOCK = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2}))?$/;
+
+/**
+ * `$defs.dateTime`'s own concept — a wall-clock date-time, deliberately without an offset — has
+ * no standard RFC 3339 format, so ajv-formats cannot validate it. Checks real calendar validity
+ * (days per month, leap years) the same way ajv-formats' own `date` format does internally.
+ */
+function isOteLocalDateTime(value) {
+  const match = WALL_CLOCK.exec(value);
+  if (!match) return false;
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  const day = Number(match[3]);
+  const hour = Number(match[4]);
+  const minute = Number(match[5]);
+  const second = match[6] === undefined ? 0 : Number(match[6]);
+  if (month < 1 || month > 12) return false;
+  const maxDay = month === 2 && isLeapYear(year) ? 29 : DAYS_IN_MONTH[month - 1];
+  return day >= 1 && day <= maxDay && hour <= 23 && minute <= 59 && second <= 59;
+}
+
+/**
+ * Formats the schemas use beyond what ajv-formats provides. Ajv's strict mode refuses to
+ * compile a schema referencing an unregistered format, so register these before compiling —
+ * the same requirement `annotationKeywords` already has, for the same reason:
+ *
+ *   for (const f of customFormats) ajv.addFormat(f.name, f.validate);
+ */
+export const customFormats = [{ name: "ote-local-date-time", validate: isOteLocalDateTime }];

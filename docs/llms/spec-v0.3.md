@@ -11,6 +11,7 @@ Especificación mínima para describir eventos de comunidades técnicas y public
 | [`event.recommended.schema.json`](event.recommended.schema.json)<br>[`feed.recommended.schema.json`](feed.recommended.schema.json) | **Normativos, ejecutables.** Perfiles de **calidad, no de validez**: los campos sin los que el evento no se puede descubrir ni seguir. Fallar aquí produce **avisos**, nunca un rechazo. Ver [Campos recomendados](#válido-no-es-lo-mismo-que-útil-los-campos-recomendados). |
 | Este documento | **Normativo, no ejecutable.** Las reglas que un validador no puede comprobar. |
 | [`examples/`](examples/) | Ejemplos, **validados en CI**. Si no pasan el validador, el build falla. |
+| [`DECISIONS.md`](DECISIONS.md) | **No normativo.** Por qué esta spec es como es, en inglés: decisiones de diseño con sus alternativas descartadas y la condición bajo la que valdría la pena reabrirlas. |
 
 Los `$id` son las URLs bajo las que se publican los schemas:
 
@@ -221,6 +222,8 @@ Mezclar (`startDate` fecha, `endDate` fecha-hora) es inválido. Si `endDate` fal
 `timezone` (IANA, `Europe/Madrid`) es **siempre obligatoria**. Con hora, es lo que convierte el reloj de pared en un instante inequívoco. En eventos de todo el día, **contextualiza** la fecha: dice a qué región pertenece ese día — **no la desplaza**. Un consumidor **no debe** convertir un evento de todo el día a otra zona horaria.
 
 La única fecha con offset en toda la spec es `source.retrievedAt` (y `updatedAt` en el feed): son metadatos, instantes reales, no cosas que le pasan a la gente en un sitio.
+
+Todas las fechas y horas de esta spec, en cualquier campo, tienen que ser **calendáricamente reales** — nada de meses, días u horas que no existen — y `timezone` tiene que ser una **zona IANA real**, canónica o alias histórico. Ambas cosas las comprueba el validador, no son solo una recomendación de esta página. Por qué (y por qué la primera versión de la comprobación de `timezone` estaba mal) está en [DECISIONS.md, D001 y D002](DECISIONS.md#d001--temporal-fields-must-be-calendar-valid-not-just-lexically-shaped).
 
 ### Recurrencia y eventos multi-parte: `partOf`
 

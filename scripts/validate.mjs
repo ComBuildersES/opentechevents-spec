@@ -20,7 +20,7 @@ import { spawnSync } from "node:child_process";
 import { join, basename } from "node:path";
 import Ajv2020 from "ajv/dist/2020.js";
 import addFormats from "ajv-formats";
-import { annotationKeywords } from "../index.js";
+import { annotationKeywords, customFormats } from "../index.js";
 import { fieldsOf, loadSchemas } from "./schema-model.mjs";
 
 const VERSIONS = ["v0.1", "v0.2", "v0.3"];
@@ -47,6 +47,10 @@ function build(version) {
   // The schemas carry annotations strict mode would otherwise refuse to compile. They constrain
   // nothing: registering them changes which SCHEMAS load, never which documents pass.
   for (const kw of annotationKeywords) ajv.addKeyword(kw);
+  // `ote-local-date-time` covers the one temporal shape ajv-formats doesn't: wall-clock,
+  // deliberately without an offset. Strict mode refuses to compile a schema referencing an
+  // unregistered format, same as with annotationKeywords above.
+  for (const f of customFormats) ajv.addFormat(f.name, f.validate);
 
   const dir = join(SPEC_DIR, version);
   const eventSchema = JSON.parse(readFileSync(join(dir, "event.schema.json"), "utf8"));
