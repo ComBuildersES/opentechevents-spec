@@ -448,8 +448,8 @@
             "UTC"
           ],
           "description": {
-            "en": "A real IANA timezone identifier (e.g. Europe/Madrid) — canonical name or historical alias, never an invented or malformed one. Turns a wall-clock startDate into an unambiguous instant. For all-day events it contextualises the date — it does not shift it.",
-            "es": "Una zona horaria IANA real (p. ej. `Europe/Madrid`) — nombre canónico o alias histórico, nunca una inventada o mal escrita. Convierte un `startDate` de reloj de pared en un instante inequívoco. En eventos de todo el día contextualiza la fecha: no la desplaza."
+            "en": "A real IANA timezone identifier (e.g. Europe/Madrid) — canonical name or historical alias, never an invented or malformed one. Turns a wall-clock startDate into an unambiguous instant. For all-day events it contextualises the date — it does not shift it. On the two nights a year local time is ambiguous (a repeated hour) or impossible (a skipped hour) because of a DST transition, resolve exactly as RFC 5545 §3.3.5 does: a repeated local time means its FIRST occurrence; a skipped local time is read using the UTC offset that was in effect BEFORE the transition.",
+            "es": "Una zona horaria IANA real (p. ej. `Europe/Madrid`) — nombre canónico o alias histórico, nunca una inventada o mal escrita. Convierte un `startDate` de reloj de pared en un instante inequívoco. En eventos de todo el día contextualiza la fecha: no la desplaza. Las dos noches al año en que una hora local es ambigua (se repite) o imposible (se salta) por un cambio de horario, se resuelve igual que RFC 5545 §3.3.5: una hora repetida es su PRIMERA ocurrencia; una hora que no existe se interpreta con el offset UTC vigente ANTES del cambio."
           },
           "requiredIn": null
         },

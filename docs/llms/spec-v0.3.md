@@ -232,6 +232,13 @@ Copiar el valor sin este ajuste acorta en un día todo evento OTE de varios día
 
 `timezone` (IANA, `Europe/Madrid`) es **siempre obligatoria**. Con hora, es lo que convierte el reloj de pared en un instante inequívoco. En eventos de todo el día, **contextualiza** la fecha: dice a qué región pertenece ese día — **no la desplaza**. Un consumidor **no debe** convertir un evento de todo el día a otra zona horaria.
 
+**"Instante inequívoco" tiene una excepción real: las dos noches al año en que la zona cambia de horario.** Al atrasar el reloj (verano→invierno), una hora local se repite y nombra dos instantes distintos; al adelantarlo (invierno→verano), hay una hora que no llega a existir nunca. Rarísimo en la práctica —nadie programa una charla a las 2:30 de la madrugada a propósito—, pero puede colarse sin que nadie lo mire: un script que genera fechas de una serie de sesiones sin tener en cuenta esa noche concreta, o un `.ics` importado con ese mismo problema. La resolución es la misma que ya usa RFC 5545 §3.3.5 — cualquier herramienta iCalendar existente ya la aplica sin cambiar nada — con sus mismos ejemplos oficiales:
+
+- **Hora repetida**: cuenta la **primera** ocurrencia. `TZID=America/New_York:20071104T013000` son las 1:30 del 4 de noviembre de 2007 en **EDT** (UTC−04:00), no en EST.
+- **Hora inexistente**: se interpreta con el offset vigente **antes** del salto. `TZID=America/New_York:20070311T023000` son, en realidad, las 3:30 EDT (UTC−04:00) — una hora después de las 1:30 EST.
+
+Detalle en [DECISIONS.md, D014](DECISIONS.md#d014--dst-ambiguous-or-nonexistent-local-times-resolve-per-rfc-5545-335).
+
 La única fecha con offset en toda la spec es `source.retrievedAt` (y `updatedAt` en el feed): son metadatos, instantes reales, no cosas que le pasan a la gente en un sitio.
 
 Todas las fechas y horas de esta spec, en cualquier campo, tienen que ser **calendáricamente reales** — nada de meses, días u horas que no existen — y `timezone` tiene que ser una **zona IANA real**, canónica o alias histórico. Ambas cosas las comprueba el validador, no son solo una recomendación de esta página. Por qué (y por qué la primera versión de la comprobación de `timezone` estaba mal) está en [DECISIONS.md, D001 y D002](DECISIONS.md#d001--temporal-fields-must-be-calendar-valid-not-just-lexically-shaped).
