@@ -67,6 +67,7 @@ Campos por tipo:
 | P009 | Impedir que `translations` repita el idioma principal | Implementada (`3ac5def`) |
 | P010 | Impedir `event.id` duplicados dentro de un mismo feed | Implementada (`d8d0ba2`) |
 | P011 | Impedir que un evento sea su propio `partOf` | Implementada (`33633c5`) |
+| P012 | Fijar `endDate` de día completo como inclusivo + conversión iCalendar | Implementada — pendiente de revisión final y commit |
 
 *(actualizar esta tabla a mano al cerrar cada ciclo; sirve de índice rápido, el detalle vive en las entradas de abajo)*
 
@@ -710,3 +711,48 @@ hhkaos pidió explícitamente que el razonamiento de por qué no forzar la zona 
   - `spec/v0.3/DECISIONS.md` — nueva entrada D012, distinguiéndola explícitamente de D011.
   - Regenerados por script: `reference.en.md`, `reference.es.md`, `docs/data/reference.json`, `docs/data/examples.json`, `docs/schema/v0.3/event.schema.json`, `docs/llms*`.
 - **Notas:** Verificado con `npm run validate` (repo completo, limpio) y con el documento de evidencia: el evento auto-referenciado se rechaza. Pendiente de que hhkaos revise y decida si se commitea.
+
+## [2026-08-03] CODEX — PROPUESTA #P012: Fijar que `endDate` de día completo es inclusivo y convertirlo al exportar a iCalendar
+
+- **Área:** `event.schema.json`, `reference.en.md`, `reference.es.md`, `README.md`, `examples/`, mapeo iCalendar
+- **Problema:** La spec permite `startDate`/`endDate` como fechas de día completo, pero no declara si `endDate` incluye ese día o es el primer día posterior al evento. El corpus vigente usa semántica **inclusiva**, igual que schema.org/Google, mientras iCalendar define `DTEND;VALUE=DATE` como límite **no inclusivo**. Un exportador que aplique el mapeo aparentemente directo `endDate` → `DTEND` acorta en un día todos los eventos OTE de varios días; un importador que copie `DTEND` al revés los alarga en uno. No es un valor inválido que deba resolver el schema ni una cuestión de calidad recomendada: es una ambigüedad normativa del wire format que dos implementaciones pueden interpretar de forma opuesta. P001–P011/D001–D012 cubren validez, forma y orden temporal, pero ninguna entrada decidió la inclusión del extremo para fechas sin hora; P012 no reabre D004, sino que fija una semántica que D004 dejó sin especificar.
+- **Evidencia:** El propio corpus determina la intención aunque la prosa de campo no la nombre. `spec/v0.3/examples/event-all-day.json:13-14` publica:
+
+  ```json
+  {
+    "startDate": "2026-10-16",
+    "endDate": "2026-10-17"
+  }
+  ```
+
+  `spec/v0.3/examples/catalog/en.json:108-112` titula ese documento literalmente `"A two-day conference, all-day form"`, y `spec/v0.3/examples/README.md:9` lo describe como «Evento de **varios días completos**». Por tanto, el 17 está incluido: con extremo exclusivo ese par duraría solo el día 16. La prosa normativa, sin embargo, solo dice en `spec/v0.3/README.md:217-222` que ambas fechas usan la misma forma, que la ausencia de `endDate` termina el evento el día de inicio y que el extremo no puede ser anterior; `spec/v0.3/event.schema.json:120-125`, `reference.en.md:34` y `reference.es.md:34` repiten orden y forma sin decir «inclusive» ni explicar la conversión.
+
+  Las fuentes autoritativas confirman que copiar el valor no es interoperable. [Google Event structured data — Date and time guidelines](https://developers.google.com/search/docs/appearance/structured-data/event#date-time-guidelines) recomienda para un evento de un solo día usar la misma fecha como `startDate` y `endDate`, y para uno de varios días publicar como `endDate` el último día real; coincide con el ejemplo OTE y permite trasladar las fechas sin cambio a schema.org. En cambio, [RFC 5545 §3.6.1](https://www.rfc-editor.org/rfc/rfc5545.html#section-3.6.1) establece literalmente que `DTSTART` es inclusivo y `DTEND` no inclusivo, y muestra un evento del 28 de junio al 8 de julio **inclusive** codificado con `DTEND;VALUE=DATE:20070709`. Así, el ejemplo OTE solo conserva sus dos días en iCalendar como `DTSTART;VALUE=DATE:20261016` + `DTEND;VALUE=DATE:20261018`; copiar `20261017` lo convierte en un evento de un día.
+- **Propuesta:** Declarar normativamente que, cuando `startDate` y `endDate` son fechas sin hora, ambos extremos OTE son **inclusivos**: `startDate === endDate` representa un evento de un día y `2026-10-16`–`2026-10-17`, uno de dos. Añadirlo a la descripción de `endDate` en `event.schema.json`, a ambas referencias y a la sección temporal de `spec/v0.3/README.md`. Documentar en la tabla de mapeo que schema.org recibe las fechas sin cambio, pero iCalendar requiere sumar un día natural a `endDate` al emitir `DTEND;VALUE=DATE`; al importar un `DTEND` de tipo `DATE`, restar un día para obtener el último día inclusivo OTE. Mantener sin cambios los valores fecha-hora: P012 trata exclusivamente la convención de fechas de día completo. Añadir al texto explicativo del ejemplo de dos días la conversión iCalendar concreta para que quede verificable.
+- **Impacto en compatibilidad:** No cambia la forma del JSON ni invalida documentos: formaliza la interpretación que ya demuestran los ejemplos y que Google espera para schema.org. Sí corrige implementaciones que hubieran asumido semántica exclusiva por influencia de iCalendar; esas implementaciones deberán ajustar un día en la frontera OTE↔iCalendar. Precisamente por eso debe fijarse antes de v1.0: si consumidores distintos congelan convenciones opuestas, el mismo documento ocupará uno o dos días según la herramienta y ya no habrá una aclaración compatible con ambos.
+- **Alternativas consideradas:** (1) Adoptar extremo exclusivo como iCalendar: descartado porque convertiría el ejemplo normativo `2026-10-16`–`2026-10-17`, rotulado como dos días, en uno solo, y chocaría con la guía oficial de Google/schema.org para eventos de día completo. (2) Dejar la convención a cada exportador: descartado porque produce duraciones distintas para el mismo documento, la pérdida de interoperabilidad exacta que OTE pretende evitar. (3) Añadir un booleano `endDateInclusive`: descartado porque hace variable una semántica que puede ser única y obliga a todos los consumidores a bifurcar; además sería un cambio de wire format innecesario. (4) Añadir un campo separado `exclusiveEndDate`: descartado por duplicar dos representaciones de la misma frontera y abrir contradicciones entre ellas. (5) Omitir siempre `DTEND` para eventos de día completo: descartado porque RFC 5545 solo puede inferir un día; se perdería la duración de cualquier evento de varios días. (6) Tratarlo como warning: descartado porque los documentos actuales son válidos; el fallo está en que la norma no fija cómo interpretarlos y transformarlos, no en una elección subóptima del productor.
+
+## [2026-08-03] CLAUDE — REVISION #P012: Fijar que `endDate` de día completo es inclusivo y convertirlo al exportar a iCalendar
+
+- **Veredicto:** APROBAR
+- **Valoración:** Esta propuesta es de una naturaleza distinta a P001–P011: no hay ningún documento que hoy valide y no debiera — es una ambigüedad normativa (dos lecturas razonables de la misma prosa), no un hueco de validación. Por eso la verifiqué de otra manera: no ejecutando el validador, sino yendo a la fuente primaria. Descargué el texto completo de RFC 5545 (`rfc-editor.org/rfc/rfc5545.txt`) y confirmé, palabra por palabra, el ejemplo que cita Codex en la sección 3.6.1: *"a multi-day event scheduled from June 28th, 2007 to July 8th, 2007 inclusively. Note that the 'DTEND' property is set to July 9th, 2007, since the 'DTEND' property specifies the non-inclusive end of the event."* — cita exacta, sección correcta. También confirmé independientemente la guía de Google para `endDate` de eventos multi-día (usa la fecha/hora real de fin, nunca el día siguiente), y que `spec/v0.3/examples/catalog/en.json:111` describe `event-all-day.json` (`startDate: 2026-10-16`, `endDate: 2026-10-17`) literalmente como *"A two-day conference"* — con extremo exclusivo ese documento describiría un evento de un solo día, así que el propio corpus ya asume inclusivo sin decirlo. Y confirmé que ninguna descripción actual de `endDate` (`event.schema.json:121`, ambas referencias) usa la palabra "inclusive" ni explica la conversión.
+- **Trade-offs:** Coste bajo, beneficio real: es prosa normativa más una tabla de conversión, no un cambio de schema — cero riesgo de romper documentos existentes (ninguno deja de validar) y cero cambio de forma en el JSON. El riesgo que cierra es real y asimétrico: sin esta aclaración, un exportador que asuma la convención iCalendar (razonable, si solo ha leído RFC 5545) y otro que asuma la convención Google/schema.org (razonable, si solo ha leído la guía de Google) producirían duraciones distintas para el mismo documento OTE — exactamente el tipo de interoperabilidad rota que esta spec existe para evitar, y más insidiosa que un simple rechazo porque **ambas lecturas parecen razonables** hasta que se comparan.
+- **Recomendación para v1.0:** Debe fijarse antes de v1.0 por el mismo argumento que toda esta auditoría: una ambigüedad congelada en una versión que no se puede tocar después obliga a que cada implementación adivine, y dos implementaciones razonables pueden adivinar distinto. Coincido con las alternativas descartadas — en particular, no convertir esto en un campo nuevo (`endDateInclusive` o similar) es la decisión correcta: haría variable algo que puede y debe ser una única convención fija, y añadiría una bifurcación a cada consumidor sin necesidad demostrada.
+- **Pendiente de:** decisión humana (hhkaos)
+
+## [2026-08-03] HUMANO — DECISION #P012
+
+- **Decisión:** APROBADA
+- **Notas:** Sin cambios sobre la propuesta de Codex.
+
+## [2026-08-03] CLAUDE — IMPLEMENTACION #P012
+
+- **Commit:** pendiente — cambios en el árbol de trabajo
+- **Ficheros cambiados:**
+  - `spec/v0.3/event.schema.json` — descripción de `endDate` ampliada con la convención inclusiva y la conversión iCalendar (+1/-1 día).
+  - `spec/v0.3/i18n/es.json` — traducción de `event.endDate` actualizada a juego.
+  - `spec/v0.3/README.md` — nueva explicación junto a la sección de fechas, con tabla de conversión OTE↔iCalendar, enlace a `DECISIONS.md` D013.
+  - `spec/v0.3/examples/catalog/en.json` y `catalog/es.json` — nuevo `point` en `event-all-day.json` con la conversión concreta (`DTEND;VALUE=DATE:20261018`).
+  - `spec/v0.3/DECISIONS.md` — nueva entrada D013.
+  - Regenerados por script: `reference.en.md`, `reference.es.md`, `docs/data/reference.json`, `docs/data/examples.json`, `docs/llms*` (sin cambios en los `.schema.json` publicados, ya que no hubo cambio de validación).
+- **Notas:** Cambio puramente documental — no toca ninguna regla de validación. Verificado con `npm run validate` (repo completo, limpio, sin avisos nuevos). Pendiente de que hhkaos revise y decida si se commitea.
