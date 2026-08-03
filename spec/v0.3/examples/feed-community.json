@@ -4,7 +4,7 @@
   "description": "Meetups mensuales de Python en Almería.",
   "url": "https://pyalmeria.example",
 
-  "_comment_textLanguage": "Un feed monolingüe declara el idioma de su texto UNA vez y ningún evento lo repite: se hereda, como `license` y `organizers`. Es el caso del 99% — y es lo que hace que el campo cueste una línea en todo el fichero. `translations` no se hereda nunca: traduce el título DEL FEED, no el nombre de sus eventos.",
+  "_comment_textLanguage": "Un feed monolingüe declara el idioma de su texto UNA vez y ningún evento lo repite: se hereda, como `license` y `organizers`. Es el caso del 99% — y es lo que hace que el campo cueste una línea en todo el fichero. `translations` no se hereda nunca: traduce el título DEL FEED, no el nombre de sus eventos. El primer evento traduce el suyo al inglés sin declarar su propio `textLanguage`: el idioma efectivo frente al que se valida esa traducción es el heredado del feed (\"es\"). Ver CHANGES.log #P015 / DECISIONS.md D016.",
 
   "textLanguage": "es",
 
@@ -38,7 +38,13 @@
       },
       "tags": ["python", "async"],
       "languages": ["es"],
-      "updatedAt": "2026-05-28T11:00:00Z"
+      "updatedAt": "2026-05-28T11:00:00Z",
+      "translations": {
+        "en": {
+          "name": "PyAlmería — Introduction to async/await",
+          "description": "Introductory talk on asynchronous programming in Python, with live examples."
+        }
+      }
     },
     {
       "id": "https://pyalmeria.example/eventos/2026-07-datos",

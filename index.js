@@ -288,4 +288,48 @@ export const customKeywords = [
     },
     error: { message: "no event may be updated after the feed itself was generated" },
   },
+  {
+    keyword: "eventsRespectInheritedTextLanguage",
+    type: "object",
+    schemaType: "boolean",
+    /**
+     * `feed`'s own constraint: `$defs.event`'s shared schema evaluates each event against its own
+     * instance location only, with no visibility into the enclosing feed — the same reason
+     * `uniqueEventIds` and `eventsNotNewerThanFeed` (P010/P014) had to live here instead of in
+     * `$defs.event`. That schema's `required: ["textLanguage"]` when any translations map exists
+     * is therefore only enforced for a STANDALONE event document (moved to event.schema.json's
+     * root `allOf`, which has no feed to inherit from); an event embedded in a feed must be judged
+     * against its EFFECTIVE language, `event.textLanguage ?? feed.textLanguage`
+     * (`x-inheritsFrom`), which only the feed root can compute. This single keyword covers both
+     * halves of that check for every embedded event: the effective language must exist wherever a
+     * translations map does (event's own, or nested in eligibility, partOf, each offers[] or each
+     * image[] — same five locations as `distinctTranslationLanguages`), and no such map's key may
+     * equal it, case-insensitively (RFC 5646 §2.1.1). See CHANGES.log #P015 / DECISIONS.md D016.
+     */
+    validate: (schemaValue, data) => {
+      if (!schemaValue || !Array.isArray(data.events)) return true;
+      return data.events.every((event) => {
+        if (!event || typeof event !== "object") return true;
+        const effectiveTextLanguage =
+          typeof event.textLanguage === "string" ? event.textLanguage : data.textLanguage;
+        const maps = [
+          event.translations,
+          event.eligibility?.translations,
+          event.partOf?.translations,
+          ...(Array.isArray(event.offers) ? event.offers.map((o) => o?.translations) : []),
+          ...(Array.isArray(event.image) ? event.image.map((i) => i?.translations) : []),
+        ].filter((map) => map && typeof map === "object");
+
+        if (maps.length === 0) return true;
+        if (typeof effectiveTextLanguage !== "string") return false;
+
+        const primary = effectiveTextLanguage.toLowerCase();
+        return !maps.some((map) => Object.keys(map).some((k) => k.toLowerCase() === primary));
+      });
+    },
+    error: {
+      message:
+        "every event's translations must have an effective textLanguage (own or inherited from the feed) and must not repeat it",
+    },
+  },
 ];

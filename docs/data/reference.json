@@ -11,8 +11,8 @@
         {
           "kind": "prose",
           "note": {
-            "en": "A map of translations is unusable without knowing which language the primary text is in: a consumer cannot tell which entry duplicates it, nor what it is falling back to. So ANY translations map in the document — the event's own, or one inside image, offers, eligibility or partOf — requires textLanguage. It is the one place where a field of this spec depends on another being present, and it holds at every depth because the primary language is a property of the whole document, not of each object.",
-            "es": "Un mapa de traducciones es inservible si no se sabe en qué idioma está el texto principal: quien lo consume no puede saber qué entrada lo duplica ni a qué está cayendo por defecto. Así que CUALQUIER mapa de traducciones del documento —el del propio evento o uno dentro de image, offers, eligibility o partOf— exige textLanguage. Es el único sitio de esta spec donde un campo depende de que otro esté presente, y vale a cualquier profundidad porque el idioma principal es una propiedad del documento entero, no de cada objeto."
+            "en": "startDate and endDate must be of the same form: two all-day dates, or two local date-times.",
+            "es": "startDate y endDate tienen que ser de la misma forma: dos fechas de día completo, o dos fechas-hora locales."
           },
           "owner": "",
           "key": "event#0",
@@ -24,8 +24,8 @@
         {
           "kind": "prose",
           "note": {
-            "en": "startDate and endDate must be of the same form: two all-day dates, or two local date-times.",
-            "es": "startDate y endDate tienen que ser de la misma forma: dos fechas de día completo, o dos fechas-hora locales."
+            "en": "A map of translations is unusable without knowing which language the primary text is in: a consumer cannot tell which entry duplicates it, nor what it is falling back to. So ANY translations map in the document — the event's own, or one inside image, offers, eligibility or partOf — requires textLanguage. It is the one place where a field of this spec depends on another being present, and it holds at every depth because the primary language is a property of the whole document, not of each object. A standalone document has no feed to inherit textLanguage from, so it must always carry its own; inside a feed, the same requirement is enforced against the effective (possibly inherited) language — see feed.schema.json.",
+            "es": "Un mapa de traducciones es inservible si no se sabe en qué idioma está el texto principal: quien lo consume no puede saber qué entrada lo duplica ni a qué está cayendo por defecto. Así que CUALQUIER mapa de traducciones del documento —el del propio evento o uno dentro de image, offers, eligibility o partOf— exige textLanguage. Es el único sitio de esta spec donde un campo depende de que otro esté presente, y vale a cualquier profundidad porque el idioma principal es una propiedad del documento entero, no de cada objeto. Un documento suelto no tiene feed del que heredar, así que siempre debe llevar el suyo; dentro de un feed, la misma exigencia se aplica contra el idioma efectivo (propio o heredado) — ver feed.schema.json."
           },
           "owner": "",
           "key": "event#1",
@@ -806,7 +806,7 @@
           ],
           "inheritsFrom": "feed.textLanguage",
           "description": {
-            "en": "Language THIS DOCUMENT's free text is written in — name, description, and any other prose in it. One BCP 47 tag, not a list: a text is written in one language. A different question from languages, which says what is spoken at the event. Absent means unknown, never the feed's language and never English.",
+            "en": "Language THIS DOCUMENT's free text is written in — name, description, and any other prose in it. One BCP 47 tag, not a list: a text is written in one language. A different question from languages, which says what is spoken at the event. Absent defaults to the enclosing feed's textLanguage; in a standalone document, with no feed to inherit from, absent means unknown, never English.",
             "es": "Idioma en que está escrito el texto libre de ESTE DOCUMENTO — `name`, `description` y cualquier otra prosa que lleve. Una sola etiqueta BCP 47, no una lista: un texto está escrito en un idioma. Es una pregunta distinta de `languages`, que dice qué se habla en el evento. Ausente significa desconocido, nunca el idioma del feed ni el inglés."
           },
           "requiredIn": null
@@ -1420,7 +1420,7 @@
             "ca"
           ],
           "description": {
-            "en": "Language this feed's own free text is written in — title and description. What makes it cheap: a monolingual publisher declares it once for the whole file and no event repeats it. Absent means unknown, never English and never the language of the HTTP response.",
+            "en": "Language this feed's own free text is written in — title and description — and the default every event inherits when it omits its own. What makes it cheap: a monolingual publisher declares it once for the whole file and no event repeats it. Not the same as organizers: an aggregator whose events don't share one language must leave this out, exactly as it must leave out organizers, so each event states its own instead of inheriting the wrong one. Absent means unknown, never English and never the language of the HTTP response.",
             "es": "Idioma en que está escrito el texto libre de este feed — `title` y `description`. Y eso es lo que lo hace barato: quien publica en un solo idioma lo declara una vez para todo el fichero y ningún evento lo repite. Ausente significa desconocido, nunca el inglés ni el idioma de la respuesta HTTP."
           },
           "requiredIn": null,

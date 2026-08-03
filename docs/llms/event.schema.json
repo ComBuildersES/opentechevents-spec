@@ -14,6 +14,83 @@
         "specVersion",
         "license"
       ]
+    },
+    {
+      "description": "A map of translations is unusable without knowing which language the primary text is in: a consumer cannot tell which entry duplicates it, nor what it is falling back to. So ANY translations map in the document — the event's own, or one inside image, offers, eligibility or partOf — requires textLanguage. It is the one place where a field of this spec depends on another being present, and it holds at every depth because the primary language is a property of the whole document, not of each object. A standalone document has no feed to inherit textLanguage from, so it must always carry its own; inside a feed, the same requirement is enforced against the effective (possibly inherited) language — see feed.schema.json.",
+      "if": {
+        "type": "object",
+        "anyOf": [
+          {
+            "required": [
+              "translations"
+            ]
+          },
+          {
+            "required": [
+              "eligibility"
+            ],
+            "properties": {
+              "eligibility": {
+                "required": [
+                  "translations"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          {
+            "required": [
+              "partOf"
+            ],
+            "properties": {
+              "partOf": {
+                "required": [
+                  "translations"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          {
+            "required": [
+              "offers"
+            ],
+            "properties": {
+              "offers": {
+                "contains": {
+                  "required": [
+                    "translations"
+                  ],
+                  "type": "object"
+                },
+                "type": "array"
+              }
+            }
+          },
+          {
+            "required": [
+              "image"
+            ],
+            "properties": {
+              "image": {
+                "contains": {
+                  "required": [
+                    "translations"
+                  ],
+                  "type": "object"
+                },
+                "type": "array"
+              }
+            }
+          }
+        ]
+      },
+      "then": {
+        "type": "object",
+        "required": [
+          "textLanguage"
+        ]
+      }
     }
   ],
   "$defs": {
@@ -823,7 +900,7 @@
           ]
         },
         "textLanguage": {
-          "description": "Language THIS DOCUMENT's free text is written in — name, description, and any other prose in it. One BCP 47 tag, not a list: a text is written in one language. A different question from languages, which says what is spoken at the event. Absent means unknown, never the feed's language and never English.",
+          "description": "Language THIS DOCUMENT's free text is written in — name, description, and any other prose in it. One BCP 47 tag, not a list: a text is written in one language. A different question from languages, which says what is spoken at the event. Absent defaults to the enclosing feed's textLanguage; in a standalone document, with no feed to inherit from, absent means unknown, never English.",
           "x-inheritsFrom": "feed.textLanguage",
           "$ref": "#/$defs/languageTag",
           "examples": [
@@ -956,83 +1033,6 @@
       "distinctTranslationLanguages": true,
       "distinctPartOfId": true,
       "allOf": [
-        {
-          "description": "A map of translations is unusable without knowing which language the primary text is in: a consumer cannot tell which entry duplicates it, nor what it is falling back to. So ANY translations map in the document — the event's own, or one inside image, offers, eligibility or partOf — requires textLanguage. It is the one place where a field of this spec depends on another being present, and it holds at every depth because the primary language is a property of the whole document, not of each object.",
-          "if": {
-            "type": "object",
-            "anyOf": [
-              {
-                "required": [
-                  "translations"
-                ]
-              },
-              {
-                "required": [
-                  "eligibility"
-                ],
-                "properties": {
-                  "eligibility": {
-                    "required": [
-                      "translations"
-                    ],
-                    "type": "object"
-                  }
-                }
-              },
-              {
-                "required": [
-                  "partOf"
-                ],
-                "properties": {
-                  "partOf": {
-                    "required": [
-                      "translations"
-                    ],
-                    "type": "object"
-                  }
-                }
-              },
-              {
-                "required": [
-                  "offers"
-                ],
-                "properties": {
-                  "offers": {
-                    "contains": {
-                      "required": [
-                        "translations"
-                      ],
-                      "type": "object"
-                    },
-                    "type": "array"
-                  }
-                }
-              },
-              {
-                "required": [
-                  "image"
-                ],
-                "properties": {
-                  "image": {
-                    "contains": {
-                      "required": [
-                        "translations"
-                      ],
-                      "type": "object"
-                    },
-                    "type": "array"
-                  }
-                }
-              }
-            ]
-          },
-          "then": {
-            "type": "object",
-            "required": [
-              "textLanguage"
-            ]
-          }
-        },
         {
           "description": "startDate and endDate must be of the same form: two all-day dates, or two local date-times.",
           "oneOf": [

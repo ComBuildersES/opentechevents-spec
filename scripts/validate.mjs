@@ -96,7 +96,11 @@ function missingRecommended(validate, doc) {
   return [
     ...new Set(
       (validate.errors ?? [])
-        .filter((e) => e.keyword === "required" || (e.keyword === "anyOf" && e.instancePath))
+        .filter(
+          (e) =>
+            e.keyword === "required" ||
+            ((e.keyword === "anyOf" || e.keyword === "not") && e.instancePath)
+        )
         .map((e) =>
           e.keyword === "required"
             ? [...e.instancePath.split("/").filter(Boolean), e.params.missingProperty].join(".")

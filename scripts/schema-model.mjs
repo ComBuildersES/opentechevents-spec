@@ -192,7 +192,13 @@ function rulesOfObject(node) {
 
   // A branch we cannot phrase still has to be readable: if its author explained it, the
   // explanation IS the rule. Silently dropping it is how the docs drifted in the first place.
-  for (const branch of node.allOf ?? []) {
+  // `node` itself only joins this set when IT is a conditional block (has its own `if`), the
+  // same criterion the `conditionalRules` loop above uses — `constraintsOf`'s "wrapping"
+  // branches (the standalone document's own top-level `allOf`, outside `$defs.event`) pass an
+  // if/then block straight in as `node`, never nested inside some other object's `allOf`. An
+  // ordinary object (no `if` of its own) must NOT be swept in here: its plain `description` is
+  // already shown in the field table and is not a "rule".
+  for (const branch of [...(node.if ? [node] : []), ...(node.allOf ?? [])]) {
     const named = branch.if ? conditionalRules(branch).length : 0;
     if (!named && branch.description) rules.push({ kind: "prose", note: branch.description });
   }

@@ -795,7 +795,7 @@ Obligatorio: `specVersion`, `title`, `license`, `updatedAt`, `events`.
 
 **`organizers` se hereda igual, con una diferencia**: la lista del evento **reemplaza** la del feed, no se suma a ella (el porqué, arriba). Y un feed de **agregador** debe **omitir** `organizers`: no organiza lo que publica, y ponerlo ahí atribuiría mal cada evento del feed.
 
-**`textLanguage` también se hereda** —una línea en el feed y ningún evento la repite— y **`translations` no se hereda nunca**: el `title` de un feed no es el `name` de un evento, así que `feed.translations` traduce el feed y cada evento lleva las suyas. [Detalle arriba](#textlanguage-y-translations-en-qué-idioma-está-escrito-esto).
+**`textLanguage` también se hereda** —una línea en el feed y ningún evento la repite— y **`translations` no se hereda nunca**: el `title` de un feed no es el `name` de un evento, así que `feed.translations` traduce el feed y cada evento lleva las suyas. [Detalle arriba](#textlanguage-y-translations-en-qué-idioma-está-escrito-esto). Y, igual que `organizers`, un feed de **agregador** cuyos eventos no comparten idioma debe **omitir** `feed.textLanguage`: heredarlo atribuiría a todo evento un idioma que puede no ser el suyo. El perfil recomendado avisa (sin invalidar) si `textLanguage` está presente y `organizers` no —la misma señal que ya usa el feed para saber que es de agregador—, precisamente para detectar este caso. Detalle en [DECISIONS.md, D016](DECISIONS.md#d016--feedtextlanguage-inheritance-is-enforced-against-the-effective-language-computed-at-the-feed-root).
 
 **Resumen de qué se hereda**, porque son cuatro campos con tres comportamientos distintos:
 

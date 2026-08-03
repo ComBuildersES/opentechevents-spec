@@ -1487,7 +1487,7 @@
           "`textLanguage` se hereda igual: declarado una vez en el feed, ningún evento lo repite. Es lo que hace que el campo cueste una línea a quien publica en un solo idioma. `translations` no se hereda nunca — traduce el título DEL FEED, no el nombre de sus eventos."
         ]
       },
-      "source": "{\n  \"specVersion\": \"0.3.0\",\n  \"title\": \"Eventos de PyAlmería\",\n  \"description\": \"Meetups mensuales de Python en Almería.\",\n  \"url\": \"https://pyalmeria.example\",\n  \"textLanguage\": \"es\",\n  \"organizers\": [\n    {\n      \"name\": \"PyAlmería\",\n      \"url\": \"https://pyalmeria.example\",\n      \"email\": \"hola@pyalmeria.example\"\n    }\n  ],\n  \"license\": \"CC-BY-4.0\",\n  \"licenseUrl\": \"https://creativecommons.org/licenses/by/4.0/\",\n  \"updatedAt\": \"2026-07-06T10:00:00Z\",\n  \"events\": [\n    {\n      \"id\": \"https://pyalmeria.example/eventos/2026-06-async\",\n      \"url\": \"https://pyalmeria.example/eventos/2026-06-async\",\n      \"name\": \"PyAlmería — Introducción a async/await\",\n      \"description\": \"Charla introductoria a la programación asíncrona en Python, con ejemplos en vivo.\",\n      \"image\": [\n        \"https://pyalmeria.example/img/2026-06-async.png\"\n      ],\n      \"startDate\": \"2026-06-11T18:30\",\n      \"endDate\": \"2026-06-11T20:30\",\n      \"timezone\": \"Europe/Madrid\",\n      \"attendanceMode\": \"in-person\",\n      \"location\": {\n        \"venue\": \"El Cable, Almería\",\n        \"address\": {\n          \"street\": \"Calle Poeta Villaespesa 1\",\n          \"locality\": \"Almería\",\n          \"postalCode\": \"04001\",\n          \"country\": \"ES\"\n        }\n      },\n      \"tags\": [\n        \"python\",\n        \"async\"\n      ],\n      \"languages\": [\n        \"es\"\n      ],\n      \"updatedAt\": \"2026-05-28T11:00:00Z\"\n    },\n    {\n      \"id\": \"https://pyalmeria.example/eventos/2026-07-datos\",\n      \"url\": \"https://pyalmeria.example/eventos/2026-07-datos\",\n      \"name\": \"Noche de datos — PyAlmería × PyData Almería\",\n      \"description\": \"Sesión conjunta con PyData Almería.\",\n      \"image\": [\n        \"https://pyalmeria.example/img/2026-07-datos.png\"\n      ],\n      \"organizers\": [\n        {\n          \"name\": \"PyAlmería\",\n          \"url\": \"https://pyalmeria.example\",\n          \"email\": \"hola@pyalmeria.example\"\n        },\n        {\n          \"name\": \"PyData Almería\",\n          \"url\": \"https://pydata-almeria.example\"\n        }\n      ],\n      \"startDate\": \"2026-07-09T18:30\",\n      \"endDate\": \"2026-07-09T21:00\",\n      \"timezone\": \"Europe/Madrid\",\n      \"attendanceMode\": \"hybrid\",\n      \"location\": {\n        \"venue\": \"El Cable, Almería\",\n        \"address\": {\n          \"street\": \"Calle Poeta Villaespesa 1\",\n          \"locality\": \"Almería\",\n          \"postalCode\": \"04001\",\n          \"country\": \"ES\"\n        },\n        \"onlineUrl\": \"https://meet.example/pyalmeria\"\n      },\n      \"tags\": [\n        \"python\",\n        \"data\"\n      ],\n      \"languages\": [\n        \"es\"\n      ],\n      \"updatedAt\": \"2026-06-30T16:45:00Z\"\n    }\n  ]\n}",
+      "source": "{\n  \"specVersion\": \"0.3.0\",\n  \"title\": \"Eventos de PyAlmería\",\n  \"description\": \"Meetups mensuales de Python en Almería.\",\n  \"url\": \"https://pyalmeria.example\",\n  \"textLanguage\": \"es\",\n  \"organizers\": [\n    {\n      \"name\": \"PyAlmería\",\n      \"url\": \"https://pyalmeria.example\",\n      \"email\": \"hola@pyalmeria.example\"\n    }\n  ],\n  \"license\": \"CC-BY-4.0\",\n  \"licenseUrl\": \"https://creativecommons.org/licenses/by/4.0/\",\n  \"updatedAt\": \"2026-07-06T10:00:00Z\",\n  \"events\": [\n    {\n      \"id\": \"https://pyalmeria.example/eventos/2026-06-async\",\n      \"url\": \"https://pyalmeria.example/eventos/2026-06-async\",\n      \"name\": \"PyAlmería — Introducción a async/await\",\n      \"description\": \"Charla introductoria a la programación asíncrona en Python, con ejemplos en vivo.\",\n      \"image\": [\n        \"https://pyalmeria.example/img/2026-06-async.png\"\n      ],\n      \"startDate\": \"2026-06-11T18:30\",\n      \"endDate\": \"2026-06-11T20:30\",\n      \"timezone\": \"Europe/Madrid\",\n      \"attendanceMode\": \"in-person\",\n      \"location\": {\n        \"venue\": \"El Cable, Almería\",\n        \"address\": {\n          \"street\": \"Calle Poeta Villaespesa 1\",\n          \"locality\": \"Almería\",\n          \"postalCode\": \"04001\",\n          \"country\": \"ES\"\n        }\n      },\n      \"tags\": [\n        \"python\",\n        \"async\"\n      ],\n      \"languages\": [\n        \"es\"\n      ],\n      \"updatedAt\": \"2026-05-28T11:00:00Z\",\n      \"translations\": {\n        \"en\": {\n          \"name\": \"PyAlmería — Introduction to async/await\",\n          \"description\": \"Introductory talk on asynchronous programming in Python, with live examples.\"\n        }\n      }\n    },\n    {\n      \"id\": \"https://pyalmeria.example/eventos/2026-07-datos\",\n      \"url\": \"https://pyalmeria.example/eventos/2026-07-datos\",\n      \"name\": \"Noche de datos — PyAlmería × PyData Almería\",\n      \"description\": \"Sesión conjunta con PyData Almería.\",\n      \"image\": [\n        \"https://pyalmeria.example/img/2026-07-datos.png\"\n      ],\n      \"organizers\": [\n        {\n          \"name\": \"PyAlmería\",\n          \"url\": \"https://pyalmeria.example\",\n          \"email\": \"hola@pyalmeria.example\"\n        },\n        {\n          \"name\": \"PyData Almería\",\n          \"url\": \"https://pydata-almeria.example\"\n        }\n      ],\n      \"startDate\": \"2026-07-09T18:30\",\n      \"endDate\": \"2026-07-09T21:00\",\n      \"timezone\": \"Europe/Madrid\",\n      \"attendanceMode\": \"hybrid\",\n      \"location\": {\n        \"venue\": \"El Cable, Almería\",\n        \"address\": {\n          \"street\": \"Calle Poeta Villaespesa 1\",\n          \"locality\": \"Almería\",\n          \"postalCode\": \"04001\",\n          \"country\": \"ES\"\n        },\n        \"onlineUrl\": \"https://meet.example/pyalmeria\"\n      },\n      \"tags\": [\n        \"python\",\n        \"data\"\n      ],\n      \"languages\": [\n        \"es\"\n      ],\n      \"updatedAt\": \"2026-06-30T16:45:00Z\"\n    }\n  ]\n}",
       "lines": {
         "feed.specVersion": [
           2
@@ -1506,17 +1506,17 @@
         ],
         "event.organizers[].name": [
           9,
-          58,
-          63
+          64,
+          69
         ],
         "event.organizers[].url": [
           10,
-          59,
-          64
+          65,
+          70
         ],
         "event.organizers[].email": [
           11,
-          60
+          66
         ],
         "feed.organizers": [
           7
@@ -1532,85 +1532,97 @@
         ],
         "event.id": [
           19,
-          49
+          55
         ],
         "event.url": [
           20,
-          50
+          56
         ],
         "event.name": [
           21,
-          51
+          57
         ],
         "event.description": [
           22,
-          52
+          58
         ],
         "event.image": [
           23,
-          53
+          59
         ],
         "event.startDate": [
           26,
-          67
+          73
         ],
         "event.endDate": [
           27,
-          68
+          74
         ],
         "event.timezone": [
           28,
-          69
+          75
         ],
         "event.attendanceMode": [
           29,
-          70
+          76
         ],
         "event.location.venue": [
           31,
-          72
+          78
         ],
         "event.location.address.street": [
           33,
-          74
+          80
         ],
         "event.location.address.locality": [
           34,
-          75
+          81
         ],
         "event.location.address.postalCode": [
           35,
-          76
+          82
         ],
         "event.location.address.country": [
           36,
-          77
+          83
         ],
         "event.location.address": [
           32,
-          73
+          79
         ],
         "event.location": [
           30,
-          71
+          77
         ],
         "event.tags": [
           39,
-          81
+          87
         ],
         "event.languages": [
           43,
-          85
+          91
         ],
         "event.updatedAt": [
           46,
-          88
+          94
+        ],
+        "event.translations.en.name": [
+          49
+        ],
+        "event.translations.en.description": [
+          50
+        ],
+        "event.translations.en": [
+          48
+        ],
+        "event.translations": [
+          47
         ],
         "event.organizers": [
-          56
+          62
         ],
         "event.location.onlineUrl": [
-          79
+          85
         ],
         "feed.events": [
           17
@@ -1898,7 +1910,7 @@
         "file": "feed-community.json",
         "lines": [
           19,
-          49
+          55
         ]
       },
       {
@@ -1976,7 +1988,7 @@
         "file": "feed-community.json",
         "lines": [
           21,
-          51
+          57
         ]
       },
       {
@@ -2054,7 +2066,7 @@
         "file": "feed-community.json",
         "lines": [
           26,
-          67
+          73
         ]
       },
       {
@@ -2132,7 +2144,7 @@
         "file": "feed-community.json",
         "lines": [
           28,
-          69
+          75
         ]
       },
       {
@@ -2260,7 +2272,7 @@
         "file": "feed-community.json",
         "lines": [
           20,
-          50
+          56
         ]
       },
       {
@@ -2332,7 +2344,7 @@
         "file": "feed-community.json",
         "lines": [
           22,
-          52
+          58
         ]
       },
       {
@@ -2426,7 +2438,7 @@
         "file": "feed-community.json",
         "lines": [
           23,
-          53
+          59
         ]
       },
       {
@@ -2500,8 +2512,8 @@
         "file": "feed-community.json",
         "lines": [
           9,
-          58,
-          63
+          64,
+          69
         ]
       },
       {
@@ -2569,8 +2581,8 @@
         "file": "feed-community.json",
         "lines": [
           10,
-          59,
-          64
+          65,
+          70
         ]
       },
       {
@@ -2633,7 +2645,7 @@
       {
         "file": "feed-community.json",
         "lines": [
-          56
+          62
         ]
       },
       {
@@ -2705,7 +2717,7 @@
         "file": "feed-community.json",
         "lines": [
           27,
-          68
+          74
         ]
       },
       {
@@ -2771,7 +2783,7 @@
         "file": "feed-community.json",
         "lines": [
           29,
-          70
+          76
         ]
       },
       {
@@ -2837,7 +2849,7 @@
         "file": "feed-community.json",
         "lines": [
           31,
-          72
+          78
         ]
       },
       {
@@ -2897,7 +2909,7 @@
         "file": "feed-community.json",
         "lines": [
           33,
-          74
+          80
         ]
       },
       {
@@ -2956,7 +2968,7 @@
         "file": "feed-community.json",
         "lines": [
           34,
-          75
+          81
         ]
       },
       {
@@ -3036,7 +3048,7 @@
         "file": "feed-community.json",
         "lines": [
           35,
-          76
+          82
         ]
       },
       {
@@ -3095,7 +3107,7 @@
         "file": "feed-community.json",
         "lines": [
           36,
-          77
+          83
         ]
       },
       {
@@ -3155,7 +3167,7 @@
         "file": "feed-community.json",
         "lines": [
           32,
-          73
+          79
         ]
       },
       {
@@ -3182,7 +3194,7 @@
       {
         "file": "feed-community.json",
         "lines": [
-          79
+          85
         ]
       },
       {
@@ -3313,7 +3325,7 @@
         "file": "feed-community.json",
         "lines": [
           30,
-          71
+          77
         ]
       },
       {
@@ -3385,7 +3397,7 @@
         "file": "feed-community.json",
         "lines": [
           39,
-          81
+          87
         ]
       },
       {
@@ -3457,7 +3469,7 @@
         "file": "feed-community.json",
         "lines": [
           43,
-          85
+          91
         ]
       },
       {
@@ -3619,7 +3631,7 @@
         "file": "feed-community.json",
         "lines": [
           46,
-          88
+          94
         ]
       },
       {
@@ -3895,6 +3907,12 @@
         "file": "event-online.json",
         "lines": [
           68
+        ]
+      },
+      {
+        "file": "feed-community.json",
+        "lines": [
+          47
         ]
       }
     ],
@@ -4204,7 +4222,7 @@
         "file": "feed-community.json",
         "lines": [
           11,
-          60
+          66
         ]
       }
     ],
@@ -4275,6 +4293,30 @@
         "file": "feed.json",
         "lines": [
           7
+        ]
+      }
+    ],
+    "event.translations.en.name": [
+      {
+        "file": "feed-community.json",
+        "lines": [
+          49
+        ]
+      }
+    ],
+    "event.translations.en.description": [
+      {
+        "file": "feed-community.json",
+        "lines": [
+          50
+        ]
+      }
+    ],
+    "event.translations.en": [
+      {
+        "file": "feed-community.json",
+        "lines": [
+          48
         ]
       }
     ]

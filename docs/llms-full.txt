@@ -1020,7 +1020,7 @@ Obligatorio: `specVersion`, `title`, `license`, `updatedAt`, `events`.
 
 **`organizers` se hereda igual, con una diferencia**: la lista del evento **reemplaza** la del feed, no se suma a ella (el porqué, arriba). Y un feed de **agregador** debe **omitir** `organizers`: no organiza lo que publica, y ponerlo ahí atribuiría mal cada evento del feed.
 
-**`textLanguage` también se hereda** —una línea en el feed y ningún evento la repite— y **`translations` no se hereda nunca**: el `title` de un feed no es el `name` de un evento, así que `feed.translations` traduce el feed y cada evento lleva las suyas. [Detalle arriba](#textlanguage-y-translations-en-qué-idioma-está-escrito-esto).
+**`textLanguage` también se hereda** —una línea en el feed y ningún evento la repite— y **`translations` no se hereda nunca**: el `title` de un feed no es el `name` de un evento, así que `feed.translations` traduce el feed y cada evento lleva las suyas. [Detalle arriba](#textlanguage-y-translations-en-qué-idioma-está-escrito-esto). Y, igual que `organizers`, un feed de **agregador** cuyos eventos no comparten idioma debe **omitir** `feed.textLanguage`: heredarlo atribuiría a todo evento un idioma que puede no ser el suyo. El perfil recomendado avisa (sin invalidar) si `textLanguage` está presente y `organizers` no —la misma señal que ya usa el feed para saber que es de agregador—, precisamente para detectar este caso. Detalle en [DECISIONS.md, D016](DECISIONS.md#d016--feedtextlanguage-inheritance-is-enforced-against-the-effective-language-computed-at-the-feed-root).
 
 **Resumen de qué se hereda**, porque son cuatro campos con tres comportamientos distintos:
 
@@ -1172,7 +1172,7 @@ A single tech community event. See https://opentechevents.org for the normative 
 | `eligibility.translations` | object | optional | | The note in other languages. type needs none: an enum carries no language, and a consumer renders it in the reader's. | `{"es":{"note":"Miembros del Discord de Rust Girona"}}` |
 | `tags` | string[] | _recommended_ | | Free-form topic tags — what the event is ABOUT. Maps to iCal CATEGORIES and schema.org keywords. Not who may attend: that question has its own field, eligibility, because a tag like "members-only" is invisible to a consumer that does not already know to look for it. A controlled vocabulary may layer on top later; the field itself stays free. | `["rust","wasm"]`<br>`["python","async"]` |
 | `languages` | string[] | _recommended_ | | Languages SPOKEN at the event, as BCP 47 tags, e.g. ["es","en"]. Not the language this document is written in — that is textLanguage, and the two disagree all the time: a bilingual session described in Catalan only. | `["es"]`<br>`["es","en"]` |
-| `textLanguage` | string (ote-language-tag) | optional | the feed's `textLanguage` | Language THIS DOCUMENT's free text is written in — name, description, and any other prose in it. One BCP 47 tag, not a list: a text is written in one language. A different question from languages, which says what is spoken at the event. Absent means unknown, never the feed's language and never English. | `"es"`<br>`"ca"`<br>`"en"` |
+| `textLanguage` | string (ote-language-tag) | optional | the feed's `textLanguage` | Language THIS DOCUMENT's free text is written in — name, description, and any other prose in it. One BCP 47 tag, not a list: a text is written in one language. A different question from languages, which says what is spoken at the event. Absent defaults to the enclosing feed's textLanguage; in a standalone document, with no feed to inherit from, absent means unknown, never English. | `"es"`<br>`"ca"`<br>`"en"` |
 | `offers` | object[] | optional | | What it costs to attend, and where to register. A list: tiered pricing (early bird, student, patron) is one entry each, and a free event is a single entry with price 0. Absent means UNKNOWN, never free — saying free is what price 0 is for. | `[{"price":0,"url":"https://rustmadrid.example/meetups/2026-06#registro"}]`<br>`[{"name":"Early bird","price":35,"currency":"EUR","url":"https://devfest-levante.example/2026/entradas","availability":"sold-out","closesAt":"2026-07-31T23:59:59+02:00"},{"name":"General","price":45,"currency":"EUR","url":"https://devfest-levante.example/2026/entradas","availability":"in-stock"}]` |
 | `offers[].name` | string | optional | | What this ticket is called ("General admission", "Estudiantes"). Worth writing when there is more than one offer, noise when there is only one. | `"General admission"`<br>`"Estudiantes"` |
 | `offers[].price` | number | optional | | Amount per attendee, in `currency`. 0 means free — and it is the ONLY way to say free: an absent offers list means the price is unknown. A number, never text: no currency symbol, no thousands separator, no range and no "desde", because the whole reason to publish a price as data is that someone can filter and compare on it. A price that cannot be written as one number is several offers. | `0`<br>`45`<br>`12.5` |
@@ -1209,8 +1209,8 @@ A single tech community event. See https://opentechevents.org for the normative 
 
 Rules the schema enforces on whole objects, which no single field's level can express. Generated from the schemas too — a validator rejects a document that breaks them.
 
-- **the document** — A map of translations is unusable without knowing which language the primary text is in: a consumer cannot tell which entry duplicates it, nor what it is falling back to. So ANY translations map in the document — the event's own, or one inside image, offers, eligibility or partOf — requires textLanguage. It is the one place where a field of this spec depends on another being present, and it holds at every depth because the primary language is a property of the whole document, not of each object.
 - **the document** — startDate and endDate must be of the same form: two all-day dates, or two local date-times.
+- **the document** — A map of translations is unusable without knowing which language the primary text is in: a consumer cannot tell which entry duplicates it, nor what it is falling back to. So ANY translations map in the document — the event's own, or one inside image, offers, eligibility or partOf — requires textLanguage. It is the one place where a field of this spec depends on another being present, and it holds at every depth because the primary language is a property of the whole document, not of each object. A standalone document has no feed to inherit textLanguage from, so it must always carry its own; inside a feed, the same requirement is enforced against the effective (possibly inherited) language — see feed.schema.json.
 - **`image[]`** — With `translations`, `alt` is required.
 - **`location`** — Requires at least one of: `venue`, `onlineUrl`.
 - **`location.address`** — Must carry at least one property.
@@ -1230,7 +1230,7 @@ A collection of OTE events published at a stable URL. An exchange format, not an
 | `title` | string | **required** | | Human-readable name of the feed. | `"Eventos de PyAlmería"` |
 | `description` | string | _recommended_ | | Short description of the feed. | `"Meetups mensuales de Python en Almería."` |
 | `url` | string (uri) | _recommended_ | | Canonical URL of the community, directory or organisation publishing the feed. | `"https://pyalmeria.example"` |
-| `textLanguage` | string (ote-language-tag) | optional | → every event that omits it | Language this feed's own free text is written in — title and description. What makes it cheap: a monolingual publisher declares it once for the whole file and no event repeats it. Absent means unknown, never English and never the language of the HTTP response. | `"es"`<br>`"ca"` |
+| `textLanguage` | string (ote-language-tag) | optional | → every event that omits it | Language this feed's own free text is written in — title and description — and the default every event inherits when it omits its own. What makes it cheap: a monolingual publisher declares it once for the whole file and no event repeats it. Not the same as organizers: an aggregator whose events don't share one language must leave this out, exactly as it must leave out organizers, so each event states its own instead of inheriting the wrong one. Absent means unknown, never English and never the language of the HTTP response. | `"es"`<br>`"ca"` |
 | `organizers` | object[] | optional | → every event that omits it | Who runs the events in this feed. Not the same as title/url, which name whoever publishes the feed: an aggregator publishes events it does not organise, and must leave this out so each event states its own. | `[{"name":"PyAlmería","url":"https://pyalmeria.example"}]` |
 | `license` | string | **required** | → every event that omits it | License for the feed's contents. SPDX identifier (full list at https://spdx.org/licenses/) or URL. | `"CC-BY-4.0"`<br>`"CC0-1.0"` |
 | `licenseUrl` | string (uri) | optional | | URL of the full license text. | `"https://creativecommons.org/licenses/by/4.0/"` |
@@ -1702,6 +1702,83 @@ Source: spec/v0.3/event.schema.json — JSON Schema for a single event — the n
         "specVersion",
         "license"
       ]
+    },
+    {
+      "description": "A map of translations is unusable without knowing which language the primary text is in: a consumer cannot tell which entry duplicates it, nor what it is falling back to. So ANY translations map in the document — the event's own, or one inside image, offers, eligibility or partOf — requires textLanguage. It is the one place where a field of this spec depends on another being present, and it holds at every depth because the primary language is a property of the whole document, not of each object. A standalone document has no feed to inherit textLanguage from, so it must always carry its own; inside a feed, the same requirement is enforced against the effective (possibly inherited) language — see feed.schema.json.",
+      "if": {
+        "type": "object",
+        "anyOf": [
+          {
+            "required": [
+              "translations"
+            ]
+          },
+          {
+            "required": [
+              "eligibility"
+            ],
+            "properties": {
+              "eligibility": {
+                "required": [
+                  "translations"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          {
+            "required": [
+              "partOf"
+            ],
+            "properties": {
+              "partOf": {
+                "required": [
+                  "translations"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          {
+            "required": [
+              "offers"
+            ],
+            "properties": {
+              "offers": {
+                "contains": {
+                  "required": [
+                    "translations"
+                  ],
+                  "type": "object"
+                },
+                "type": "array"
+              }
+            }
+          },
+          {
+            "required": [
+              "image"
+            ],
+            "properties": {
+              "image": {
+                "contains": {
+                  "required": [
+                    "translations"
+                  ],
+                  "type": "object"
+                },
+                "type": "array"
+              }
+            }
+          }
+        ]
+      },
+      "then": {
+        "type": "object",
+        "required": [
+          "textLanguage"
+        ]
+      }
     }
   ],
   "$defs": {
@@ -2511,7 +2588,7 @@ Source: spec/v0.3/event.schema.json — JSON Schema for a single event — the n
           ]
         },
         "textLanguage": {
-          "description": "Language THIS DOCUMENT's free text is written in — name, description, and any other prose in it. One BCP 47 tag, not a list: a text is written in one language. A different question from languages, which says what is spoken at the event. Absent means unknown, never the feed's language and never English.",
+          "description": "Language THIS DOCUMENT's free text is written in — name, description, and any other prose in it. One BCP 47 tag, not a list: a text is written in one language. A different question from languages, which says what is spoken at the event. Absent defaults to the enclosing feed's textLanguage; in a standalone document, with no feed to inherit from, absent means unknown, never English.",
           "x-inheritsFrom": "feed.textLanguage",
           "$ref": "#/$defs/languageTag",
           "examples": [
@@ -2644,83 +2721,6 @@ Source: spec/v0.3/event.schema.json — JSON Schema for a single event — the n
       "distinctTranslationLanguages": true,
       "distinctPartOfId": true,
       "allOf": [
-        {
-          "description": "A map of translations is unusable without knowing which language the primary text is in: a consumer cannot tell which entry duplicates it, nor what it is falling back to. So ANY translations map in the document — the event's own, or one inside image, offers, eligibility or partOf — requires textLanguage. It is the one place where a field of this spec depends on another being present, and it holds at every depth because the primary language is a property of the whole document, not of each object.",
-          "if": {
-            "type": "object",
-            "anyOf": [
-              {
-                "required": [
-                  "translations"
-                ]
-              },
-              {
-                "required": [
-                  "eligibility"
-                ],
-                "properties": {
-                  "eligibility": {
-                    "required": [
-                      "translations"
-                    ],
-                    "type": "object"
-                  }
-                }
-              },
-              {
-                "required": [
-                  "partOf"
-                ],
-                "properties": {
-                  "partOf": {
-                    "required": [
-                      "translations"
-                    ],
-                    "type": "object"
-                  }
-                }
-              },
-              {
-                "required": [
-                  "offers"
-                ],
-                "properties": {
-                  "offers": {
-                    "contains": {
-                      "required": [
-                        "translations"
-                      ],
-                      "type": "object"
-                    },
-                    "type": "array"
-                  }
-                }
-              },
-              {
-                "required": [
-                  "image"
-                ],
-                "properties": {
-                  "image": {
-                    "contains": {
-                      "required": [
-                        "translations"
-                      ],
-                      "type": "object"
-                    },
-                    "type": "array"
-                  }
-                }
-              }
-            ]
-          },
-          "then": {
-            "type": "object",
-            "required": [
-              "textLanguage"
-            ]
-          }
-        },
         {
           "description": "startDate and endDate must be of the same form: two all-day dates, or two local date-times.",
           "oneOf": [
@@ -4871,7 +4871,7 @@ Source: spec/v0.3/feed.schema.json — JSON Schema for a feed of events.
       ]
     },
     "textLanguage": {
-      "description": "Language this feed's own free text is written in — title and description. What makes it cheap: a monolingual publisher declares it once for the whole file and no event repeats it. Absent means unknown, never English and never the language of the HTTP response.",
+      "description": "Language this feed's own free text is written in — title and description — and the default every event inherits when it omits its own. What makes it cheap: a monolingual publisher declares it once for the whole file and no event repeats it. Not the same as organizers: an aggregator whose events don't share one language must leave this out, exactly as it must leave out organizers, so each event states its own instead of inheriting the wrong one. Absent means unknown, never English and never the language of the HTTP response.",
       "$ref": "https://opentechevents.org/schema/v0.3/event.schema.json#/$defs/languageTag",
       "examples": [
         "es",
@@ -4937,6 +4937,7 @@ Source: spec/v0.3/feed.schema.json — JSON Schema for a feed of events.
   "distinctTranslationLanguages": true,
   "uniqueEventIds": true,
   "eventsNotNewerThanFeed": true,
+  "eventsRespectInheritedTextLanguage": true,
   "allOf": [
     {
       "description": "Same rule as an event: a map of translations is unusable without knowing which language the primary text is in. A feed that translates its title must say what language that title is in.",
@@ -5069,6 +5070,25 @@ Source: spec/v0.3/feed.recommended.schema.json — Profile: what makes a feed su
         "url",
         "description"
       ]
+    },
+    {
+      "description": "textLanguage SHOULD only be set when the feed also names its own organizers — the same field that already tells an aggregator to leave organizers out because its events are not all its own. Without organizers, textLanguage risks handing every event a single language none of them may actually share. Not a validity error: it is not this field's job to decide who is or is not an aggregator, only to flag the one combination most likely to mis-attribute a language. See CHANGES.log #P015 / DECISIONS.md D016.",
+      "if": {
+        "type": "object",
+        "not": {
+          "required": [
+            "organizers"
+          ]
+        }
+      },
+      "then": {
+        "type": "object",
+        "properties": {
+          "textLanguage": {
+            "not": {}
+          }
+        }
+      }
     }
   ]
 }
@@ -5529,7 +5549,7 @@ Source: spec/v0.3/examples/feed-community.json — Validated documents, one per 
   "description": "Meetups mensuales de Python en Almería.",
   "url": "https://pyalmeria.example",
 
-  "_comment_textLanguage": "Un feed monolingüe declara el idioma de su texto UNA vez y ningún evento lo repite: se hereda, como `license` y `organizers`. Es el caso del 99% — y es lo que hace que el campo cueste una línea en todo el fichero. `translations` no se hereda nunca: traduce el título DEL FEED, no el nombre de sus eventos.",
+  "_comment_textLanguage": "Un feed monolingüe declara el idioma de su texto UNA vez y ningún evento lo repite: se hereda, como `license` y `organizers`. Es el caso del 99% — y es lo que hace que el campo cueste una línea en todo el fichero. `translations` no se hereda nunca: traduce el título DEL FEED, no el nombre de sus eventos. El primer evento traduce el suyo al inglés sin declarar su propio `textLanguage`: el idioma efectivo frente al que se valida esa traducción es el heredado del feed (\"es\"). Ver CHANGES.log #P015 / DECISIONS.md D016.",
 
   "textLanguage": "es",
 
@@ -5563,7 +5583,13 @@ Source: spec/v0.3/examples/feed-community.json — Validated documents, one per 
       },
       "tags": ["python", "async"],
       "languages": ["es"],
-      "updatedAt": "2026-05-28T11:00:00Z"
+      "updatedAt": "2026-05-28T11:00:00Z",
+      "translations": {
+        "en": {
+          "name": "PyAlmería — Introduction to async/await",
+          "description": "Introductory talk on asynchronous programming in Python, with live examples."
+        }
+      }
     },
     {
       "id": "https://pyalmeria.example/eventos/2026-07-datos",
