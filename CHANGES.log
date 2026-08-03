@@ -69,7 +69,7 @@ Campos por tipo:
 | P011 | Impedir que un evento sea su propio `partOf` | Implementada (`33633c5`) |
 | P012 | Fijar `endDate` de día completo como inclusivo + conversión iCalendar | Implementada (`566a5a7`) |
 | P013 | Resolver horas locales repetidas/inexistentes en cambios de zona | Implementada (`e0ba31d`) |
-| P014 | Impedir que un evento se modifique después de generarse el feed | Implementada — pendiente de revisión final y commit |
+| P014 | Impedir que un evento se modifique después de generarse el feed | Implementada (`af1d681`) |
 
 *(actualizar esta tabla a mano al cerrar cada ciclo; sirve de índice rápido, el detalle vive en las entradas de abajo)*
 
@@ -868,7 +868,7 @@ Confirmado con hhkaos que, con esta justificación corregida, sigue mereciendo l
 
 ## [2026-08-03] CLAUDE — IMPLEMENTACION #P014
 
-- **Commit:** pendiente — cambios en el árbol de trabajo
+- **Commit:** `b50cca0` (log) y `af1d681` (implementación)
 - **Ficheros cambiados:**
   - `index.js`/`index.d.ts` — nuevo keyword `eventsNotNewerThanFeed` en `customKeywords` (reutiliza `parseInstant`, compara instantes reales).
   - `spec/v0.3/feed.schema.json` — `eventsNotNewerThanFeed: true` en la raíz; descripción de `updatedAt` ampliada.
