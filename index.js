@@ -192,4 +192,35 @@ export const customKeywords = [
     },
     error: { message: "closesAt must not be earlier than opensAt" },
   },
+  {
+    keyword: "distinctTranslationLanguages",
+    type: "object",
+    schemaType: "boolean",
+    /**
+     * No `translations` map — the event's own, or one nested in `eligibility`, `partOf`, each
+     * `offers[]` or each `image[]` — may carry a key equal to `textLanguage`, the document's own
+     * language: that would be a second, possibly contradictory version of the same text under
+     * the same language tag, which the field's own description already promises cannot happen.
+     * Same set of nested locations already enumerated by the sibling rule that REQUIRES
+     * textLanguage wherever any of these maps exists (see `$defs.event`'s own `allOf`) — this
+     * just adds the other half, that the language it requires can't also be a translation key.
+     * Comparison is case-insensitive: RFC 5646 §2.1.1 treats language tags case-insensitively,
+     * so "es" and "ES" name the same language and both must be caught.
+     */
+    validate: (schemaValue, data) => {
+      if (!schemaValue || typeof data.textLanguage !== "string") return true;
+      const primary = data.textLanguage.toLowerCase();
+      const maps = [
+        data.translations,
+        data.eligibility?.translations,
+        data.partOf?.translations,
+        ...(Array.isArray(data.offers) ? data.offers.map((o) => o?.translations) : []),
+        ...(Array.isArray(data.image) ? data.image.map((i) => i?.translations) : []),
+      ];
+      return !maps.some(
+        (map) => map && typeof map === "object" && Object.keys(map).some((k) => k.toLowerCase() === primary)
+      );
+    },
+    error: { message: "a translations map must not repeat textLanguage's own language" },
+  },
 ];

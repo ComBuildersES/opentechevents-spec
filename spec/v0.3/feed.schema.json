@@ -107,6 +107,7 @@
       }
     }
   },
+  "distinctTranslationLanguages": true,
   "allOf": [
     {
       "description": "Same rule as an event: a map of translations is unusable without knowing which language the primary text is in. A feed that translates its title must say what language that title is in.",

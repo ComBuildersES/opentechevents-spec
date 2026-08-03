@@ -208,6 +208,22 @@ This is deliberately a **warning, not a validity error** — added to `event.rec
 
 ---
 
+### D010 — A `translations` map must not carry a key equal to `textLanguage`
+
+**Status:** Decided 2026-08-03. See `CHANGES.log` #P009.
+
+**Context.** `translations` (shared by the event, and nested inside `eligibility`, `partOf`, each `offers[]`, each `image[]`, and separately the feed's own) is described as carrying "the same event's free text in other languages" and states explicitly: "Never a translation of the language the document is already in." But nothing checked that — a document could declare `textLanguage: "es"` and also have `translations: {"es": {...}}`, two different texts both claiming to be Spanish, with no way for a consumer to know which one is authoritative. Verified the evidence directly, including a second form: RFC 5646 §2.1.1 states language tags are compared case-insensitively, so `translations: {"ES": {...}}` names the exact same conflict and validated too, before this decision.
+
+**Decision.** A new `distinctTranslationLanguages` keyword (same `customKeywords` mechanism as `orderedDates`/`orderedInstants`) rejects any `translations` map — at any of the same nested locations already enumerated by the sibling rule that *requires* `textLanguage` wherever such a map exists — carrying a key equal to `textLanguage`, compared case-insensitively. Scope is deliberately literal: it catches the same tag written differently in case, not two different-but-related tags (a regional variant, a deprecated/preferred pair from D007's registry). Resolving linguistic equivalence between genuinely different tags is a materially larger question with no demonstrated need here — same scoping discipline as D007.
+
+**Alternatives considered.** Codex's own proposal already worked through the alternatives this decision would otherwise need to close (consumer-side precedence, recommended-tier warning instead of an error, case-sensitive comparison, canonicalizing IANA aliases/preferred values, prose-only, restricting to the top-level map only) — see `CHANGES.log` #P009's `PROPUESTA` for the full reasoning; independently verified each conclusion rather than accepting it on faith, including re-running the case-insensitivity check and re-scanning the entire example corpus for a conflict (found none, confirming the proposal's own compatibility claim).
+
+**Compatibility impact.** Restrictive only for a document whose `translations` map (at any of the covered locations) already contains a key equal to its own `textLanguage`. No real example in the repo does this — confirmed by scanning the whole corpus, not just trusting the claim.
+
+**Revisit if:** a real, legitimate need emerges to keep two versions of the same text under one language tag (would be surprising — that is definitionally two answers to the same question), or a future decision wants this to also catch tags that are DIFFERENT but linguistically equivalent (a macrolanguage/preferred-value pair) — that would be a new, larger decision, not an extension of this one.
+
+---
+
 ## Indexed decisions
 
 Already argued in full in `README.md`; summarized here for discoverability.
