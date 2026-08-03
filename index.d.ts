@@ -38,3 +38,16 @@ export declare const annotationKeywords: { keyword: string; metaSchema: Record<s
  * `for (const f of customFormats) ajv.addFormat(f.name, f.validate);`
  */
 export declare const customFormats: { name: string; validate: (value: string) => boolean }[];
+
+/**
+ * Keywords the schemas use that DO restrict which documents pass — unlike `annotationKeywords`.
+ * Ajv in `strict: true` refuses to compile a schema referencing an unregistered keyword, so
+ * register them first: `for (const kw of customKeywords) ajv.addKeyword(kw);`
+ */
+export declare const customKeywords: {
+  keyword: string;
+  type: string;
+  schemaType: string;
+  validate: (schemaValue: unknown, data: Record<string, unknown>) => boolean;
+  error: { message: string };
+}[];

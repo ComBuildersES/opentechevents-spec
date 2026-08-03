@@ -413,12 +413,12 @@
           "required": true,
           "recommended": false,
           "examples": [
-            "2026-06-11T18:30:00",
+            "2026-06-11T18:30",
             "2026-10-15"
           ],
           "description": {
-            "en": "Wall-clock start: a date (2026-10-15) for all-day events, or a local date-time (2026-10-15T09:00:00). Never carries a UTC offset — timezone does that. Which of the two forms you pick is not this field's decision alone: it has to match endDate's — see the document's constraints.",
-            "es": "Inicio en hora de reloj de pared: una fecha (`2026-10-15`) para eventos de todo el día, o una fecha-hora local (`2026-10-15T09:00:00`). Nunca lleva offset UTC: eso lo aporta `timezone`. Cuál de las dos formas usas no lo decide este campo solo: tiene que coincidir con la de `endDate` — ver las restricciones del documento."
+            "en": "Wall-clock start: a date (2026-10-15) for all-day events, or a local date-time (2026-10-15T09:00), never with seconds. Never carries a UTC offset — timezone does that. Which of the two forms you pick is not this field's decision alone: it has to match endDate's, and endDate (if present) must not be earlier — see the document's constraints.",
+            "es": "Inicio en hora de reloj de pared: una fecha (`2026-10-15`) para eventos de todo el día, o una fecha-hora local (`2026-10-15T09:00`), nunca con segundos. Nunca lleva offset UTC: eso lo aporta `timezone`. Cuál de las dos formas usas no lo decide este campo solo: tiene que coincidir con la de `endDate`, y `endDate` (si existe) no puede ser anterior — ver las restricciones del documento."
           },
           "requiredIn": null
         },
@@ -428,12 +428,12 @@
           "required": false,
           "recommended": true,
           "examples": [
-            "2026-06-11T20:00:00",
+            "2026-06-11T20:00",
             "2026-10-16"
           ],
           "description": {
-            "en": "Wall-clock end, in the SAME form as startDate (both dates, or both date-times). If absent, the event is assumed to end on the day it starts. That pairing is a rule of the document, not of this field — see the document's constraints.",
-            "es": "Fin en hora de reloj de pared, en la MISMA forma que `startDate` (ambas fechas, o ambas fecha-hora). Si falta, se asume que el evento termina el día que empieza. Ese emparejamiento es una regla del documento, no de este campo — ver las restricciones del documento."
+            "en": "Wall-clock end, in the SAME form as startDate (both dates, or both date-times) and never earlier than it. If absent, the event is assumed to end on the day it starts. Both rules belong to the document, not to this field — see the document's constraints.",
+            "es": "Fin en hora de reloj de pared, en la MISMA forma que `startDate` (ambas fechas, o ambas fecha-hora) y nunca anterior a él. Si falta, se asume que el evento termina el día que empieza. Ambas reglas son del documento, no de este campo — ver las restricciones del documento."
           },
           "requiredIn": null
         },

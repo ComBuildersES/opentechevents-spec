@@ -3,7 +3,7 @@
   "specVersion": "0.3.0",
   "id": "https://x.example/1",
   "name": "X",
-  "startDate": "2026-06-26T18:00:00",
+  "startDate": "2026-06-26T18:00",
   "timezone": "Europe/Atlantida",
   "license": "CC-BY-4.0"
 }

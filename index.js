@@ -49,12 +49,13 @@ function isLeapYear(year) {
   return year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0);
 }
 
-const WALL_CLOCK = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2}))?$/;
+const WALL_CLOCK = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/;
 
 /**
- * `$defs.dateTime`'s own concept — a wall-clock date-time, deliberately without an offset — has
- * no standard RFC 3339 format, so ajv-formats cannot validate it. Checks real calendar validity
- * (days per month, leap years) the same way ajv-formats' own `date` format does internally.
+ * `$defs.dateTime`'s own concept — a wall-clock date-time, deliberately without an offset and
+ * without seconds (this is the hour on a poster, never a technical instant) — has no standard
+ * RFC 3339 format, so ajv-formats cannot validate it. Checks real calendar validity (days per
+ * month, leap years) the same way ajv-formats' own `date` format does internally.
  */
 function isOteLocalDateTime(value) {
   const match = WALL_CLOCK.exec(value);
@@ -64,10 +65,9 @@ function isOteLocalDateTime(value) {
   const day = Number(match[3]);
   const hour = Number(match[4]);
   const minute = Number(match[5]);
-  const second = match[6] === undefined ? 0 : Number(match[6]);
   if (month < 1 || month > 12) return false;
   const maxDay = month === 2 && isLeapYear(year) ? 29 : DAYS_IN_MONTH[month - 1];
-  return day >= 1 && day <= maxDay && hour <= 23 && minute <= 59 && second <= 59;
+  return day >= 1 && day <= maxDay && hour <= 23 && minute <= 59;
 }
 
 /**
@@ -78,3 +78,25 @@ function isOteLocalDateTime(value) {
  *   for (const f of customFormats) ajv.addFormat(f.name, f.validate);
  */
 export const customFormats = [{ name: "ote-local-date-time", validate: isOteLocalDateTime }];
+
+/**
+ * `$defs.event`'s own constraint: `endDate`, when present, must not be earlier than `startDate`.
+ * Both are wall-clock strings of the same form (the schema's own `oneOf` already guarantees
+ * that) and, since `dateTime` forbids seconds, always the same fixed width — so ordinary string
+ * comparison already matches chronological order, no timezone conversion needed.
+ *
+ * Unlike `annotationKeywords`, this keyword DOES restrict which documents pass — register it
+ * the same way, before compiling:
+ *
+ *   for (const kw of customKeywords) ajv.addKeyword(kw);
+ */
+export const customKeywords = [
+  {
+    keyword: "orderedDates",
+    type: "object",
+    schemaType: "boolean",
+    validate: (schemaValue, data) =>
+      !schemaValue || typeof data.endDate !== "string" || data.endDate >= data.startDate,
+    error: { message: "endDate must not be earlier than startDate" },
+  },
+];

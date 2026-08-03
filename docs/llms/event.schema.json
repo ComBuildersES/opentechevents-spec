@@ -110,18 +110,18 @@
           ]
         },
         "startDate": {
-          "description": "Wall-clock start: a date (2026-10-15) for all-day events, or a local date-time (2026-10-15T09:00:00). Never carries a UTC offset — timezone does that. Which of the two forms you pick is not this field's decision alone: it has to match endDate's — see the document's constraints.",
+          "description": "Wall-clock start: a date (2026-10-15) for all-day events, or a local date-time (2026-10-15T09:00), never with seconds. Never carries a UTC offset — timezone does that. Which of the two forms you pick is not this field's decision alone: it has to match endDate's, and endDate (if present) must not be earlier — see the document's constraints.",
           "$ref": "#/$defs/wallClock",
           "examples": [
-            "2026-06-11T18:30:00",
+            "2026-06-11T18:30",
             "2026-10-15"
           ]
         },
         "endDate": {
-          "description": "Wall-clock end, in the SAME form as startDate (both dates, or both date-times). If absent, the event is assumed to end on the day it starts. That pairing is a rule of the document, not of this field — see the document's constraints.",
+          "description": "Wall-clock end, in the SAME form as startDate (both dates, or both date-times) and never earlier than it. If absent, the event is assumed to end on the day it starts. Both rules belong to the document, not to this field — see the document's constraints.",
           "$ref": "#/$defs/wallClock",
           "examples": [
-            "2026-06-11T20:00:00",
+            "2026-06-11T20:00",
             "2026-10-16"
           ]
         },
@@ -952,6 +952,7 @@
           ]
         }
       },
+      "orderedDates": true,
       "allOf": [
         {
           "description": "A map of translations is unusable without knowing which language the primary text is in: a consumer cannot tell which entry duplicates it, nor what it is falling back to. So ANY translations map in the document — the event's own, or one inside image, offers, eligibility or partOf — requires textLanguage. It is the one place where a field of this spec depends on another being present, and it holds at every depth because the primary language is a property of the whole document, not of each object.",
@@ -1065,9 +1066,9 @@
       "format": "date"
     },
     "dateTime": {
-      "description": "A calendar-valid wall-clock date-time, deliberately WITHOUT an offset — that is what timezone is for. No standard RFC 3339 format covers this shape, so validating it fully requires registering the `ote-local-date-time` format shipped as `customFormats` in the npm package.",
+      "description": "A calendar-valid wall-clock date-time, deliberately WITHOUT an offset — that is what timezone is for — and WITHOUT seconds: this is the hour on a poster, never a technical instant. No standard RFC 3339 format covers this shape, so validating it fully requires registering the `ote-local-date-time` format shipped as `customFormats` in the npm package.",
       "type": "string",
-      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}(:\\d{2})?$",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}$",
       "format": "ote-local-date-time"
     },
     "wallClock": {

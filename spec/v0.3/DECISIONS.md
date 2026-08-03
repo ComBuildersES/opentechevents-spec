@@ -67,6 +67,27 @@ The corrected source is the **official IANA tzdata release** (`https://data.iana
 
 ---
 
+### D004 — `dateTime` has no seconds, and `endDate` must not precede `startDate`
+
+**Status:** Decided 2026-08-03. See `CHANGES.log` #P003 for the full trail.
+
+**Context.** Nothing checked the relationship between `startDate` and `endDate` — an event could end before it started and still validate (`{"startDate": "...T20:00:00", "endDate": "...T18:00:00", ...}`). While reviewing how to implement that check, a second, sharper problem showed up: `$defs.dateTime` allowed optional seconds independently on each field, and comparing the two strings directly — the natural way to check order without a timezone conversion (see D003) — breaks exactly there. `"2026-08-03T18:30:00" > "2026-08-03T18:30"` is `true` in plain string comparison, even though both denote the same nominal wall-clock minute. A naive `endDate >= startDate` string check would have flagged that pair as "inverted."
+
+**Decision.** Two changes, landed together because the second is what makes the first correct:
+1. `$defs.dateTime` no longer allows seconds at all (`^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$`, the optional `(:\d{2})?` group removed). This is the field's own description already said in spirit — "the hour on a poster" — now enforced. A survey of every `startDate`/`endDate` in the repo's own example corpus found seconds present only as `:00`, never anything else: no real use case lost precision it needed.
+2. A new Ajv keyword, `orderedDates` (shipped via a new `customKeywords` export, registered the same way `annotationKeywords`/`customFormats` already are), rejects `endDate < startDate` on `$defs.event`. Equality is allowed — zero-duration events are not this decision's problem to solve. Because (1) makes every wall-clock `dateTime` the same fixed width, plain string comparison is now safe and needs no normalization step.
+
+**Alternatives considered.**
+- *Keep seconds optional, normalize the missing component to `:00` inside the comparison keyword instead of changing the wire format.* This was the first fix proposed (during review, before the format-level fix). Rejected in favor of removing seconds entirely: it fixes the same bug with less code (no normalization logic to maintain) and simplifies the field itself, at the cost of losing sub-minute precision from `.ics` sources that supply non-zero seconds — a case the repo's own corpus never needed and real calendar UIs essentially never produce (they don't let a human pick seconds).
+- *Convert to instants via `timezone` before comparing.* Rejected as unnecessary complexity: D003 already made the wall-clock representation ordering-comparable by design; converting away from it just to compare two same-timezone values back-to-back adds a moving part for no benefit.
+- *Require `endDate > startDate` (forbid equal instants).* Rejected as a separate, unnecessary decision — it would additionally rule out zero-duration events, which nothing in this proposal's evidence called for.
+
+**Compatibility impact.** Restrictive on two axes, both cheap: no example in the repo's own corpus uses non-`:00` seconds or an inverted interval, so nothing in the existing corpus needed to change to stay valid (though the corpus files carrying `:00` were rewritten to drop it, since the field no longer accepts it).
+
+**Revisit if:** a real, recurring source of `startDate`/`endDate` values with meaningful non-zero seconds turns up (this would be surprising — check the source is emitting wall-clock event times, not something like a `DTSTAMP` or another instant-typed field, before concluding this decision was wrong).
+
+---
+
 ## Indexed decisions
 
 Already argued in full in `README.md`; summarized here for discoverability.

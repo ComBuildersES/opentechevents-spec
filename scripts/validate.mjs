@@ -20,7 +20,7 @@ import { spawnSync } from "node:child_process";
 import { join, basename } from "node:path";
 import Ajv2020 from "ajv/dist/2020.js";
 import addFormats from "ajv-formats";
-import { annotationKeywords, customFormats } from "../index.js";
+import { annotationKeywords, customFormats, customKeywords } from "../index.js";
 import { fieldsOf, loadSchemas } from "./schema-model.mjs";
 
 const VERSIONS = ["v0.1", "v0.2", "v0.3"];
@@ -51,6 +51,8 @@ function build(version) {
   // deliberately without an offset. Strict mode refuses to compile a schema referencing an
   // unregistered format, same as with annotationKeywords above.
   for (const f of customFormats) ajv.addFormat(f.name, f.validate);
+  // Unlike annotationKeywords, these restrict which documents pass (e.g. orderedDates).
+  for (const kw of customKeywords) ajv.addKeyword(kw);
 
   const dir = join(SPEC_DIR, version);
   const eventSchema = JSON.parse(readFileSync(join(dir, "event.schema.json"), "utf8"));

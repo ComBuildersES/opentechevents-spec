@@ -215,9 +215,9 @@ Nadie debería teclear un `id` a mano: las herramientas lo derivan de la URL can
 Dos formas, y **ambas fechas deben usar la misma**:
 
 - **Todo el día**: `"2026-10-15"`.
-- **Con hora**: `"2026-10-15T09:00:00"`.
+- **Con hora**: `"2026-10-15T09:00"` — **sin segundos**: es la hora que aparece en un cartel, nunca un instante técnico ([DECISIONS.md, D004](DECISIONS.md#d004--dateTime-has-no-seconds-and-enddate-must-not-precede-startdate)).
 
-Mezclar (`startDate` fecha, `endDate` fecha-hora) es inválido. Si `endDate` falta, el evento termina el día que empieza.
+Mezclar (`startDate` fecha, `endDate` fecha-hora) es inválido. Si `endDate` falta, el evento termina el día que empieza. Si `endDate` está presente, **no puede ser anterior a `startDate`** — un evento no termina antes de empezar; el schema lo rechaza.
 
 `timezone` (IANA, `Europe/Madrid`) es **siempre obligatoria**. Con hora, es lo que convierte el reloj de pared en un instante inequívoco. En eventos de todo el día, **contextualiza** la fecha: dice a qué región pertenece ese día — **no la desplaza**. Un consumidor **no debe** convertir un evento de todo el día a otra zona horaria.
 
