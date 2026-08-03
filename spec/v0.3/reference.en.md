@@ -97,7 +97,7 @@ A single tech community event. See https://opentechevents.org for the normative 
 Rules the schema enforces on whole objects, which no single field's level can express. Generated from the schemas too — a validator rejects a document that breaks them.
 
 - **the document** — endDate must not be earlier than startDate.
-- **the document** — a translations map must not repeat textLanguage's own language.
+- **the document** — a translations map must not repeat textLanguage's own language, or any of its own keys, twice.
 - **the document** — partOf.id must not equal the event's own id.
 - **the document** — startDate and endDate must be of the same form: two all-day dates, or two local date-times.
 - **the document** — A map of translations is unusable without knowing which language the primary text is in: a consumer cannot tell which entry duplicates it, nor what it is falling back to. So ANY translations map in the document — the event's own, or one inside image, offers, eligibility or partOf — requires textLanguage. It is the one place where a field of this spec depends on another being present, and it holds at every depth because the primary language is a property of the whole document, not of each object. A standalone document has no feed to inherit textLanguage from, so it must always carry its own; inside a feed, the same requirement is enforced against the effective (possibly inherited) language — see feed.schema.json.
@@ -139,7 +139,7 @@ A collection of OTE events published at a stable URL. An exchange format, not an
 
 Rules the schema enforces on whole objects, which no single field's level can express. Generated from the schemas too — a validator rejects a document that breaks them.
 
-- **the document** — a translations map must not repeat textLanguage's own language.
+- **the document** — a translations map must not repeat textLanguage's own language, or any of its own keys, twice.
 - **the document** — events must not repeat the same id.
 - **the document** — no event may be updated after the feed itself was generated.
 - **the document** — every event's translations must have an effective textLanguage (own or inherited from the feed) and must not repeat it.

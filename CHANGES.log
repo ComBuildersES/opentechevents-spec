@@ -81,7 +81,7 @@ Campos por tipo:
 | P023 | Listar los keywords custom (reglas de validez) en `reference.*.md` | Implementada (`2880f88`) |
 | P024 | Exigir al menos un campo OTE en traducciones de evento/feed | Implementada (`fece3a7`) |
 | P025 | Recorrer `additionalProperties` en el generador de referencia | Implementada (`85ee7aa`) |
-| P026 | Impedir claves de `translations` equivalentes tras normalizar BCP 47 | Aprobada — pendiente de implementación |
+| P026 | Impedir claves de `translations` equivalentes tras normalizar BCP 47 | Implementada — pendiente de revisión final y commit |
 
 *(actualizar esta tabla a mano al cerrar cada ciclo; sirve de índice rápido, el detalle vive en las entradas de abajo)*
 
@@ -2083,3 +2083,14 @@ Confirmado con hhkaos que, con esta justificación corregida, sigue mereciendo l
 - **Decisión:** APROBADA
 - **Notas:** Aprobada tal cual la propuesta de Codex.
 
+## [2026-08-04] CLAUDE — IMPLEMENTACION #P026
+
+- **Commit:** pendiente — cambios en el árbol de trabajo
+- **Ficheros cambiados:**
+  - `index.js` — nueva función compartida `translationMapsAreDistinct()`, usada por `distinctTranslationLanguages` (evento y feed) y por `eventsRespectInheritedTextLanguage` (evento embebido, idioma efectivo): dentro de cada mapa `translations` individual, ninguna clave puede repetir el idioma primario/efectivo NI coincidir con otra clave del mismo mapa tras normalizar mayúsculas. `index.d.ts` no necesita cambios: el tipo de `customKeywords` ya es genérico.
+  - `spec/v0.3/examples/invalid/event-translations-duplicate-normalized-keys.json`, `event-offer-translations-duplicate-normalized-keys.json`, `feed-event-translations-duplicate-normalized-keys.json` — casos negativos nuevos: evento suelto, traducción local en `offers[]`, y evento embebido heredando `textLanguage` del feed.
+  - `spec/v0.3/DECISIONS.md` — nueva entrada D023.
+  - `spec/v0.3/README.md` — nota junto a la explicación de `translations` como mapa, con enlace a D023.
+  - `spec/v0.3/i18n/es.json` — traducción de `event#1`/`feed#0` actualizada para reflejar el mensaje de error ampliado.
+  - Regenerados por script: `reference.en.md`, `reference.es.md`, `docs/data/reference.json`, `docs/schema/v0.3/event.schema.json`, `docs/llms*`.
+- **Notas:** Verificado con `npm run validate` (repo completo, limpio): los tres casos negativos se rechazan, el caso original de P009/D010 (repetir `textLanguage`) sigue rechazándose sin cambios, y un mapa con idiomas distintos legítimos sigue validando. Ningún ejemplo real del corpus se vio afectado. Pendiente de que hhkaos revise el resultado.

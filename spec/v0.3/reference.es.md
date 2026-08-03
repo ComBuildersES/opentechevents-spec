@@ -97,7 +97,7 @@ Un evento de una comunidad técnica.
 Reglas que el schema impone sobre objetos completos y que el nivel de un campo suelto no puede expresar. También generadas de los schemas: el validador rechaza el documento que las incumple.
 
 - **el documento** — endDate no puede ser anterior a startDate.
-- **el documento** — Un mapa de traducciones no puede repetir el idioma propio de textLanguage.
+- **el documento** — Un mapa de traducciones no puede repetir el idioma propio de textLanguage, ni tener dos de sus propias claves para ese mismo idioma.
 - **el documento** — partOf.id no puede ser igual al id propio del evento.
 - **el documento** — startDate y endDate tienen que ser de la misma forma: dos fechas de día completo, o dos fechas-hora locales.
 - **el documento** — Un mapa de traducciones es inservible si no se sabe en qué idioma está el texto principal: quien lo consume no puede saber qué entrada lo duplica ni a qué está cayendo por defecto. Así que CUALQUIER mapa de traducciones del documento —el del propio evento o uno dentro de image, offers, eligibility o partOf— exige textLanguage. Es el único sitio de esta spec donde un campo depende de que otro esté presente, y vale a cualquier profundidad porque el idioma principal es una propiedad del documento entero, no de cada objeto. Un documento suelto no tiene feed del que heredar, así que siempre debe llevar el suyo; dentro de un feed, la misma exigencia se aplica contra el idioma efectivo (propio o heredado) — ver feed.schema.json.
@@ -139,7 +139,7 @@ Una colección de eventos OTE publicada en una URL estable. Un formato de interc
 
 Reglas que el schema impone sobre objetos completos y que el nivel de un campo suelto no puede expresar. También generadas de los schemas: el validador rechaza el documento que las incumple.
 
-- **el documento** — Un mapa de traducciones no puede repetir el idioma propio de textLanguage.
+- **el documento** — Un mapa de traducciones no puede repetir el idioma propio de textLanguage, ni tener dos de sus propias claves para ese mismo idioma.
 - **el documento** — Los eventos no pueden repetir el mismo id.
 - **el documento** — Ningún evento puede actualizarse después de que se generara el propio feed.
 - **el documento** — Las traducciones de cada evento deben tener un textLanguage efectivo (propio o heredado del feed) y no repetirlo.

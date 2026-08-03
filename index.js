@@ -169,6 +169,25 @@ function parseInstant(value) {
   return Number.isNaN(time) ? null : time;
 }
 
+/**
+ * A `translations` map's own constraint, shared by every keyword that walks the same five nested
+ * locations (`distinctTranslationLanguages`, `eventsRespectInheritedTextLanguage`; P009/P015/P026):
+ * no key may equal the primary language, and no two keys of the SAME map may be that language
+ * written with different case. RFC 5646 §2.1.1 compares BCP 47 tags case-insensitively, so
+ * "en-US" and "EN-us" are one language wearing two keys — the same contradiction the
+ * key-equals-primary check already forbids, just between two translation entries instead of one
+ * translation entry and the primary text. `primary` may be `null` (no effective language to
+ * compare against yet — a different keyword's job to require one where needed); the
+ * within-a-map duplicate check still applies regardless.
+ */
+function translationMapsAreDistinct(maps, primary) {
+  return maps.every((map) => {
+    const keys = Object.keys(map).map((k) => k.toLowerCase());
+    if (primary !== null && keys.includes(primary)) return false;
+    return new Set(keys).size === keys.length;
+  });
+}
+
 export const customKeywords = [
   {
     keyword: "orderedDates",
@@ -203,25 +222,29 @@ export const customKeywords = [
      * the same language tag, which the field's own description already promises cannot happen.
      * Same set of nested locations already enumerated by the sibling rule that REQUIRES
      * textLanguage wherever any of these maps exists (see `$defs.event`'s own `allOf`) — this
-     * just adds the other half, that the language it requires can't also be a translation key.
-     * Comparison is case-insensitive: RFC 5646 §2.1.1 treats language tags case-insensitively,
-     * so "es" and "ES" name the same language and both must be caught.
+     * adds two things: that the language it requires can't also be a translation key, and (P026)
+     * that no SINGLE map can carry two keys naming that same language in different case
+     * ("en-US" and "EN-us") — JSON sees distinct object keys, RFC 5646 §2.1.1 sees one language
+     * claimed twice, contradicting itself with no way for a consumer to know which entry to trust.
+     * `translationMapsAreDistinct` covers both; a map missing entirely is filtered out first, same
+     * as before.
      */
     validate: (schemaValue, data) => {
-      if (!schemaValue || typeof data.textLanguage !== "string") return true;
-      const primary = data.textLanguage.toLowerCase();
+      if (!schemaValue) return true;
+      const primary = typeof data.textLanguage === "string" ? data.textLanguage.toLowerCase() : null;
       const maps = [
         data.translations,
         data.eligibility?.translations,
         data.partOf?.translations,
         ...(Array.isArray(data.offers) ? data.offers.map((o) => o?.translations) : []),
         ...(Array.isArray(data.image) ? data.image.map((i) => i?.translations) : []),
-      ];
-      return !maps.some(
-        (map) => map && typeof map === "object" && Object.keys(map).some((k) => k.toLowerCase() === primary)
-      );
+      ].filter((map) => map && typeof map === "object");
+      return translationMapsAreDistinct(maps, primary);
     },
-    error: { message: "a translations map must not repeat textLanguage's own language" },
+    error: {
+      message:
+        "a translations map must not repeat textLanguage's own language, or any of its own keys, twice",
+    },
   },
   {
     keyword: "uniqueEventIds",
@@ -304,7 +327,11 @@ export const customKeywords = [
      * halves of that check for every embedded event: the effective language must exist wherever a
      * translations map does (event's own, or nested in eligibility, partOf, each offers[] or each
      * image[] — same five locations as `distinctTranslationLanguages`), and no such map's key may
-     * equal it, case-insensitively (RFC 5646 §2.1.1). See CHANGES.log #P015 / DECISIONS.md D016.
+     * equal it, case-insensitively (RFC 5646 §2.1.1) — nor may two keys of the SAME map name that
+     * effective language in different case (P026): the inherited case is exactly as capable of
+     * this contradiction as the local one `distinctTranslationLanguages` already covers, and
+     * without this an event that omits its own textLanguage was the one shape where it slipped
+     * through. See CHANGES.log #P015 / DECISIONS.md D016.
      */
     validate: (schemaValue, data) => {
       if (!schemaValue || !Array.isArray(data.events)) return true;
@@ -323,8 +350,7 @@ export const customKeywords = [
         if (maps.length === 0) return true;
         if (typeof effectiveTextLanguage !== "string") return false;
 
-        const primary = effectiveTextLanguage.toLowerCase();
-        return !maps.some((map) => Object.keys(map).some((k) => k.toLowerCase() === primary));
+        return translationMapsAreDistinct(maps, effectiveTextLanguage.toLowerCase());
       });
     },
     error: {

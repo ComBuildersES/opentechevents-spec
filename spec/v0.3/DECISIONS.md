@@ -464,6 +464,26 @@ This is deliberately a **warning, not a validity error** — added to `event.rec
 
 ---
 
+### D023 — A `translations` map must not carry two keys naming the same language in different case
+
+**Status:** Decided 2026-08-04. See `CHANGES.log` #P026 — one of the six gaps confirmed in the external report P024/D022 triaged.
+
+**Context.** D010 already rejects a `translations` key equal to `textLanguage`, comparing case-insensitively per RFC 5646 §2.1.1 (`ES` and `es` name the same language as the primary text). But nothing checked the same equivalence BETWEEN two keys of the same map: `translations: {"en-US": {...}, "EN-us": {...}}` validated, even though both keys name the identical BCP 47 tag once case-folded. Confirmed against the real validator across all four places a translations map can live (an event's own, a nested one inside `offers[]`, a feed's own, and — the case that needed its own check, since P015/D016 requires judging against the EFFECTIVE language — an embedded event inheriting `textLanguage` from its feed). `$defs.translations`' own description already states the intended invariant: "one entry per language, and no way to publish two Spanish versions that contradict each other" — two case-variant keys are exactly that unintended way.
+
+**Decision.** Extended `distinctTranslationLanguages` and `eventsRespectInheritedTextLanguage` (both already responsible for comparing translation keys against the primary/effective language) with a shared check, `translationMapsAreDistinct`: within each individual map, no two keys may be the same language once lowercased. The two keywords now share this one helper instead of duplicating the comparison, since both already computed the same "primary/effective language, lowercase" value the new check also needs.
+
+**Scope, deliberately identical to D010's.** This detects the SAME tag written with different case, nothing more: it does not infer that `en` and `en-US` are related, does not resolve IANA aliases or preferred-values, and does not touch macrolanguage relationships. `DECISIONS.md`'s own D010 entry already named that broader question "a materially larger question with no demonstrated need here" — this decision extends the narrow, already-settled half of D010 to compare keys against EACH OTHER, not just against the primary language; it does not reopen the boundary D010 drew.
+
+**Why this proposal over the other three pending from the same external-report triage.** `attendanceMode`/`location` cross-validation was considered and set aside: `README.md` already states an explicit precedence rule for when they disagree ("Si se contradicen, manda `attendanceMode`"), so treating the combination as a base-schema error would contradict a policy the spec already committed to, not fill a gap. Translating a field absent from the primary language has its own editorial trade-offs, already flagged as a separate question in D022. Exact-duplicate `tags`/`languages` entries are real but lower-impact than two contradictory translations under one normalized tag.
+
+**Alternatives considered.** (1) Recommended-tier warning instead of a base-schema error: rejected — two entries under the same normalized tag are the same category of internal contradiction D010 already treats as invalid, not a completeness question. (2) Silently canonicalize colliding keys on read: rejected, would make validity (and which value "wins") depend on JSON object key ordering, which the JSON spec never guarantees a document has to preserve meaningfully. (3) Forbid uppercase in `languageTag` to prevent the problem at the source: rejected — BCP 47 permits mixed case, and D010 already chose case-insensitive comparison over a mandatory canonical form. (4) Resolve broader tag equivalence (`en` vs `en-US`, IANA aliases/preferred-values): rejected, same scoping discipline as D007/D010 — no demonstrated need, and it would be a materially larger change than this one.
+
+**Compatibility impact.** Restrictive only for documents that already carry two case-variant keys naming the same language within one map — confirmed the repo's own corpus has none. No wire-format change; this closes the same class of gap D010 already established as worth closing, just the other half of it.
+
+**Revisit if:** a real need for broader BCP 47 tag equivalence (regional variants, aliases, macrolanguages) emerges — at which point this decision, D010, and D007 should be revisited together, since all three concern how strictly language tags are compared.
+
+---
+
 ## Indexed decisions
 
 Already argued in full in `README.md`; summarized here for discoverability.

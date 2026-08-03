@@ -102,7 +102,7 @@
   },
   "rules": {
     "event#0": "endDate no puede ser anterior a startDate.",
-    "event#1": "Un mapa de traducciones no puede repetir el idioma propio de textLanguage.",
+    "event#1": "Un mapa de traducciones no puede repetir el idioma propio de textLanguage, ni tener dos de sus propias claves para ese mismo idioma.",
     "event#2": "partOf.id no puede ser igual al id propio del evento.",
     "event#3": "startDate y endDate tienen que ser de la misma forma: dos fechas de día completo, o dos fechas-hora locales.",
     "event#4": "Un mapa de traducciones es inservible si no se sabe en qué idioma está el texto principal: quien lo consume no puede saber qué entrada lo duplica ni a qué está cayendo por defecto. Así que CUALQUIER mapa de traducciones del documento —el del propio evento o uno dentro de image, offers, eligibility o partOf— exige textLanguage. Es el único sitio de esta spec donde un campo depende de que otro esté presente, y vale a cualquier profundidad porque el idioma principal es una propiedad del documento entero, no de cada objeto. Un documento suelto no tiene feed del que heredar, así que siempre debe llevar el suyo; dentro de un feed, la misma exigencia se aplica contra el idioma efectivo (propio o heredado) — ver feed.schema.json.",
@@ -115,7 +115,7 @@
     "event.cfp#0": "closesAt no puede ser anterior a opensAt.",
     "event.source#0": "La procedencia tiene que apuntar a algo: un nombre que lea una persona, una URL que siga una máquina, idealmente las dos. Cualquiera de ellas basta, y exigir el nombre sería peor que aceptar la URL: quien importa un `.ics` siempre conoce la dirección que descargó y a menudo no tiene nombre de publicador que leer (el X-WR-CALNAME de iCalendar es opcional), así que el requisito se cumpliría inventándolo. Una fuente inventada es peor que una fuente dada solo como enlace. Misma regla que offers con price y url, y que location con venue y onlineUrl.",
     "event.translations.*#0": "Una entrada de traducción solo es una traducción si traduce algo que OTE reconoce. Los campos de extensión pueden seguir conviviendo con name/description — esto solo prohíbe una entrada cuyo contenido entero es desconocido.",
-    "feed#0": "Un mapa de traducciones no puede repetir el idioma propio de textLanguage.",
+    "feed#0": "Un mapa de traducciones no puede repetir el idioma propio de textLanguage, ni tener dos de sus propias claves para ese mismo idioma.",
     "feed#1": "Los eventos no pueden repetir el mismo id.",
     "feed#2": "Ningún evento puede actualizarse después de que se generara el propio feed.",
     "feed#3": "Las traducciones de cada evento deben tener un textLanguage efectivo (propio o heredado del feed) y no repetirlo.",
