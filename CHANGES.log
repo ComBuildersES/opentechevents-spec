@@ -70,7 +70,7 @@ Campos por tipo:
 | P012 | Fijar `endDate` de día completo como inclusivo + conversión iCalendar | Implementada (`566a5a7`) |
 | P013 | Resolver horas locales repetidas/inexistentes en cambios de zona | Implementada (`e0ba31d`) |
 | P014 | Impedir que un evento se modifique después de generarse el feed | Implementada (`af1d681`) |
-| P015 | Hacer efectiva la herencia de `textLanguage` en traducciones | Implementada — pendiente de revisión final y commit |
+| P015 | Hacer efectiva la herencia de `textLanguage` en traducciones | Implementada (`86a5389`) |
 
 *(actualizar esta tabla a mano al cerrar cada ciclo; sirve de índice rápido, el detalle vive en las entradas de abajo)*
 
@@ -927,7 +927,7 @@ Confirmado con hhkaos que, con esta justificación corregida, sigue mereciendo l
 
 ## [2026-08-03] CLAUDE — IMPLEMENTACION #P015
 
-- **Commit:** pendiente — cambios en el árbol de trabajo
+- **Commit:** `00c6531` (log) y `86a5389` (implementación)
 - **Ficheros cambiados:**
   - `spec/v0.3/event.schema.json` — el `required: ["textLanguage"]` condicionado a la presencia de cualquier `translations` sale de `$defs.event` y pasa al `allOf` raíz del documento (junto a `specVersion`/`license`), donde solo aplica al evento independiente. Corregida además la descripción de `textLanguage`, que decía "Absent means unknown, never the feed's language" — contradecía `x-inheritsFrom` y la propia columna "default" de `reference.en.md`.
   - `index.js`/`index.d.ts` — nuevo keyword `eventsRespectInheritedTextLanguage` en `customKeywords` (feed root): calcula `effectiveTextLanguage = event.textLanguage ?? feed.textLanguage` por evento, exige que exista donde haya `translations` (mismos 5 mapas de D010) y rechaza claves iguales a ese idioma efectivo, sin distinguir mayúsculas.
