@@ -66,6 +66,7 @@ Campos por tipo:
 | P008 | Rechazar ventanas invertidas en `offers`/`cfp` (opensAt/closesAt) | Implementada (`0886f5f`) |
 | P009 | Impedir que `translations` repita el idioma principal | Implementada (`3ac5def`) |
 | P010 | Impedir `event.id` duplicados dentro de un mismo feed | Implementada (`d8d0ba2`) |
+| P011 | Impedir que un evento sea su propio `partOf` | Implementada — pendiente de revisión final y commit |
 
 *(actualizar esta tabla a mano al cerrar cada ciclo; sirve de índice rápido, el detalle vive en las entradas de abajo)*
 
@@ -659,3 +660,53 @@ hhkaos pidió explícitamente que el razonamiento de por qué no forzar la zona 
   - `spec/v0.3/DECISIONS.md` — nueva entrada D011.
   - Regenerados por script: `reference.en.md`, `reference.es.md`, `docs/data/reference.json`, `docs/data/examples.json`, `docs/schema/v0.3/feed.schema.json`, `docs/llms*`.
 - **Notas:** Verificado con `npm run validate` (repo completo, limpio) y con el documento de evidencia: el feed con `id` repetido se rechaza. Pendiente de que hhkaos revise y decida si se commitea.
+
+## [2026-08-03] CODEX — PROPUESTA #P011: Impedir que un evento sea su propio `partOf`
+
+- **Área:** `event.schema.json`, `reference.en.md`, `reference.es.md`, `README.md`, `examples/invalid/`, `customKeywords`
+- **Problema:** Un evento puede declarar un `partOf.id` exactamente igual a su propio `id`. El schema valida ambos identificadores de forma aislada, pero no su relación, de modo que el mismo recurso queda descrito simultáneamente como una ocurrencia y como el conjunto que la contiene. Esto contradice el modelo normativo de `partOf`, genera una autorreferencia al exportar a `schema.org/superEvent` o iCalendar `RELATED-TO;RELTYPE=PARENT`, e impide a un consumidor distinguir la parte del todo. Es una incoherencia interna de un único evento, no la deduplicación entre fuentes excluida por D011: no hay inferencia ni comparación entre documentos. P001–P010 y D001–D011 no tratan esta relación; D011 solo impide que dos elementos de `feed.events` compartan `id`.
+- **Evidencia:** Con el validador real del proyecto (Ajv 2020, `ajv-formats` y los `annotationKeywords`, `customFormats` y `customKeywords` exportados por `index.js`), este evento devuelve `valid: true`, `errors: null`:
+
+  ```json
+  {
+    "specVersion": "0.3.0",
+    "id": "https://example.org/events/self",
+    "name": "Self parent",
+    "startDate": "2026-08-04T18:00",
+    "timezone": "Europe/Madrid",
+    "partOf": {
+      "id": "https://example.org/events/self"
+    },
+    "license": "CC0-1.0"
+  }
+  ```
+
+  La causa está en `spec/v0.3/event.schema.json:898-900`, donde `partOf` solo referencia `$defs.partOf`, y en `event.schema.json:2525-2536`, donde ese objeto exige un `id` con forma de URI pero no lo compara con `event.id`. La contradicción interna es literal: `event.schema.json:2526` define `partOf` como `"A reference to the whole this occurrence belongs to"`; `spec/v0.3/reference.en.md:74` lo llama `"The series or multi-part event this document is one occurrence of"`, y `reference.es.md:74`, «La serie o el evento multi-parte del que este documento es UNA ocurrencia». `spec/v0.3/README.md:234` fija «Un documento = una ocurrencia» y dice que cada ocurrencia lleva «su `id`», mientras `README.md:244` identifica `partOf.id` como el identificador del conjunto; `README.md:255-260` mapea esa relación a `schema.org/superEvent` y a `RELATED-TO;RELTYPE=PARENT`. Las fuentes canónicas coinciden con esa separación: [schema.org `superEvent`](https://schema.org/superEvent) lo define como «An event that this event is a part of» y declara `subEvent` como propiedad inversa; [RFC 5545 §3.8.4.5](https://www.rfc-editor.org/rfc/rfc5545.html#section-3.8.4.5) dice que `RELATED-TO` contiene el identificador persistente de **otro** componente de calendario y que `RELTYPE=PARENT` señala el componente padre. Exportar el JSON de evidencia produciría, por tanto, un `Event` cuyo `superEvent` tiene su mismo identificador y un `VEVENT` cuyo padre es él mismo. Ningún ejemplo válido de `spec/v0.3/examples/*.json` presenta esta igualdad.
+- **Propuesta:** Añadir a `$defs.event` un keyword Ajv personalizado de objeto (por ejemplo, `distinctPartOfId: true`) que, cuando exista `partOf`, rechace `partOf.id === id` por igualdad exacta de cadena. Documentar la restricción de documento en ambas referencias y en `spec/v0.3/README.md`, y añadir el JSON de evidencia a `examples/invalid/`. Mantener el mismo alcance prudente de D011: no normalizar URIs ni intentar descubrir equivalencias entre identificadores escritos de forma distinta; basta cerrar la autorreferencia exacta demostrada. Al vivir en `$defs.event`, la regla cubrirá tanto eventos independientes como eventos embebidos en un feed.
+- **Impacto en compatibilidad:** Restrictivo solo para eventos que ya se declaran parte de sí mismos por el mismo identificador exacto; ningún ejemplo válido actual se ve afectado. Corregirlos exige acuñar o usar el identificador real del conjunto, o eliminar `partOf` si no existe tal conjunto. Dejarlo pasar hasta después de v1.0 consolidaría grafos cíclicos que los exportadores tendrían que rechazar, romper o reinterpretar, y convertiría el endurecimiento posterior en un breaking change.
+- **Alternativas consideradas:** (1) Dejar que cada consumidor ignore la autorreferencia: descartado porque OTE promete un mapeo sin pérdida de `partOf` a schema.org y distintos consumidores podrían conservarla, descartarla o entrar en ciclos al recorrer la jerarquía. (2) Tratarlo como aviso del perfil recomendado: descartado porque no es un dato válido pero poco idóneo, sino una relación padre-parte internamente contradictoria. (3) Comparar URIs normalizadas o resolverlas por red: descartado por falta de necesidad para cerrar el caso verificable y por el alcance exacto ya deliberado en D011. (4) Aplicar la regla solo al feed: descartado porque el mismo evento es incoherente también como documento independiente. (5) Prohibir que `partOf.id` coincida con el `id` de cualquier otro evento del feed: descartado porque eso ampliaría la regla a relaciones entre documentos que pueden ser legítimas; P011 solo prohíbe que una entidad sea su propio padre. (6) Eliminar `partOf`: descartado porque su modelo y su degradación a los tres formatos ya son una decisión deliberada; el fallo está en una autorreferencia que el schema deja pasar, no en la existencia del campo.
+
+## [2026-08-03] CLAUDE — REVISION #P011: Impedir que un evento sea su propio `partOf`
+
+- **Veredicto:** APROBAR
+- **Valoración:** Evidencia verificada de forma independiente: el evento con `partOf.id` igual a su propio `id` valida hoy. Confirmé las citas exactas (`event.schema.json:2525-2537`, `partOf` solo exige forma de URI sin comparar con `id`) y que ningún ejemplo real del repo tiene ya esta autorreferencia (lo comprobé yo mismo escaneando todo el corpus, no solo la afirmación de Codex). La cita de schema.org `superEvent`/`subEvent` y de RFC 5545 `RELATED-TO;RELTYPE=PARENT` es correcta y la consecuencia de exportación (un evento que es su propio padre) es real, no hipotética.
+- **Trade-offs:** Beneficio claro, coste mínimo, y la propuesta hereda directamente la disciplina de alcance de D011 sin que hiciera falta pedirlo: igualdad exacta de cadena, sin normalizar URIs, y explícitamente **no** amplía la regla a "ningún evento del feed puede usar el `id` de otro evento como `partOf.id`" — esa versión más amplia chocaría con una relación legítima (una ocurrencia referenciando el conjunto al que pertenece, que puede coincidir con el `id` de OTRO evento real del mismo feed si ese evento es literalmente el conjunto). P011 solo cierra el caso indiscutible: una entidad no puede ser su propio padre.
+- **Recomendación para v1.0:** Debe resolverse antes de congelar v1.0, mismo argumento que P001–P010: es una incoherencia interna de un único documento (no la deduplicación entre fuentes que D011 ya excluyó), con eco directo en dos mapeos normativos ya comprometidos (schema.org, iCalendar). Propuesta completa y correctamente acotada; no tengo cambios que pedir.
+- **Pendiente de:** decisión humana (hhkaos)
+
+## [2026-08-03] HUMANO — DECISION #P011
+
+- **Decisión:** APROBADA
+- **Notas:** Sin cambios sobre la propuesta de Codex.
+
+## [2026-08-03] CLAUDE — IMPLEMENTACION #P011
+
+- **Commit:** pendiente — cambios en el árbol de trabajo
+- **Ficheros cambiados:**
+  - `index.js`/`index.d.ts` — nuevo keyword `distinctPartOfId` en `customKeywords` (igualdad exacta de cadena).
+  - `spec/v0.3/event.schema.json` — `distinctPartOfId: true` en `$defs.event`.
+  - `spec/v0.3/examples/invalid/event-partof-self-reference.json` — caso nuevo.
+  - `spec/v0.3/README.md` — nota junto a la explicación de `partOf`, enlace a `DECISIONS.md` D012.
+  - `spec/v0.3/DECISIONS.md` — nueva entrada D012, distinguiéndola explícitamente de D011.
+  - Regenerados por script: `reference.en.md`, `reference.es.md`, `docs/data/reference.json`, `docs/data/examples.json`, `docs/schema/v0.3/event.schema.json`, `docs/llms*`.
+- **Notas:** Verificado con `npm run validate` (repo completo, limpio) y con el documento de evidencia: el evento auto-referenciado se rechaza. Pendiente de que hhkaos revise y decida si se commitea.
