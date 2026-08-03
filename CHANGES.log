@@ -80,6 +80,7 @@ Campos por tipo:
 | P022 | Rechazar `offers[].currency` sin `offers[].price` | Implementada (`85f1a36`) |
 | P023 | Listar los keywords custom (reglas de validez) en `reference.*.md` | Implementada (`2880f88`) |
 | P024 | Exigir al menos un campo OTE en traducciones de evento/feed | Implementada (`fece3a7`) |
+| P025 | Recorrer `additionalProperties` en el generador de referencia | Aprobada — pendiente de implementación |
 
 *(actualizar esta tabla a mano al cerrar cada ciclo; sirve de índice rápido, el detalle vive en las entradas de abajo)*
 
@@ -1764,3 +1765,170 @@ Confirmado con hhkaos que, con esta justificación corregida, sigue mereciendo l
 - **Notas:** Verificado con `npm run validate` (repo completo, limpio, sin traducciones faltantes en `i18n/es.json` — este cambio no tocó la numeración de reglas existentes, solo añadió `anyOf` nuevos en owners que aún no tenían reglas propias). Probado que un campo de extensión sigue conviviendo con `name`/`title` sin problema. Ningún ejemplo real del corpus se vio afectado.
 - **Hallazgo encontrado al implementar, deliberadamente NO corregido aquí:** el `anyOf` nuevo no aparece en la sección "Constraints" de `reference.*.md` pese a P023 — comprobado directamente. La causa: `constraintsOf()`/`fieldsOf()` en `scripts/schema-model.mjs` nunca caminan dentro de `additionalProperties` (el mecanismo con el que `translations`/`feedTranslations` referencian `$defs.translation`/`$defs.feedTranslation`), así que esos dos objetos nunca se visitan en absoluto por esta ruta — un hueco distinto y más profundo que el que cerró P023, que solo enseñó a reconocer `customKeywords` en objetos YA visitados. Arreglarlo bien exige tocar `fieldsOf()`, no solo `constraintsOf()`: el propio código deja escrito como invariante deliberado que "a rule cannot end up hanging off an object the field table does not show", así que extender solo `constraintsOf()` rompería esa invariante a propósito documentada. No es una corrección de una línea como el resto de esta implementación — queda anotado como candidato para una propuesta futura, no colado aquí sin su propia revisión.
 - **Pendiente de que hhkaos revise el resultado.**
+
+## [2026-08-04] CODEX — PROPUESTA #P025: Documentar campos y reglas dentro de mapas `translations`
+
+- **Área:** `scripts/schema-model.mjs`, `scripts/build-reference.mjs`, `spec/v0.3/reference.en.md`, `spec/v0.3/reference.es.md`, `docs/data/reference.json`, `docs/llms*`
+- **Problema:** El generador de referencia no entra en objetos alcanzados solo mediante `additionalProperties`, que es precisamente la forma en que todos los mapas `translations` apuntan a la estructura de cada entrada de idioma. Como resultado, la referencia generada muestra que `translations` existe, pero no muestra qué campos viven dentro (`translations.*.name`, `translations.*.description`, `feed.translations.*.title`, etc.) ni las reglas de validez de esas entradas. Tras P024, esto ya no es solo una omisión de campos: el schema ejecutable exige que una traducción superior de evento tenga `name` o `description`, y que una de feed tenga `title` o `description`, pero esa regla no aparece en `reference.en.md`/`reference.es.md`. Esto importa antes de v1.0 porque `translations` es la zona donde OTE conserva más información al mapear a schema.org/JSON-LD: `spec/v0.3/README.md:608` dice que para `schema.org / JSON-LD`, `translations` se puede mapear a mapas de idioma y que la pérdida es "**Ninguna.**". Una referencia incompleta hace que productores y consumidores no vean el contrato que permite ese mapeo sin pérdida.
+- **Evidencia:** El schema sí define entradas de traducción estructuradas bajo `additionalProperties`. En evento, `spec/v0.3/event.schema.json:2314-2324` define `$defs.translations` y enlaza cada valor del mapa con `$defs.translation` mediante `additionalProperties`; `spec/v0.3/event.schema.json:2326-2362` define esa entrada con `properties.name`, `properties.description`, `minProperties: 1` y `anyOf` sobre `name`/`description`. En feed, `spec/v0.3/feed.schema.json:91-93` enlaza `feed.translations` con `$defs.feedTranslations`; `spec/v0.3/event.schema.json:2364-2374` usa `additionalProperties` hacia `$defs.feedTranslation`; y `spec/v0.3/event.schema.json:2467-2503` define `title`, `description`, `minProperties: 1` y el `anyOf` sobre `title`/`description`.
+
+  La referencia, en cambio, solo lista los mapas. `spec/v0.3/reference.en.md:87` muestra `translations` como objeto con la descripción "The same event's free text in other languages"; `spec/v0.3/reference.en.md:125` hace lo mismo para el feed: "This feed's own title and description in other languages." La versión española también solo lista el mapa: `spec/v0.3/reference.es.md:87` dice "El texto libre del mismo evento en otros idiomas" y `spec/v0.3/reference.es.md:125` dice "El `title` y la `description` DEL PROPIO FEED en otros idiomas." La sección de restricciones promete ser completa: `spec/v0.3/reference.en.md:91` dice "Rules the schema enforces on whole objects, which no single field's level can express. Generated from the schemas too — a validator rejects a document that breaks them."; `spec/v0.3/reference.es.md:91` dice "Reglas que el schema impone sobre objetos completos y que el nivel de un campo suelto no puede expresar. También generadas de los schemas: el validador rechaza el documento que las incumple." Pero `spec/v0.3/reference.en.md:93-108` y `spec/v0.3/reference.en.md:132-136` no incluyen las reglas `Requires at least one of: name, description` ni `Requires at least one of: title, description`; `spec/v0.3/reference.es.md:93-108` y `spec/v0.3/reference.es.md:132-136` tampoco incluyen sus equivalentes.
+
+  Confirmación por búsqueda en la referencia generada: no hay filas ni restricciones para campos dentro de entradas de traducción; el único "Requires at least one of" generado en referencia corresponde a `location`, `offers[]` y `source`, no a `translations.*`.
+
+  ```text
+  $ rg -n 'translations\..*name|translations\..*description|translations\..*title|translations\[|Requires at least one of|Requiere al menos uno de' spec/v0.3/reference.en.md spec/v0.3/reference.es.md
+  spec/v0.3/reference.es.md:99:- **`location`** — Requiere al menos uno de: `venue`, `onlineUrl`.
+  spec/v0.3/reference.es.md:102:- **`offers[]`** — Requiere al menos uno de: `price`, `url`. Una oferta tiene que llevar un precio o un enlace —lo ideal es los dos—. Una que no lleva ninguno no dice nada que no dijera ya omitir la lista entera; es la misma regla que sigue location con venue y onlineUrl.
+  spec/v0.3/reference.es.md:108:- **`source`** — Requiere al menos uno de: `name`, `url`. La procedencia tiene que apuntar a algo: un nombre que lea una persona, una URL que siga una máquina, idealmente las dos. Cualquiera de ellas basta, y exigir el nombre sería peor que aceptar la URL: quien importa un `.ics` siempre conoce la dirección que descargó y a menudo no tiene nombre de publicador que leer (el X-WR-CALNAME de iCalendar es opcional), así que el requisito se cumpliría inventándolo. Una fuente inventada es peor que una fuente dada solo como enlace. Misma regla que offers con price y url, y que location con venue y onlineUrl.
+  spec/v0.3/reference.en.md:99:- **`location`** — Requires at least one of: `venue`, `onlineUrl`.
+  spec/v0.3/reference.en.md:102:- **`offers[]`** — Requires at least one of: `price`, `url`. An offer must carry a price or a link — ideally both. One with neither says nothing that omitting the whole list does not already say, the same rule location follows with venue and onlineUrl.
+  spec/v0.3/reference.en.md:108:- **`source`** — Requires at least one of: `name`, `url`. Provenance has to point somewhere: a name a person can read, a URL a machine can follow, ideally both. Either alone is enough, and demanding the name would be worse than accepting the URL — an importer of an `.ics` always knows the address it fetched and often has no publisher name to read (iCalendar's X-WR-CALNAME is optional), so the requirement would be met by inventing one. A fabricated origin is worse than an origin given only as a link. Same rule as offers with price and url, and location with venue and onlineUrl.
+  ```
+
+  La causa está en el caminante. `scripts/schema-model.mjs:69-72` dice que `fieldsOf()` "Walks a schema's fields, following local $refs into sub-objects", pero su recorrido real solo desciende por `properties` (`scripts/schema-model.mjs:83-117`) y por arrays de objetos (`scripts/schema-model.mjs:126-139`), nunca por `additionalProperties`. La misma limitación existe para reglas: `scripts/schema-model.mjs:245-247` fija la invariante "Same traversal, so a rule cannot end up hanging off an object the field table does not show", y `scripts/schema-model.mjs:257-270` vuelve a recorrer solo `properties` y arrays.
+
+  Ejecutado contra el propio modelo de referencia, los campos visibles que contienen `translations` son solo los mapas, no sus entradas, y las reglas de P024 no aparecen:
+
+  ```text
+  $ node --input-type=module - <<'NODE'
+  import { fieldsOf, constraintsOf, loadSchemas } from './scripts/schema-model.mjs';
+  const { event, feed, registry } = loadSchemas('v0.3');
+  function show(label, values) {
+    console.log(`--- ${label} ---`);
+    console.log(values.length ? values.join('\n') : '(none)');
+  }
+  show('event fields containing translations', [...fieldsOf(event, registry)].map(([path]) => path).filter((p) => p.includes('translations')));
+  show('feed fields containing translations', [...fieldsOf(feed, registry)].map(([path]) => path).filter((p) => p.includes('translations')));
+  show('event constraints containing translation/name/description', [...constraintsOf(event, registry)].map(([owner, rule]) => `${owner || '<document>'}: ${JSON.stringify(rule)}`).filter((line) => /translation|name|description/.test(line)));
+  show('feed constraints containing translation/title/description', [...constraintsOf(feed, registry)].map(([owner, rule]) => `${owner || '<document>'}: ${JSON.stringify(rule)}`).filter((line) => /translation|title|description/.test(line)));
+  NODE
+  --- event fields containing translations ---
+  image[].translations
+  eligibility.translations
+  offers[].translations
+  partOf.translations
+  translations
+  --- feed fields containing translations ---
+  translations
+  --- event constraints containing translation/name/description ---
+  <document>: {"kind":"prose","note":"a translations map must not repeat textLanguage's own language."}
+  <document>: {"kind":"prose","note":"A map of translations is unusable without knowing which language the primary text is in: a consumer cannot tell which entry duplicates it, nor what it is falling back to. So ANY translations map in the document — the event's own, or one inside image, offers, eligibility or partOf — requires textLanguage. It is the one place where a field of this spec depends on another being present, and it holds at every depth because the primary language is a property of the whole document, not of each object. A standalone document has no feed to inherit textLanguage from, so it must always carry its own; inside a feed, the same requirement is enforced against the effective (possibly inherited) language — see feed.schema.json."}
+  image[]: {"kind":"dependent","when":{"field":"translations","present":true},"fields":["alt"]}
+  eligibility: {"kind":"conditional","when":{"field":"type","equals":"restricted"},"field":"note","note":"restricted means \"there is a door the enum cannot name\". Without a note it names nothing, and a consumer can only show the word itself — which is how a field meant to answer \"can I go?\" ends up asking it."}
+  source: {"kind":"anyOfRequired","fields":["name","url"],"note":"Provenance has to point somewhere: a name a person can read, a URL a machine can follow, ideally both. Either alone is enough, and demanding the name would be worse than accepting the URL — an importer of an `.ics` always knows the address it fetched and often has no publisher name to read (iCalendar's X-WR-CALNAME is optional), so the requirement would be met by inventing one. A fabricated origin is worse than an origin given only as a link. Same rule as offers with price and url, and location with venue and onlineUrl."}
+  --- feed constraints containing translation/title/description ---
+  <document>: {"kind":"prose","note":"a translations map must not repeat textLanguage's own language."}
+  <document>: {"kind":"prose","note":"every event's translations must have an effective textLanguage (own or inherited from the feed) and must not repeat it."}
+  <document>: {"kind":"conditional","when":{"field":"translations","present":true},"field":"textLanguage","note":"Same rule as an event: a map of translations is unusable without knowing which language the primary text is in. A feed that translates its title must say what language that title is in."}
+  ```
+
+  El validador real confirma que esos campos y reglas ocultos son formato ejecutable, no solo `$defs` muertos. Estos son los JSON mínimos usados:
+
+  ```json
+  {
+    "specVersion": "0.3.0",
+    "id": "https://example.org/events/translation-entry-valid",
+    "name": "Nombre base",
+    "startDate": "2026-09-01T10:00",
+    "timezone": "Europe/Madrid",
+    "textLanguage": "es",
+    "translations": {
+      "en": {
+        "name": "English name"
+      }
+    },
+    "license": "CC0-1.0"
+  }
+  ```
+
+  ```json
+  {
+    "specVersion": "0.3.0",
+    "title": "Feed base",
+    "textLanguage": "es",
+    "translations": {
+      "en": {
+        "title": "English feed title"
+      }
+    },
+    "license": "CC0-1.0",
+    "updatedAt": "2026-08-04T10:00:00Z",
+    "events": []
+  }
+  ```
+
+  ```json
+  {
+    "specVersion": "0.3.0",
+    "id": "https://example.org/events/translation-entry-unknown-only",
+    "name": "Nombre base",
+    "startDate": "2026-09-01T10:00",
+    "timezone": "Europe/Madrid",
+    "textLanguage": "es",
+    "translations": {
+      "en": {
+        "unknownField": "x"
+      }
+    },
+    "license": "CC0-1.0"
+  }
+  ```
+
+  ```json
+  {
+    "specVersion": "0.3.0",
+    "title": "Feed base",
+    "textLanguage": "es",
+    "translations": {
+      "en": {
+        "unknownField": "x"
+      }
+    },
+    "license": "CC0-1.0",
+    "updatedAt": "2026-08-04T10:00:00Z",
+    "events": []
+  }
+  ```
+
+  Resultado ejecutado:
+
+  ```text
+  $ npm run validate -- /private/tmp/ote-audit/event-translation-entry-valid.json /private/tmp/ote-audit/feed-translation-entry-valid.json /private/tmp/ote-audit/event-translation-entry-unknown-only.json /private/tmp/ote-audit/feed-translation-entry-unknown-only.json
+
+    ok    /private/tmp/ote-audit/event-translation-entry-valid.json (event, v0.3)
+    warn  /private/tmp/ote-audit/event-translation-entry-valid.json — missing recommended: url, description, image, organizers, attendanceMode, location, tags, languages, updatedAt, endDate
+    ok    /private/tmp/ote-audit/feed-translation-entry-valid.json (feed, v0.3)
+    warn  /private/tmp/ote-audit/feed-translation-entry-valid.json — feed missing recommended: url, description, textLanguage
+    FAIL  /private/tmp/ote-audit/event-translation-entry-unknown-only.json (event, v0.3)
+  data/translations/en must have required property 'name'
+  data/translations/en must have required property 'description'
+  data/translations/en must match a schema in anyOf
+    FAIL  /private/tmp/ote-audit/feed-translation-entry-unknown-only.json (feed, v0.3)
+  data/translations/en must have required property 'title'
+  data/translations/en must have required property 'description'
+  data/translations/en must match a schema in anyOf
+
+  2 failure(s)
+  2 recommendation(s) — valid either way. See the field reference.
+  ```
+- **Propuesta:** Extender el modelo de referencia para que `fieldsOf()` y `constraintsOf()` desciendan también por `additionalProperties` cuando su valor sea un schema o `$ref` a un objeto local/documentable. Representar esas entradas con una ruta estable de mapa, por ejemplo `translations.*.name`, `translations.*.description`, `offers[].translations.*.name`, `eligibility.translations.*.note`, `partOf.translations.*.name`, `image[].translations.*.alt`, `feed.translations.*.title` y `feed.translations.*.description`. Regenerar `reference.en.md`, `reference.es.md`, `docs/data/reference.json` y `docs/llms*` desde el script. Mantener la invariante de `scripts/schema-model.mjs:245-247`: si una regla se muestra para un objeto de mapa, sus campos deben aparecer también en la tabla, así que el arreglo no debe tocar solo `constraintsOf()`.
+- **Impacto en compatibilidad:** No cambia la validez de ningún documento ni el wire format OTE. Es aditivo en documentación generada: aparecerán más filas y restricciones para campos que ya existían y ya validaban. Puede revelar a implementadores reglas que ya eran obligatorias desde P024, pero no introduce nuevas obligaciones. El riesgo de no hacerlo antes de v1.0 es congelar una referencia que promete estar generada desde los schemas y, sin embargo, oculta precisamente las reglas que hacen que `translations` sea mapeable sin pérdida a schema.org/JSON-LD.
+- **Alternativas consideradas:** (1) Corregir solo `constraintsOf()` para que aparezca el `anyOf` de P024: descartado porque contradice la invariante explícita de `scripts/schema-model.mjs:245-247`; una regla no debe colgar de un objeto cuyos campos no aparecen. (2) Añadir texto manual en `reference.*.md`: descartado porque son ficheros generados y volverían a desincronizarse. (3) Documentarlo solo en `README.md`: descartado; `README.md:557` ya explica la regla P024, pero la tabla de referencia sigue siendo la fuente generada que un implementador consulta campo a campo. (4) Cambiar `translations` de mapa a lista para que el generador actual lo vea como array: descartado por breaking change y porque `README.md:554` ya justifica "Un mapa y no una lista, porque el idioma es la clave". (5) Elegí esta propuesta frente a los otros cinco huecos pendientes porque no endurece validez ni reabre decisiones semánticas delicadas: `attendanceMode`/`location` necesita definir política cruzada nueva; duplicados BCP 47 normalizados dentro de un mismo mapa son reales pero más estrechos; traducir campos ausentes en el idioma principal tiene trade-offs editoriales propios ya separados de P024; `tags`/`languages` duplicados exactos son ruido de menor impacto; y URLs con credenciales embebidas requieren una política de seguridad/privacidad todavía no escrita. Este hueco, en cambio, tiene impacto demostrado hoy sobre documentación generada y sobre el contrato de traducciones que schema.org puede preservar sin pérdida.
+
+## [2026-08-04] CLAUDE — REVISION #P025: Recorrer `additionalProperties` en el generador de referencia
+
+- **Veredicto:** APROBAR
+- **Valoración:** Verificado a fondo, no solo aceptado. Reproduje yo mismo el script de introspección de la propuesta contra `fieldsOf()`/`constraintsOf()` reales: confirmo que `translations` (evento y feed) aparece como campo único sin expandir, y que las reglas `anyOf` de P024 no salen en ninguna lista de restricciones filtrada por "translation". Ejecuté los cuatro JSON de la propuesta contra el validador real: los dos válidos pasan, los dos con `translations.en.unknownField` como único contenido fallan exactamente con `must have required property 'name'/'description'` o `'title'/'description'` — coincide con lo citado. Antes de valorar el alcance, hice mi propia comprobación de riesgo que la propuesta no hizo explícita: **listé los seis usos de `additionalProperties` en todo el schema** (`event.schema.json:2322,2372,2384,2415,2445,2905`) y confirmé que los seis, sin excepción, son el mismo patrón exacto de "mapa de traducción" (`type:object, allOf:[languageMap], additionalProperties:{$ref:...}`). No hay ningún otro uso de `additionalProperties` en el schema que pudiera arrastrarse sin querer al generalizar el recorrido — el radio de impacto es exactamente los seis mapas de traducción, ni uno más.
+- **Respeta la invariante correctamente, verificado leyendo el código yo mismo.** La propuesta insiste en tocar `fieldsOf()` Y `constraintsOf()` a la vez, no solo la segunda — comprobé que es necesario: `constraintsOf(schema, registry, values, path)` para un valor de mapa (p. ej. `$defs.translation`) computa `wrapping = prefix || root === schema ? [] : ...`, y con `prefix = "translations.*"` (no vacío) el wrapping ya se anula igual que ya ocurre para arrays (`organizers[]`); lo que falta es solo el paso de invocación que hoy no existe. Extender ambas funciones en paralelo, con la misma condición de entrada (`additionalProperties` con `$ref` local a un objeto con `properties`), mantiene la invariante intacta por construcción, no por disciplina del autor.
+- **La convención de ruta (`translations.*.name`) es la correcta y no colisiona con nada.** El `[]` ya está tomado por arrays (`organizers[].name`); `*` para "cualquier clave de un mapa" es distinguible y reflplica una distinción real del propio wire format (la clave de un mapa es dato variable, el índice de un array no lo es). No hay ninguna ruta ya generada hoy con ese patrón que pudiera chocar.
+- **Trade-offs:** Aditivo puro en documentación generada — no cambia validez de ningún documento, no toca el wire format. El único coste real es más superficie en `reference.*.md` (más filas, más reglas), que es exactamente el objetivo, no un efecto secundario. Alternativa (4) (mapa→lista) queda bien descartada: reabriría una decisión de wire format ya razonada (`README.md:554`) para resolver un problema que es puramente del generador.
+- **La elección frente a los otros cinco huecos pendientes está bien justificada**, y coincide con mi propio criterio: los otros cinco exigen decisiones semánticas nuevas (política `attendanceMode`/`location`, normalización BCP 47, seguridad de URLs) que merecen su propia deliberación; este es mecánico y de riesgo contenido, con impacto ya demostrado sobre el contrato "`translations` se mapea sin pérdida a schema.org" que el propio `README.md:608` promete.
+- **Recomendación para v1.0:** Fijar antes de v1.0. Es la continuación directa y necesaria de P023: aprobar P023 y no esto sería dejar la referencia "casi completa" a propósito, cuando la propia sección de restricciones sigue prometiendo (`reference.en.md:91`) cubrir todo lo que el validador rechaza.
+- **Pendiente de:** decisión humana (hhkaos)
+
+## [2026-08-04] HUMANO — DECISION #P025
+
+- **Decisión:** APROBADA
+- **Notas:** Aprobada tal cual la propuesta de Codex.
+
