@@ -242,6 +242,33 @@
             "en": "Requires at least one of: `name`, `url`.",
             "es": "Requiere al menos uno de: `name`, `url`."
           }
+        },
+        {
+          "kind": "anyOfRequired",
+          "fields": [
+            "name",
+            "description"
+          ],
+          "note": {
+            "en": "A translation entry is only a translation if it translates something OTE recognizes. Extension fields may still ride alongside name/description — this only forbids an entry whose entire content is unrecognized, which minProperties alone cannot catch.",
+            "es": "Una entrada de traducción solo es una traducción si traduce algo que OTE reconoce. Los campos de extensión pueden seguir conviviendo con name/description — esto solo prohíbe una entrada cuyo contenido entero es desconocido."
+          },
+          "owner": "translations.*",
+          "key": "event.translations.*#0",
+          "text": {
+            "en": "Requires at least one of: `name`, `description`.",
+            "es": "Requiere al menos uno de: `name`, `description`."
+          }
+        },
+        {
+          "kind": "minProperties",
+          "min": 1,
+          "owner": "translations.*",
+          "key": "event.translations.*#1",
+          "text": {
+            "en": "Must carry at least one property.",
+            "es": "Debe llevar al menos una propiedad."
+          }
         }
       ],
       "title": {
@@ -396,6 +423,20 @@
             "es": "El `alt` de esta imagen en otros idiomas. Local a la imagen que describe — nunca un espejo posicional de la lista de imágenes. Exige el `textLanguage` del documento, como cualquier otro mapa de traducciones."
           },
           "requiredIn": null
+        },
+        {
+          "path": "image[].translations.*.alt",
+          "type": "string",
+          "required": true,
+          "recommended": false,
+          "examples": [
+            "Poster: Ferris on a purple background, “Rust Madrid · June 16 · Impact Hub”"
+          ],
+          "description": {
+            "en": "What the image shows, in this language.",
+            "es": "Lo que la imagen muestra, en este idioma."
+          },
+          "requiredIn": "image[].translations.*"
         },
         {
           "path": "organizers",
@@ -836,6 +877,20 @@
           "requiredIn": null
         },
         {
+          "path": "eligibility.translations.*.note",
+          "type": "string",
+          "required": true,
+          "recommended": false,
+          "examples": [
+            "Miembros del Discord de Rust Girona"
+          ],
+          "description": {
+            "en": "The condition, in this language.",
+            "es": "La condición, en este idioma."
+          },
+          "requiredIn": "eligibility.translations.*"
+        },
+        {
           "path": "tags",
           "type": "string[]",
           "required": false,
@@ -1065,6 +1120,21 @@
           "requiredIn": null
         },
         {
+          "path": "offers[].translations.*.name",
+          "type": "string",
+          "required": true,
+          "recommended": false,
+          "examples": [
+            "Students",
+            "Estudiantes"
+          ],
+          "description": {
+            "en": "This ticket's name in this language.",
+            "es": "El nombre de esta entrada, en este idioma."
+          },
+          "requiredIn": "offers[].translations.*"
+        },
+        {
           "path": "cfp",
           "type": "object",
           "required": false,
@@ -1278,6 +1348,20 @@
           "requiredIn": null
         },
         {
+          "path": "partOf.translations.*.name",
+          "type": "string",
+          "required": true,
+          "recommended": false,
+          "examples": [
+            "Sesión semanal de programación"
+          ],
+          "description": {
+            "en": "The series' or multi-part event's name in this language.",
+            "es": "El nombre de la serie o del evento multi-parte, en este idioma."
+          },
+          "requiredIn": "partOf.translations.*"
+        },
+        {
           "path": "license",
           "type": "string",
           "required": true,
@@ -1401,6 +1485,34 @@
             "es": "El texto libre del mismo evento en otros idiomas, indexado por etiqueta BCP 47. El documento conserva UN texto principal en sus propios campos —el que declara `textLanguage`— y aquí van las versiones de ese texto. Aditivo a propósito: `name` y `description` siguen siendo cadenas, así que ningún consumidor existente se rompe y quien publica en un solo idioma no escribe nada. Nunca una traducción al idioma en que ya está el documento. Exige `textLanguage` — y lo exige también cualquier otro mapa de traducciones del documento, a cualquier profundidad; ver las restricciones del documento."
           },
           "requiredIn": null
+        },
+        {
+          "path": "translations.*.name",
+          "type": "string",
+          "required": false,
+          "recommended": false,
+          "examples": [
+            "Sesión semanal de programación — Rust Girona"
+          ],
+          "description": {
+            "en": "The event's name in this language.",
+            "es": "El nombre del evento, en este idioma."
+          },
+          "requiredIn": null
+        },
+        {
+          "path": "translations.*.description",
+          "type": "string",
+          "required": false,
+          "recommended": false,
+          "examples": [
+            "Cada semana nos juntamos en línea para picar Rust un rato."
+          ],
+          "description": {
+            "en": "The event's description in this language. Plain text or Markdown, like the field it translates.",
+            "es": "La descripción del evento, en este idioma. Texto plano o Markdown, como el campo que traduce."
+          },
+          "requiredIn": null
         }
       ]
     },
@@ -1475,6 +1587,33 @@
           "text": {
             "en": "With `translations`, `textLanguage` is required.",
             "es": "Con `translations`, `textLanguage` es obligatorio."
+          }
+        },
+        {
+          "kind": "anyOfRequired",
+          "fields": [
+            "title",
+            "description"
+          ],
+          "note": {
+            "en": "Same rule as an event's own translation: extension fields may still ride alongside title/description, but an entry whose entire content is unrecognized is not a translation.",
+            "es": "Misma regla que la traducción propia de un evento: los campos de extensión pueden seguir conviviendo con title/description, pero una entrada cuyo contenido entero es desconocido no es una traducción."
+          },
+          "owner": "translations.*",
+          "key": "feed.translations.*#0",
+          "text": {
+            "en": "Requires at least one of: `title`, `description`.",
+            "es": "Requiere al menos uno de: `title`, `description`."
+          }
+        },
+        {
+          "kind": "minProperties",
+          "min": 1,
+          "owner": "translations.*",
+          "key": "feed.translations.*#1",
+          "text": {
+            "en": "Must carry at least one property.",
+            "es": "Debe llevar al menos una propiedad."
           }
         }
       ],
@@ -1640,6 +1779,34 @@
           "description": {
             "en": "This feed's own title and description in other languages. Its EVENTS are not translated here: each one carries its own translations, and unlike license or textLanguage this field is never inherited — a feed's title is not an event's name. Requires textLanguage, like an event's translations do — see the document's constraints.",
             "es": "El `title` y la `description` DEL PROPIO FEED en otros idiomas. Sus eventos no se traducen aquí: cada uno lleva sus `translations`, y a diferencia de `license` o `textLanguage` este campo no se hereda nunca — el título de un feed no es el nombre de un evento. Exige `textLanguage`, igual que las `translations` de un evento — ver las restricciones del documento."
+          },
+          "requiredIn": null
+        },
+        {
+          "path": "translations.*.title",
+          "type": "string",
+          "required": false,
+          "recommended": false,
+          "examples": [
+            "Rust Girona events"
+          ],
+          "description": {
+            "en": "The feed's title in this language.",
+            "es": "El título del feed, en este idioma."
+          },
+          "requiredIn": null
+        },
+        {
+          "path": "translations.*.description",
+          "type": "string",
+          "required": false,
+          "recommended": false,
+          "examples": [
+            "Weekly online Rust coding sessions, in Catalan and Spanish."
+          ],
+          "description": {
+            "en": "The feed's description in this language.",
+            "es": "La descripción del feed, en este idioma."
           },
           "requiredIn": null
         },

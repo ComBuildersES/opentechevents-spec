@@ -238,7 +238,10 @@ for (const version of VERSIONS) {
     for (const [path, , meta] of fieldsOf(schema, registry)) {
       for (const [i, example] of meta.examples.entries()) {
         // By reference, not by copy: an isolated subschema cannot resolve #/$defs/… refs.
-        const check = ajv.compile({ $ref: `${schema.$id}#${meta.pointer}` });
+        // `meta.pointer` is already fully qualified with the $id of whichever schema actually
+        // defines the field — not always this loop's own `schema` (a map recursed into via
+        // `additionalProperties`, like `feed.translations.*`, can live in a different schema).
+        const check = ajv.compile({ $ref: meta.pointer });
         const valid = check(example);
         log(
           valid,
