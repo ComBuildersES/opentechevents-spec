@@ -77,6 +77,7 @@ Campos por tipo:
 | P019 | Avisar si un idioma de `languages` no tiene texto disponible | Implementada (`163e047`) |
 | P020 | Restringir `id`/`partOf.id` a URLs HTTP(S) bajo dominio | Implementada (`6b780bf`) |
 | P021 | Quitar la copia inline del ejemplo mínimo en README, enlazar solo | Implementada (`74aa7b2`) |
+| P022 | Rechazar `offers[].currency` sin `offers[].price` | Aprobada — pendiente de implementación |
 
 *(actualizar esta tabla a mano al cerrar cada ciclo; sirve de índice rápido, el detalle vive en las entradas de abajo)*
 
@@ -1511,3 +1512,62 @@ Confirmado con hhkaos que, con esta justificación corregida, sigue mereciendo l
   - `spec/v0.3/README.md` — el bloque JSON inline de "Ejemplo mínimo real" se elimina; queda solo el enlace a `examples/event-minimal.json` (ya validado en CI), con una frase explicando por qué se enlaza en vez de copiar.
   - Regenerados por script: `docs/llms*`.
 - **Notas:** Verificado con `npm run validate` (repo completo, limpio). No se tocó ningún otro bloque del README ni ningún fichero de `examples/`. Pendiente de que hhkaos revise el resultado.
+
+## [2026-08-03] CODEX — PROPUESTA #P022: Rechazar `offers[].currency` sin `offers[].price`
+
+- **Área:** `spec/v0.3/event.schema.json`, `spec/v0.3/reference.en.md`, `spec/v0.3/reference.es.md`, `spec/v0.3/README.md`, `spec/v0.3/examples/`
+- **Problema:** `offers[].currency` solo tiene significado como moneda del importe publicado en `offers[].price`, y el mapeo declarado a schema.org lo emite como `Offer.priceCurrency`. El schema actual, sin embargo, acepta una oferta con `currency` y `url` pero sin `price`, porque la regla estructural de `offer` exige "price o link" y la condicional solo mira el caso inverso: `price > 0` obliga a `currency`. El resultado es un documento válido que transporta `priceCurrency` huérfano, sin `price` al que calificar; un exportador tendría que elegir entre emitir una `Offer` parcialmente incoherente para schema.org o tirar el dato. Cerrarlo después de v1.0 sería breaking para documentos que hubieran empezado a usar `currency` como pista vaga de taquilla en vez de como moneda de un importe.
+- **Evidencia:** La prosa y el schema describen `currency` como dependiente de `price`. `spec/v0.3/reference.en.md:59` dice de `offers[].price`: "Amount per attendee, in `currency`"; `spec/v0.3/reference.en.md:60` dice de `offers[].currency`: "Required whenever `price` is above 0, and pointless at 0". La referencia española dice lo mismo: `spec/v0.3/reference.es.md:59` define `price` como "Importe por asistente, en `currency`" y `spec/v0.3/reference.es.md:60` define `currency` como "Obligatorio siempre que `price` sea mayor que 0, e innecesario cuando es 0". El razonamiento normativo en `spec/v0.3/README.md:693` refuerza la misma lectura: "`currency` es obligatoria en cuanto `price` pasa de 0, y sobra cuando es 0" y "Al revés, un `45` sin moneda no es un precio". El mapeo en `spec/v0.3/README.md:724-726` declara `currency` -> `priceCurrency`.
+
+  En el schema ejecutable, `spec/v0.3/event.schema.json:2997-3008` permite que una oferta sea válida si tiene `price` o `url`, y `spec/v0.3/event.schema.json:3031-3049` solo añade `currency` cuando hay `price` mayor que 0. No hay una regla equivalente que requiera `price` cuando aparece `currency`.
+
+  JSON mínimo que actualmente valida:
+
+  ```json
+  {
+    "specVersion": "0.3.0",
+    "id": "https://example.org/events/currency-without-price",
+    "name": "Currency without price",
+    "startDate": "2026-09-01T10:00",
+    "timezone": "Europe/Madrid",
+    "offers": [
+      {
+        "url": "https://example.org/register",
+        "currency": "EUR"
+      }
+    ],
+    "license": "CC0-1.0"
+  }
+  ```
+
+  Verificación ejecutada contra el validador real:
+
+  ```text
+  $ npm run validate -- /private/tmp/ote-audit/event-offer-currency-without-price.json
+
+    ok    /private/tmp/ote-audit/event-offer-currency-without-price.json (event, v0.3)
+    warn  /private/tmp/ote-audit/event-offer-currency-without-price.json — missing recommended: url, description, image, organizers, attendanceMode, location, tags, languages, updatedAt, endDate
+
+  Valid.
+  1 recommendation(s) — valid either way. See the field reference.
+  ```
+
+  Escaneo del corpus actual: ejecuté un recorrido por `spec/v0.3/examples/**/*.json` buscando `offers[]` con `currency` y sin `price`; resultado: `No examples with offers[].currency without offers[].price`.
+- **Propuesta:** Añadir una dependencia dentro de `$defs.offer`: si aparece `currency`, debe aparecer también `price` (`dependentRequired: { "currency": ["price"] }`, o una condicional equivalente si se prefiere mantener el estilo actual de `if`/`then`). Mantener intacta la regla ya existente de que `price > 0` requiere `currency`. No mezclar en esta propuesta una prohibición de `currency` con `price: 0`: la prosa lo llama innecesario, pero el hueco crítico para schema.org es `priceCurrency` sin ningún `price`.
+- **Impacto en compatibilidad:** Restrictivo. Rompe solo documentos que hoy publican una moneda sin importe dentro de una oferta; los ejemplos actuales no usan esa forma. La migración es directa: si se conoce el importe, añadir `price`; si no se conoce, quitar `currency` y dejar la oferta con `url` hasta que haya un precio publicable.
+- **Alternativas consideradas:** (1) Dejarlo a los exportadores schema.org: descartado porque cada exportador resolvería distinto si debe emitir o descartar `priceCurrency` sin `price`. (2) Convertirlo en aviso recomendado: descartado porque el problema está dentro del objeto `Offer` y afecta al mapeo estructurado, no a completitud editorial. (3) Prohibir también `currency` cuando `price` es 0: descartado en esta ronda porque la prosa actual lo desaconseja ("sobra"/"pointless") pero no lo formula como invalidez, y endurecer ese caso sería una decisión adicional. (4) Requerir `price` en todas las ofertas: descartado porque la spec sí documenta ofertas con link de registro cuando el precio es desconocido; lo incoherente no es la oferta sin precio, sino añadirle una moneda sin importe.
+
+## [2026-08-03] CLAUDE — REVISION #P022: Rechazar `offers[].currency` sin `offers[].price`
+
+- **Veredicto:** APROBAR
+- **Valoración:** Verificado de forma independiente. Ejecuté el JSON de la propuesta (oferta con `url`+`currency`, sin `price`) contra el validador real: `valid: true` — confirmado, el documento pasa cuando no debería. Repasé yo mismo `event.schema.json` (la regla actual solo exige `currency` cuando `price > 0`, sin la implicación inversa) y las citas de `README.md:693` y ambas referencias — coinciden exactamente, incluida la cita de la propia prosa "un `45` sin moneda no es un precio", que es literalmente el caso simétrico al que falta cerrar. Repetí el escaneo del corpus con mi propio script: cero ofertas actuales con `currency` sin `price`.
+- **Encaja con el patrón ya establecido, no lo reabre.** Es la mitad simétrica de una regla que ya existe (`price > 0` → requiere `currency`); añadir `currency` → requiere `price` no es una decisión nueva de diseño, es cerrar la implicación que faltaba de una ya aprobada. La propuesta acierta en no colar de paso el caso `price: 0` + `currency` (que la prosa desaconseja pero no invalida) — mezclar ambas habría sido una ampliación de alcance no pedida ni evidenciada.
+- **Trade-offs:** Mínimos — mismo perfil que P020: restrictivo solo para documentos que ya tenían una incoherencia estructural (`priceCurrency` sin precio que calificar en el mapeo a schema.org), no un caso de uso documentado que se retire. `dependentRequired: {"currency": ["price"]}` es la expresión JSON Schema más simple posible para esto, sin necesidad de `if`/`then`.
+- **Recomendación para v1.0:** Fijar antes de v1.0 — mismo argumento que el resto de reglas de `offers` (P008/D009): es una inconsistencia en el mapeo a schema.org que un exportador real tendría que resolver por su cuenta hoy, y cerrarla después obligaría a invalidar documentos que ya hubieran adoptado la forma laxa.
+- **Pendiente de:** decisión humana (hhkaos)
+
+## [2026-08-03] HUMANO — DECISION #P022
+
+- **Decisión:** APROBADA
+- **Notas:** Aprobada tal cual. Antes de aprobar, hhkaos preguntó por qué no dejarlo permisivo dado que "no hace daño" — se aclaró que el criterio no es evitar un crash, sino coherencia del dato (mismo estándar usado en toda la auditoría: P009/D010, P017, P020), y que el caso "TBD, pero en euros" ya tiene forma establecida en la spec (omitir el campo, "ausente significa desconocido") sin necesitar una moneda huérfana. Confirmado explícitamente que `price: 0` + `currency` sigue siendo válido, sin tocar — la propuesta nunca lo puso en duda.
+
