@@ -76,6 +76,7 @@ Campos por tipo:
 | P018 | Rechazar texto libre de solo espacios en 21 campos con `minLength: 1` | Implementada (`df92d8d`) |
 | P019 | Avisar si un idioma de `languages` no tiene texto disponible | Implementada (`163e047`) |
 | P020 | Restringir `id`/`partOf.id` a URLs HTTP(S) bajo dominio | Implementada (`6b780bf`) |
+| P021 | Quitar la copia inline del ejemplo mínimo en README, enlazar solo | Aprobada — pendiente de implementación |
 
 *(actualizar esta tabla a mano al cerrar cada ciclo; sirve de índice rápido, el detalle vive en las entradas de abajo)*
 
@@ -1432,3 +1433,74 @@ Confirmado con hhkaos que, con esta justificación corregida, sigue mereciendo l
   - `spec/v0.3/i18n/es.json` — traducciones de `event.id`/`event.partOf.id` actualizadas junto con el cambio, en el mismo commit — evitando repetir el desfase que causó P016.
   - Regenerados por script: `reference.en.md`, `reference.es.md`, `docs/data/reference.json`, `docs/data/examples.json`, `docs/schema/v0.3/event.schema.json`, `docs/llms*`.
 - **Notas:** Verificado con `npm run validate` (repo completo, limpio): los tres casos negativos se rechazan, `urn:uuid:`/`mailto:` dejan de validar como `id`/`partOf.id`, una URL de `meetup.com` sigue validando. Ningún ejemplo real del corpus se vio afectado (el escaneo inicial con falsos positivos de `examples/catalog/en.json` quedó descartado, según ya constaba en la REVISION). Comprobada la fila española de `reference.es.md` para confirmar que la traducción quedó sincronizada esta vez. Pendiente de que hhkaos revise el resultado.
+
+## [2026-08-03] CODEX — PROPUESTA #P021: Corregir el ejemplo mínimo copiado en README
+
+- **Área:** `spec/v0.3/README.md`, `spec/v0.3/examples/event-minimal.json`, `spec/v0.3/event.schema.json`, `spec/v0.3/reference.en.md`, `spec/v0.3/reference.es.md`
+- **Problema:** El bloque "Ejemplo mínimo real" de `spec/v0.3/README.md` ya no es un documento OTE válido: muestra `startDate` con segundos (`"2026-06-11T18:30:00"`), aunque P003/D004 decidió y ya implementó que las fechas-hora de evento no admiten segundos. El propio texto enlaza a `examples/event-minimal.json`, que sí está corregido, pero quien copie el bloque normativo del README obtiene un JSON que el validador rechaza. No es un hueco de schema, sino una inconsistencia semántica entre la prosa normativa, la referencia generada, el schema y el ejemplo canónico. Importa de cara a v1.0 porque el ejemplo mínimo es la ruta de adopción más probable: una spec que presenta como "mínimo real" un documento inválido erosiona la confianza en las reglas temporales justo donde schema.org/iCalendar más dependen de una fecha consistente.
+- **Evidencia:** `spec/v0.3/README.md:84-92` dice "Ejemplo mínimo real ([`examples/event-minimal.json`](examples/event-minimal.json))" y muestra `"startDate": "2026-06-11T18:30:00"`. La misma página, unas líneas después, contradice ese bloque: `spec/v0.3/README.md:217-220` dice que la forma con hora es `"2026-10-15T09:00"` y añade "**sin segundos**". El schema ejecutable coincide con esa regla: `spec/v0.3/event.schema.json:1073-1077` define `$defs.dateTime` como "WITHOUT seconds" y usa `"pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}$"`. La referencia generada también coincide: `spec/v0.3/reference.en.md:33` dice "never with seconds" y usa `"2026-06-11T18:30"`; `spec/v0.3/reference.es.md:33` dice "nunca con segundos" y usa el mismo ejemplo sin segundos. El fichero enlazado por el README, `spec/v0.3/examples/event-minimal.json:5`, ya tiene `"startDate": "2026-06-11T18:30"`.
+
+  JSON mínimo copiado del bloque actual del README:
+
+  ```json
+  {
+    "specVersion": "0.3.0",
+    "id": "https://pyalmeria.example/eventos/2026-06-async",
+    "name": "PyAlmería — Introducción a async/await",
+    "startDate": "2026-06-11T18:30:00",
+    "timezone": "Europe/Madrid",
+    "license": "CC-BY-4.0"
+  }
+  ```
+
+  Verificación ejecutada contra el validador real:
+
+  ```text
+  $ npm run validate -- /private/tmp/ote-audit/readme-minimal-with-seconds.json
+
+  FAIL  /private/tmp/ote-audit/readme-minimal-with-seconds.json (event, v0.3)
+  data/startDate must match pattern "^\\d{4}-\\d{2}-\\d{2}$"
+  data/startDate must match format "date"
+  data/startDate must match pattern "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}$"
+  data/startDate must match format "ote-local-date-time"
+  data must match exactly one schema in oneOf
+  data/startDate must match pattern "^\\d{4}-\\d{2}-\\d{2}$"
+  data/startDate must match format "date"
+  data/startDate must match pattern "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}$"
+  data/startDate must match format "ote-local-date-time"
+  data/startDate must match a schema in anyOf
+
+  1 failure(s)
+  ```
+
+  Verificación adicional del par canónico actual:
+
+  ```text
+  $ npm run validate -- spec/v0.3/examples/event-minimal.json spec/v0.3/examples/invalid/event-datetime-with-seconds.json
+
+  ok    spec/v0.3/examples/event-minimal.json (event, v0.3)
+  FAIL  spec/v0.3/examples/invalid/event-datetime-with-seconds.json (event, v0.3)
+  ```
+- **Propuesta:** Cambiar solo el bloque JSON de `spec/v0.3/README.md` para que use `"startDate": "2026-06-11T18:30"`, exactamente igual que `spec/v0.3/examples/event-minimal.json`. Añadir una comprobación automática, si el tooling lo permite sin sobredimensionar el fix, que valide o compare los bloques JSON etiquetados como ejemplos reales contra los ficheros de `examples/` que dicen representar. Como mínimo, revisar con `rg` que no quede ningún `startDate`/`endDate` de evento con segundos en `spec/v0.3/README.md`.
+- **Impacto en compatibilidad:** No cambia el formato ni rompe documentos. Es una corrección documental: alinea el README con el schema, la referencia generada y el ejemplo real ya validado. El riesgo que evita es operativo, no de migración: que implementadores copien un documento inválido desde la primera sección de la especificación v0.3.
+- **Alternativas consideradas:** (1) Reabrir P003/D004 y permitir segundos otra vez: descartado porque contradice una decisión aprobada e implementada, el schema actual, la referencia generada y el caso negativo `event-datetime-with-seconds.json`. (2) Dejarlo como errata menor porque el fichero enlazado sí valida: descartado porque el bloque se presenta como "Ejemplo mínimo real" y está en la ruta crítica de adopción. (3) Eliminar el bloque y dejar solo el enlace: descartado porque el README usa el ejemplo inline para que la forma mínima se vea sin navegación; basta con sincronizar una línea. (4) Añadir solo una nota "sin segundos" cerca del bloque: descartado porque la nota ya existe en la sección de fechas; el problema es que el JSON copiable la contradice.
+
+## [2026-08-03] CLAUDE — REVISION #P021: Corregir el ejemplo mínimo copiado en README
+
+- **Veredicto:** APROBAR
+- **Valoración:** Verificado directamente en el fichero: `spec/v0.3/README.md:91` tiene `"startDate": "2026-06-11T18:30:00"`, con segundos, contradiciendo P003/D004 (ya implementada), `event.schema.json`'s `$defs.dateTime` (sin segundos), ambas referencias generadas y el propio `examples/event-minimal.json` que el bloque dice representar. Confirmé además por qué pasó desapercibido pese a que `npm run validate` siempre pasó limpio: el único chequeo automático de bloques de código embebidos cubre `docs/index.html` (vía el marcador `data-ote="event|feed"`, `scripts/validate.mjs:263-294`) — `spec/v0.3/README.md` no tiene ningún mecanismo equivalente, así que este bloque pudo quedarse desincronizado sin que nada lo detectara.
+- **Trade-offs:** Ninguno — es una corrección de un carácter de más en un ejemplo de documentación, no toca schema ni wire format.
+- **Sobre la comprobación automática que sugiere Codex como algo opcional:** no la incluyo en el alcance de esta propuesta. Extenderla a `README.md` no es tan simple como el mecanismo de `docs/index.html`: ese usa un marcador explícito (`data-ote="..."`) precisamente porque la mayoría de bloques JSON de una página así son fragmentos ilustrativos, no documentos completos — `README.md` tiene el mismo problema (muchos bloques son fragmentos parciales de un campo, no eventos completos) y necesitaría diseñar una convención de marcado análoga antes de poder automatizarlo sin producir falsos positivos. Es una idea razonable para una propuesta futura aparte, no para colar en un fix de una línea.
+- **Recomendación para v1.0:** Fijar ya, sin ninguna duda — es el tipo de defecto con el mayor ratio de daño-a-esfuerzo de arreglar de toda la auditoría: cuesta cambiar un carácter, y el coste de NO arreglarlo es que cualquiera que copie el primer ejemplo de la spec obtenga un documento inválido.
+- **Pendiente de:** decisión humana (hhkaos)
+
+## [2026-08-03] CLAUDE — REVISION #P021 (enmienda): quitar la copia inline, no solo corregirla
+
+- **Ampliación pedida por hhkaos:** en vez de corregir el `startDate` y dejar la copia inline, preguntó si `README.md` debería depender menos de contenido duplicado y remitir más a la documentación ya verificada, para que esta clase de fallo no pueda repetirse. Antes de aceptarlo sin más, audité el propio fichero: de los 15 bloques ` ```json ` que tiene, **14 son fragmentos ilustrativos** (`"organizers": [...]`, `"eligibility": {...}`, etc.) que nunca pretenden ser un documento completo y validado — no tienen el mismo riesgo de deriva. **Solo el bloque de la línea 86 es una copia de un fichero real completo** (`examples/event-minimal.json`), y es el único que se rompió. No es un patrón sistémico; es un caso aislado.
+- **Decisión de alcance:** eliminar el bloque JSON inline de la línea 86 y dejar solo el enlace a `examples/event-minimal.json` (fichero validado en CI) — la reparación que de verdad cierra la clase de fallo, no solo la instancia actual. El resto de `README.md` no se toca: los otros 14 bloques son fragmentos sin riesgo de desincronización real, y la prosa de diseño (el porqué de cada decisión) no existe en ningún otro sitio —ni en `reference.*.md` (tablas generadas, sin razonamiento) ni en `docs/index.html`— así que reducirla perdería contenido real, no eliminaría duplicación.
+
+## [2026-08-03] HUMANO — DECISION #P021
+
+- **Decisión:** APROBADA_CON_CAMBIOS
+- **Notas:** Aprobado el alcance ampliado: se elimina el bloque JSON inline de la línea 86 en vez de corregir solo el `startDate`, dejando únicamente el enlace a `examples/event-minimal.json`. Confirmado que es un caso aislado (14 de los 15 bloques del README son fragmentos ilustrativos, no copias de documentos completos) — no se toca el resto del fichero.
+
