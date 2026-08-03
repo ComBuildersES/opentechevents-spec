@@ -757,6 +757,8 @@ Entra por **el otro lado del tubo**: el del consumidor. «¿Qué conferencias es
 
 Y hay un caso que zanja la discusión: **«anywhere on Earth»**. Un CFP que cierra AoE cierra a las 23:59 **en UTC-12**, que no es la zona del evento ni la de nadie que lo organice. Con reloj de pared + `timezone` del evento no se puede expresar; con offset se escribe `"2026-07-15T23:59:59-12:00"` y se acabó. Un `"23:59"` pelado es el bug clásico de las convocatorias — qué medianoche es literalmente toda la pregunta.
 
+**El offset de cada instante es el que quien lo escribe elija — no se exige UTC.** Forzarlo simplificaría la validación, pero obligaría a convertir a mano una fecha que alguien ya piensa en su propia zona horaria, el mismo coste que ya se descartó para `startDate`. Lo que sí exige el validador es que `closesAt` no sea anterior a `opensAt` — comparando los instantes reales, no el texto, porque con offsets distintos el orden de las cadenas puede no coincidir con el orden real. Detalle en [DECISIONS.md, D009](DECISIONS.md#d009--offers-and-cfp-windows-opensatclosesat-must-not-be-inverted-and-instants-keep-their-own-offset-rather-than-being-forced-to-utc).
+
 El precio es que Google, en su ejemplo canónico, emite `"validFrom": "2024-05-21T12:00"` **sin** offset. Un exportador de OTE emite el instante completo, que es un superconjunto: nada se pierde, y lo que llega es menos ambiguo que el ejemplo.
 
 **Traducción a los tres formatos de destino, incluida la pérdida:**

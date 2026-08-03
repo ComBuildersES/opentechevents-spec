@@ -184,6 +184,29 @@ This is deliberately a **warning, not a validity error** — added to `event.rec
 
 ---
 
+### D009 — `offers[]` and `cfp` windows (`opensAt`/`closesAt`) must not be inverted, and instants keep their own offset rather than being forced to UTC
+
+**Status:** Decided 2026-08-03. See `CHANGES.log` #P008 for the full trail, including a real counterexample proving why string comparison is unsafe here even though D004 made it safe for `startDate`/`endDate`.
+
+**Context.** `offers[].opensAt`/`closesAt` and `cfp.opensAt`/`closesAt` each validated individually as `$defs.instant`, but nothing checked their relationship — a sale or a call for proposals could close before it opened and still validate. Same failure shape as D004's `endDate`/`startDate`, but a level down: two different structures (`$defs.offer`, `$defs.cfp`) sharing the same open/close pair, and — critically — instants, not wall-clock values.
+
+**Why this can't reuse `orderedDates`' string comparison.** D004 made `endDate >= startDate` a safe string comparison by making `dateTime` a fixed-width wall-clock form with no offset. `opensAt`/`closesAt` are `$defs.instant` — real points in time WITH a mandatory offset — and two different offsets can make a string order disagree with the real chronological order. Confirmed with a concrete counterexample while reviewing: `opensAt: "2026-07-01T23:00:00-05:00"` (2026-07-02T04:00 UTC) and `closesAt: "2026-07-02T01:00:00+09:00"` (2026-07-01T16:00 UTC — actually *earlier* than `opensAt`) compare as `closesAt >= opensAt` → `true` as strings, the opposite of the true answer. A new `orderedInstants` keyword (in the same `customKeywords` export as `orderedDates`) parses both values with `Date.parse` — safe because `$defs.instant` already guarantees calendar validity and a mandatory offset — and compares the real instants, not the text.
+
+**A question worth recording, since it changes how easy this looked at first: why not just force every instant to UTC (`Z` only), the way iCalendar's own `DTSTAMP`/`LAST-MODIFIED` do?** That would make string comparison safe again and avoid needing `orderedInstants` at all — the same kind of foundational simplification D004 made by dropping seconds instead of normalizing them. hhkaos asked this directly. Checked against the repo's own examples before answering: `updatedAt`/`source.retrievedAt` are already 100% UTC in every real example (machine-generated metadata naturally defaults to UTC, so forcing it would cost nothing) — but `offers[].opensAt`/`closesAt` and `cfp.opensAt`/`closesAt` in the real examples use `+02:00`, written by a human thinking in Madrid time. Forcing UTC would make that person do timezone arithmetic by hand to describe their own CFP deadline — **exactly the authoring burden D003 already rejected** for `startDate`/`endDate`, just reappearing one field group later. `$defs.instant` deliberately requires *a* mandatory offset (unlike wall-clock's none), but which offset was never meant to be constrained — RFC 3339 itself doesn't prefer one, and neither should a spec whose whole design bias is not making a human do conversion work a machine can do for free at the consuming end. Decision: keep the offset free, fix the comparison instead.
+
+**Alternatives considered.**
+- *Force all instants to UTC (`Z` only).* Rejected per the reasoning above — real, if small, human-authoring cost for `opensAt`/`closesAt`, for a benefit (simpler validator code) that exists purely for the validator's convenience, not the producer's.
+- *Reuse `orderedDates` and compare the instant strings directly.* Rejected — the counterexample above is a real, demonstrated failure, not a theoretical one.
+- *Require `closesAt > opensAt` (no equality).* Rejected, same reasoning as D004: a zero-duration window is not this decision's problem to rule out without evidence it needs to be.
+- *Also require the window to fall before `startDate`.* Rejected: not a universal invariant (late registration, door sales, or a CFP tied to a future recurrence of the event are all real, valid cases where it wouldn't hold), and would require reconciling wall-clock+timezone against instants, a materially harder problem with no demonstrated need.
+- *Make this a recommended-tier warning instead of a validity error, the way D008 treats license category.* Rejected: an inverted window is internally self-contradictory data (a real Offer/CFP cannot exist this way), not a real-but-suboptimal choice like a restrictive-but-genuine license — it belongs with D004, not D008.
+
+**Compatibility impact.** Restrictive only for `offers[]`/`cfp` objects that declare both bounds AND `closesAt` is a genuinely earlier instant than `opensAt` — not a real sale window or CFP, so correcting it means fixing the data, not migrating a format. No real example in the repo is affected.
+
+**Revisit if:** a real producer needs a genuinely open-ended or backwards window (would be surprising — a "closes before it opens" window isn't a schedule, it's a data error by construction), or a future decision reconsiders D003/this entry's shared position on not forcing UTC — if that ever changes for `startDate`, revisit whether it should change here too, since the reasoning is the same.
+
+---
+
 ## Indexed decisions
 
 Already argued in full in `README.md`; summarized here for discoverability.

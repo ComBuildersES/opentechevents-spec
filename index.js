@@ -153,6 +153,22 @@ export const customFormats = [
  *
  *   for (const kw of customKeywords) ajv.addKeyword(kw);
  */
+/**
+ * `$defs.offer` and `$defs.cfp` share this constraint: `closesAt`, when both it and `opensAt`
+ * exist, must not be an instant earlier than `opensAt`. Unlike `orderedDates`, these are
+ * `$defs.instant` values — real points in time WITH a mandatory offset, and deliberately not
+ * forced to a single one (UTC or otherwise): the offset is whatever the producing system or
+ * organiser naturally writes, and forcing a conversion would repeat the exact authoring burden
+ * D003 already rejected for `startDate`. Two instants with different offsets can have a string
+ * order that disagrees with their real chronological order, so — unlike `orderedDates`, where
+ * the fixed-width wall-clock form makes string comparison safe — this parses both values and
+ * compares the actual instants.
+ */
+function parseInstant(value) {
+  const time = Date.parse(value);
+  return Number.isNaN(time) ? null : time;
+}
+
 export const customKeywords = [
   {
     keyword: "orderedDates",
@@ -161,5 +177,19 @@ export const customKeywords = [
     validate: (schemaValue, data) =>
       !schemaValue || typeof data.endDate !== "string" || data.endDate >= data.startDate,
     error: { message: "endDate must not be earlier than startDate" },
+  },
+  {
+    keyword: "orderedInstants",
+    type: "object",
+    schemaType: "boolean",
+    validate: (schemaValue, data) => {
+      if (!schemaValue || typeof data.opensAt !== "string" || typeof data.closesAt !== "string") {
+        return true;
+      }
+      const opensAt = parseInstant(data.opensAt);
+      const closesAt = parseInstant(data.closesAt);
+      return opensAt === null || closesAt === null || closesAt >= opensAt;
+    },
+    error: { message: "closesAt must not be earlier than opensAt" },
   },
 ];

@@ -2984,6 +2984,7 @@
           ]
         }
       ],
+      "orderedInstants": true,
       "allOf": [
         {
           "description": "A waitlist for something you can still buy is not a waitlist: the queue only makes sense once the offer is gone. Availability may still be ABSENT — a publisher who knows there is a queue and does not track the ticket state should not be forced to assert sold-out to mention it. Only the incoherent combination is rejected, never the incomplete one.",
@@ -3033,6 +3034,7 @@
       "required": [
         "url"
       ],
+      "orderedInstants": true,
       "properties": {
         "url": {
           "description": "Where proposals are submitted — the form, or the page describing the call. Required: a CFP nobody can find is not a call, and this is the one piece of it that survives export to every format, inside the text.",
