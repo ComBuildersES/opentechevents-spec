@@ -67,7 +67,7 @@ Campos por tipo:
 | P009 | Impedir que `translations` repita el idioma principal | Implementada (`3ac5def`) |
 | P010 | Impedir `event.id` duplicados dentro de un mismo feed | Implementada (`d8d0ba2`) |
 | P011 | Impedir que un evento sea su propio `partOf` | Implementada (`33633c5`) |
-| P012 | Fijar `endDate` de día completo como inclusivo + conversión iCalendar | Implementada — pendiente de revisión final y commit |
+| P012 | Fijar `endDate` de día completo como inclusivo + conversión iCalendar | Implementada (`566a5a7`) |
 
 *(actualizar esta tabla a mano al cerrar cada ciclo; sirve de índice rápido, el detalle vive en las entradas de abajo)*
 
@@ -747,7 +747,7 @@ hhkaos pidió explícitamente que el razonamiento de por qué no forzar la zona 
 
 ## [2026-08-03] CLAUDE — IMPLEMENTACION #P012
 
-- **Commit:** pendiente — cambios en el árbol de trabajo
+- **Commit:** `dd88a96` (log) y `566a5a7` (implementación)
 - **Ficheros cambiados:**
   - `spec/v0.3/event.schema.json` — descripción de `endDate` ampliada con la convención inclusiva y la conversión iCalendar (+1/-1 día).
   - `spec/v0.3/i18n/es.json` — traducción de `event.endDate` actualizada a juego.
