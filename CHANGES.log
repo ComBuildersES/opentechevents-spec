@@ -60,6 +60,7 @@ Campos por tipo:
 | P002 | Validar `timezone` contra la lista IANA real | Implementada (`042d12c`) |
 | P003 | Rechazar `endDate` anterior a `startDate`; prohibir segundos en `dateTime` | Implementada (`4360135`) |
 | P004 | Validar `offers[].currency` contra ISO 4217 real | Implementada (`b753c4a`) |
+| P005 | Validar `location.address.country` contra ISO 3166-1 real | Implementada — pendiente de revisión final y commit |
 
 *(actualizar esta tabla a mano al cerrar cada ciclo; sirve de índice rápido, el detalle vive en las entradas de abajo)*
 
@@ -294,3 +295,56 @@ hhkaos preguntó, con razón, si las fuentes que estaba usando (`Intl`, y un mir
   - `spec/v0.3/DECISIONS.md` — nueva entrada D005, documentando también el error de metodología cometido y corregido durante esta misma revisión.
   - Regenerados por script: `reference.en.md`, `reference.es.md`, `docs/data/reference.json`, `docs/data/examples.json`, `docs/schema/v0.3/event.schema.json`, `docs/llms*`.
 - **Notas:** Verificado con `npm run validate` (repo completo, limpio) y con el documento de evidencia original — `currency: "ZZZ"` ahora se rechaza; `EUR`/`USD` siguen validando. Pendiente de que hhkaos revise y decida si se commitea.
+
+## [2026-08-03] CODEX — PROPUESTA #P005: Validar `location.address.country` contra ISO 3166-1, no solo por su forma
+
+- **Área:** `event.schema.json` (`$defs.address.properties.country`), `reference.en.md`, `reference.es.md`, `README.md`, `examples/invalid/`
+- **Problema:** `location.address.country` se define normativamente como un código ISO 3166-1 alfa-2, pero el schema solo exige dos letras mayúsculas. Por tanto acepta combinaciones reservadas o inventadas que no identifican ningún país oficialmente asignado. Esto anula la razón declarada para estructurar el campo —agrupar sin confundir grafías traducidas— y traslada el valor inválido sin cambios a `schema.org/PostalAddress.addressCountry`, justo en el bloque de dirección que la spec afirma que Google valida por partes. Es el mismo tipo general de fallo de registro externo detectado en P002/P004, pero afecta a otro campo y a otro registro canónico; no está corregido ni deliberado en D001–D005. Endurecerlo después de v1.0 rompería documentos que el schema actual acepta con códigos sin referente.
+- **Evidencia:** Validado contra el `event.schema.json` actual con la configuración completa del proyecto (`Ajv2020`, `ajv-formats`, `annotationKeywords`, `customFormats` y `customKeywords`): este evento mínimo devuelve `valid: true`, `errors: null`, aunque `ZZ` no forma parte del conjunto de códigos ISO 3166-1 alfa-2 oficialmente asignados:
+
+  ```json
+  {
+    "specVersion": "0.3.0",
+    "id": "https://example.org/events/fake-country",
+    "name": "Fake country",
+    "startDate": "2026-08-04T18:00",
+    "timezone": "Europe/Madrid",
+    "location": {
+      "venue": "Imaginary venue",
+      "address": { "country": "ZZ" }
+    },
+    "license": "CC0-1.0"
+  }
+  ```
+
+  La contradicción interna es literal: `spec/v0.3/event.schema.json:1689-1692` describe `country` como `"ISO 3166-1 alpha-2 code"`, pero solo aplica `"pattern": "^[A-Z]{2}$"`. `spec/v0.3/reference.en.md:44` y `reference.es.md:44` repiten respectivamente «ISO 3166-1 alpha-2 code» y «Código ISO 3166-1 alfa-2». `spec/v0.3/README.md:316` dice que convertir el país en código es «consultar una tabla, no inventar»; `README.md:322-326` declara el mapeo 1:1 `country` → `addressCountry` y afirma que no hay pérdida. La fuente oficial de verdad no es `Intl` ni un dataset de terceros: la propia ISO identifica a la **ISO 3166 Maintenance Agency** como responsable de mantener el conjunto oficialmente asignado y dice que este se consulta en la **ISO Online Browsing Platform** ([ISO — ISO 3166 Country Codes](https://www.iso.org/iso-3166-country-codes.html)); ISO también registra formalmente al ISO Central Secretariat como Maintenance Agency de ISO 3166-1 ([ISO — Maintenance agencies and registration authorities](https://www.iso.org/maintenance_agencies.html)). D001–D005 cubren fechas, zonas IANA, reloj de pared/orden temporal y monedas ISO 4217; ninguna decide aceptar códigos de país meramente sintácticos.
+- **Propuesta:** Sustituir el patrón por un `enum` que congele una instantánea identificada de los códigos ISO 3166-1 alfa-2 **oficialmente asignados** según la ISO 3166 Maintenance Agency, verificada directamente contra la Online Browsing Platform o la Country Codes Collection oficial. Registrar en `$comment` la fuente canónica y fecha/edición del snapshot. Añadir un caso negativo con `country: "ZZ"` en `examples/invalid/` y documentar en ambas referencias que la versión valida contra ese snapshot. Si se automatiza la generación, el script debe consumir o contrastar el artefacto oficial de ISO; siguiendo la lección explícita de D002/D005, `Intl`, CLDR, una lista npm o un mirror de GitHub no son fuentes de verdad suficientes aunque puedan servir como comprobación secundaria.
+- **Impacto en compatibilidad:** Restrictivo para documentos que usan dos letras mayúsculas no oficialmente asignadas en el snapshot; los ejemplos actuales (`ES`, `US`) permanecen válidos. Esos valores ya contradicen la semántica normativa y no pueden agruparse ni mapearse de manera fiable como países. Un código asignado por ISO en el futuro requerirá una nueva versión OTE para incorporarse, el mismo coste deliberadamente aceptado en D002 y D005 para mantener inmutable la validez de una versión publicada.
+- **Alternativas consideradas:** (1) Mantener el patrón para aceptar códigos futuros: descartado porque acepta también combinaciones reservadas/inventadas y hace falsa la garantía ISO actual. (2) Usar `Intl`, CLDR o una librería de países como fuente del enum: descartado como fuente primaria por la evidencia metodológica de D002/D005; son derivados que pueden ir por detrás o aplicar criterios distintos al registro oficial. (3) Consultar ISO en cada validación: descartado porque introduce red, disponibilidad y cambios temporales en una versión que debe estar congelada. (4) Usar una lista de terceros porque el acceso masivo oficial pueda requerir suscripción: descartado como autoridad; si el mecanismo de descarga oficial limita la automatización, el snapshot puede verificarse contra la OBP y versionarse en el schema, pero no sustituirse silenciosamente por un mirror. (5) Dejar la regla solo en prosa: descartado porque el documento de evidencia seguiría validando y se exportaría como `PostalAddress.addressCountry` pese a no nombrar ningún país asignado.
+
+## [2026-08-03] CLAUDE — REVISION #P005: Validar `location.address.country` contra ISO 3166-1, no solo por su forma
+
+- **Veredicto:** APROBAR_CON_CAMBIOS
+- **Valoración:** Problema real, evidencia verificada de forma independiente (`country: "ZZ"` valida hoy). Confirmé la cita en `event.schema.json:1689-1692` y que ninguna entrada D001–D005 trata códigos de país. Mismo patrón que P002/P004, y Codex ya interiorizó la lección explícitamente: pide fuente oficial, no `Intl` ni mirror, y lo argumenta bien.
+- **Trade-offs:** Aquí está el problema que Codex no podía comprobar sin acceso de red en su propia ejecución, y que sí comprobé yo: **la fuente oficial que cita (`iso.org`, la Online Browsing Platform de ISO) devuelve `403` a cualquier petición automatizada** — lo probé con y sin cabecera de navegador real, y no es un bloqueo trivial de user-agent, tiene pinta de protección de bot/WAF. A diferencia de P002 (IANA, abierto) y P004 (SIX Group, abierto), **no he conseguido acceder a la fuente primaria real desde este entorno**. Sí encontré una alternativa razonable: el proyecto `iso-codes` de Debian (`salsa.debian.org/iso-codes-team/iso-codes`), que mantiene datos ISO 3166 y lo usan glibc/GNOME y buena parte del ecosistema Linux para justo este propósito — pero sigue siendo, por definición, el mismo tipo de mirror de terceros que D002/D005 advierten no tratar como autoridad primaria.
+- **Recomendación para v1.0:** El hallazgo es correcto y debe resolverse antes de congelar v1.0, mismo argumento que P001–P004. Pero antes de implementar, hace falta una decisión que no es solo técnica: ¿seguimos adelante con `iso-codes` de Debian como fuente, documentando abiertamente que no es la ISO en persona (a diferencia de P002/P004, donde sí llegamos a la autoridad real), o merece la pena invertir más esfuerzo en acceder a la OBP de otra forma (cuenta registrada, API distinta, etc.) antes de fijar el snapshot? Dejo la decisión a hhkaos en vez de asumir un compromiso yo solo, dado que es exactamente el tipo de cosa que ya pidió que se le consultara.
+- **Pendiente de:** decisión humana (hhkaos)
+
+## [2026-08-03] HUMANO — DECISION #P005
+
+- **Decisión:** APROBADA
+- **Notas:** hhkaos resolvió el bloqueo de `iso.org` por su cuenta: visitó la Online Browsing Platform en su navegador (donde el 403 automatizado no aplica) y copió la tabla oficial completa (nombre en inglés/francés, alfa-2, alfa-3, numérico) a un gist. Verifiqué que son 249 códigos únicos y que coinciden exactamente (249/249, cero discrepancias) con el mirror `iso-codes` de Debian, lo que da confianza en la transcripción. La fuente de origen sigue siendo la OBP de ISO — el gist es solo el medio de transporte, copiado a mano por un humano con acceso normal de navegador, no un mirror de terceros usado como autoridad.
+
+## [2026-08-03] CLAUDE — IMPLEMENTACION #P005
+
+- **Commit:** pendiente — cambios en el árbol de trabajo
+- **Ficheros cambiados:**
+  - `scripts/data/iso-3166-1-alpha-2.json` — nuevo, snapshot de los 249 códigos oficialmente asignados, con procedencia (quién, cuándo, y la comprobación cruzada contra `iso-codes` de Debian) documentada dentro del propio fichero.
+  - `scripts/update-countries.mjs` — nuevo. Actualizado tras sugerencia de hhkaos: en vez de exigir siempre una copia manual, **descarga automáticamente** de `iso-codes` de Debian y la compara contra el snapshot humano de la OBP en cada ejecución. Si coinciden, genera el enum; **si alguna vez difieren, aborta (exit 1) e imprime la diferencia** en vez de aceptar el cambio en silencio — probado de verdad simulando un desajuste antes de darlo por bueno.
+  - `spec/v0.3/event.schema.json` — nuevo `$defs.country` (enum de 249 códigos); `location.address.country` pasa a `$ref`; descripción actualizada con el aviso de `UK`/`GB`.
+  - `spec/v0.3/examples/invalid/` — 2 casos nuevos: `event-address-invalid-country.json` (`ZZ`) y `event-address-uk-not-gb.json` (el error real más probable).
+  - `spec/v0.3/i18n/es.json` — traducción de `event.location.address.country` actualizada, con el mismo aviso de `UK`/`GB`.
+  - `spec/v0.3/README.md` — nota junto a la explicación de `country`, con el aviso de `UK`/`GB` y enlace a `DECISIONS.md` D006.
+  - `spec/v0.3/DECISIONS.md` — nueva entrada D006: por qué la fuente oficial no se puede descargar directamente, el diseño de "automatizar pero sin confiar a ciegas" (comparar contra el humano en cada ejecución, no solo una vez), y la explicación de las 7 categorías de código ISO 3166-1 (solo "oficialmente asignado" entra en el enum).
+  - Regenerados por script: `reference.en.md`, `reference.es.md`, `docs/data/reference.json`, `docs/data/examples.json`, `docs/schema/v0.3/event.schema.json`, `docs/llms*`.
+- **Notas:** Verificado con `npm run validate` (repo completo, limpio); con los tres casos de evidencia (`country: "ZZ"` y `"UK"` se rechazan, `ES`/`US` siguen validando); y con una discrepancia simulada a propósito (quitando `FR` del snapshot) para confirmar que el script aborta de verdad en vez de solo prometerlo en el comentario. Pendiente de que hhkaos revise y decida si se commitea.
