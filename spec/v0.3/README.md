@@ -533,6 +533,8 @@ Nuevos en la v0.3, los dos opcionales. Son **dos campos porque son dos problemas
 
 **`textLanguage` es una etiqueta, no una lista.** Un texto está escrito en un idioma. Sin él, un consumidor no puede poner `lang="ca"` en el HTML —lo que decide la separación de sílabas, la voz del lector de pantalla y el diccionario del corrector—, ni ordenar alfabéticamente bien, ni decidir si traducir automáticamente. Nada de eso se puede adivinar del texto sin adivinar.
 
+**«Etiqueta BCP 47» se valida de verdad, no solo por su forma:** el núcleo (idioma, con script/región/variante opcionales) se comprueba subtag a subtag contra el registro real de IANA. Uso privado (`x-...`), etiquetas *grandfathered* (`i-klingon`) y extensiones quedan **deliberadamente fuera de alcance** — sin caso de uso real para «en qué idioma está este texto» — y códigos registrados que no nombran un idioma concreto (`und` Undetermined, `mis`, `mul`...) tampoco valen, mismo motivo que `ZZ` no vale como `country`. Detalle y alternativas descartadas en [DECISIONS.md, D007](DECISIONS.md#d007--languagetag-validates-the-core-of-bcp-47-against-the-real-iana-registry-not-all-of-it).
+
 **Se hereda del feed, y ahí está lo barato.** Como `license` y `organizers`: el feed lo declara una vez y todo evento que no lo declare lo hereda. Para quien publica en un solo idioma —el 99%— el coste de este campo es **una línea en todo el fichero**. Ausente significa **desconocido**: ni el inglés, ni el idioma de la cabecera HTTP, ni el del feed si el feed tampoco lo dice.
 
 **`translations` es un mapa, y el texto principal sigue siendo una cadena.** Es la decisión que sostiene todo lo demás:

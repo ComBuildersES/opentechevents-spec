@@ -1533,9 +1533,10 @@
       "pattern": "^([A-Za-z0-9.+-]+|https?://.+)$"
     },
     "languageTag": {
-      "description": "A BCP 47 language tag: \"es\", \"ca\", \"en\", \"es-MX\", \"zh-Hant\". Shared by languages (spoken at the event), textLanguage (the document's own text) and the keys of translations, so the three can never drift into three notions of what a language is.",
+      "description": "The CORE of a BCP 47 (RFC 5646) language tag: language, with optional script, region and variant subtags (\"es\", \"ca\", \"en\", \"es-MX\", \"zh-Hant\", \"ca-valencia\"), each checked against the real IANA Language Subtag Registry. Deliberately does NOT accept extended language subtags, extension singletons (\"-u-...\"), private use (\"x-...\") or grandfathered tags (\"i-klingon\") — none has a real use case for the language of an event's text, and grandfathered tags are relics RFC 5646 itself deprecates in favour of the modern subtag form. Shared by languages (spoken at the event), textLanguage (the document's own text) and the keys of translations, so the three can never drift into three notions of what a language is.",
       "type": "string",
-      "pattern": "^[A-Za-z]{2,3}(-[A-Za-z0-9]{2,8})*$"
+      "pattern": "^[A-Za-z]{2,8}(-[A-Za-z0-9]{2,8})*$",
+      "format": "ote-language-tag"
     },
     "languageMap": {
       "description": "The shape every translations map shares, wherever it appears: keys are BCP 47 tags, and an empty map is invalid — saying nothing is already done by omitting the field, the same rule location follows. Defined once so the five maps of this spec can never drift into five notions of what a language key is.",

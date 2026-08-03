@@ -70,6 +70,66 @@ function isOteLocalDateTime(value) {
   return day >= 1 && day <= maxDay && hour <= 23 && minute <= 59;
 }
 
+const languageSubtags = require("./language-subtags.json");
+const LANGUAGE = new Set(languageSubtags.language);
+const SCRIPT = new Set(languageSubtags.script);
+const REGION = new Set(languageSubtags.region);
+const VARIANT = new Set(languageSubtags.variant);
+
+/**
+ * Parses the CORE of a BCP 47 (RFC 5646) tag — `language ["-" script] ["-" region] *("-" variant)`
+ * — checking each subtag against the real IANA Language Subtag Registry, not just its shape.
+ * Deliberately does NOT handle `extlang`, extension singletons (`-u-...`, `-t-...`), private use
+ * (`x-...`) or the 26 fixed `grandfathered` tags: none has a real use case for "what language is
+ * this event's text in", and `grandfathered` tags are relics RFC 5646 itself deprecates in favor
+ * of the modern subtag form. See CHANGES.log #P006 / DECISIONS.md D007.
+ *
+ * Returns null if the tag doesn't parse; a well-formed tag with an unregistered subtag also
+ * returns null — e.g. "en-12345678" is 8 alphanumeric characters, which the grammar's own
+ * `5*8alphanum` variant form permits regardless of leading digit (contrary to a first read of
+ * the ABNF, only the SEPARATE 4-character `DIGIT 3alphanum` form is digit-led-and-length-4); it
+ * fails only because "12345678" was never registered as an actual variant.
+ */
+function parseCoreLanguageTag(value) {
+  if (typeof value !== "string" || value === "") return null;
+  const parts = value.split("-");
+
+  const language = parts[0].toLowerCase();
+  if (!/^[a-z]{2,8}$/.test(language) || !LANGUAGE.has(language)) return null;
+
+  let i = 1;
+  let script = null;
+  if (i < parts.length && /^[A-Za-z]{4}$/.test(parts[i])) {
+    const candidate = parts[i].toLowerCase();
+    if (!SCRIPT.has(candidate)) return null;
+    script = candidate;
+    i++;
+  }
+
+  let region = null;
+  if (i < parts.length && /^([A-Za-z]{2}|\d{3})$/.test(parts[i])) {
+    const candidate = parts[i].toLowerCase();
+    if (!REGION.has(candidate)) return null;
+    region = candidate;
+    i++;
+  }
+
+  const variants = [];
+  while (i < parts.length) {
+    if (!/^([A-Za-z0-9]{5,8}|\d[A-Za-z0-9]{3})$/.test(parts[i])) return null;
+    const candidate = parts[i].toLowerCase();
+    if (!VARIANT.has(candidate) || variants.includes(candidate)) return null;
+    variants.push(candidate);
+    i++;
+  }
+
+  return { language, script, region, variants };
+}
+
+function isOteLanguageTag(value) {
+  return parseCoreLanguageTag(value) !== null;
+}
+
 /**
  * Formats the schemas use beyond what ajv-formats provides. Ajv's strict mode refuses to
  * compile a schema referencing an unregistered format, so register these before compiling —
@@ -77,7 +137,10 @@ function isOteLocalDateTime(value) {
  *
  *   for (const f of customFormats) ajv.addFormat(f.name, f.validate);
  */
-export const customFormats = [{ name: "ote-local-date-time", validate: isOteLocalDateTime }];
+export const customFormats = [
+  { name: "ote-local-date-time", validate: isOteLocalDateTime },
+  { name: "ote-language-tag", validate: isOteLanguageTag },
+];
 
 /**
  * `$defs.event`'s own constraint: `endDate`, when present, must not be earlier than `startDate`.

@@ -796,7 +796,7 @@
         },
         {
           "path": "textLanguage",
-          "type": "string",
+          "type": "string (ote-language-tag)",
           "required": false,
           "recommended": false,
           "examples": [
@@ -1412,7 +1412,7 @@
         },
         {
           "path": "textLanguage",
-          "type": "string",
+          "type": "string (ote-language-tag)",
           "required": false,
           "recommended": false,
           "examples": [
