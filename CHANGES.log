@@ -64,7 +64,7 @@ Campos por tipo:
 | P006 | `languageTag` debe validar el núcleo BCP 47 + registro IANA | Implementada (`e688852`) |
 | P007 | Validar `license` contra SPDX + aviso "amigable con directorios" | Implementada (`e66a235`) |
 | P008 | Rechazar ventanas invertidas en `offers`/`cfp` (opensAt/closesAt) | Implementada (`0886f5f`) |
-| P009 | Impedir que `translations` repita el idioma principal | Implementada — pendiente de revisión final y commit |
+| P009 | Impedir que `translations` repita el idioma principal | Implementada (`3ac5def`) |
 
 *(actualizar esta tabla a mano al cerrar cada ciclo; sirve de índice rápido, el detalle vive en las entradas de abajo)*
 
@@ -587,7 +587,7 @@ hhkaos pidió explícitamente que el razonamiento de por qué no forzar la zona 
 
 ## [2026-08-03] CLAUDE — IMPLEMENTACION #P009
 
-- **Commit:** pendiente — cambios en el árbol de trabajo
+- **Commit:** `3b553b3` (log) y `3ac5def` (implementación)
 - **Ficheros cambiados:**
   - `index.js`/`index.d.ts` — nuevo keyword `distinctTranslationLanguages` en `customKeywords`, comparación insensible a mayúsculas, comprobando `translations`, `eligibility.translations`, `partOf.translations`, cada `offers[].translations` y cada `image[].translations`.
   - `spec/v0.3/event.schema.json` — `distinctTranslationLanguages: true` en `$defs.event`.
