@@ -59,6 +59,7 @@ Campos por tipo:
 | P001 | Validar fechas y horas reales, no solo su forma | Implementada (`042d12c`) |
 | P002 | Validar `timezone` contra la lista IANA real | Implementada (`042d12c`) |
 | P003 | Rechazar `endDate` anterior a `startDate`; prohibir segundos en `dateTime` | Implementada (`4360135`) |
+| P004 | Validar `offers[].currency` contra ISO 4217 real | Implementada — pendiente de revisión final y commit |
 
 *(actualizar esta tabla a mano al cerrar cada ciclo; sirve de índice rápido, el detalle vive en las entradas de abajo)*
 
@@ -222,3 +223,74 @@ Prohibir segundos en `$defs.dateTime` (pattern `^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$`
   - `spec/v0.3/DECISIONS.md` — nueva entrada D004.
   - Regenerados por script: `reference.en.md`, `reference.es.md`, `docs/data/reference.json`, `docs/data/examples.json`, `docs/schema/v0.3/event.schema.json`, `docs/llms*`.
 - **Notas:** Verificado con `npm run validate` (repo completo, limpio) y con casos ad hoc: intervalo invertido con y sin segundos, intervalos iguales (deben pasar), intervalo de día completo invertido, y el caso que motivó el ajuste (mismo instante nominal con/sin segundos) — ya no puede darse, al no admitirse segundos. Pendiente de que hhkaos revise y decida si se commitea.
+
+## [2026-08-03] CODEX — PROPUESTA #P004: Validar `offers[].currency` contra ISO 4217, no solo por su forma
+
+- **Área:** `event.schema.json` (`$defs.offer.properties.currency`), `reference.en.md`, `reference.es.md`, `README.md`, `examples/invalid/`
+- **Problema:** `offers[].currency` se define normativamente como un código ISO 4217 alfa-3, pero el schema solo exige tres letras mayúsculas. Por tanto acepta códigos inventados que tienen la forma correcta pero no identifican ninguna moneda. Con `price > 0`, la condicional actual obliga a incluir `currency`, pero permite satisfacerla con un valor sin significado; el importe sigue siendo imposible de interpretar y comparar, exactamente el problema que la obligatoriedad de la moneda pretende evitar. Además, el mapeo declarado copia el valor sin cambios a `schema.org/Offer.priceCurrency`, de modo que OTE puede validar un documento que no cumple la semántica que promete exportar. Endurecer el campo después de v1.0 convertiría en inválidos documentos previamente aceptados con códigos ficticios.
+- **Evidencia:** Validado contra el `event.schema.json` actual con la configuración completa del proyecto (`Ajv2020`, `ajv-formats`, `annotationKeywords`, `customFormats` y `customKeywords`): este evento mínimo devuelve `valid: true`, `errors: null`, aunque `ZZZ` no es un código ISO 4217:
+
+  ```json
+  {
+    "specVersion": "0.3.0",
+    "id": "https://example.org/events/fake-currency",
+    "name": "Fake currency",
+    "startDate": "2026-08-04T18:00",
+    "timezone": "Europe/Madrid",
+    "offers": [
+      { "price": 10, "currency": "ZZZ" }
+    ],
+    "license": "CC0-1.0"
+  }
+  ```
+
+  La contradicción es literal. `spec/v0.3/event.schema.json:1712-1715` describe el campo como `"ISO 4217 alpha-3 code"`, pero lo restringe únicamente con `"pattern": "^[A-Z]{3}$"`. `spec/v0.3/reference.en.md:60` repite «ISO 4217 alpha-3 code» y `spec/v0.3/reference.es.md:60`, «Código ISO 4217 alfa-3». `spec/v0.3/README.md:680` explica que un importe sin moneda «no es un precio» y exige «código ISO (4217 aquí, alfa-3 en mayúsculas)»; `README.md:709-713` declara el mapeo directo `currency` → schema.org `priceCurrency` y afirma que, salvo `waitlistUrl`, el resto se conserva 1:1. Ninguna entrada D001–D004 de `spec/v0.3/DECISIONS.md` ni P001–P003 de este log trata códigos monetarios: las cuatro decisiones se limitan a validez temporal, zonas horarias, representación de reloj de pared, orden de fechas y precisión de `dateTime`.
+- **Propuesta:** Sustituir el patrón por un `enum` generado a partir de una instantánea identificada de la lista oficial ISO 4217, incluyendo los códigos activos que la especificación decida admitir y dejando constancia de la versión/fuente en `$comment`, igual que P002 registra la procedencia de tzdata. Añadir un script de mantenimiento reproducible para regenerarlo, un caso negativo con `ZZZ` en `examples/invalid/` y una nota en la prosa/referencias que aclare que la validez se comprueba contra la instantánea incluida en esta versión. Mantener intacta la condicional existente: `currency` sigue siendo obligatoria solo cuando `price > 0`; P004 restringe el valor cuando aparece, no cambia cuándo se requiere.
+- **Impacto en compatibilidad:** Restrictivo para documentos que usan tres letras mayúsculas que no pertenecen a la instantánea ISO 4217 adoptada; los códigos reales usados por los ejemplos (`EUR`, `USD`) permanecen válidos. Esos documentos ya incumplen la semántica normativa actual y no pueden mapearse de forma fiable a `Offer.priceCurrency`. Como una versión publicada es inmutable, una moneda incorporada por ISO en el futuro requeriría una nueva versión de OTE para entrar en el enum; ese coste es explícito y preferible a que la validez de una misma versión cambie con una consulta externa.
+- **Alternativas consideradas:** (1) Mantener el patrón para aceptar por adelantado futuras monedas: descartado porque también acepta infinitos códigos inventados y contradice la afirmación normativa de que el valor es ISO 4217. (2) Consultar la lista ISO en tiempo de validación: descartado porque haría que una versión congelada validase de forma distinta según la fecha, la red o la biblioteca del consumidor. (3) Implementar un `format` personalizado cuya lista se actualice en el paquete sin cambiar el schema: descartado por la misma inestabilidad y porque desplaza una restricción enumerable fuera del JSON Schema. (4) Limitarse a documentar que los productores deben comprobar ISO 4217: descartado porque el JSON de evidencia seguiría pasando el validador normativo y llegaría sin cambios a schema.org.
+
+## [2026-08-03] CLAUDE — REVISION #P004: Validar `offers[].currency` contra ISO 4217, no solo por su forma
+
+- **Veredicto:** APROBAR
+- **Valoración:** Evidencia verificada de forma independiente: `{"price": 10, "currency": "ZZZ"}` valida hoy (`npm run validate` → `Valid.`). Confirmé la cita exacta en `event.schema.json:1712-1715` (`pattern: "^[A-Z]{3}$"` bajo una descripción que dice literalmente «ISO 4217 alpha-3 code») y que ninguna entrada D001–D004 toca códigos monetarios — es un hallazgo genuinamente nuevo, no una repetición. El paralelismo con P002 (`timezone`) es correcto y Codex lo señala explícitamente: mismo patrón de fallo (forma válida, valor sin referente real), misma solución (`enum` generado con procedencia declarada en `$comment`), mismo argumento de por qué NO consultar la lista en tiempo real (rompería que una versión congelada valide siempre igual).
+- **Trade-offs:** Hice la comprobación que en P002 resultó necesaria — si la fuente del `enum` es estable o depende de qué máquina lo genera — y aquí el resultado es más tranquilizador. `Intl.supportedValuesOf('currency')` de Node da 162 códigos; comprobé que incluye todas las monedas activas que probé (`XOF`, `XAF`, `CUP`, `ZWL`, etc.) y excluye limpiamente los códigos que no tienen sentido para el precio de una entrada (`XAU`/`XAG`/`XPD`/`XPT`, metales preciosos; `XTS`/`XXX`, códigos de prueba/«sin moneda»). A diferencia de las zonas horarias, no encontré un caso de dos códigos vigentes en conflicto entre versiones — el riesgo de inestabilidad tipo Kiev/Kyiv parece bajo aquí, pero **no lo he probado en más de una versión de Node**, así que no lo doy por cerrado.
+- **Recomendación para v1.0:** Debe resolverse antes de congelar v1.0, mismo argumento que P001–P003: es un hueco de validez semántica, no una mejora cosmética. Antes de implementar, pido la misma diligencia que en P002: verificar la fuente contra el propio texto ISO 4217 (no solo contra el `Intl` de una máquina) antes de fijar el snapshot, aunque el riesgo parezca menor. El resto de la propuesta de Codex —`enum` generado, script de mantenimiento, `$comment` con procedencia, caso negativo `ZZZ`, condicional `price > 0` intacta— me parece correcto tal cual.
+- **Pendiente de:** decisión humana (hhkaos)
+
+## [2026-08-03] HUMANO — DECISION #P004
+
+- **Decisión:** APROBADA
+
+## [2026-08-03] CLAUDE — NOTA #P004: la diligencia pedida (verificar `Intl` contra el propio ISO 4217) tiene resultado, y confirma en vez de corregir
+
+A diferencia de P002, esta vez la comprobación **no** encontró un problema que obligara a cambiar de fuente — pero el resultado merece quedar por escrito porque no era obvio de antemano.
+
+Descargué un espejo de la lista oficial ISO 4217 (`raw.githubusercontent.com/datasets/currency-codes`, con fecha de baja por código) y lo comparé contra `Intl.supportedValuesOf('currency')` de Node (162 códigos):
+
+- **22 códigos activos en ISO que `Intl` no reconoce.** Los revisé uno a uno: son unidades de cuenta/liquidación entre bancos (`BOV`, `CLF`, `COU`, `MXV`, `USN`, `UYI`, `UYW`, `VED`, `XUA`, `CHE`, `CHW`, `XAD`), unidades compuestas de bonos (`XBA`–`XBD`), metales preciosos (`XAU`, `XAG`, `XPD`, `XPT`) y códigos de prueba/«sin moneda» (`XTS`, `XXX`). Ninguno es algo en lo que alguien fije el precio de una entrada a un meetup. Que `Intl` los excluya no es una laguna para este caso de uso — es, si acaso, mejor ajuste que la lista ISO cruda.
+- **6 códigos que `Intl` acepta y el espejo ISO marca como retirados**, y aquí está la sorpresa: uno de los seis es `BGN` (lev búlgaro), que sigo sin cualquier duda es moneda corriente hoy — Bulgaria no ha adoptado el euro. El espejo de GitHub tiene un dato mal ahí, no `Intl`. Los otros cinco (`ANG`, `CUC`, `HRK`, `SLL`, `ZWL`) son casos reales de monedas retiradas o en transición que `Intl` no ha depurado — aceptarlas de más es un riesgo mucho más pequeño que rechazar una moneda viva (un falso positivo aquí es admitir un código en desuso; un falso negativo sería rechazar el precio de una entrada real).
+
+**Conclusión: `Intl.supportedValuesOf('currency')` es una fuente razonable para este campo**, mejor incluso que filtrar la lista ISO cruda por fecha de baja (que aquí resultó tener un error propio). Sigo la propuesta de Codex tal cual, documentando esta comprobación en el `$comment` del enum en vez de cambiar de fuente como pasó en P002.
+
+## [2026-08-03] CLAUDE — CORRECCION #P004: la NOTA anterior estaba mal — `BGN` sí está retirado, y la fuente cambia a la lista oficial de SIX Group
+
+hhkaos preguntó, con razón, si las fuentes que estaba usando (`Intl`, y un mirror de GitHub de terceros) eran realmente autoritativas — ninguna de las dos lo es; ambas son derivados de segunda mano de ISO 4217, no la agencia de mantenimiento. Al ir a buscar la fuente oficial de verdad en vez de conformarme con esas dos, encontré el error que invalida mi NOTA anterior.
+
+**Fuente oficial encontrada:** SIX Group es la agencia de mantenimiento de ISO 4217 (designada por ISO). Publican las listas activas y retiradas en XML: `https://www.six-group.com/dam/download/financial-information/data-center/iso-currrency/lists/list-one.xml` (activas, 178 códigos, `Pblshd="2026-01-01"`) y `.../list-three.xml` (históricas, con fecha de baja).
+
+**El hallazgo:** en `list-three.xml`, `BGN` (lev búlgaro) figura con `WthdrwlDt: 2026-01` — Bulgaria adoptó el euro en enero de 2026. Yo había afirmado en la NOTA anterior que `BGN` «sigo sin cualquier duda es moneda corriente hoy» — **eso era una suposición mía, no un dato comprobado**, y estaba desactualizada. El mirror de GitHub que antes acusé de tener «un error propio» en realidad tenía razón en excluir `BGN`; el error era mío.
+
+**Conclusión corregida:** `Intl.supportedValuesOf('currency')` (162 códigos) está desactualizado respecto a la lista oficial vigente — sigue aceptando `BGN`, `ANG`, `CUC`, `HRK`, `SLL`, `ZWL`, todos retirados según `list-three.xml`. La fuente pasa a ser el XML oficial de SIX Group, no `Intl` — mismo patrón que P002 con IANA: la conveniencia de una API embebida en el runtime pierde contra el registro oficial cuando hay diferencia, y aquí la había. `scripts/update-currencies.mjs` se reescribe para descargar `list-one.xml` en vez de leer `Intl`.
+
+## [2026-08-03] CLAUDE — IMPLEMENTACION #P004
+
+- **Commit:** pendiente — cambios en el árbol de trabajo
+- **Ficheros cambiados:**
+  - `spec/v0.3/event.schema.json` — nuevo `$defs.currency` (178 códigos ISO 4217 activos, fuente oficial SIX Group, `$comment` con procedencia y fecha de publicación); `offers[].currency` pasa a `$ref`.
+  - `scripts/update-currencies.mjs` — nuevo, descarga `list-one.xml` de SIX Group y regenera el enum (mantenimiento manual, no en CI, igual que `update-timezones.mjs`).
+  - `spec/v0.3/examples/invalid/event-offer-invalid-currency.json` — nuevo caso negativo (`ZZZ`).
+  - `spec/v0.3/i18n/es.json` — traducción de `event.offers[].currency` actualizada.
+  - `spec/v0.3/README.md` — nota añadida junto a la explicación de `currency`, enlace a `DECISIONS.md` D005.
+  - `spec/v0.3/DECISIONS.md` — nueva entrada D005, documentando también el error de metodología cometido y corregido durante esta misma revisión.
+  - Regenerados por script: `reference.en.md`, `reference.es.md`, `docs/data/reference.json`, `docs/data/examples.json`, `docs/schema/v0.3/event.schema.json`, `docs/llms*`.
+- **Notas:** Verificado con `npm run validate` (repo completo, limpio) y con el documento de evidencia original — `currency: "ZZZ"` ahora se rechaza; `EUR`/`USD` siguen validando. Pendiente de que hhkaos revise y decida si se commitea.
