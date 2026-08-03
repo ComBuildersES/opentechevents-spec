@@ -81,7 +81,7 @@ Campos por tipo:
 | P023 | Listar los keywords custom (reglas de validez) en `reference.*.md` | Implementada (`2880f88`) |
 | P024 | Exigir al menos un campo OTE en traducciones de evento/feed | Implementada (`fece3a7`) |
 | P025 | Recorrer `additionalProperties` en el generador de referencia | Implementada (`85ee7aa`) |
-| P026 | Impedir claves de `translations` equivalentes tras normalizar BCP 47 | Implementada — pendiente de revisión final y commit |
+| P026 | Impedir claves de `translations` equivalentes tras normalizar BCP 47 | Implementada (`f8fe495`) |
 
 *(actualizar esta tabla a mano al cerrar cada ciclo; sirve de índice rápido, el detalle vive en las entradas de abajo)*
 
@@ -2085,7 +2085,7 @@ Confirmado con hhkaos que, con esta justificación corregida, sigue mereciendo l
 
 ## [2026-08-04] CLAUDE — IMPLEMENTACION #P026
 
-- **Commit:** pendiente — cambios en el árbol de trabajo
+- **Commit:** `f359aea` (log) y `f8fe495` (implementación)
 - **Ficheros cambiados:**
   - `index.js` — nueva función compartida `translationMapsAreDistinct()`, usada por `distinctTranslationLanguages` (evento y feed) y por `eventsRespectInheritedTextLanguage` (evento embebido, idioma efectivo): dentro de cada mapa `translations` individual, ninguna clave puede repetir el idioma primario/efectivo NI coincidir con otra clave del mismo mapa tras normalizar mayúsculas. `index.d.ts` no necesita cambios: el tipo de `customKeywords` ya es genérico.
   - `spec/v0.3/examples/invalid/event-translations-duplicate-normalized-keys.json`, `event-offer-translations-duplicate-normalized-keys.json`, `feed-event-translations-duplicate-normalized-keys.json` — casos negativos nuevos: evento suelto, traducción local en `offers[]`, y evento embebido heredando `textLanguage` del feed.
