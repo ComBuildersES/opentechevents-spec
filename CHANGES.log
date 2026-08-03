@@ -74,7 +74,7 @@ Campos por tipo:
 | P016 | Corregir la referencia española de `event.textLanguage` que niega su herencia | Implementada (`94703b0`) |
 | P017 | Exigir contenido real en `description` (perfil recomendado) | Implementada (`bf73119`) |
 | P018 | Rechazar texto libre de solo espacios en 21 campos con `minLength: 1` | Implementada (`df92d8d`) |
-| P019 | Avisar si un idioma de `languages` no tiene texto disponible | Aprobada — pendiente de implementación |
+| P019 | Avisar si un idioma de `languages` no tiene texto disponible | Implementada — pendiente de revisión final y commit |
 
 *(actualizar esta tabla a mano al cerrar cada ciclo; sirve de índice rápido, el detalle vive en las entradas de abajo)*
 
@@ -1333,3 +1333,15 @@ Confirmado con hhkaos que, con esta justificación corregida, sigue mereciendo l
 - **Decisión:** APROBADA
 - **Notas:** Aprobada tal cual la propuesta de Codex.
 
+## [2026-08-03] CLAUDE — IMPLEMENTACION #P019
+
+- **Commit:** pendiente — cambios en el árbol de trabajo
+- **Ficheros cambiados:**
+  - `index.js`/`index.d.ts` — nuevo keyword `languagesCoveredByText` en `customKeywords`: compara `languages[]` contra la unión del `textLanguage` efectivo y las claves de `translations`, sin distinguir mayúsculas, sin inferir región/script/macrolengua. No avisa si no hay ninguna información textual (ni `textLanguage` ni `translations`), para no reintroducir `textLanguage` como recomendado por la puerta de atrás.
+  - `spec/v0.3/event.recommended.schema.json` — `"type": "object"` (necesario para el modo estricto de Ajv) y `"languagesCoveredByText": true` en la raíz.
+  - `scripts/validate.mjs` — `asPublished()` ahora también inyecta `feed.textLanguage` cuando el evento no declara el suyo, igual que ya hace con `organizers`/`license`/`specVersion`. `missingRecommended` gana un `OBJECT_KEYWORD_FIELD` explícito para etiquetar correctamente el aviso como `languages` (el keyword valida el objeto evento entero, así que Ajv reporta su fallo en la raíz, no en `/languages`).
+  - `spec/v0.3/examples/event-conference-cfp.json` — **corregido**: tenía `languages: ["es","en"]` y `textLanguage: "es"` sin ninguna traducción de nivel superior — el inglés no tenía texto disponible. Añadida `translations.en` con `name`/`description`. Único ejemplo real afectado.
+  - `spec/v0.3/DECISIONS.md` — nueva entrada D019.
+  - `spec/v0.3/README.md` — nota junto a la explicación de `languages`/`textLanguage`, con enlace a D019.
+  - Regenerados por script: `reference.en.md`, `reference.es.md`, `docs/data/reference.json`, `docs/data/examples.json`, `docs/schema/v0.3/event.recommended.schema.json`, `docs/llms*`.
+- **Notas:** Verificado con `npm run validate` (repo completo, limpio). Probado además con casos ad hoc: el aviso dispara correctamente cuando `es` no está cubierto, no dispara si `translations.es` existe, no dispara si no hay ninguna información textual, y la comparación es case-insensitive. Probado el caso de herencia vía feed (evento sin `textLanguage` propio, heredado del feed) y confirmado que el aviso ahora sí lo detecta, gracias al cambio en `asPublished()`. `event-conference-cfp.json` es la segunda vez en esta auditoría (tras `feed-multipart.json` en P014) que un chequeo nuevo encuentra un defecto real en el corpus canónico. Pendiente de que hhkaos revise el resultado.

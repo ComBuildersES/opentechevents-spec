@@ -3,6 +3,8 @@
   "$id": "https://opentechevents.org/schema/v0.3/event.recommended.schema.json",
   "title": "OTE Event — recommended profile",
   "description": "A quality profile, NOT a validity profile. An event that fails this schema is still a valid OTE event: event.schema.json decides what is valid, and it is deliberately permissive because most published .ics files carry neither URL nor description. This schema decides something else — whether the event can actually be discovered, filtered and subscribed to. Tools SHOULD report failures here as warnings and MUST NOT reject a document for them. It applies both to a standalone event and to one inside a feed: it references #/$defs/event, so it never asks for specVersion or license.",
+  "type": "object",
+  "languagesCoveredByText": true,
   "allOf": [
     {
       "$ref": "https://opentechevents.org/schema/v0.3/event.schema.json#/$defs/event"

@@ -776,7 +776,7 @@ Nuevos en la v0.3, los dos opcionales. Son **dos campos porque son dos problemas
 }
 ```
 
-**`languages` y `textLanguage` no son el mismo dato**, y este ejemplo es exactamente por qué: en la sesión **se habla** catalán y castellano, y el documento **está escrito** solo en catalán. Ninguno de los dos se deriva del otro, y confundirlos es el riesgo real de esta pareja: `languages` contesta «¿lo entenderé si voy?», `textLanguage` contesta «¿en qué idioma está este texto?». La descripción de `languages` ahora lo dice en el propio schema, porque es donde alguien lo va a leer.
+**`languages` y `textLanguage` no son el mismo dato**, y este ejemplo es exactamente por qué: en la sesión **se habla** catalán y castellano, y el documento **está escrito** solo en catalán. Ninguno de los dos se deriva del otro, y confundirlos es el riesgo real de esta pareja: `languages` contesta «¿lo entenderé si voy?», `textLanguage` contesta «¿en qué idioma está este texto?». La descripción de `languages` ahora lo dice en el propio schema, porque es donde alguien lo va a leer. Que sea válido no significa que sea completo: el perfil recomendado avisa (sin invalidar) si algún idioma de `languages` no tiene ni `textLanguage` (propio o heredado del feed) ni una entrada en `translations` que lo cubra — quien solo lea ese idioma no encuentra ni una palabra que entender. Detalle en [DECISIONS.md, D019](DECISIONS.md#d019--recommended-profile-warns-when-a-spoken-languages-entry-has-no-available-text).
 
 **`textLanguage` es una etiqueta, no una lista.** Un texto está escrito en un idioma. Sin él, un consumidor no puede poner `lang="ca"` en el HTML —lo que decide la separación de sílabas, la voz del lector de pantalla y el diccionario del corrector—, ni ordenar alfabéticamente bien, ni decidir si traducir automáticamente. Nada de eso se puede adivinar del texto sin adivinar.
 
@@ -4990,6 +4990,8 @@ Source: spec/v0.3/event.recommended.schema.json — Profile: what makes an event
   "$id": "https://opentechevents.org/schema/v0.3/event.recommended.schema.json",
   "title": "OTE Event — recommended profile",
   "description": "A quality profile, NOT a validity profile. An event that fails this schema is still a valid OTE event: event.schema.json decides what is valid, and it is deliberately permissive because most published .ics files carry neither URL nor description. This schema decides something else — whether the event can actually be discovered, filtered and subscribed to. Tools SHOULD report failures here as warnings and MUST NOT reject a document for them. It applies both to a standalone event and to one inside a feed: it references #/$defs/event, so it never asks for specVersion or license.",
+  "type": "object",
+  "languagesCoveredByText": true,
   "allOf": [
     {
       "$ref": "https://opentechevents.org/schema/v0.3/event.schema.json#/$defs/event"
@@ -5304,7 +5306,16 @@ Source: spec/v0.3/examples/event-conference-cfp.json — Validated documents, on
   },
   "status": "scheduled",
   "license": "CC-BY-4.0",
-  "updatedAt": "2026-05-04T09:00:00Z"
+  "updatedAt": "2026-05-04T09:00:00Z",
+
+  "_comment_languages_translations": "languages declara \"es\" y \"en\" porque la conferencia se vive en los dos —tracks y networking en inglés—, pero antes de P019 el documento no traducía ni name ni description: el perfil recomendado no tenía forma de detectarlo, y quien solo lee inglés no encontraba ni una palabra que entendiera. Ver CHANGES.log #P019 / DECISIONS.md D019.",
+
+  "translations": {
+    "en": {
+      "name": "DevFest Levante 2026",
+      "description": "South-east dev conference, 2026 edition. Two days, three tracks."
+    }
+  }
 }
 ```
 

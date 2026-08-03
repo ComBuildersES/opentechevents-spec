@@ -1069,7 +1069,7 @@
           "`cfp` no tiene equivalente en schema.org, iCal ni RSS: al exportar se degrada a texto. Está en el núcleo igualmente porque «qué conferencias aceptan propuestas ahora mismo» solo lo puede contestar quien publica, y hoy se contesta scrapeando."
         ]
       },
-      "source": "{\n  \"specVersion\": \"0.3.0\",\n  \"id\": \"https://devfest-levante.example/2026\",\n  \"url\": \"https://devfest-levante.example/2026\",\n  \"name\": \"DevFest Levante 2026\",\n  \"description\": \"Conferencia de desarrollo del sureste, edición 2026. Dos días, tres tracks.\",\n  \"image\": [\n    \"https://devfest-levante.example/img/2026-16x9.png\"\n  ],\n  \"organizers\": [\n    {\n      \"name\": \"GDG Levante\",\n      \"url\": \"https://gdglevante.example\"\n    }\n  ],\n  \"startDate\": \"2026-10-16\",\n  \"endDate\": \"2026-10-17\",\n  \"timezone\": \"Europe/Madrid\",\n  \"attendanceMode\": \"in-person\",\n  \"location\": {\n    \"venue\": \"Las Naves, Carrer de Joan Verdeguer 16, València\",\n    \"address\": {\n      \"street\": \"Carrer de Joan Verdeguer 16\",\n      \"locality\": \"València\",\n      \"region\": \"Comunitat Valenciana\",\n      \"postalCode\": \"46024\",\n      \"country\": \"ES\"\n    }\n  },\n  \"tags\": [\n    \"cloud\",\n    \"ai\",\n    \"web\"\n  ],\n  \"languages\": [\n    \"es\",\n    \"en\"\n  ],\n  \"textLanguage\": \"es\",\n  \"offers\": [\n    {\n      \"name\": \"Early bird\",\n      \"price\": 35,\n      \"currency\": \"EUR\",\n      \"url\": \"https://devfest-levante.example/2026/entradas\",\n      \"availability\": \"sold-out\",\n      \"closesAt\": \"2026-06-30T23:59:59+02:00\"\n    },\n    {\n      \"name\": \"General\",\n      \"price\": 45,\n      \"currency\": \"EUR\",\n      \"url\": \"https://devfest-levante.example/2026/entradas\",\n      \"availability\": \"in-stock\",\n      \"opensAt\": \"2026-07-01T00:00:00+02:00\"\n    },\n    {\n      \"name\": \"Estudiantes\",\n      \"price\": 0,\n      \"url\": \"https://devfest-levante.example/2026/entradas#estudiantes\",\n      \"availability\": \"sold-out\",\n      \"waitlistUrl\": \"https://devfest-levante.example/2026/lista-espera\",\n      \"translations\": {\n        \"en\": {\n          \"name\": \"Students\"\n        }\n      }\n    }\n  ],\n  \"cfp\": {\n    \"url\": \"https://devfest-levante.example/2026/cfp\",\n    \"opensAt\": \"2026-05-01T00:00:00+02:00\",\n    \"closesAt\": \"2026-07-15T23:59:59+02:00\",\n    \"coversTravel\": true,\n    \"coversAccommodation\": true\n  },\n  \"status\": \"scheduled\",\n  \"license\": \"CC-BY-4.0\",\n  \"updatedAt\": \"2026-05-04T09:00:00Z\"\n}",
+      "source": "{\n  \"specVersion\": \"0.3.0\",\n  \"id\": \"https://devfest-levante.example/2026\",\n  \"url\": \"https://devfest-levante.example/2026\",\n  \"name\": \"DevFest Levante 2026\",\n  \"description\": \"Conferencia de desarrollo del sureste, edición 2026. Dos días, tres tracks.\",\n  \"image\": [\n    \"https://devfest-levante.example/img/2026-16x9.png\"\n  ],\n  \"organizers\": [\n    {\n      \"name\": \"GDG Levante\",\n      \"url\": \"https://gdglevante.example\"\n    }\n  ],\n  \"startDate\": \"2026-10-16\",\n  \"endDate\": \"2026-10-17\",\n  \"timezone\": \"Europe/Madrid\",\n  \"attendanceMode\": \"in-person\",\n  \"location\": {\n    \"venue\": \"Las Naves, Carrer de Joan Verdeguer 16, València\",\n    \"address\": {\n      \"street\": \"Carrer de Joan Verdeguer 16\",\n      \"locality\": \"València\",\n      \"region\": \"Comunitat Valenciana\",\n      \"postalCode\": \"46024\",\n      \"country\": \"ES\"\n    }\n  },\n  \"tags\": [\n    \"cloud\",\n    \"ai\",\n    \"web\"\n  ],\n  \"languages\": [\n    \"es\",\n    \"en\"\n  ],\n  \"textLanguage\": \"es\",\n  \"offers\": [\n    {\n      \"name\": \"Early bird\",\n      \"price\": 35,\n      \"currency\": \"EUR\",\n      \"url\": \"https://devfest-levante.example/2026/entradas\",\n      \"availability\": \"sold-out\",\n      \"closesAt\": \"2026-06-30T23:59:59+02:00\"\n    },\n    {\n      \"name\": \"General\",\n      \"price\": 45,\n      \"currency\": \"EUR\",\n      \"url\": \"https://devfest-levante.example/2026/entradas\",\n      \"availability\": \"in-stock\",\n      \"opensAt\": \"2026-07-01T00:00:00+02:00\"\n    },\n    {\n      \"name\": \"Estudiantes\",\n      \"price\": 0,\n      \"url\": \"https://devfest-levante.example/2026/entradas#estudiantes\",\n      \"availability\": \"sold-out\",\n      \"waitlistUrl\": \"https://devfest-levante.example/2026/lista-espera\",\n      \"translations\": {\n        \"en\": {\n          \"name\": \"Students\"\n        }\n      }\n    }\n  ],\n  \"cfp\": {\n    \"url\": \"https://devfest-levante.example/2026/cfp\",\n    \"opensAt\": \"2026-05-01T00:00:00+02:00\",\n    \"closesAt\": \"2026-07-15T23:59:59+02:00\",\n    \"coversTravel\": true,\n    \"coversAccommodation\": true\n  },\n  \"status\": \"scheduled\",\n  \"license\": \"CC-BY-4.0\",\n  \"updatedAt\": \"2026-05-04T09:00:00Z\",\n  \"translations\": {\n    \"en\": {\n      \"name\": \"DevFest Levante 2026\",\n      \"description\": \"South-east dev conference, 2026 edition. Two days, three tracks.\"\n    }\n  }\n}",
       "lines": {
         "event.specVersion": [
           2
@@ -1214,6 +1214,18 @@
         ],
         "event.updatedAt": [
           79
+        ],
+        "event.translations.en.name": [
+          82
+        ],
+        "event.translations.en.description": [
+          83
+        ],
+        "event.translations.en": [
+          81
+        ],
+        "event.translations": [
+          80
         ]
       }
     },
@@ -3910,6 +3922,12 @@
         ]
       },
       {
+        "file": "event-conference-cfp.json",
+        "lines": [
+          80
+        ]
+      },
+      {
         "file": "feed-community.json",
         "lines": [
           47
@@ -4205,6 +4223,48 @@
         ]
       }
     ],
+    "event.translations.en.name": [
+      {
+        "file": "event-conference-cfp.json",
+        "lines": [
+          82
+        ]
+      },
+      {
+        "file": "feed-community.json",
+        "lines": [
+          49
+        ]
+      }
+    ],
+    "event.translations.en.description": [
+      {
+        "file": "event-conference-cfp.json",
+        "lines": [
+          83
+        ]
+      },
+      {
+        "file": "feed-community.json",
+        "lines": [
+          50
+        ]
+      }
+    ],
+    "event.translations.en": [
+      {
+        "file": "event-conference-cfp.json",
+        "lines": [
+          81
+        ]
+      },
+      {
+        "file": "feed-community.json",
+        "lines": [
+          48
+        ]
+      }
+    ],
     "event.organizers[].email": [
       {
         "file": "event-co-organized.json",
@@ -4293,30 +4353,6 @@
         "file": "feed.json",
         "lines": [
           7
-        ]
-      }
-    ],
-    "event.translations.en.name": [
-      {
-        "file": "feed-community.json",
-        "lines": [
-          49
-        ]
-      }
-    ],
-    "event.translations.en.description": [
-      {
-        "file": "feed-community.json",
-        "lines": [
-          50
-        ]
-      }
-    ],
-    "event.translations.en": [
-      {
-        "file": "feed-community.json",
-        "lines": [
-          48
         ]
       }
     ]

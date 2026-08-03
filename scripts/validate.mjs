@@ -76,6 +76,16 @@ function build(version) {
 }
 
 /**
+ * A handful of recommended-profile keywords validate the WHOLE object (they compare one field
+ * against others — `languagesCoveredByText` checks `languages` against `textLanguage` plus
+ * `translations`, P019), the same reason `distinctTranslationLanguages`/`eventsNotNewerThanFeed`
+ * live at their object's own root in the base schema. Ajv reports their failure at that object's
+ * instancePath (`""`, root), not at the one field a human would say they're "about" — so unlike
+ * every other keyword here, they need an explicit label instead of one derived from instancePath.
+ */
+const OBJECT_KEYWORD_FIELD = { languagesCoveredByText: "languages" };
+
+/**
  * Which recommended fields a document falls short on, as dotted paths (`location.address`).
  * Two shapes of shortfall: a field missing entirely (`required`), or a field present but not
  * good enough (any keyword — `anyOf`, `not`, `minLength`, `pattern`, … — failing at that
@@ -87,35 +97,40 @@ function build(version) {
  * Every `required` error counts, wherever it sits: this only ever runs on a document that
  * already validated against the base schema, so the base half of the profile ($ref) cannot
  * contribute errors — whatever is left was asked for by the profile itself. Everything else
- * needs a non-root instancePath: a bare property-level check always reports one, while a
- * structural `if`/`allOf` wrapper failure reports at the root (`""`, falsy) alongside the
- * nested error that actually names the field — keeping only the nested one avoids saying the
- * same thing twice.
+ * needs a non-root instancePath, with one exception (`OBJECT_KEYWORD_FIELD`, above): a bare
+ * property-level check always reports a non-root instancePath, while a structural `if`/`allOf`
+ * wrapper failure reports at the root (`""`, falsy) alongside the nested error that actually
+ * names the field — keeping only the nested one avoids saying the same thing twice.
  */
 function missingRecommended(validate, doc) {
   if (!validate || validate(doc)) return [];
   return [
     ...new Set(
       (validate.errors ?? [])
-        .filter((e) => e.keyword === "required" || Boolean(e.instancePath))
+        .filter(
+          (e) => e.keyword === "required" || Boolean(e.instancePath) || e.keyword in OBJECT_KEYWORD_FIELD
+        )
         .map((e) =>
           e.keyword === "required"
             ? [...e.instancePath.split("/").filter(Boolean), e.params.missingProperty].join(".")
-            : e.instancePath.split("/").filter(Boolean).join(".")
+            : e.keyword in OBJECT_KEYWORD_FIELD
+              ? OBJECT_KEYWORD_FIELD[e.keyword]
+              : e.instancePath.split("/").filter(Boolean).join(".")
         )
     ),
   ];
 }
 
 /**
- * An event inside a feed inherits the feed's organizers (and license, and specVersion), so the
- * profile has to see the event as a consumer will — otherwise every event in a well-formed
- * community feed gets warned for a field the feed already answered.
+ * An event inside a feed inherits the feed's organizers (and license, specVersion, and
+ * textLanguage), so the profile has to see the event as a consumer will — otherwise every event
+ * in a well-formed community feed gets warned for a field the feed already answered.
  */
 const asPublished = (feed, event) => ({
   ...(feed.organizers ? { organizers: feed.organizers } : {}),
   ...(feed.license ? { license: feed.license } : {}),
   ...(feed.specVersion ? { specVersion: feed.specVersion } : {}),
+  ...(feed.textLanguage ? { textLanguage: feed.textLanguage } : {}),
   ...event,
 });
 

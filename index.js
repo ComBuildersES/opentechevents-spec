@@ -332,4 +332,42 @@ export const customKeywords = [
         "every event's translations must have an effective textLanguage (own or inherited from the feed) and must not repeat it",
     },
   },
+  {
+    keyword: "languagesCoveredByText",
+    type: "object",
+    schemaType: "boolean",
+    /**
+     * `event.recommended.schema.json`'s own constraint: `languages` (what is SPOKEN at the event)
+     * says nothing about whether the event's own text is available in each of those languages —
+     * a bilingual session described in only one of them is valid by design (`$defs.event`'s own
+     * `languages` description gives exactly that example). But it is a discoverability gap worth
+     * a warning: someone who only reads a language in `languages` with no matching text has
+     * nothing to read. "Available text" is the effective `textLanguage` (own, or the feed's via
+     * `asPublished` in `scripts/validate.mjs` — this keyword itself only ever sees whichever value
+     * is already on `data`, exactly like `distinctTranslationLanguages`) plus every key of the
+     * event's own `translations` — never a nested translations map (`offers[]`, `image[]`, …),
+     * which translates a different piece of text, not the event's main name/description.
+     * Comparison is case-insensitive, exact BCP 47 tags only (RFC 5646 §2.1.1) — no attempt to
+     * treat a region- or script-qualified tag as covering its bare language, matching the same
+     * mechanical, explainable precision D007 already chose for tag validation itself. If there is
+     * no available text at all (no effective `textLanguage`, no `translations`), this stays
+     * silent rather than warn: `README.md`'s own reasoning for why `textLanguage` is not
+     * recommended on its own (an `.ics` importer never has it, and inventing one is worse than
+     * omitting it) would otherwise be defeated by the back door. See CHANGES.log #P019 /
+     * DECISIONS.md D019.
+     */
+    validate: (schemaValue, data) => {
+      if (!schemaValue || !Array.isArray(data.languages)) return true;
+      const available = new Set();
+      if (typeof data.textLanguage === "string") available.add(data.textLanguage.toLowerCase());
+      if (data.translations && typeof data.translations === "object") {
+        for (const key of Object.keys(data.translations)) available.add(key.toLowerCase());
+      }
+      if (available.size === 0) return true;
+      return data.languages.every(
+        (lang) => typeof lang !== "string" || available.has(lang.toLowerCase())
+      );
+    },
+    error: { message: "languages should be covered by the effective textLanguage or a translations key" },
+  },
 ];
