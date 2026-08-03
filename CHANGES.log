@@ -74,7 +74,7 @@ Campos por tipo:
 | P016 | Corregir la referencia española de `event.textLanguage` que niega su herencia | Implementada (`94703b0`) |
 | P017 | Exigir contenido real en `description` (perfil recomendado) | Implementada (`bf73119`) |
 | P018 | Rechazar texto libre de solo espacios en 21 campos con `minLength: 1` | Implementada (`df92d8d`) |
-| P019 | Avisar si un idioma de `languages` no tiene texto disponible | Implementada — pendiente de revisión final y commit |
+| P019 | Avisar si un idioma de `languages` no tiene texto disponible | Implementada (`163e047`) |
 
 *(actualizar esta tabla a mano al cerrar cada ciclo; sirve de índice rápido, el detalle vive en las entradas de abajo)*
 
@@ -1335,7 +1335,7 @@ Confirmado con hhkaos que, con esta justificación corregida, sigue mereciendo l
 
 ## [2026-08-03] CLAUDE — IMPLEMENTACION #P019
 
-- **Commit:** pendiente — cambios en el árbol de trabajo
+- **Commit:** `4944e62` (log) y `163e047` (implementación)
 - **Ficheros cambiados:**
   - `index.js`/`index.d.ts` — nuevo keyword `languagesCoveredByText` en `customKeywords`: compara `languages[]` contra la unión del `textLanguage` efectivo y las claves de `translations`, sin distinguir mayúsculas, sin inferir región/script/macrolengua. No avisa si no hay ninguna información textual (ni `textLanguage` ni `translations`), para no reintroducir `textLanguage` como recomendado por la puerta de atrás.
   - `spec/v0.3/event.recommended.schema.json` — `"type": "object"` (necesario para el modo estricto de Ajv) y `"languagesCoveredByText": true` en la raíz.
