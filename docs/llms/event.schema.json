@@ -2932,7 +2932,7 @@
           ]
         },
         "currency": {
-          "description": "A real ISO 4217 alpha-3 code (EUR, USD, MXN), never an invented one. Required whenever `price` is above 0, and pointless at 0: free is free in every currency, and emitting one there is how Luma ends up publishing a currency for a meetup that costs nothing.",
+          "description": "A real ISO 4217 alpha-3 code (EUR, USD, MXN), never an invented one. Only meaningful alongside `price` — it names what price is denominated in, and nothing else — so it requires `price` to be present at all, whatever its value. Required whenever `price` is above 0, and pointless at 0: free is free in every currency, and emitting one there is how Luma ends up publishing a currency for a meetup that costs nothing.",
           "$ref": "#/$defs/currency",
           "examples": [
             "EUR",
@@ -3007,6 +3007,11 @@
           ]
         }
       ],
+      "dependentRequired": {
+        "currency": [
+          "price"
+        ]
+      },
       "orderedInstants": true,
       "allOf": [
         {

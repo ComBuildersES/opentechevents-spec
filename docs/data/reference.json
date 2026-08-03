@@ -109,6 +109,22 @@
           }
         },
         {
+          "kind": "dependent",
+          "when": {
+            "field": "currency",
+            "present": true
+          },
+          "fields": [
+            "price"
+          ],
+          "owner": "offers[]",
+          "key": "event.offers[]#1",
+          "text": {
+            "en": "With `currency`, `price` is required.",
+            "es": "Con `currency`, `price` es obligatorio."
+          }
+        },
+        {
           "kind": "conditionalNot",
           "when": {
             "field": "waitlistUrl",
@@ -121,7 +137,7 @@
             "es": "Una lista de espera para algo que todavía puedes comprar no es una lista de espera: la cola solo tiene sentido cuando la oferta se ha agotado. La disponibilidad puede seguir estando AUSENTE: quien sabe que hay cola y no controla el estado de las entradas no debería verse obligado a afirmar que están agotadas para poder mencionarla. Solo se rechaza la combinación incoherente, nunca la incompleta."
           },
           "owner": "offers[]",
-          "key": "event.offers[]#1",
+          "key": "event.offers[]#2",
           "text": {
             "en": "With `waitlistUrl`, `availability` must not be `\"in-stock\"`.",
             "es": "Con `waitlistUrl`, `availability` no puede ser `\"in-stock\"`."
@@ -139,7 +155,7 @@
             "es": "Una cantidad distinta de cero sin moneda no es un precio: 45 es otra cosa en EUR, en USD y en MXN, y quien tenga que adivinarlo adivinará la suya."
           },
           "owner": "offers[]",
-          "key": "event.offers[]#2",
+          "key": "event.offers[]#3",
           "text": {
             "en": "When `price` is above 0, `currency` is required.",
             "es": "Cuando `price` es mayor que 0, `currency` es obligatorio."
@@ -889,8 +905,8 @@
             "USD"
           ],
           "description": {
-            "en": "A real ISO 4217 alpha-3 code (EUR, USD, MXN), never an invented one. Required whenever `price` is above 0, and pointless at 0: free is free in every currency, and emitting one there is how Luma ends up publishing a currency for a meetup that costs nothing.",
-            "es": "Un código ISO 4217 alfa-3 real (`EUR`, `USD`, `MXN`), nunca uno inventado. Obligatorio siempre que `price` sea mayor que 0, e innecesario cuando es 0: lo gratis es gratis en cualquier moneda, y emitirla ahí es como Luma acaba publicando una divisa para un meetup que no cuesta nada."
+            "en": "A real ISO 4217 alpha-3 code (EUR, USD, MXN), never an invented one. Only meaningful alongside `price` — it names what price is denominated in, and nothing else — so it requires `price` to be present at all, whatever its value. Required whenever `price` is above 0, and pointless at 0: free is free in every currency, and emitting one there is how Luma ends up publishing a currency for a meetup that costs nothing.",
+            "es": "Un código ISO 4217 alfa-3 real (`EUR`, `USD`, `MXN`), nunca uno inventado. Solo tiene sentido junto a `price` —nombra en qué está denominado, nada más—, así que exige que `price` esté presente, sea cual sea su valor. Obligatorio siempre que `price` sea mayor que 0, e innecesario cuando es 0: lo gratis es gratis en cualquier moneda, y emitirla ahí es como Luma acaba publicando una divisa para un meetup que no cuesta nada."
           },
           "requiredIn": null
         },

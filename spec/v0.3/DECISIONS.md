@@ -422,6 +422,24 @@ This is deliberately a **warning, not a validity error** — added to `event.rec
 
 ---
 
+### D021 — `offers[].currency` requires `offers[].price` to be present
+
+**Status:** Decided 2026-08-03. See `CHANGES.log` #P022.
+
+**Context.** `currency` only has meaning as the denomination of `price` — the field's own description says so, and it maps 1:1 onto schema.org `Offer.priceCurrency`, which only means anything alongside `Offer.price`. The schema already enforced the forward direction (`price` above 0 requires `currency`, D009), but nothing enforced the reverse: an offer could carry `currency` with no `price` at all. Confirmed against the real validator that `{"url": "...", "currency": "EUR"}` — no `price` key whatsoever — validates today, producing an Offer whose `priceCurrency` qualifies nothing.
+
+**Decision.** Added `"dependentRequired": {"currency": ["price"]}` to `$defs.offer`: whenever `currency` is present, `price` must be too (at any value, including 0). The existing `price > 0` → `currency` rule (D009) is untouched.
+
+**Why this doesn't touch `price: 0` + `currency`.** Before approving, hhkaos asked why not leave this permissive, since an orphaned currency "no hace daño" (causes no real harm) in a crash-safety sense. The answer is the same standard this whole audit has used throughout: the question isn't whether something crashes, it's whether the data is coherent given what the field itself claims to describe (the same reasoning behind D010's translation-must-not-repeat-the-primary-language rule, P017/P018's non-empty-content rules, and D020's identity rules for `id`). A "price still to be announced, but definitely in EUR" scenario was considered explicitly — but the spec already has an established way to say "not yet known": omit the field. `price: 0` + `currency`, by contrast, was correctly left alone — the prose calls it "pointless," never invalid, and this decision does not reopen that.
+
+**Alternatives considered.** (1) Leave it to schema.org exporters to decide whether to emit or drop an orphaned `priceCurrency`: rejected, different exporters would resolve it differently, and the source document should not leave that ambiguous. (2) A recommended-tier warning instead of a base-schema error: rejected — the incoherence is inside the `Offer` object's own structure, not a completeness/quality question the recommended profile exists for. (3) Also forbid `currency` when `price` is exactly 0: rejected in this round — the prose already discourages it ("sobra"/"pointless") without calling it invalid, and that would be a separate decision requiring its own evidence, not a corollary of this one. (4) Require `price` on every offer, currency or not: rejected — the spec documents offers with only a registration `url` and no known price, and that shape is not what's incoherent here.
+
+**Compatibility impact.** Restrictive only for offers that already combine `currency` with no `price` at all — confirmed the repo's own corpus has none. No wire-format change; `price`/`currency`/`url` keep their existing shapes.
+
+**Revisit if:** a real, well-evidenced need for a "price not yet announced, but in a known currency" representation emerges — at which point this decision and D009 should be revisited together, since both concern the same pair of fields.
+
+---
+
 ## Indexed decisions
 
 Already argued in full in `README.md`; summarized here for discoverability.
