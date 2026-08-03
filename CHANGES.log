@@ -62,6 +62,7 @@ Campos por tipo:
 | P004 | Validar `offers[].currency` contra ISO 4217 real | Implementada (`b753c4a`) |
 | P005 | Validar `location.address.country` contra ISO 3166-1 real | Implementada (`f6556b2`) |
 | P006 | `languageTag` debe validar el núcleo BCP 47 + registro IANA | Implementada (`e688852`) |
+| P007 | Validar `license` contra SPDX + aviso "amigable con directorios" | Implementada — pendiente de revisión final y commit |
 
 *(actualizar esta tabla a mano al cerrar cada ciclo; sirve de índice rápido, el detalle vive en las entradas de abajo)*
 
@@ -412,3 +413,65 @@ hhkaos preguntó, antes de decidir entre las dos fases que planteé, si BCP 47 e
   - `spec/v0.3/DECISIONS.md` — nueva entrada D007: por qué acotar a núcleo BCP 47 en vez de completo, la exclusión de subtags "placeholder" (hallazgo propio, no pedido por Codex), y una corrección de precisión sobre el porqué exacto de que `en-12345678` sea inválido (fallo de registro, no de gramática, al releer RFC 5646 con cuidado).
   - Regenerados por script: `reference.en.md`, `reference.es.md`, `docs/data/reference.json`, `docs/data/examples.json`, `docs/schema/v0.3/event.schema.json`, `docs/llms*`.
 - **Notas:** Verificado con una batería de 22 casos contra la función antes de tocar el schema, y con `npm run validate` (repo completo, limpio) después. `x-example`, `i-klingon`, `en-u-ca-gregory`, `en-12345678`, `und`, `en-ZZ`, `en-Zzzz` se rechazan; `es`, `ca`, `en`, `es-MX`, `zh-Hant`, `ca-valencia`, `de-1901` validan. Pendiente de que hhkaos revise y decida si se commitea.
+
+## [2026-08-03] CODEX — PROPUESTA #P007: Validar `license` contra la lista oficial de identificadores SPDX
+
+- **Área:** `event.schema.json` (`$defs.license`, `event.license` y `source.license`), `feed.schema.json` (`license`), `reference.en.md`, `reference.es.md`, `README.md`, `examples/invalid/`
+- **Problema:** La especificación define `license` como un identificador SPDX o una URL, pero `$defs.license` solo comprueba que el valor sin URL esté formado por caracteres que podrían aparecer en un identificador. Por tanto, cualquier cadena inventada que tenga esa forma satisface un campo obligatorio cuya finalidad normativa es permitir que un consumidor identifique y compare los permisos de reutilización. El mismo hueco alcanza a la licencia heredable del feed y a `source.license`: un documento puede afirmar una licencia inexistente y seguir siendo válido, con lo que un agregador no puede decidir de forma fiable si tiene derecho a republicarlo. Endurecer este campo después de v1.0 invalidaría documentos previamente aceptados con identificadores ficticios.
+- **Evidencia:** Validado contra el `event.schema.json` actual con la configuración completa del proyecto (`Ajv2020`, `ajv-formats`, `annotationKeywords`, `customFormats` y `customKeywords`): este evento devuelve `valid: true`, `errors: null`, aunque `TOTALLY-MADE-UP-9.9` no es un identificador de la lista SPDX:
+
+  ```json
+  {
+    "specVersion": "0.3.0",
+    "id": "https://example.org/events/fake-license",
+    "name": "Fake license",
+    "startDate": "2026-08-04T18:00",
+    "timezone": "Europe/Madrid",
+    "license": "TOTALLY-MADE-UP-9.9"
+  }
+  ```
+
+  La contradicción es literal. `spec/v0.3/event.schema.json:914-917` describe `event.license` como «SPDX identifier [...] or a URL» y lo remite a `$defs.license`; sin embargo, `event.schema.json:1530-1533` solo impone `"pattern": "^([A-Za-z0-9.+-]+|https?://.+)$"`. La misma definición se reutiliza en `source.license` (`event.schema.json:2351-2354`) y en el campo obligatorio del feed (`spec/v0.3/feed.schema.json:66-68`). `spec/v0.3/reference.en.md:80` y `reference.es.md:80` exigen respectivamente «SPDX identifier [...] or a URL» e «Identificador SPDX [...] o una URL». Más explícitamente, `spec/v0.3/README.md:370-372` dice que se usa SPDX y no prosa porque «un importador tiene que compararla contra una allowlist»; el valor de evidencia hace imposible esa garantía. La fuente oficial de verdad es la [SPDX License List](https://spdx.org/licenses/), que se declara parte integral de la especificación SPDX, publica para cada licencia su identificador corto normalizado y enlaza sus propios ficheros legibles por máquina; en la versión 3.28.0, publicada el 2026-02-20, no existe el identificador de evidencia. La propia página oficial aclara además que un identificador deprecado sigue siendo válido aunque ya no deba usarse, distinción que una instantánea correcta debe conservar. P001–P006 y D001–D007 cubren tiempos, zonas, orden/precisión temporal, monedas, países y el núcleo BCP 47; ninguna valida licencias ni justifica aceptar identificadores SPDX inventados.
+- **Propuesta:** Redefinir `$defs.license` como un `anyOf` entre: (1) un `enum` congelado de todos los identificadores cortos de licencia de una versión identificada de la **SPDX License List oficial**, incluidos los deprecados porque SPDX afirma que siguen siendo válidos; y (2) una URL HTTP(S) validada con `format: "uri"` y el patrón de esquema HTTP(S) que ya usa el resto de la spec. Generar el enum mediante un script reproducible que descargue los datos legibles por máquina enlazados por `spdx.org/licenses/`, y registrar en `$comment` la URL, versión y fecha del snapshot. Al reutilizar `$defs.license`, el cambio alcanza de una vez a evento, feed y fuente. Añadir un caso negativo con `TOTALLY-MADE-UP-9.9` en `examples/invalid/` y documentar que la versión valida contra ese snapshot. P007 debe aceptar **identificadores simples**, que es el caso de uso que la prosa y los ejemplos declaran; no amplía el campo a expresiones SPDX (`AND`, `OR`, `WITH`, `LicenseRef-...`), cuya gramática y semántica serían una decisión distinta sin evidencia de necesidad en esta spec.
+- **Impacto en compatibilidad:** Restrictivo para cadenas que hoy casan con el patrón pero no son identificadores SPDX de la instantánea ni URL válida. Los valores de todos los ejemplos actuales (`CC0-1.0`, `CC-BY-4.0`) permanecen válidos, al igual que los identificadores deprecados que SPDX conserva como válidos. Los documentos rechazados ya incumplen la semántica normativa y no ofrecen permisos identificables; corregirlos requiere indicar la licencia real o enlazar su texto. Una licencia nueva incorporada por SPDX en el futuro necesitará una nueva versión OTE, el mismo coste deliberadamente aceptado en D002/D005/D006 para que una versión congelada no cambie de validez con el tiempo.
+- **Alternativas consideradas:** (1) Mantener el patrón y delegar la allowlist en cada consumidor: descartado porque contradice la razón normativa del campo, acepta infinitos identificadores ficticios y fragmenta la validez igual que ocurría con zonas, monedas y países. (2) Usar una librería npm, el gestor de paquetes del runtime o un mirror como fuente: descartado como autoridad primaria por D002/D005/D006; la lista y los datos oficiales los publica el propio proyecto SPDX. (3) Consultar la lista en cada validación: descartado porque introduce red y hace que una versión congelada cambie según evolucione SPDX. (4) Excluir identificadores deprecados: descartado porque la autoridad afirma expresamente que siguen siendo válidos; se pueden desaconsejar sin convertirlos retroactivamente en errores. (5) Implementar toda la gramática de expresiones SPDX: descartado en P007 por la lección de alcance de D007; la spec promete un identificador singular o una URL, sus ejemplos son identificadores simples y no hay un productor real que requiera licencias compuestas o excepciones. (6) Aceptar solo URL para licencias fuera del snapshot: descartado como sustituto de futuras versiones, pero sigue siendo la vía existente y explícita para una licencia que no tenga identificador SPDX.
+
+## [2026-08-03] CLAUDE — REVISION #P007: Validar `license` contra la lista oficial de identificadores SPDX
+
+- **Veredicto:** APROBAR
+- **Valoración:** Evidencia verificada de forma independiente (`license: "TOTALLY-MADE-UP-9.9"` valida hoy). Confirmé las citas exactas (`event.schema.json:1530-1533`, patrón puro sin lista) y que ninguna entrada D001–D007 trata licencias. Comprobé la fuente que cita Codex — `spdx.org/licenses/` y su exportación legible por máquina en `github.com/spdx/license-list-data` — y es genuinamente oficial: es el propio repositorio del proyecto SPDX (Linux Foundation), no un mirror de terceros. Descargué el release etiquetado `v3.28.0` (coincide exactamente con la versión y fecha que cita la evidencia, 2026-02-20): 727 licencias, `CC0-1.0` y `CC-BY-4.0` presentes (los que usan los ejemplos reales), `TOTALLY-MADE-UP-9.9` ausente, 32 identificadores marcados `isDeprecatedLicenseId` pero incluidos en la lista — confirma que SPDX los sigue publicando como válidos, tal como argumenta la propuesta.
+- **Trade-offs:** Esta propuesta ya viene aplicando las dos lecciones que en rondas anteriores tuve que pedir por separado: fuente autoritativa verificada (no `Intl` ni un mirror sin comprobar, como P002/P004 tuvieron que corregir) y alcance acotado al caso de uso real (identificadores simples, no la gramática completa de expresiones SPDX `AND`/`OR`/`WITH`/`LicenseRef-`, aplicando directamente el criterio que fijamos en D007 sin que tuviera que pedírselo). No he encontrado ningún ajuste que hacer.
+- **Recomendación para v1.0:** Debe resolverse antes de congelar v1.0, mismo argumento que P001–P006: es un hueco de validez semántica en un campo obligatorio, no una mejora cosmética. Único detalle de implementación, menor: usar el release etiquetado (`v3.28.0`) en vez de la rama `main` del repositorio de datos, para que el snapshot sea reproducible y no cambie silenciosamente si SPDX publica una licencia nueva entre que se genera el enum y se revisa el cambio.
+- **Pendiente de:** decisión humana (hhkaos)
+
+## [2026-08-03] HUMANO — DECISION #P007
+
+- **Decisión:** APROBADA
+- **Notas:** Sin cambios sobre la propuesta de Codex. Usar el release etiquetado (no `main`) del repositorio de datos SPDX.
+
+## [2026-08-03] CLAUDE — IMPLEMENTACION #P007
+
+- **Commit:** pendiente — cambios en el árbol de trabajo
+- **Ficheros cambiados:**
+  - `scripts/update-licenses.mjs` (nuevo) — resuelve el último release etiquetado de `spdx/license-list-data` vía la API de GitHub y descarga su `licenses.json`.
+  - `spec/v0.3/event.schema.json` — `$defs.license` pasa de un `pattern` único a `anyOf` [enum de 727 identificadores SPDX, URL http(s)]; descripción añadida.
+  - `spec/v0.3/examples/invalid/event-invalid-license.json` — caso nuevo (`TOTALLY-MADE-UP-9.9`).
+  - `spec/v0.3/README.md` — nota junto a la explicación de `license`, enlace a `DECISIONS.md` D008.
+  - `spec/v0.3/DECISIONS.md` — nueva entrada D008.
+  - Regenerados por script: `reference.en.md`, `reference.es.md`, `docs/data/reference.json`, `docs/data/examples.json`, `docs/schema/v0.3/event.schema.json`, `docs/llms*`.
+- **Notas:** Verificado con `npm run validate` (repo completo, limpio) y con el documento de evidencia: `TOTALLY-MADE-UP-9.9` se rechaza; `CC-BY-4.0`/`CC0-1.0` (usados en los ejemplos reales de v0.1, v0.2 y v0.3) siguen validando.
+
+## [2026-08-03] CLAUDE — IMPLEMENTACION #P007 (ampliación): aviso de licencia "amigable con directorios" + nota de compatibilidad
+
+hhkaos, tras ver la implementación base, preguntó dos cosas que ampliaron el alcance: (1) si tiene sentido validar contra toda la lista SPDX dado que son datos, no código — y en concreto le preocupaba que una licencia pudiera bloquear legalmente que estos eventos se den de alta en directorios; (2) si la spec debería exigir o comprobar compatibilidad de licencias entre eventos de un mismo feed.
+
+- **Commit:** pendiente — cambios en el árbol de trabajo
+- **Ficheros cambiados (además de los ya listados arriba):**
+  - `scripts/update-licenses.mjs` — genera también `$defs.dataLicense`: el subconjunto sin cláusula NC/ND/SA (ni copyleft de software), 17 identificadores (`CC0-1.0`, `CC-BY-*` sin NC/ND/SA, `CC-PDDC`, `CC-PDM-1.0`, `PDDL-1.0`, `ODC-By-1.0`).
+  - `spec/v0.3/event.schema.json` — nuevo `$defs.dataLicense`, usado solo por el perfil recomendado.
+  - `spec/v0.3/event.recommended.schema.json` — nueva condición: `license` debería estar en `dataLicense` o ser URL; si no, aviso (nunca error).
+  - `scripts/validate.mjs` — `missingRecommended` generalizada para detectar también fallos de valor (`anyOf`) en un campo ya presente, no solo ausencia de campo — mecanismo reutilizado, no uno nuevo en paralelo.
+  - `spec/v0.3/README.md` — nota sobre el aviso de licencia "amigable con directorios" (NC/ND/SA/copyleft) y nota aparte sobre que la compatibilidad entre licencias de un feed es responsabilidad de quien agrega, no algo que la spec compruebe.
+  - `spec/v0.3/DECISIONS.md` D008 — ampliada con el razonamiento del aviso (por qué NC/ND/SA/copyleft específicamente, no "datos vs. software" en general) y la decisión explícita de no comprobar compatibilidad entre licencias de un feed.
+- **Decisión sobre compatibilidad de licencias:** no se implementa ninguna comprobación. Cada evento es una obra independiente (por eso `license` se puede sobreescribir por evento); no hay una obra derivada única que obligue a reconciliar licencias, y comprobar compatibilidad de verdad es un juicio legal (ni el propio SPDX publica una matriz oficial) fuera del alcance de un validador de JSON Schema. Queda como responsabilidad explícita de quien agregue el feed, documentada en prosa.
+- **Notas:** Probado con `MIT` (avisa), `CC-BY-NC-4.0` (avisa), `CC0-1.0` (no avisa) contra el pipeline real. `npm run validate` limpio en todo el repo, sin avisos nuevos en los ejemplos reales (todos usan `CC-BY-4.0`/`CC0-1.0`). Pendiente de que hhkaos revise y decida si se commitea.
