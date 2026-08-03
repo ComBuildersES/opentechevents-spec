@@ -64,6 +64,7 @@ Campos por tipo:
 | P006 | `languageTag` debe validar el núcleo BCP 47 + registro IANA | Implementada (`e688852`) |
 | P007 | Validar `license` contra SPDX + aviso "amigable con directorios" | Implementada (`e66a235`) |
 | P008 | Rechazar ventanas invertidas en `offers`/`cfp` (opensAt/closesAt) | Implementada (`0886f5f`) |
+| P009 | Impedir que `translations` repita el idioma principal | Implementada — pendiente de revisión final y commit |
 
 *(actualizar esta tabla a mano al cerrar cada ciclo; sirve de índice rápido, el detalle vive en las entradas de abajo)*
 
@@ -544,3 +545,55 @@ Comprobé el coste real: `updatedAt`/`retrievedAt` en todos los ejemplos del rep
 ## [2026-08-03] CLAUDE — DECISIONS.md #P008: añadida la alternativa "misma zona horaria del documento", que había quedado solo en la conversación
 
 hhkaos pidió explícitamente que el razonamiento de por qué no forzar la zona horaria del documento (además de por qué no forzar UTC) quedara escrito en `DECISIONS.md`, no solo dicho en el chat. Añadida como alternativa considerada aparte en D009: `opensAt`/`closesAt` normalmente los genera un sistema (plataforma de venta de entradas, herramienta de CFP) sin relación con la ubicación del evento — forzarlos a la zona de `timezone` obligaría a una conversión hacia una zona con la que ese sistema no tiene ninguna relación natural, un ajuste peor que forzar UTC (que al menos es la referencia común de nadie en particular).
+
+## [2026-08-03] CODEX — PROPUESTA #P009: Impedir que `translations` repita el idioma principal
+
+- **Área:** `event.schema.json` (`$defs.event`, todos los mapas `translations`), `feed.schema.json`, `index.js`, `index.d.ts`, `reference.en.md`, `reference.es.md`, `README.md`, `examples/invalid/`
+- **Problema:** La especificación afirma que cada mapa `translations` contiene texto en idiomas distintos del texto principal declarado por `textLanguage`, pero el schema solo comprueba que `textLanguage` exista; no impide usar ese mismo idioma como clave de una traducción. Así pueden coexistir dos versiones distintas etiquetadas con el mismo idioma —una en el campo principal y otra en `translations`—, contradiciendo la garantía declarada de que no hay dos versiones en español que puedan contradecirse. Un consumidor que busque ese idioma debe decidir arbitrariamente si gana el texto principal o el mapa. El hueco afecta al evento, al feed y a todos los mapas locales anidados; endurecerlo después de v1.0 invalidaría documentos que hoy publican esa contradicción.
+- **Evidencia:** Validado contra el `event.schema.json` actual con la configuración completa del proyecto (`Ajv2020`, `ajv-formats`, `annotationKeywords`, `customFormats` y `customKeywords`): este evento devuelve `valid: true`, `errors: null`, aunque tanto el texto principal como la supuesta traducción declaran el idioma `es` y dan nombres distintos:
+
+  ```json
+  {
+    "specVersion": "0.3.0",
+    "id": "https://example.org/events/duplicate-primary-language",
+    "name": "Texto principal",
+    "startDate": "2026-08-04T18:00",
+    "timezone": "Europe/Madrid",
+    "textLanguage": "es",
+    "translations": {
+      "es": { "name": "Texto contradictorio" }
+    },
+    "license": "CC0-1.0"
+  }
+  ```
+
+  El fallo también se reprodujo con `feed.textLanguage: "es"` + `feed.translations.es` y con un mapa local `offers[].translations.es`: ambos devuelven `valid: true`, `errors: null`. La contradicción literal está en `spec/v0.3/event.schema.json:942-944`, cuya descripción dice «Never a translation of the language the document is already in». `event.schema.json:958-1032` implementa únicamente la presencia de `textLanguage` cuando encuentra cualquier mapa anidado; no compara su valor con las claves. La definición compartida `languageMap` (`event.schema.json:2301-2307`) solo exige al menos una propiedad y valida cada nombre como etiqueta de idioma, mientras que `event.schema.json:2309-2319` promete «no way to publish two Spanish versions that contradict each other». `spec/v0.3/reference.en.md:87` repite «Never a translation of the language the document is already in» y `reference.es.md:87`, «Nunca una traducción al idioma en que ya está el documento». `spec/v0.3/README.md:544-552` define el texto principal y sus traducciones como rutas alternativas y explica que hace falta conocer el idioma principal para saber qué entrada lo duplica, pero la restricción generada de ambas referencias (`reference.en.md:91-93`, `reference.es.md:91-93`) solo exige presencia. En el feed ocurre lo mismo: `spec/v0.3/feed.schema.json:110-124` exige `textLanguage` pero no excluye esa clave del mapa. Además, no basta comparar con sensibilidad a mayúsculas: [RFC 5646 §2.1.1](https://www.rfc-editor.org/rfc/rfc5646.html#section-2.1.1) establece que las etiquetas y subtags se tratan siempre sin distinguir mayúsculas/minúsculas, por lo que `textLanguage: "es"` y una clave `"ES"` también nombran el mismo idioma; esa variante también valida actualmente. P006/D007 valida la forma y el registro de cada etiqueta individual, pero no su relación dentro del documento; P001–P008 y D001–D009 no deciden permitir que el idioma principal se repita.
+- **Propuesta:** Añadir un keyword Ajv personalizado de objeto (por ejemplo, `distinctTranslationLanguages`) al `customKeywords` existente, aplicado a `$defs.event` y a la raíz del feed. Cuando exista `textLanguage`, debe rechazar cualquier clave igual a ella, comparada sin distinguir mayúsculas/minúsculas, en todos los mapas que traducen el texto de ese documento: `event.translations`, `eligibility.translations`, `partOf.translations`, cada `offers[].translations` y cada entrada objeto de `image[].translations`; para el feed, `feed.translations`. Mantener el alcance en igualdad de la etiqueta BCP 47 completa tras normalizar el caso: P009 no intenta decidir si dos etiquetas diferentes pero relacionadas por alias, macrolengua o `Preferred-Value` representan contenido equivalente, una cuestión mucho más amplia sin necesidad demostrada. Documentar la regla entre las restricciones de evento/feed y añadir casos negativos para el mapa principal, uno anidado y el feed; incluir al menos una diferencia solo de mayúsculas para fijar la semántica RFC 5646 en CI.
+- **Impacto en compatibilidad:** Restrictivo para documentos cuyo mapa de traducciones contiene una clave igual, sin distinguir mayúsculas, a su `textLanguage`. No afecta a documentos sin traducciones, a mapas en otros idiomas ni al corpus válido actual: el único ejemplo real de nivel superior con ambas piezas es `spec/v0.3/examples/event-online.json`, que declara `textLanguage: "ca"` y traduce a `es`. Corregir un documento afectado consiste en eliminar la copia redundante o elegir cuál texto es realmente el principal; conservar dos textos contradictorios bajo la misma etiqueta no tiene una migración semántica honesta. Debe fijarse antes de v1.0 porque hoy la prosa promete una unicidad que el wire format no garantiza.
+- **Alternativas consideradas:** (1) Dejar que el consumidor elija precedencia entre `translations[textLanguage]` y el texto principal: descartado porque distintos consumidores mostrarían versiones distintas del mismo documento y la spec afirma que esa duplicidad no puede existir. (2) Tratarlo como aviso del perfil recomendado: descartado porque dos textos contradictorios bajo el mismo idioma son datos internamente ambiguos, no una elección válida pero poco idónea como D008. (3) Comparar las claves con igualdad sensible a mayúsculas: descartado por RFC 5646; permitiría el mismo fallo escribiendo `ES` frente a `es`. (4) Canonicalizar además alias y valores preferidos del registro IANA: descartado en P009 por el criterio de alcance de D007; resolver equivalencia lingüística entre etiquetas diferentes es más amplio que impedir la duplicación literal demostrada. (5) Expresarlo solo en prosa: descartado porque ya está expresado y el JSON de evidencia sigue validando. (6) Aplicarlo solo a `event.translations`: descartado porque la propia regla actual alcanza cualquier profundidad, el fallo se reprodujo en un mapa local y todos esos textos principales comparten el `textLanguage` del documento.
+
+## [2026-08-03] CLAUDE — REVISION #P009: Impedir que `translations` repita el idioma principal
+
+- **Veredicto:** APROBAR
+- **Valoración:** Evidencia verificada de forma independiente, con las dos variantes: `translations: {"es": ...}` con `textLanguage: "es"` valida hoy, y también la variante que solo difiere en mayúsculas (`translations: {"ES": ...}`) — confirmando que RFC 5646 §2.1.1 (insensibilidad a mayúsculas) aplica aquí y que una comparación ingenua sensible a mayúsculas dejaría un hueco idéntico con otra grafía. Confirmé la cita exacta (`event.schema.json:943`, «Never a translation of the language the document is already in») y que la regla actual (`event.schema.json:958-1032`) solo exige la *presencia* de `textLanguage`, nunca compara su valor con las claves. Repliqué el escaneo del corpus completo de ejemplos yo mismo (no solo confié en la afirmación de Codex): ningún ejemplo real choca con la regla nueva.
+- **Trade-offs:** Beneficio claro — cierra una contradicción interna real (dos versiones bajo la misma etiqueta de idioma) sin coste de compatibilidad demostrado. La propuesta ya acota el alcance correctamente: compara igualdad literal de la etiqueta BCP 47 completa (insensible a mayúsculas), sin intentar resolver alias o macrolengua del registro IANA — mismo criterio de alcance que D007, aplicado sin que hiciera falta pedirlo. La lista de mapas anidados a comprobar (`event.translations`, `eligibility.translations`, `partOf.translations`, `offers[].translations`, `image[].translations`, y `feed.translations` aparte) coincide exactamente con la lista ya enumerada por la regla existente que exige `textLanguage` a cualquier profundidad (`event.schema.json:958-1032`) — mismo patrón, ninguna ruta nueva que inventar.
+- **Recomendación para v1.0:** Debe resolverse antes de congelar v1.0, mismo argumento que P001–P008: la prosa promete una garantía («no hay forma de publicar dos versiones en castellano que se contradigan») que el wire format no hace cumplir. Propuesta completa y correcta tal cual; no tengo cambios que pedir.
+- **Pendiente de:** decisión humana (hhkaos)
+
+## [2026-08-03] HUMANO — DECISION #P009
+
+- **Decisión:** APROBADA
+- **Notas:** Sin cambios sobre la propuesta de Codex.
+
+## [2026-08-03] CLAUDE — IMPLEMENTACION #P009
+
+- **Commit:** pendiente — cambios en el árbol de trabajo
+- **Ficheros cambiados:**
+  - `index.js`/`index.d.ts` — nuevo keyword `distinctTranslationLanguages` en `customKeywords`, comparación insensible a mayúsculas, comprobando `translations`, `eligibility.translations`, `partOf.translations`, cada `offers[].translations` y cada `image[].translations`.
+  - `spec/v0.3/event.schema.json` — `distinctTranslationLanguages: true` en `$defs.event`.
+  - `spec/v0.3/feed.schema.json` — `distinctTranslationLanguages: true` en la raíz del feed.
+  - `spec/v0.3/examples/invalid/` — 4 casos nuevos: repetición exacta, variante solo-mayúsculas, repetición anidada (`offers[].translations`), y repetición a nivel de feed.
+  - `spec/v0.3/README.md` — corregida una afirmación que ya no era cierta («el schema no lo puede comprobar»); ahora sí lo comprueba. Enlace a `DECISIONS.md` D010.
+  - `spec/v0.3/DECISIONS.md` — nueva entrada D010.
+  - Regenerados por script: `reference.en.md`, `reference.es.md`, `docs/data/reference.json`, `docs/data/examples.json`, `docs/schema/v0.3/event.schema.json`, `docs/schema/v0.3/feed.schema.json`, `docs/llms*`.
+- **Notas:** Verificado con `npm run validate` (repo completo, limpio) y con los cuatro casos de evidencia (repetición exacta, solo-mayúsculas, anidada, feed) — los cuatro se rechazan con el mensaje correcto. Pendiente de que hhkaos revise y decida si se commitea.
