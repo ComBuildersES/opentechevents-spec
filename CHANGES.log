@@ -76,7 +76,7 @@ Campos por tipo:
 | P018 | Rechazar texto libre de solo espacios en 21 campos con `minLength: 1` | Implementada (`df92d8d`) |
 | P019 | Avisar si un idioma de `languages` no tiene texto disponible | Implementada (`163e047`) |
 | P020 | Restringir `id`/`partOf.id` a URLs HTTP(S) bajo dominio | Implementada (`6b780bf`) |
-| P021 | Quitar la copia inline del ejemplo mínimo en README, enlazar solo | Implementada — pendiente de revisión final y commit |
+| P021 | Quitar la copia inline del ejemplo mínimo en README, enlazar solo | Implementada (`74aa7b2`) |
 
 *(actualizar esta tabla a mano al cerrar cada ciclo; sirve de índice rápido, el detalle vive en las entradas de abajo)*
 
@@ -1506,7 +1506,7 @@ Confirmado con hhkaos que, con esta justificación corregida, sigue mereciendo l
 
 ## [2026-08-03] CLAUDE — IMPLEMENTACION #P021
 
-- **Commit:** pendiente — cambios en el árbol de trabajo
+- **Commit:** `87d43cb` (log) y `74aa7b2` (implementación)
 - **Ficheros cambiados:**
   - `spec/v0.3/README.md` — el bloque JSON inline de "Ejemplo mínimo real" se elimina; queda solo el enlace a `examples/event-minimal.json` (ya validado en CI), con una frase explicando por qué se enlaza en vez de copiar.
   - Regenerados por script: `docs/llms*`.
