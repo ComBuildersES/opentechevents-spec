@@ -79,6 +79,7 @@ Campos por tipo:
 | P021 | Quitar la copia inline del ejemplo mínimo en README, enlazar solo | Implementada (`74aa7b2`) |
 | P022 | Rechazar `offers[].currency` sin `offers[].price` | Implementada (`85f1a36`) |
 | P023 | Listar los keywords custom (reglas de validez) en `reference.*.md` | Implementada (`2880f88`) |
+| P024 | Exigir al menos un campo OTE en traducciones de evento/feed | Aprobada — pendiente de implementación |
 
 *(actualizar esta tabla a mano al cerrar cada ciclo; sirve de índice rápido, el detalle vive en las entradas de abajo)*
 
@@ -1650,3 +1651,104 @@ Confirmado con hhkaos que, con esta justificación corregida, sigue mereciendo l
   - `spec/v0.3/i18n/es.json` — traducciones añadidas para las 7 reglas nuevas (`event#0-2`, `event.offers[]#2`, `event.cfp#0`, `feed#0-3`) y reordenadas las claves que la inserción desplazó (`event#0→3`→`event#3→4`, `event.offers[]#2→3`→`event.offers[]#3→4`, `feed#0`→`feed#4`) — mismo cuidado que evitó repetir el fallo de P016.
   - Regenerados por script: `reference.en.md`, `reference.es.md`, `docs/data/reference.json`, `docs/llms*`.
 - **Notas:** Verificado con `npm run validate` (repo completo, limpio, sin traducciones faltantes). No se tocó ningún schema — comportamiento de validación idéntico, solo cambia lo que la referencia generada muestra. Pendiente de que hhkaos revise el resultado.
+
+## [2026-08-04] CODEX — PROPUESTA #P024: Exigir al menos un campo OTE en traducciones de evento/feed
+
+- **Área:** `spec/v0.3/event.schema.json`, `spec/v0.3/feed.schema.json`, `spec/v0.3/reference.en.md`, `spec/v0.3/reference.es.md`, `spec/v0.3/examples/`
+- **Problema:** Las entradas superiores de `translations` para evento y feed usan `minProperties: 1` para impedir una traducción vacía, pero no exigen que esa propiedad sea una propiedad traducible de OTE. Como los objetos siguen abiertos a campos adicionales, una errata o extensión sin ningún campo OTE (`{"unkownField":"x"}`) satisface `minProperties` y hace que el idioma parezca traducido aunque no aporte ni `name`/`description` del evento ni `title`/`description` del feed. Esto rompe dos promesas ya documentadas: que `translations` contiene versiones del texto libre principal, y que un mapa vacío es inválido porque decir nada se expresa omitiendo el campo. Además degrada P019: el perfil recomendado considera cubierta una entrada de `languages` si existe la clave en `translations`, de modo que un idioma hablado puede quedar sin texto real y aun así no producir aviso.
+- **Evidencia:** La intención normativa está escrita en varias fuentes. `spec/v0.3/reference.en.md:87` define `event.translations` como "The same event's free text in other languages" y dice que el documento conserva el texto principal en sus propios campos. La referencia española equivalente, `spec/v0.3/reference.es.md:87`, dice "El texto libre del mismo evento en otros idiomas" y "aquí van las versiones de ese texto". Para el feed, `spec/v0.3/reference.en.md:125` dice "This feed's own title and description in other languages" y `spec/v0.3/reference.es.md:125` dice "El `title` y la `description` DEL PROPIO FEED en otros idiomas". La prosa normativa refuerza que una entrada vacía no vale: `spec/v0.3/README.md:557` dice "**Un mapa vacío es inválido**, igual que `location: {}`: decir nada ya se hace omitiendo el campo." También dice en `spec/v0.3/README.md:553-555` que `translations` existe para traducir `name`/`description` y que el texto dentro de objetos se traduce en mapas locales.
+
+  El schema, en cambio, expresa las traducciones superiores así: `spec/v0.3/event.schema.json:2326-2349` define `$defs.translation` con `minProperties: 1` y solo declara `properties.name`/`properties.description`, sin `required` ni `anyOf` sobre esas claves; `spec/v0.3/event.schema.json:2454-2477` hace lo mismo para `$defs.feedTranslation` con `title`/`description`. La forma `offers[].translations` no tiene este hueco: `spec/v0.3/event.schema.json:2375-2380` sí exige `name`; lo mismo ocurre con `eligibilityTranslation.note`, `partOfTranslation.name` e `imageTranslation.alt`, así que esta propuesta se limita a evento/feed.
+
+  JSON mínimo de evento que hoy valida aunque `translations.en` no traduzca nada reconocido:
+
+  ```json
+  {
+    "specVersion": "0.3.0",
+    "id": "https://example.org/events/unknown-only-translation",
+    "name": "Unknown-only translation",
+    "startDate": "2026-09-01T10:00",
+    "timezone": "Europe/Madrid",
+    "textLanguage": "es",
+    "translations": {
+      "en": {
+        "unkownField": "x"
+      }
+    },
+    "license": "CC0-1.0"
+  }
+  ```
+
+  JSON mínimo de feed con el mismo problema:
+
+  ```json
+  {
+    "specVersion": "0.3.0",
+    "title": "Unknown-only feed translation",
+    "textLanguage": "es",
+    "translations": {
+      "en": {
+        "unkownField": "x"
+      }
+    },
+    "license": "CC0-1.0",
+    "updatedAt": "2026-08-04T10:00:00Z",
+    "events": []
+  }
+  ```
+
+  Verificación ejecutada contra el validador real:
+
+  ```text
+  $ npm run validate -- /private/tmp/ote-audit/event-unknown-only-translation.json /private/tmp/ote-audit/feed-unknown-only-translation.json
+
+    ok    /private/tmp/ote-audit/event-unknown-only-translation.json (event, v0.3)
+    warn  /private/tmp/ote-audit/event-unknown-only-translation.json — missing recommended: url, description, image, organizers, attendanceMode, location, tags, languages, updatedAt, endDate
+    ok    /private/tmp/ote-audit/feed-unknown-only-translation.json (feed, v0.3)
+    warn  /private/tmp/ote-audit/feed-unknown-only-translation.json — feed missing recommended: url, description, textLanguage
+
+  Valid.
+  2 recommendation(s) — valid either way. See the field reference.
+  ```
+
+  El caso vacío ya se rechaza, lo que demuestra que la intención era impedir "una traducción que no dice nada", pero el campo desconocido evade esa barrera:
+
+  ```text
+  $ npm run validate -- spec/v0.3/examples/invalid/event-translation-empty-entry.json /private/tmp/ote-audit/event-unknown-only-translation.json /private/tmp/ote-audit/feed-unknown-only-translation.json
+
+    FAIL  spec/v0.3/examples/invalid/event-translation-empty-entry.json (event, v0.3)
+  data/translations/es must NOT have fewer than 1 properties
+    ok    /private/tmp/ote-audit/event-unknown-only-translation.json (event, v0.3)
+    ok    /private/tmp/ote-audit/feed-unknown-only-translation.json (feed, v0.3)
+  ```
+
+  Impacto sobre el perfil recomendado de idiomas: este evento declara que se habla inglés, está escrito en castellano, y tiene `translations.en` sin `name` ni `description`; aun así no hay aviso de `languages`, porque la clave `en` existe.
+
+  ```text
+  $ npm run validate -- /private/tmp/ote-audit/event-unknown-only-translation-silences-language-warning.json
+
+    ok    /private/tmp/ote-audit/event-unknown-only-translation-silences-language-warning.json (event, v0.3)
+
+  Valid.
+  ```
+
+  Escaneo del corpus válido actual: ejecuté un recorrido por `spec/v0.3/examples/**/*.json`, excluyendo `examples/invalid/` y `examples/catalog/`, buscando traducciones superiores de evento/feed sin ningún campo reconocido; resultado: `No valid examples with top-level event/feed translations lacking recognized fields`.
+- **Propuesta:** Añadir a `$defs.translation` una regla `anyOf` que exija al menos una de las propiedades OTE que realmente traduce (`name` o `description`), y a `$defs.feedTranslation` otra equivalente (`title` o `description`). Mantener `additionalProperties` abierto: una traducción puede seguir llevando campos de extensión junto a los campos OTE reconocidos, respetando la política de extensiones de `spec/v0.3/README.md:804-806`; lo que no debe poder hacer es declarar una entrada de idioma que no traduzca ningún campo OTE. Añadir casos negativos para evento y feed con `translations.en.unkownField` como única propiedad, y verificar que los casos locales (`offers[].translations` etc.) siguen fallando por sus `required` actuales.
+- **Impacto en compatibilidad:** Restrictivo solo para documentos que ya publican una entrada de traducción superior sin traducir ningún campo OTE reconocido. No afecta a los ejemplos válidos actuales, comprobado con script. Si alguien usa campos de extensión dentro de `translations`, la migración es conservarlos pero acompañarlos de `name` o `description` en evento, o de `title` o `description` en feed; si no hay nada OTE que traducir en ese idioma, omitir la entrada completa expresa correctamente "no hay traducción OTE".
+- **Alternativas consideradas:** (1) Cerrar `additionalProperties` dentro de las traducciones: descartado porque contradice la política documentada de extensiones; esta propuesta permite campos extra, solo impide que sean lo único. (2) Convertirlo en aviso recomendado: descartado porque una entrada `translations.en` vacía de contenido OTE altera la semántica de validez y silencia el aviso de idiomas de P019. (3) Exigir exactamente los mismos campos que existan en el idioma principal: descartado por ahora porque es la hipótesis separada (4) del informe externo y tiene más trade-offs; esta propuesta solo exige que la entrada traduzca algo reconocido. (4) No tocarlo porque podría haber extensiones que necesiten traducirse solas: descartado sin caso de productor real; si una extensión demuestra esa necesidad, puede graduarse o definir su propia política de traducción, pero no debería hacer que `translations.en` cuente como traducción OTE sin `name`/`description`.
+
+## [2026-08-04] CLAUDE — REVISION #P024: Exigir al menos un campo OTE en traducciones de evento/feed
+
+- **Veredicto:** APROBAR
+- **Valoración:** Verificado de forma independiente. Ejecuté los dos JSON de la propuesta (evento y feed con `translations.en.unkownField` como única propiedad) contra el validador real: ambos `true`, deberían fallar. Verifiqué también, por separado, la interacción con P019 que la propuesta señala: un evento con `languages: ["es","en"]`, `textLanguage: "es"` y `translations.en: {unkownField: "x"}` pasa el perfil recomendado sin aviso — confirmado `true`, la clave `en` existe y eso basta para que `languagesCoveredByText` (mi propio keyword de P019) lo dé por cubierto, aunque no haya ni una palabra de inglés real. Repasé `$defs.offerTranslation`/`eligibilityTranslation`/`partOfTranslation`/`imageTranslation` y confirmé que los cuatro YA tienen `required` sobre su campo traducible — la propuesta acota correctamente el alcance a los dos únicos sitios (`$defs.translation`, `$defs.feedTranslation`) que no lo tienen. Repetí el escaneo del corpus con mi propio script: cero traducciones superiores válidas sin `name`/`description`/`title`.
+- **Elige bien entre las opciones del informe externo, y las separa correctamente.** El informe original (hueco #1) no distinguía "campo desconocido cuela como traducción" de la hipótesis #4 ("traducir un campo que no existe en el idioma principal") — Codex las separó explícitamente en la propuesta y en las alternativas consideradas, dejando la (4) para otra ronda con su propio análisis de trade-offs. Es la forma correcta de tratar dos preguntas distintas aunque estén relacionadas.
+- **No repite el error que yo mismo estuve a punto de recomendar.** Señalé explícitamente al enviar el informe a Codex que `additionalProperties: false` (parte del hueco #1 original) contradice la política de extensión ya documentada (README, "Dos tipos de extensión"). Codex lo respetó: la propuesta deja `additionalProperties` abierto y solo exige que, ADEMÁS de cualquier extensión, haya como mínimo un campo OTE reconocido. Correcto y bien acotado.
+- **Trade-offs:** Mínimos — mismo perfil que P018/P022: cierra una rendija de "presente pero vacío de contenido reconocido" en un lugar donde el propio schema ya rechaza el caso completamente vacío (`minProperties:1`), sin inventar una restricción nueva de cero. Coste de compatibilidad real solo para documentos que hoy explotan la rendija, y el corpus propio no lo hace.
+- **Recomendación para v1.0:** Fijar antes de v1.0. El efecto colateral sobre P019 (silenciar un aviso de idioma real) es el argumento más fuerte: no es solo una traducción vacía de contenido, es una traducción vacía que además desactiva otra protección ya aprobada esta misma auditoría.
+- **Pendiente de:** decisión humana (hhkaos)
+
+## [2026-08-04] HUMANO — DECISION #P024
+
+- **Decisión:** APROBADA
+- **Notas:** Aprobada tal cual la propuesta de Codex.
+
