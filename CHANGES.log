@@ -539,4 +539,8 @@ Comprobé el coste real: `updatedAt`/`retrievedAt` en todos los ejemplos del rep
   - `spec/v0.3/README.md` — nota junto a «Fechas límite: por qué llevan offset», explicando que el offset no se fuerza a UTC y enlazando a `DECISIONS.md` D009.
   - `spec/v0.3/DECISIONS.md` — nueva entrada D009, incluyendo el razonamiento completo de por qué no forzar UTC (mismo coste de autoría que D003 ya rechazó).
   - Regenerados por script: `reference.en.md`, `reference.es.md`, `docs/data/reference.json`, `docs/data/examples.json`, `docs/schema/v0.3/event.schema.json`, `docs/llms*`.
-- **Notas:** Verificado con `npm run validate` (repo completo, limpio) y con los tres documentos de evidencia: la ventana invertida original, la versión con offsets distintos (la trampa de comparación textual) y el caso CFP homólogo — los tres se rechazan con el mensaje correcto. Pendiente de que hhkaos revise y decida si se commitea.
+- **Notas:** Verificado con `npm run validate` (repo completo, limpio) y con los tres documentos de evidencia: la ventana invertida original, la versión con offsets distintos (la trampa de comparación textual) y el caso CFP homólogo — los tres se rechazan con el mensaje correcto.
+
+## [2026-08-03] CLAUDE — DECISIONS.md #P008: añadida la alternativa "misma zona horaria del documento", que había quedado solo en la conversación
+
+hhkaos pidió explícitamente que el razonamiento de por qué no forzar la zona horaria del documento (además de por qué no forzar UTC) quedara escrito en `DECISIONS.md`, no solo dicho en el chat. Añadida como alternativa considerada aparte en D009: `opensAt`/`closesAt` normalmente los genera un sistema (plataforma de venta de entradas, herramienta de CFP) sin relación con la ubicación del evento — forzarlos a la zona de `timezone` obligaría a una conversión hacia una zona con la que ese sistema no tiene ninguna relación natural, un ajuste peor que forzar UTC (que al menos es la referencia común de nadie en particular).
