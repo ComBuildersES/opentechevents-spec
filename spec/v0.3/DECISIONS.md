@@ -358,6 +358,26 @@ This is deliberately a **warning, not a validity error** — added to `event.rec
 
 ---
 
+### D018 — Every base-schema field using `minLength: 1` also requires a non-whitespace character
+
+**Status:** Decided 2026-08-03. See `CHANGES.log` #P018 — the deferred "19-field whitespace audit" D017 flagged.
+
+**Context.** D017 found that `minLength: 1` alone doesn't guarantee real content: it counts characters, so a whitespace-only string like `"   "` satisfies it exactly as well as it evades an empty-string check. D017 fixed this for `description` at the recommended-profile level only, because that field is optional. Auditing every OTHER field in the base schema that already uses `minLength: 1` — meaning the schema had ALREADY decided, before this audit, that the field means nothing when empty — found 21 of them, all still open to the same whitespace-only loophole: `event.name`, `tags[]` items, `translations.*.name`/`description` (and the five per-object equivalents: `offerTranslation.name`, `eligibilityTranslation.note`, `partOfTranslation.name`, `feedTranslation.title`, `feedTranslation.description`), `organizers[].name`, `partOf.name`, `location.venue`, every part of `address` (`street`, `locality`, `region`, `postalCode`), `eligibility.note`, `image[].alt` (and its translation), `offers[].name`, `source.name`, and `feed.title`. Confirmed against the real validator that `event.name: "   "` and `feed.title: "   "` both validate today, and that a single event carrying whitespace-only values in all of `organizers[].name`, every `location`/`address` part, `tags[]`, `eligibility.note`, `image[].alt`, `offers[].name` and `source.name` simultaneously also validates.
+
+**Decision.** Added `"pattern": "\\S"` (at least one non-whitespace character, anywhere in the string) alongside every one of these 21 existing `minLength: 1` declarations, in both `event.schema.json` and `feed.schema.json`. `event.description`/`feed.description` are deliberately excluded — D017 already decided those stay unconstrained at the base level because they are optional, and this decision does not reopen that: every field touched here already had the schema requiring `minLength: 1`, meaning "present but empty" was already invalid before this decision: this only closes the one input that slipped past a check the schema already intended to enforce.
+
+**Why this is not the same move D017 rejected for `description`.** D017's core distinction was optional-and-unconstrained vs. quality-bar-on-a-required-value. Every field in this decision is on the required side of that line already, in one of two ways: either the field itself is unconditionally required (`event.name`, `feed.title`), or the field lives inside an object/array item that is only present because the producer chose to include it, and — once included — some of its own fields were already mandatory or already load-bearing enough to carry `minLength: 1` (an `organizer` needs a `name`; a `translations` entry that translates `name` is pointless if that name is blank; an `image[]` entry's `alt` is accessibility text, not decoration). No field that was genuinely optional-with-no-floor gained a floor here — see CHANGES.log #P018's own REVISION for the explicit per-field check against this criterion.
+
+**Why `pattern: "\\S"`, not a longer `minLength`.** Same reasoning as D017: raising `minLength` to reject "no real content" would also reject genuine short values that are exactly as valid as long ones — `"Go"`, `"C"`, `"AI"` as a tag or a name. `pattern: "\\S"` imposes no minimum length at all, only that the string isn't composed ENTIRELY of whitespace.
+
+**Alternatives considered.** (1) Leave it to consumers to `trim()` before use: rejected — this pushes a basic validity concern into every exporter, and lets the schema promise `schema.org Event.name`/`PostalAddress.addressLocality`/etc. contain real text when it might not. (2) A larger `minLength`: rejected per the short-legitimate-values reasoning above. (3) Also apply this to `event.description`/`feed.description`: rejected, would reopen D017 for no new reason — those fields are optional, and their content bar already lives in the recommended profile where it belongs. (4) Reject leading/trailing whitespace too, not just whitespace-only values: rejected as unnecessary for the demonstrated defect, and risks rejecting text with incidental copy-paste whitespace that carries no ambiguity once trimmed.
+
+**Compatibility impact.** Restrictive only for documents that already carry a whitespace-only value in one of these 21 fields — confirmed via a repo-wide scan that the existing example corpus has none. No wire-format change; every field's presence/absence requirements are unchanged, only the shape of an already-mandatory-when-present value is narrowed.
+
+**Revisit if:** a legitimate free-text use case emerges for a string that is visually blank but semantically meaningful (none identified here) — or if the `languages`-vs-available-text warning (deferred alongside this decision) reveals a need to treat "blank" content differently at the recommended tier for some other field.
+
+---
+
 ## Indexed decisions
 
 Already argued in full in `README.md`; summarized here for discoverability.

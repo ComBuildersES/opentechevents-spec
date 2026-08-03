@@ -134,6 +134,7 @@
           "description": "Display name of the event.",
           "type": "string",
           "minLength": 1,
+          "pattern": "\\S",
           "examples": [
             "PyAlmería — Introducción a async/await"
           ]
@@ -868,7 +869,8 @@
           "type": "array",
           "items": {
             "type": "string",
-            "minLength": 1
+            "minLength": 1,
+            "pattern": "\\S"
           },
           "minItems": 1,
           "examples": [
@@ -2329,6 +2331,7 @@
           "description": "The event's name in this language.",
           "type": "string",
           "minLength": 1,
+          "pattern": "\\S",
           "examples": [
             "Sesión semanal de programación — Rust Girona"
           ]
@@ -2337,6 +2340,7 @@
           "description": "The event's description in this language. Plain text or Markdown, like the field it translates.",
           "type": "string",
           "minLength": 1,
+          "pattern": "\\S",
           "examples": [
             "Cada semana nos juntamos en línea para picar Rust un rato."
           ]
@@ -2378,6 +2382,7 @@
           "description": "This ticket's name in this language.",
           "type": "string",
           "minLength": 1,
+          "pattern": "\\S",
           "examples": [
             "Students",
             "Estudiantes"
@@ -2408,6 +2413,7 @@
           "description": "The condition, in this language.",
           "type": "string",
           "minLength": 1,
+          "pattern": "\\S",
           "examples": [
             "Miembros del Discord de Rust Girona"
           ]
@@ -2437,6 +2443,7 @@
           "description": "The series' or multi-part event's name in this language.",
           "type": "string",
           "minLength": 1,
+          "pattern": "\\S",
           "examples": [
             "Sesión semanal de programación"
           ]
@@ -2452,6 +2459,7 @@
           "description": "The feed's title in this language.",
           "type": "string",
           "minLength": 1,
+          "pattern": "\\S",
           "examples": [
             "Rust Girona events"
           ]
@@ -2460,6 +2468,7 @@
           "description": "The feed's description in this language.",
           "type": "string",
           "minLength": 1,
+          "pattern": "\\S",
           "examples": [
             "Weekly online Rust coding sessions, in Catalan and Spanish."
           ]
@@ -2485,6 +2494,7 @@
           "description": "Display name of the organiser.",
           "type": "string",
           "minLength": 1,
+          "pattern": "\\S",
           "examples": [
             "PyAlmería",
             "Ada Lovelace"
@@ -2544,6 +2554,7 @@
           "description": "Display name of the series or multi-part event, so a consumer can group occurrences without resolving the id.",
           "type": "string",
           "minLength": 1,
+          "pattern": "\\S",
           "examples": [
             "Rust Madrid — meetup mensual",
             "Study Jam de testing en Python (3 sesiones)"
@@ -2591,6 +2602,7 @@
           "description": "Human-readable physical location, in one line of free text: the name of the place plus as much address as it takes to get there — how much is your call. Its presence means the event has a physical venue. It is not made redundant by address, because joining address's parts back up never gives you the name: a PostalAddress has no field for \"El Cable\" or \"Campus Madrid\", and the name is what people navigate by. In schema.org it is Place.name, a sibling of Place.address.",
           "type": "string",
           "minLength": 1,
+          "pattern": "\\S",
           "examples": [
             "El Cable, Almería",
             "Campus Madrid, Calle de Moreno Nieto 2, Madrid"
@@ -2672,6 +2684,7 @@
           "description": "Street and number, as written locally. May carry a floor or a unit; it is one line of text, not a sub-object.",
           "type": "string",
           "minLength": 1,
+          "pattern": "\\S",
           "examples": [
             "Calle de Moreno Nieto 2",
             "100 West Snickerpark Dr"
@@ -2681,6 +2694,7 @@
           "description": "City, town or village.",
           "type": "string",
           "minLength": 1,
+          "pattern": "\\S",
           "examples": [
             "Madrid",
             "Almería"
@@ -2690,6 +2704,7 @@
           "description": "Province, state or autonomous community — whatever level sits between locality and country in that country. Free text or an ISO 3166-2 code; both travel to schema.org addressRegion unchanged.",
           "type": "string",
           "minLength": 1,
+          "pattern": "\\S",
           "examples": [
             "Comunidad de Madrid",
             "PA"
@@ -2699,6 +2714,7 @@
           "description": "Postal code, as the local post office writes it. A string, never a number: leading zeros are part of it.",
           "type": "string",
           "minLength": 1,
+          "pattern": "\\S",
           "examples": [
             "28005",
             "19019"
@@ -2739,6 +2755,7 @@
           "description": "The condition in words, for a person to read: which community, which university, which company. REQUIRED when type is restricted, because \"restricted\" on its own tells nobody anything; worth writing whenever the enum value alone leaves a question. This is the part that survives export to every format, inside the text.",
           "type": "string",
           "minLength": 1,
+          "pattern": "\\S",
           "examples": [
             "Miembros del Discord de Rust Girona",
             "Solo alumnado de la Universidad de Almería"
@@ -2825,6 +2842,7 @@
           "description": "What the image SHOWS, for whoever cannot see it: screen readers, text-only clients, and any render where the image fails to load. Describe the picture, not the event — the name and description are already being read out next to it, so repeating them makes a screen reader say the same thing twice. Skip \"image of\" or \"poster showing\": the client already announces it is an image. Written in the document's textLanguage, like every other free text here, and translated by this entry's own translations map: alt is read aloud with the pronunciation of the surrounding language, so an English alt inside a Spanish document is worse for accessibility than the problem it was meant to solve. Purely decorative images have no place in a feed and no empty string here — an image with nothing to say is an image left out.",
           "type": "string",
           "minLength": 1,
+          "pattern": "\\S",
           "maxLength": 250,
           "examples": [
             "Cartel: Ferris sobre fondo morado, «Rust Madrid · 16 junio · Impact Hub»",
@@ -2872,6 +2890,7 @@
           "description": "What the image shows, in this language.",
           "type": "string",
           "minLength": 1,
+          "pattern": "\\S",
           "maxLength": 250,
           "examples": [
             "Poster: Ferris on a purple background, “Rust Madrid · June 16 · Impact Hub”"
@@ -2895,6 +2914,7 @@
           "description": "What this ticket is called (\"General admission\", \"Estudiantes\"). Worth writing when there is more than one offer, noise when there is only one.",
           "type": "string",
           "minLength": 1,
+          "pattern": "\\S",
           "examples": [
             "General admission",
             "Estudiantes"
@@ -3098,6 +3118,7 @@
           "description": "Name of the origin (e.g. \"Rust Madrid\", \"Meetup\"), as a person would read it. Write it whenever the origin has a name of its own: a consumer showing where the data came from can derive a label from `url` (its host), but a derived label is a guess.",
           "type": "string",
           "minLength": 1,
+          "pattern": "\\S",
           "examples": [
             "Rust Madrid",
             "Meetup"

@@ -23,6 +23,7 @@
       "description": "Human-readable name of the feed.",
       "type": "string",
       "minLength": 1,
+      "pattern": "\\S",
       "examples": [
         "Eventos de PyAlmería"
       ]
