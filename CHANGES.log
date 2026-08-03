@@ -63,6 +63,7 @@ Campos por tipo:
 | P005 | Validar `location.address.country` contra ISO 3166-1 real | Implementada (`f6556b2`) |
 | P006 | `languageTag` debe validar el núcleo BCP 47 + registro IANA | Implementada (`e688852`) |
 | P007 | Validar `license` contra SPDX + aviso "amigable con directorios" | Implementada (`e66a235`) |
+| P008 | Rechazar ventanas invertidas en `offers`/`cfp` (opensAt/closesAt) | Implementada — pendiente de revisión final y commit |
 
 *(actualizar esta tabla a mano al cerrar cada ciclo; sirve de índice rápido, el detalle vive en las entradas de abajo)*
 
@@ -475,3 +476,67 @@ hhkaos, tras ver la implementación base, preguntó dos cosas que ampliaron el a
   - `spec/v0.3/DECISIONS.md` D008 — ampliada con el razonamiento del aviso (por qué NC/ND/SA/copyleft específicamente, no "datos vs. software" en general) y la decisión explícita de no comprobar compatibilidad entre licencias de un feed.
 - **Decisión sobre compatibilidad de licencias:** no se implementa ninguna comprobación. Cada evento es una obra independiente (por eso `license` se puede sobreescribir por evento); no hay una obra derivada única que obligue a reconciliar licencias, y comprobar compatibilidad de verdad es un juicio legal (ni el propio SPDX publica una matriz oficial) fuera del alcance de un validador de JSON Schema. Queda como responsabilidad explícita de quien agregue el feed, documentada en prosa.
 - **Notas:** Probado con `MIT` (avisa), `CC-BY-NC-4.0` (avisa), `CC0-1.0` (no avisa) contra el pipeline real. `npm run validate` limpio en todo el repo, sin avisos nuevos en los ejemplos reales (todos usan `CC-BY-4.0`/`CC0-1.0`). Pendiente de que hhkaos revise y decida si se commitea.
+
+## [2026-08-03] CODEX — PROPUESTA #P008: Rechazar ventanas invertidas en ofertas y CFP
+
+- **Área:** `event.schema.json` (`$defs.offer` y `$defs.cfp`), `index.js`, `index.d.ts`, `reference.en.md`, `reference.es.md`, `README.md`, `examples/invalid/`
+- **Problema:** `offers[].opensAt`/`closesAt` y `cfp.opensAt`/`closesAt` representan respectivamente el comienzo y el final de una ventana temporal, pero el schema solo valida cada instante por separado y no comprueba su orden. Por tanto acepta una venta o convocatoria que cierra antes de abrir. En una oferta, esos valores se mapean 1:1 a `schema.org/Offer.validFrom` y `validThrough`, produciendo un intervalo incoherente; en un CFP impiden responder de forma fiable a la pregunta normativa «¿está abierto ahora?». Corregir esta relación después de v1.0 haría inválidos documentos previamente aceptados con ventanas imposibles.
+- **Evidencia:** Validado contra el `event.schema.json` actual con la configuración completa del proyecto (`Ajv2020`, `ajv-formats`, `annotationKeywords`, `customFormats` y `customKeywords`): este evento devuelve `valid: true`, `errors: null`, aunque la oferta abre el 2 de julio y cierra el 1 de julio:
+
+  ```json
+  {
+    "specVersion": "0.3.0",
+    "id": "https://example.org/events/inverted-offer-window",
+    "name": "Inverted offer window",
+    "startDate": "2026-08-04T18:00",
+    "timezone": "Europe/Madrid",
+    "offers": [
+      {
+        "price": 0,
+        "opensAt": "2026-07-02T10:00:00+02:00",
+        "closesAt": "2026-07-01T12:00:00Z"
+      }
+    ],
+    "license": "CC0-1.0"
+  }
+  ```
+
+  El caso homólogo bajo `cfp` también devuelve `valid: true`, `errors: null`, usando esos mismos `opensAt`/`closesAt` y una `url` válida. La ausencia de la restricción es verificable en `spec/v0.3/event.schema.json:2948-2959`: ambos campos de la oferta solo hacen `$ref` individual a `$defs.instant`; el `allOf` de la oferta (`event.schema.json:2987-3027`) contiene las reglas de cola y moneda, pero ninguna comparación temporal. Lo mismo ocurre en el CFP: `event.schema.json:3046-3058` define ambos instantes y el objeto termina sin una regla que los relacione. La semántica está expresada literalmente en `reference.en.md:64-65` («goes on sale» / «stops being available») y `reference.es.md:64-65` («se pone a la venta» / «deja de estar disponible»); para CFP, `reference.en.md:69-70` dice «starts accepting proposals» / «Deadline» y `reference.es.md:69-70`, «empieza a aceptar propuestas» / «Fecha límite». `spec/v0.3/README.md:707` los declara instantes y `README.md:719` fija el mapeo de la oferta `opensAt` → `validFrom`, `closesAt` → `validThrough`; la fuente oficial de schema.org define [`validFrom`](https://schema.org/validFrom) como la fecha desde la que el elemento pasa a ser válido y [`validThrough`](https://schema.org/validThrough) como la fecha tras la cual deja de serlo, incluyendo explícitamente el final de una oferta. P003/D004 solo ordena `event.startDate`/`endDate`, campos de reloj de pared; el keyword `orderedDates` aparece únicamente en `$defs.event` (`event.schema.json:955`) y no cubre estas dos estructuras ni sus instantes con offset. P001–P007 y D001–D008 no justifican ventanas invertidas.
+- **Propuesta:** Añadir una restricción compartida a `$defs.offer` y `$defs.cfp` que, cuando ambos campos existan, exija `closesAt >= opensAt`. Mantener la igualdad válida para no introducir otra decisión sobre ventanas de duración cero; P008 solo rechaza el caso inequívocamente invertido. Como JSON Schema 2020-12 no compara propiedades hermanas, implementar un keyword Ajv personalizado (por ejemplo, `orderedInstants`) dentro del `customKeywords` ya existente, sin crear otro mecanismo. A diferencia de `orderedDates` de P003, no comparar las cadenas directamente: dos representaciones con offsets distintos pueden ordenar lexicográficamente de forma diferente a los instantes que nombran. Convertir los valores RFC 3339 ya validados por `$defs.instant` a una escala temporal común y comparar esa escala. Documentar la regla en ambas referencias/README y añadir dos casos negativos en `examples/invalid/`, uno para `offers[]` y otro para `cfp`, incluyendo al menos un par con offsets distintos para impedir que una implementación incorrecta por comparación textual pase CI.
+- **Impacto en compatibilidad:** Restrictivo únicamente cuando un mismo objeto declara ambos límites y `closesAt` representa un instante anterior a `opensAt`. No afecta a objetos con un solo límite, a ventanas ordenadas ni a los ejemplos válidos actuales. Estos documentos ya contradicen el significado normativo de apertura/cierre y, para ofertas, producirían un `Offer` de schema.org sin periodo de validez coherente; requieren corregir uno de los datos, no una migración de forma. Es el mismo tipo de riesgo relacional que P003, aplicado a dos estructuras que aquella propuesta no tocó y con una comparación técnica diferente por usar instantes con offset.
+- **Alternativas consideradas:** (1) Reutilizar `orderedDates` y comparar cadenas: descartado porque ese keyword depende deliberadamente del reloj de pared con ancho fijo de D004; por ejemplo, offsets diferentes pueden hacer que dos cadenas y sus instantes reales tengan órdenes distintos. (2) Comprobar solo las ofertas: descartado porque el CFP usa exactamente la misma pareja semántica y el fallo se ha reproducido también allí; dos nociones de ventana temporal divergirían sin motivo. (3) Comprobar además que apertura/cierre ocurran antes de `startDate`: descartado porque no es una invariante universal —puede haber registro tardío, venta en puerta o CFP asociado a una serie futura— y requeriría resolver reloj de pared + zona frente a instantes. (4) Exigir `closesAt > opensAt`: descartado como decisión adicional sin evidencia; la igualdad no crea un intervalo negativo. (5) Convertirlo en aviso del perfil recomendado: descartado porque una ventana invertida es datos internamente contradictorios, no una licencia válida pero poco idónea como en D008. (6) Dejarlo a exportadores/consumidores: descartado porque obliga a cada uno a decidir cómo corregir o rechazar un documento que OTE declaró válido.
+
+## [2026-08-03] CLAUDE — REVISION #P008: Rechazar ventanas invertidas en ofertas y CFP
+
+- **Veredicto:** APROBAR
+- **Valoración:** Evidencia verificada de forma independiente: el JSON de ejemplo (`opensAt` 2 de julio, `closesAt` 1 de julio) valida hoy tanto en `offers[]` como en `cfp`. Confirmé las citas exactas del schema (líneas 2948-2959 para la oferta, 3046-3058 para el CFP: cada campo solo hace `$ref` a `$defs.instant`, sin relación entre ambos) y que `orderedDates` (P003) vive únicamente en `$defs.event` y nunca toca estas dos estructuras.
+
+  Comprobé también, con un contraejemplo real, la advertencia técnica que hace la propia propuesta: comparar las cadenas de `opensAt`/`closesAt` directamente NO es seguro cuando llevan offsets distintos. `"2026-07-01T23:00:00-05:00"` (= 2026-07-02T04:00 UTC) y `"2026-07-02T01:00:00+09:00"` (= 2026-07-01T16:00 UTC, **anterior** a la primera) comparan como `closes >= opens → true` en cadena, mientras que los instantes reales dicen `false` — exactamente lo contrario. Un keyword que comparase cadenas aquí (como sí es seguro hacer en `orderedDates`, porque ahí el reloj de pared no lleva offset y tiene ancho fijo por D004) dejaría pasar ventanas invertidas con la forma adecuada. La propuesta ya lo señala y pide convertir a una escala temporal común antes de comparar — es la única alternativa correcta, y coincide con lo que yo habría pedido si no lo hubieran anticipado.
+- **Trade-offs:** Beneficio claro y sin coste de compatibilidad real: solo rechaza pares donde `closesAt` es un instante estrictamente anterior a `opensAt`, algo que no describe ninguna venta ni convocatoria real. Coste de implementación acotado — un keyword más en el `customKeywords` ya existente (mismo mecanismo que `orderedDates`), usando `Date.parse`/`getTime()` sobre valores que `$defs.instant` ya garantiza calendáricamente válidos y con offset, así que el parseo es fiable sin lógica adicional.
+- **Recomendación para v1.0:** Debe resolverse antes de congelar v1.0, mismo argumento que P001–P007: es un hueco de coherencia interna en dos estructuras con semántica idéntica (ventana de apertura/cierre), no una mejora cosmética. La propuesta ya viene completa y correcta — mismo alcance que P003 (igualdad permitida, sin exigir relación con `startDate`), mismo mecanismo (`customKeywords`), y con la comparación técnica correcta desde el principio. No tengo cambios que pedir.
+- **Pendiente de:** decisión humana (hhkaos)
+
+## [2026-08-03] CLAUDE — NOTA #P008: por qué no forzar UTC en vez de comparar instantes
+
+hhkaos preguntó si, ya que `opensAt`/`closesAt` pueden llevar offsets distintos entre sí, no tendría más sentido obligar a que todos los instantes fueran UTC — así la comparación de cadenas volvería a ser segura, sin necesitar el keyword más complejo que pide P008 (mismo tipo de simplificación que D004 hizo quitando los segundos de `dateTime` en vez de normalizarlos).
+
+Comprobé el coste real: `updatedAt`/`retrievedAt` en todos los ejemplos del repo ya van en UTC (los genera software, sin coste si se exigiera). Pero `opensAt`/`closesAt` en los ejemplos reales llevan `+02:00` — alguien los escribió a mano pensando en la hora de Madrid. Forzar UTC obligaría a esa persona a convertir la hora ella misma para escribir su propio feed.
+
+**Es exactamente el mismo coste que D003 ya rechazó** para `startDate`/`endDate`: no obligar a nadie a hacer aritmética de zonas horarias a mano para describir su propio dato. La diferencia entre `startDate` (reloj de pared + `timezone`) y estos instantes (offset obligatorio, cualquier offset válido) ya estaba decidida antes de esta auditoría y sigue siendo correcta — el hueco real era solo el orden, no el formato. Decisión: mantener offset libre en `$defs.instant` y arreglar la comparación como propone P008, no forzar UTC. Documentar este razonamiento en `DECISIONS.md`.
+
+## [2026-08-03] HUMANO — DECISION #P008
+
+- **Decisión:** APROBADA
+- **Notas:** Sin cambios sobre la propuesta de Codex. Confirmado explícitamente no forzar UTC (ver NOTA de arriba) — documentar esa alternativa descartada en `DECISIONS.md`.
+
+## [2026-08-03] CLAUDE — IMPLEMENTACION #P008
+
+- **Commit:** pendiente — cambios en el árbol de trabajo
+- **Ficheros cambiados:**
+  - `index.js`/`index.d.ts` — nuevo keyword `orderedInstants` en `customKeywords` (parsea con `Date.parse` y compara instantes reales, no cadenas).
+  - `spec/v0.3/event.schema.json` — `orderedInstants: true` añadido a `$defs.offer` y `$defs.cfp`.
+  - `spec/v0.3/examples/invalid/` — 3 casos nuevos: `event-offer-window-inverted.json`, `event-offer-window-inverted-different-offsets.json` (la trampa de comparación textual, fijada en CI), `event-cfp-window-inverted.json`.
+  - `spec/v0.3/README.md` — nota junto a «Fechas límite: por qué llevan offset», explicando que el offset no se fuerza a UTC y enlazando a `DECISIONS.md` D009.
+  - `spec/v0.3/DECISIONS.md` — nueva entrada D009, incluyendo el razonamiento completo de por qué no forzar UTC (mismo coste de autoría que D003 ya rechazó).
+  - Regenerados por script: `reference.en.md`, `reference.es.md`, `docs/data/reference.json`, `docs/data/examples.json`, `docs/schema/v0.3/event.schema.json`, `docs/llms*`.
+- **Notas:** Verificado con `npm run validate` (repo completo, limpio) y con los tres documentos de evidencia: la ventana invertida original, la versión con offsets distintos (la trampa de comparación textual) y el caso CFP homólogo — los tres se rechazan con el mensaje correcto. Pendiente de que hhkaos revise y decida si se commitea.
