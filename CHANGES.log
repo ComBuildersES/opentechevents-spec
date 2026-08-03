@@ -80,7 +80,7 @@ Campos por tipo:
 | P022 | Rechazar `offers[].currency` sin `offers[].price` | Implementada (`85f1a36`) |
 | P023 | Listar los keywords custom (reglas de validez) en `reference.*.md` | Implementada (`2880f88`) |
 | P024 | Exigir al menos un campo OTE en traducciones de evento/feed | Implementada (`fece3a7`) |
-| P025 | Recorrer `additionalProperties` en el generador de referencia | Implementada — pendiente de revisión final y commit |
+| P025 | Recorrer `additionalProperties` en el generador de referencia | Implementada (`85ee7aa`) |
 
 *(actualizar esta tabla a mano al cerrar cada ciclo; sirve de índice rápido, el detalle vive en las entradas de abajo)*
 
@@ -1934,7 +1934,7 @@ Confirmado con hhkaos que, con esta justificación corregida, sigue mereciendo l
 
 ## [2026-08-04] CLAUDE — IMPLEMENTACION #P025
 
-- **Commit:** pendiente — cambios en el árbol de trabajo
+- **Commit:** `9f4f84c` (log) y `85ee7aa` (implementación)
 - **Ficheros cambiados:**
   - `scripts/schema-model.mjs` — `fieldsOf()` y `constraintsOf()` ganan una rama nueva: cuando el objeto que se está describiendo tiene `additionalProperties` apuntando a un schema/`$ref` local documentable, recorren dentro con la ruta estable `<campo>.*.<subcampo>` (p. ej. `translations.*.name`), igual que ya hacían para `properties` y arrays. Nueva función `homeOf()` para resolver correctamente `$ref` locales encontrados dentro de un objeto alcanzado por un `$ref` remoto.
   - **Bug real encontrado y corregido al implementar, no en el alcance original de la propuesta:** `feed.translations` llega a `$defs.feedTranslation` mediante un `$ref` remoto a `event.schema.json`; el `$ref` local de `additionalProperties` dentro de ese objeto (`#/$defs/feedTranslation`) es relativo a `event.schema.json`, no a `feed.schema.json`. Resolverlo contra el schema equivocado no daba error de compilación — silenciosamente no encontraba nada, así que `feed.translations.*.title`/`.description` nunca se habrían generado en absoluto sin que nada lo señalara. Peor: el mecanismo existente para dar a cada campo un `pointer` compilable (`scripts/validate.mjs:241`, usado para validar que los `examples` del propio schema son válidos) asumía que todo `pointer` es relativo al `$id` del schema que se está recorriendo en cada momento — asunción que dejó de sostenerse en cuanto un `pointer` cruza de schema, y `npm run validate` **crasheaba** con `missingRef` al intentar compilar `feed.schema.json#/$defs/feedTranslation/properties/title` (una ruta que no existe: `feedTranslation` vive en `event.schema.json`). Corregido de raíz: `fieldsOf()` ahora produce siempre un `pointer` totalmente cualificado (`$id` + fragmento, nunca solo el fragmento), y `scripts/validate.mjs` ya no antepone el `$id` del bucle exterior — usa el `pointer` tal cual. Sin este arreglo, P025 habría documentado bien el lado del evento y dejado el lado del feed silenciosamente vacío, o habría roto `npm run validate` directamente — se comprobaron ambos síntomas de verdad, no se asumieron.
