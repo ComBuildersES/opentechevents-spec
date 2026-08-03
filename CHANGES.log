@@ -61,7 +61,7 @@ Campos por tipo:
 | P003 | Rechazar `endDate` anterior a `startDate`; prohibir segundos en `dateTime` | Implementada (`4360135`) |
 | P004 | Validar `offers[].currency` contra ISO 4217 real | Implementada (`b753c4a`) |
 | P005 | Validar `location.address.country` contra ISO 3166-1 real | Implementada (`f6556b2`) |
-| P006 | `languageTag` debe validar el núcleo BCP 47 + registro IANA | Implementada — pendiente de revisión final y commit |
+| P006 | `languageTag` debe validar el núcleo BCP 47 + registro IANA | Implementada (`e688852`) |
 
 *(actualizar esta tabla a mano al cerrar cada ciclo; sirve de índice rápido, el detalle vive en las entradas de abajo)*
 
@@ -400,7 +400,7 @@ hhkaos preguntó, antes de decidir entre las dos fases que planteé, si BCP 47 e
 
 ## [2026-08-03] CLAUDE — IMPLEMENTACION #P006
 
-- **Commit:** pendiente — cambios en el árbol de trabajo
+- **Commit:** `a12ec6c` (log) y `e688852` (implementación)
 - **Ficheros cambiados:**
   - `language-subtags.json` (nuevo, raíz del paquete) — subtags `language`/`script`/`region`/`variant` del IANA Language Subtag Registry, excluyendo los 12 códigos "placeholder" (`ZZ`, `Zzzz`, `und`, `mis`, `mul`, `zxx`, etc. — mismo criterio que `ZZ` en D006).
   - `scripts/update-language-subtags.mjs` (nuevo) — descarga y parsea el registro oficial de IANA (abierto, sin bloqueo como `iso.org`).
