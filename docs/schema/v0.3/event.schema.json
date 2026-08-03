@@ -954,6 +954,7 @@
       },
       "orderedDates": true,
       "distinctTranslationLanguages": true,
+      "distinctPartOfId": true,
       "allOf": [
         {
           "description": "A map of translations is unusable without knowing which language the primary text is in: a consumer cannot tell which entry duplicates it, nor what it is falling back to. So ANY translations map in the document — the event's own, or one inside image, offers, eligibility or partOf — requires textLanguage. It is the one place where a field of this spec depends on another being present, and it holds at every depth because the primary language is a property of the whole document, not of each object.",

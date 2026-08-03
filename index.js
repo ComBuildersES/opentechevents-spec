@@ -244,4 +244,21 @@ export const customKeywords = [
     },
     error: { message: "events must not repeat the same id" },
   },
+  {
+    keyword: "distinctPartOfId",
+    type: "object",
+    schemaType: "boolean",
+    /**
+     * `$defs.event`'s own constraint: `partOf.id`, when present, must not equal the event's own
+     * `id` — an occurrence cannot be the series it belongs to. Same exact-string-equality scope
+     * as `uniqueEventIds` (D011): no URI normalization, no inferring equivalence between
+     * differently-written identifiers. Deliberately narrower than "no event's partOf.id may
+     * equal another event's id in the feed" — that would forbid a legitimate cross-reference (an
+     * occurrence pointing at the real event that IS its series); this only forbids an entity
+     * being its own parent, which is incoherent by construction, not a judgment call.
+     */
+    validate: (schemaValue, data) =>
+      !schemaValue || typeof data.partOf?.id !== "string" || data.partOf.id !== data.id,
+    error: { message: "partOf.id must not equal the event's own id" },
+  },
 ];

@@ -466,7 +466,7 @@ Nuevo en la v0.3, opcional. Y lo primero que hay que decir es lo que **no** es: 
 }
 ```
 
-Solo `id` es obligatorio. `name` y `url` evitan que un consumidor tenga que resolver el `id` para poder agrupar. El `id` sigue las mismas reglas que el del evento (URI bajo un dominio propio, acuñado una vez) y **no tiene por qué resolver** a un documento OTE.
+Solo `id` es obligatorio. `name` y `url` evitan que un consumidor tenga que resolver el `id` para poder agrupar. El `id` sigue las mismas reglas que el del evento (URI bajo un dominio propio, acuñado una vez) y **no tiene por qué resolver** a un documento OTE. **Lo que no puede ser es el mismo `id` del propio evento** — una ocurrencia no puede ser el conjunto al que pertenece; el validador lo rechaza. Detalle en [DECISIONS.md, D012](DECISIONS.md#d012--an-events-partofid-must-not-equal-its-own-id).
 
 **`type`: `series` o `multipart`** (por defecto `series`). No es decoración: cambia la traducción.
 
@@ -2626,6 +2626,7 @@ Source: spec/v0.3/event.schema.json — JSON Schema for a single event — the n
       },
       "orderedDates": true,
       "distinctTranslationLanguages": true,
+      "distinctPartOfId": true,
       "allOf": [
         {
           "description": "A map of translations is unusable without knowing which language the primary text is in: a consumer cannot tell which entry duplicates it, nor what it is falling back to. So ANY translations map in the document — the event's own, or one inside image, offers, eligibility or partOf — requires textLanguage. It is the one place where a field of this spec depends on another being present, and it holds at every depth because the primary language is a property of the whole document, not of each object.",

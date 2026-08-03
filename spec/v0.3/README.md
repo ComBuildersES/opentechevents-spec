@@ -241,7 +241,7 @@ Nuevo en la v0.3, opcional. Y lo primero que hay que decir es lo que **no** es: 
 }
 ```
 
-Solo `id` es obligatorio. `name` y `url` evitan que un consumidor tenga que resolver el `id` para poder agrupar. El `id` sigue las mismas reglas que el del evento (URI bajo un dominio propio, acuñado una vez) y **no tiene por qué resolver** a un documento OTE.
+Solo `id` es obligatorio. `name` y `url` evitan que un consumidor tenga que resolver el `id` para poder agrupar. El `id` sigue las mismas reglas que el del evento (URI bajo un dominio propio, acuñado una vez) y **no tiene por qué resolver** a un documento OTE. **Lo que no puede ser es el mismo `id` del propio evento** — una ocurrencia no puede ser el conjunto al que pertenece; el validador lo rechaza. Detalle en [DECISIONS.md, D012](DECISIONS.md#d012--an-events-partofid-must-not-equal-its-own-id).
 
 **`type`: `series` o `multipart`** (por defecto `series`). No es decoración: cambia la traducción.
 

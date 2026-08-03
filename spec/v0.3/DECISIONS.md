@@ -242,6 +242,24 @@ This is deliberately a **warning, not a validity error** — added to `event.rec
 
 ---
 
+### D012 — An event's `partOf.id` must not equal its own `id`
+
+**Status:** Decided 2026-08-03. See `CHANGES.log` #P011 — a direct, same-day follow-on to D011, correctly distinguished from it by the proposal itself without needing that pointed out.
+
+**Context.** `partOf` is "a reference to the whole this occurrence belongs to" — the series or multi-part event a single document is one occurrence of, mapped to `schema.org/superEvent` and iCalendar `RELATED-TO;RELTYPE=PARENT`. Nothing stopped `partOf.id` from being exactly the event's own `id`: a document simultaneously claiming to be one occurrence AND the series containing it. Exporting that produces an `Event` whose `superEvent` is itself, and a `VEVENT` whose parent is itself — self-reference in every mapping this field promises.
+
+**Decision.** A new `distinctPartOfId` keyword (same `customKeywords` mechanism as the others, added to `$defs.event`) rejects `partOf.id === id`, compared by exact string equality — same scope discipline as D011: no URI normalization, no inferring equivalence between differently-written identifiers.
+
+**Why this is not the same rule as D011, just applied differently.** D011 stops two DIFFERENT events in one feed from claiming the same `id`. This stops ONE event from claiming its `partOf` (the whole it belongs to) IS itself. The proposal explicitly considered and rejected a broader rule — forbidding `partOf.id` from matching *any other* event's `id` in the feed — because that would forbid a legitimate cross-reference: an occurrence correctly pointing at the real event that IS its series (which, if that series event is also published in the feed, will *of course* share its `id` with what the occurrence names in `partOf.id` — that is the relationship working as intended, not a duplicate). Only self-reference is incoherent by construction; referencing a different, real parent is exactly the feature this field exists for.
+
+**Alternatives considered.** Codex's own proposal already worked through the alternatives this decision would otherwise need to close (leave it to consumers, recommended-tier warning, normalized/resolved URI comparison, feed-only scope, forbidding cross-references to other events' ids, removing `partOf` entirely) — see `CHANGES.log` #P011's `PROPUESTA` for the full reasoning; independently verified the evidence and re-scanned the whole example corpus for this exact conflict, finding none, rather than accepting the claim on faith.
+
+**Compatibility impact.** Restrictive only for an event that already declares itself its own parent — not a coherent series relationship, so fixing it means using the real series identifier or removing `partOf` if no such series exists. No real example in the repo is affected.
+
+**Revisit if:** a real producer needs `partOf.id === id` for some legitimate reason (would be surprising — that is definitionally an entity claiming to contain itself), or a future decision wants to detect cycles longer than length one (A is part of B, B is part of A) — that would need evidence of a real multi-hop case and is a different, larger problem than the direct self-reference this closes.
+
+---
+
 ## Indexed decisions
 
 Already argued in full in `README.md`; summarized here for discoverability.
