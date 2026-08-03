@@ -33,6 +33,17 @@
           }
         }
       }
+    },
+    {
+      "description": "description is only useful if it says something: feed.schema.json deliberately leaves it unconstrained beyond being a string, but a feed that carries an empty or whitespace-only description looks complete to this profile's own required check while giving a consumer nothing to show — worse than omitting it, which at least triggers this same warning honestly. CHANGES.log #P017.",
+      "type": "object",
+      "properties": {
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        }
+      }
     }
   ]
 }

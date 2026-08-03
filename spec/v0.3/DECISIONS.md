@@ -334,6 +334,30 @@ This is deliberately a **warning, not a validity error** — added to `event.rec
 
 ---
 
+### D017 — `description` must have real content to satisfy the recommended profile, but stays fully optional in the base schema
+
+**Status:** Decided 2026-08-03. See `CHANGES.log` #P017.
+
+**Context.** `event.description` and `feed.description` are recommended fields — "description is what every destination shows" (`event.recommended.schema.json`) — but the base schema constrains them only to `{"type": "string"}`. An empty string satisfies both the base schema AND the recommended profile's `required` check, so a document carrying `description: ""` is reported as having no quality gap at all, even though a consumer has nothing to show — worse than omitting the field, which at least triggers the honest warning. The same field's own translated form, `translations.*.description`, already requires `minLength: 1` — an asymmetry with no justification once named.
+
+**Decision.** Fixed at the RECOMMENDED-profile level only, not the base schema: `event.recommended.schema.json` and `feed.recommended.schema.json` each gained a `properties.description` constraint (`type: string`, `minLength: 1`, `pattern: "\\S"`) alongside the field's existing membership in that profile's `required` list. `event.schema.json`/`feed.schema.json` are unchanged — `description` remains unconstrained beyond being a string, and `description: ""` remains a **valid** document.
+
+**Why not fix it in the base schema, the way the first proposal framed it.** The initial proposal (and this reviewer's first-pass approval) reasoned by analogy to `name`, which DOES reject empty strings at the base level. hhkaos caught the flaw: `name` is required; `description` is optional. Rejecting an empty value for a field nobody has to fill in contradicts the spec's own two-tier design (`README.md`, "válido no es lo mismo que útil") — quality bars on optional fields belong in the recommended profile, as a warning, not in the base schema, as a rejection. hhkaos was explicit: no increase in the number of fields a producer is forced to fill in with real content.
+
+**Why `pattern: "\\S"`, not just `minLength: 1`.** `minLength` counts characters, so a whitespace-only string (`"   "`) satisfies `minLength: 1` exactly as well as it evades an empty-string check — confirmed against the real validator, and confirmed that this is not hypothetical: `event.name`, ALREADY shipped with `minLength: 1` alone, validates `"   "` today. `pattern: "\\S"` (at least one non-whitespace character, anywhere in the string) closes that gap without forbidding incidental leading/trailing whitespace.
+
+**A wider, deliberately deferred finding.** Auditing every `minLength: 1` field in the schema found the same whitespace-only gap in 19 OTHER fields already shipped under prior decisions: `name`, `tags[]`, `translations.*.name`/`description`, `organizer.name`, `partOf.name`, `location.venue`, every part of `address`, `eligibility.note`, `image[].alt`, `offer.name`, `source.name`, `feed.title`. This is real, but a much larger and more invasive change (touches most of the schema, its examples, and both references) than fits inside P017's scope. Left for a dedicated future proposal rather than bundled in here.
+
+**A related idea raised and deliberately NOT built here.** hhkaos also asked whether the recommended profile should warn when `languages` (spoken at the event) names a language with no corresponding text — neither the effective `textLanguage` nor any `translations` key. This does not conflict with `languages`' own description, which uses "a bilingual session described in Catalan only" as the canonical, VALID example — that example is about base-schema validity, and a recommended-tier accessibility warning would operate one layer up without contradicting it. Deferred because it needs the same feed-inheritance handling D016 required (a per-event recommended check must see the feed's `textLanguage` when the event omits its own, via `asPublished()` in `scripts/validate.mjs` or an equivalent), which is real design work, not a one-line addition. Tracked as a candidate for the same future proposal as the 19-field whitespace gap.
+
+**Alternatives considered.** (1) Fix in the base schema, as originally proposed: rejected per the two-tier reasoning above — `description` is optional, and a stricter base schema would be indistinguishable in effect from silently making it required. (2) Leave `minLength: 1` without the whitespace pattern: rejected, demonstrated to be trivially evadable and no better than not fixing anything. (3) Do nothing, treat this as acceptable slack in a recommended-only field: rejected — the whole point of the recommended profile is to flag exactly this kind of hollow-but-technically-present data; leaving it be defeats that profile's purpose for this field specifically.
+
+**Compatibility impact.** None at the validity level — no document that validated before stops validating now. At the recommended level, restrictive only for documents that already carry an empty or whitespace-only `description`: confirmed via `npm run validate` that no example in the repo's own corpus is affected.
+
+**Revisit if:** the deferred 19-field whitespace audit or the `languages`-vs-available-text warning move forward — at that point, revisit whether `description`'s fix should be generalized into whatever mechanism those adopt, rather than staying a bespoke pair of `properties` blocks.
+
+---
+
 ## Indexed decisions
 
 Already argued in full in `README.md`; summarized here for discoverability.
