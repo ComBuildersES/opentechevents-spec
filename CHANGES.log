@@ -65,7 +65,7 @@ Campos por tipo:
 | P007 | Validar `license` contra SPDX + aviso "amigable con directorios" | Implementada (`e66a235`) |
 | P008 | Rechazar ventanas invertidas en `offers`/`cfp` (opensAt/closesAt) | Implementada (`0886f5f`) |
 | P009 | Impedir que `translations` repita el idioma principal | Implementada (`3ac5def`) |
-| P010 | Impedir `event.id` duplicados dentro de un mismo feed | Implementada — pendiente de revisión final y commit |
+| P010 | Impedir `event.id` duplicados dentro de un mismo feed | Implementada (`d8d0ba2`) |
 
 *(actualizar esta tabla a mano al cerrar cada ciclo; sirve de índice rápido, el detalle vive en las entradas de abajo)*
 
@@ -650,7 +650,7 @@ hhkaos pidió explícitamente que el razonamiento de por qué no forzar la zona 
 
 ## [2026-08-03] CLAUDE — IMPLEMENTACION #P010
 
-- **Commit:** pendiente — cambios en el árbol de trabajo
+- **Commit:** `b7fbfd2` (log) y `d8d0ba2` (implementación)
 - **Ficheros cambiados:**
   - `index.js`/`index.d.ts` — nuevo keyword `uniqueEventIds` en `customKeywords` (igualdad exacta de cadena, sin normalizar URIs).
   - `spec/v0.3/feed.schema.json` — `uniqueEventIds: true` en la raíz; descripción de `events` actualizada.
