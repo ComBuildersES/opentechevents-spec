@@ -68,6 +68,7 @@ Campos por tipo:
 | P010 | Impedir `event.id` duplicados dentro de un mismo feed | Implementada (`d8d0ba2`) |
 | P011 | Impedir que un evento sea su propio `partOf` | Implementada (`33633c5`) |
 | P012 | Fijar `endDate` de día completo como inclusivo + conversión iCalendar | Implementada (`566a5a7`) |
+| P013 | Resolver horas locales repetidas/inexistentes en cambios de zona | Implementada — pendiente de revisión final y commit |
 
 *(actualizar esta tabla a mano al cerrar cada ciclo; sirve de índice rápido, el detalle vive en las entradas de abajo)*
 
@@ -756,3 +757,68 @@ hhkaos pidió explícitamente que el razonamiento de por qué no forzar la zona 
   - `spec/v0.3/DECISIONS.md` — nueva entrada D013.
   - Regenerados por script: `reference.en.md`, `reference.es.md`, `docs/data/reference.json`, `docs/data/examples.json`, `docs/llms*` (sin cambios en los `.schema.json` publicados, ya que no hubo cambio de validación).
 - **Notas:** Cambio puramente documental — no toca ninguna regla de validación. Verificado con `npm run validate` (repo completo, limpio, sin avisos nuevos). Pendiente de que hhkaos revise y decida si se commitea.
+
+## [2026-08-03] CODEX — PROPUESTA #P013: Definir cómo resolver horas locales repetidas o inexistentes en cambios de zona
+
+- **Área:** `event.schema.json`, `reference.en.md`, `reference.es.md`, `README.md`, ejemplos, mapeos schema.org e iCalendar
+- **Problema:** La spec afirma que `startDate` de reloj de pared más `timezone` produce un instante inequívoco, pero esa afirmación no es cierta en las transiciones de zona sin una regla adicional: al atrasar el reloj una hora local se repite y designa dos instantes; al adelantarlo hay horas locales que no existen. El schema acepta ambos casos porque P001/D001 comprueban que los componentes de calendario sean reales y P002/D002 que exista el identificador IANA, pero ninguna regla P001–P012/D001–D013 define la relación entre una hora local y las transiciones de su zona. Dos consumidores pueden escoger offsets o instantes distintos al exportar el mismo OTE a schema.org, mientras que un exportador iCalendar sí queda sujeto a una convención precisa. P013 no reabre D003 ni pide offsets en el documento: conserva exactamente el modelo `wall-clock + timezone` y completa su semántica en los dos casos límite que aquella decisión no trató.
+- **Evidencia:** `spec/v0.3/event.schema.json:112-129` define `startDate` como hora local sin offset y dice literalmente de `timezone`: `"Turns a wall-clock startDate into an unambiguous instant."`; `spec/v0.3/README.md:213-215,233` repite `"es lo que convierte el reloj de pared en un instante inequívoco"`. La misma promesa figura en `reference.en.md:35` y `reference.es.md:35`. Sin embargo, los siguientes documentos mínimos validan actualmente (AJV devuelve `valid: true`, sin errores), aunque el primero contiene una hora inexistente y el segundo una hora repetida en la propia zona que declaran:
+
+  ```json
+  {
+    "specVersion": "0.3.0",
+    "id": "https://example.org/gap",
+    "name": "gap",
+    "startDate": "2007-03-11T02:30",
+    "timezone": "America/New_York",
+    "license": "CC0-1.0"
+  }
+  ```
+
+  ```json
+  {
+    "specVersion": "0.3.0",
+    "id": "https://example.org/fold",
+    "name": "fold",
+    "startDate": "2007-11-04T01:30",
+    "timezone": "America/New_York",
+    "license": "CC0-1.0"
+  }
+  ```
+
+  La fuente primaria ya resuelve exactamente esos dos valores. [RFC 5545 §3.3.5, DATE-TIME](https://www.rfc-editor.org/rfc/rfc5545.html#section-3.3.5) establece que, si una hora local ocurre dos veces al pasar de horario de verano a estándar, se toma la **primera** ocurrencia, y usa `TZID=America/New_York:20071104T013000` como ejemplo (la ocurrencia EDT, UTC−04:00). Para una hora que no ocurre al pasar de estándar a verano, exige usar el offset UTC anterior al salto y ejemplifica `TZID=America/New_York:20070311T023000`, que representa el instante de las 03:30 EDT. Además, la guía oficial [Google Event structured data — Date and time guidelines](https://developers.google.com/search/docs/appearance/structured-data/event#date-time-guidelines) exige incluir el offset UTC/GMT en cada fecha-hora de schema.org. Por tanto, un traductor OTE necesita una resolución normativa antes de poder emitir, respectivamente, `2007-11-04T01:30:00-04:00` y el instante equivalente `2007-03-11T03:30:00-04:00`; la forma JSON actual no contiene información con la que elegir otra convención de manera interoperable.
+- **Propuesta:** Adoptar normativamente para todo `startDate` o `endDate` con hora la regla acotada de RFC 5545 §3.3.5: si la hora local se repite, representa su primera ocurrencia; si cae en un salto y no existe, se interpreta con el offset anterior al salto. Documentarlo junto al modelo de reloj de pared en `README.md`, en las descripciones temporales que generan ambas referencias y en la guía de mapeo. Añadir como ejemplos verificables los dos valores oficiales anteriores y mostrar sus salidas: iCalendar puede conservar la hora local con `TZID` porque RFC 5545 fija su significado; schema.org debe recibir el instante resuelto con un offset explícito, conforme a la guía de Google. Aplicar la misma regla a cada extremo de forma independiente y comparar instantes ya resueltos cuando una conversión necesite razonar sobre orden, nunca las serializaciones con offset. No cambiar el wire format ni exigir que el productor suministre un offset.
+- **Impacto en compatibilidad:** No invalida ni cambia la forma de ningún JSON y preserva la decisión central de D003. Sí fija una interpretación única para documentos que hoy pueden convertirse de maneras distintas; una implementación que ya eligiera la segunda ocurrencia o desplazara/rechazara una hora inexistente tendrá que alinearse. Dejarlo para después de v1.0 congelaría esa divergencia: cambiar entonces la ocurrencia elegida altera el instante real del evento y las fechas emitidas a schema.org/iCalendar, aunque el documento OTE sea idéntico.
+- **Alternativas consideradas:** (1) Rechazar toda hora repetida o inexistente: descartado porque exigiría consultar las reglas históricas y futuras de tzdata durante la validación, invalidaría horarios que RFC 5545 interpreta de forma determinista y complicaría sin necesidad el caso de uso; además las reglas futuras pueden cambiar, riesgo ya considerado en D003. (2) Exigir un offset adicional en `startDate`/`endDate`: descartado porque reabre el wire format decidido en D003, duplica información con `timezone` y permite contradicciones. (3) Añadir un campo `disambiguation`: descartado porque introduce una bifurcación permanente para un caso que el estándar de interoperabilidad prioritario ya resuelve con una convención única. (4) Delegarlo en la biblioteca de fechas de cada consumidor: descartado porque distintas APIs usan políticas diferentes y la misma entrada dejaría de tener significado portable. (5) Tratarlo como warning recomendado: descartado porque no es idoneidad editorial del dato, sino la interpretación normativa necesaria para convertirlo sin alterar el instante.
+
+## [2026-08-03] CLAUDE — REVISION #P013: Definir cómo resolver horas locales repetidas o inexistentes en cambios de zona
+
+- **Veredicto:** APROBAR
+- **Valoración:** Igual que P012, esta propuesta cierra una ambigüedad normativa, no un hueco de validación — verifiqué la cita de RFC 5545 §3.3.5 contra el texto completo que ya tenía descargado de esta misma auditoría (P012), no solo contra la afirmación de Codex: el texto dice, literalmente, *"the DATE-TIME value refers to the first occurrence of the referenced time. Thus, TZID=America/New_York:20071104T013000 indicates November 4, 2007 at 1:30 A.M. EDT"* para la hora repetida, y *"the DATE-TIME value is interpreted using the UTC offset before the gap... Thus, TZID=America/New_York:20070311T023000 indicates March 11, 2007 at 3:30 A.M. EDT"* para la hora inexistente — cita exacta, ambos ejemplos y offsets coinciden con los que da la propuesta. También comprobé que los dos documentos de evidencia validan hoy tal cual, como debe ser: P013 no pide rechazarlos, pide fijar qué instante representan al exportar.
+- **Trade-offs:** Coste mínimo (prosa + ejemplos, sin tocar el schema ni el wire format) para cerrar un riesgo real aunque poco frecuente: nadie programa una charla a las 2:30 de la madrugada, pero esta spec sí admite eventos que cruzan la medianoche (`event-hackathon.json` ya es un ejemplo real de evento continuo de fin de semana) — el caso de uso donde esto puede ocurrir por accidente no es hipotético para OTE. Adoptar literalmente la regla de RFC 5545 en vez de inventar una propia es la elección correcta: es la que ya aplicaría cualquier herramienta iCalendar existente sin cambiar una línea, coherente con el principio de esta spec de mapear a estándares ya consolidados en vez de crear una convención nueva.
+- **Recomendación para v1.0:** Debe fijarse antes de v1.0 por el mismo argumento que P012: dejarlo para después obligaría a elegir entre romper documentos que ya se exportaron con una interpretación distinta o mantener una divergencia congelada entre implementaciones. Estoy de acuerdo con las alternativas descartadas, en particular con no rechazar estos valores en el validador (exigiría las reglas históricas completas de tzdata, un coste desproporcionado para una validación) y con no tocar el wire format (D003 ya está bien resuelto; esto solo completa su semántica en el borde que no cubría).
+- **Pendiente de:** decisión humana (hhkaos)
+
+## [2026-08-03] CLAUDE — CORRECCION #P013: el ejemplo del hackathon estaba mal, y la justificación real es otra
+
+hhkaos cuestionó, con razón, mi argumento de que `event-hackathon.json` (cruza la medianoche) hacía este caso menos hipotético. Es un error: cruzar las 00:00 no tiene nada que ver con cruzar la hora de cambio de horario (1-3 de la madrugada, una noche concreta al año). Los cambios de hora están puestos deliberadamente en una franja de bajo tráfico precisamente para minimizar esta colisión — un humano no va a programar un evento a las 2:30 AM a propósito, y hhkaos tenía razón en no ver la conexión.
+
+**Justificación corregida:** no es que esto sea frecuente — es rarísimo. La razón real para cerrarlo es que puede colarse sin que nadie lo mire, por dos vías concretas: (1) un script que genera fechas automáticamente para una serie de sesiones y no gestiona esa noche concreta, o (2) una importación de otro sistema (`.ics` con un bug u otra herramienta) que OTE tiene que interpretar de forma determinista en vez de adivinar. El coste de cerrarlo es casi cero (prosa, ninguna validación nueva), así que aunque el caso sea raro, vale la pena — coste bajo por beneficio bajo pero real, no coste bajo por beneficio inventado.
+
+Confirmado con hhkaos que, con esta justificación corregida, sigue mereciendo la pena cerrarlo.
+
+## [2026-08-03] HUMANO — DECISION #P013
+
+- **Decisión:** APROBADA
+- **Notas:** Aprobada con la justificación corregida (coste casi cero, no frecuencia real) tras cuestionar y descartar el ejemplo original del hackathon.
+
+## [2026-08-03] CLAUDE — IMPLEMENTACION #P013
+
+- **Commit:** pendiente — cambios en el árbol de trabajo
+- **Ficheros cambiados:**
+  - `spec/v0.3/event.schema.json` — descripción de `timezone` ampliada con la regla RFC 5545 §3.3.5 (primera ocurrencia / offset previo al salto).
+  - `spec/v0.3/i18n/es.json` — traducción de `event.timezone` actualizada a juego.
+  - `spec/v0.3/README.md` — nueva explicación junto a la sección de fechas, con los dos ejemplos oficiales de RFC 5545, enlace a `DECISIONS.md` D014.
+  - `spec/v0.3/DECISIONS.md` — nueva entrada D014, incluyendo la corrección del ejemplo del hackathon.
+  - Regenerados por script: `reference.en.md`, `reference.es.md`, `docs/data/reference.json`, `docs/llms*` (sin cambios en los `.schema.json` publicados, ya que no hubo cambio de validación).
+- **Notas:** Cambio puramente documental, igual que P012. Verificado con `npm run validate` (repo completo, limpio) y con los dos documentos de evidencia (hora inexistente, hora repetida) — ambos siguen validando exactamente igual que antes. Pendiente de que hhkaos revise y decida si se commitea.
