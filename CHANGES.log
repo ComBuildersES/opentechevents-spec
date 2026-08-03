@@ -78,7 +78,7 @@ Campos por tipo:
 | P020 | Restringir `id`/`partOf.id` a URLs HTTP(S) bajo dominio | Implementada (`6b780bf`) |
 | P021 | Quitar la copia inline del ejemplo mínimo en README, enlazar solo | Implementada (`74aa7b2`) |
 | P022 | Rechazar `offers[].currency` sin `offers[].price` | Implementada (`85f1a36`) |
-| P023 | Listar los keywords custom (reglas de validez) en `reference.*.md` | Implementada — pendiente de revisión final y commit |
+| P023 | Listar los keywords custom (reglas de validez) en `reference.*.md` | Implementada (`2880f88`) |
 
 *(actualizar esta tabla a mano al cerrar cada ciclo; sirve de índice rápido, el detalle vive en las entradas de abajo)*
 
@@ -1643,7 +1643,7 @@ Confirmado con hhkaos que, con esta justificación corregida, sigue mereciendo l
 
 ## [2026-08-03] CLAUDE — IMPLEMENTACION #P023
 
-- **Commit:** pendiente — cambios en el árbol de trabajo
+- **Commit:** `e4d6003` (log) y `2880f88` (implementación)
 - **Ficheros cambiados:**
   - `scripts/schema-model.mjs` — `rulesOfObject()` gana un bucle genérico: para cada `customKeyword` de `index.js` declarado `true` en el objeto que se está describiendo, emite una regla `kind: "prose"` reutilizando el propio `error.message` del keyword como texto en inglés (con un `asSentence()` que solo añade el punto final, sin capitalizar — capitalizar `endDate`/`partOf.id` los habría escrito mal). Un único mecanismo genérico, no seis casos particulares: cualquier `customKeyword` futuro queda cubierto automáticamente.
   - **Efecto colateral bueno, no buscado:** el mecanismo genérico también recogió `orderedInstants` (la regla `closesAt` no anterior a `opensAt`, ya aplicada a `offers[]` y `cfp` desde P008/D009), que tampoco aparecía en la referencia y no estaba en la lista de seis keywords de la propuesta. Lo dejo dentro del alcance: es exactamente la misma clase de hueco, y la propia propuesta pedía una solución a nivel de generador, no una lista cerrada.
