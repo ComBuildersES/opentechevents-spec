@@ -880,7 +880,7 @@
         },
         {
           "path": "offers[].currency",
-          "type": "string",
+          "type": "enum: AED | AFN | ALL | AMD | AOA | ARS | AUD | AWG | AZN | BAM | BBD | BDT | BHD | BIF | BMD | BND | BOB | BOV | BRL | BSD | BTN | BWP | BYN | BZD | CAD | CDF | CHE | CHF | CHW | CLF | CLP | CNY | COP | COU | CRC | CUP | CVE | CZK | DJF | DKK | DOP | DZD | EGP | ERN | ETB | EUR | FJD | FKP | GBP | GEL | GHS | GIP | GMD | GNF | GTQ | GYD | HKD | HNL | HTG | HUF | IDR | ILS | INR | IQD | IRR | ISK | JMD | JOD | JPY | KES | KGS | KHR | KMF | KPW | KRW | KWD | KYD | KZT | LAK | LBP | LKR | LRD | LSL | LYD | MAD | MDL | MGA | MKD | MMK | MNT | MOP | MRU | MUR | MVR | MWK | MXN | MXV | MYR | MZN | NAD | NGN | NIO | NOK | NPR | NZD | OMR | PAB | PEN | PGK | PHP | PKR | PLN | PYG | QAR | RON | RSD | RUB | RWF | SAR | SBD | SCR | SDG | SEK | SGD | SHP | SLE | SOS | SRD | SSP | STN | SVC | SYP | SZL | THB | TJS | TMT | TND | TOP | TRY | TTD | TWD | TZS | UAH | UGX | USD | USN | UYI | UYU | UYW | UZS | VED | VES | VND | VUV | WST | XAD | XAF | XAG | XAU | XBA | XBB | XBC | XBD | XCD | XCG | XDR | XOF | XPD | XPF | XPT | XSU | XTS | XUA | XXX | YER | ZAR | ZMW | ZWG",
           "required": false,
           "recommended": false,
           "examples": [
@@ -888,8 +888,8 @@
             "USD"
           ],
           "description": {
-            "en": "ISO 4217 alpha-3 code, uppercase (EUR, USD, MXN). Required whenever `price` is above 0, and pointless at 0: free is free in every currency, and emitting one there is how Luma ends up publishing a currency for a meetup that costs nothing.",
-            "es": "Código ISO 4217 alfa-3, en mayúsculas (`EUR`, `USD`, `MXN`). Obligatorio siempre que `price` sea mayor que 0, e innecesario cuando es 0: lo gratis es gratis en cualquier moneda, y emitirla ahí es como Luma acaba publicando una divisa para un meetup que no cuesta nada."
+            "en": "A real ISO 4217 alpha-3 code (EUR, USD, MXN), never an invented one. Required whenever `price` is above 0, and pointless at 0: free is free in every currency, and emitting one there is how Luma ends up publishing a currency for a meetup that costs nothing.",
+            "es": "Un código ISO 4217 alfa-3 real (`EUR`, `USD`, `MXN`), nunca uno inventado. Obligatorio siempre que `price` sea mayor que 0, e innecesario cuando es 0: lo gratis es gratis en cualquier moneda, y emitirla ahí es como Luma acaba publicando una divisa para un meetup que no cuesta nada."
           },
           "requiredIn": null
         },
