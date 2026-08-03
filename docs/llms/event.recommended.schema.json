@@ -61,6 +61,24 @@
           "endDate"
         ]
       }
+    },
+    {
+      "description": "license SHOULD carry no clause that can stop a directory or aggregator from redistributing or transforming the event: NonCommercial rules out any commercial directory outright, NoDerivatives blocks the reformatting/translation an aggregator routinely does, and ShareAlike (including ODbL) is viral for a COMBINED database — merging one event into a larger feed could force the whole feed to adopt that license. Software copyleft licenses (GPL and family) are excluded from the recommendation too: their mechanics are built around 'distributing the Program', legally murky applied to a JSON document, and that ambiguity alone is enough for a cautious directory to decline rather than risk it. None of this makes the license INVALID — event.schema.json already checks it is a real SPDX identifier or a URL — it only means a directory integration may need a conversation first. A URL is exempt: it names its own terms explicitly, which is the point of offering that alternative.",
+      "type": "object",
+      "properties": {
+        "license": {
+          "anyOf": [
+            {
+              "$ref": "https://opentechevents.org/schema/v0.3/event.schema.json#/$defs/dataLicense"
+            },
+            {
+              "type": "string",
+              "format": "uri",
+              "pattern": "^https?://"
+            }
+          ]
+        }
+      }
     }
   ]
 }

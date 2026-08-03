@@ -76,21 +76,32 @@ function build(version) {
 }
 
 /**
- * Which recommended fields a document leaves out, as dotted paths (`location.address`).
+ * Which recommended fields a document falls short on, as dotted paths (`location.address`).
+ * Two shapes of shortfall: a field missing entirely (`required`), or a field present but not
+ * the recommended VALUE (an `anyOf`/`enum`-style mismatch on a field that already exists and
+ * already passed the base schema — e.g. license being a real but not directory-friendly SPDX
+ * identifier, D008). Both are reported the same bare way, field path only: this profile's job
+ * is to flag where to look, not to explain why — that lives in the field reference.
  *
  * Every `required` error counts, wherever it sits: this only ever runs on a document that
  * already validated against the base schema, so the base half of the profile ($ref) cannot
  * contribute errors — whatever is left was asked for by the profile itself. Other keywords are
  * dropped: `if`/`then` report their own failure alongside the inner one, and reporting both
- * would say the same thing twice.
+ * would say the same thing twice. For the value-mismatch shape, only the summary `anyOf` error is
+ * kept — its nested per-branch errors (`enum`, `pattern`, `format`, …) would just repeat the same
+ * field path with noisier detail nobody asked for at this level.
  */
 function missingRecommended(validate, doc) {
   if (!validate || validate(doc)) return [];
   return [
     ...new Set(
       (validate.errors ?? [])
-        .filter((e) => e.keyword === "required")
-        .map((e) => [...e.instancePath.split("/").filter(Boolean), e.params.missingProperty].join("."))
+        .filter((e) => e.keyword === "required" || (e.keyword === "anyOf" && e.instancePath))
+        .map((e) =>
+          e.keyword === "required"
+            ? [...e.instancePath.split("/").filter(Boolean), e.params.missingProperty].join(".")
+            : e.instancePath.split("/").filter(Boolean).join(".")
+        )
     ),
   ];
 }
