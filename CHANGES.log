@@ -79,7 +79,7 @@ Campos por tipo:
 | P021 | Quitar la copia inline del ejemplo mínimo en README, enlazar solo | Implementada (`74aa7b2`) |
 | P022 | Rechazar `offers[].currency` sin `offers[].price` | Implementada (`85f1a36`) |
 | P023 | Listar los keywords custom (reglas de validez) en `reference.*.md` | Implementada (`2880f88`) |
-| P024 | Exigir al menos un campo OTE en traducciones de evento/feed | Aprobada — pendiente de implementación |
+| P024 | Exigir al menos un campo OTE en traducciones de evento/feed | Implementada — pendiente de revisión final y commit |
 
 *(actualizar esta tabla a mano al cerrar cada ciclo; sirve de índice rápido, el detalle vive en las entradas de abajo)*
 
@@ -1752,3 +1752,15 @@ Confirmado con hhkaos que, con esta justificación corregida, sigue mereciendo l
 - **Decisión:** APROBADA
 - **Notas:** Aprobada tal cual la propuesta de Codex.
 
+## [2026-08-04] CLAUDE — IMPLEMENTACION #P024
+
+- **Commit:** pendiente — cambios en el árbol de trabajo
+- **Ficheros cambiados:**
+  - `spec/v0.3/event.schema.json` — `$defs.translation` gana `anyOf: [{required:["name"]},{required:["description"]}]`; `$defs.feedTranslation` gana el equivalente con `title`/`description`. `additionalProperties` no se toca en ninguno de los dos.
+  - `spec/v0.3/examples/invalid/event-translation-only-unknown-field.json`, `feed-translation-only-unknown-field.json` — casos negativos nuevos.
+  - `spec/v0.3/DECISIONS.md` — nueva entrada D022, incluye el contexto del informe externo y por qué se excluyó `additionalProperties: false` antes de llegar a Codex.
+  - `spec/v0.3/README.md` — nota junto a "un mapa vacío es inválido", con enlaces a D019 (la interacción con el aviso de idiomas) y D022.
+  - Regenerados por script: `reference.en.md`, `reference.es.md`, `docs/data/reference.json`, `docs/data/examples.json`, `docs/schema/v0.3/event.schema.json`, `docs/llms*`.
+- **Notas:** Verificado con `npm run validate` (repo completo, limpio, sin traducciones faltantes en `i18n/es.json` — este cambio no tocó la numeración de reglas existentes, solo añadió `anyOf` nuevos en owners que aún no tenían reglas propias). Probado que un campo de extensión sigue conviviendo con `name`/`title` sin problema. Ningún ejemplo real del corpus se vio afectado.
+- **Hallazgo encontrado al implementar, deliberadamente NO corregido aquí:** el `anyOf` nuevo no aparece en la sección "Constraints" de `reference.*.md` pese a P023 — comprobado directamente. La causa: `constraintsOf()`/`fieldsOf()` en `scripts/schema-model.mjs` nunca caminan dentro de `additionalProperties` (el mecanismo con el que `translations`/`feedTranslations` referencian `$defs.translation`/`$defs.feedTranslation`), así que esos dos objetos nunca se visitan en absoluto por esta ruta — un hueco distinto y más profundo que el que cerró P023, que solo enseñó a reconocer `customKeywords` en objetos YA visitados. Arreglarlo bien exige tocar `fieldsOf()`, no solo `constraintsOf()`: el propio código deja escrito como invariante deliberado que "a rule cannot end up hanging off an object the field table does not show", así que extender solo `constraintsOf()` rompería esa invariante a propósito documentada. No es una corrección de una línea como el resto de esta implementación — queda anotado como candidato para una propuesta futura, no colado aquí sin su propia revisión.
+- **Pendiente de que hhkaos revise el resultado.**

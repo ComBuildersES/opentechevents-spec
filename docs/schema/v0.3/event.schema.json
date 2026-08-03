@@ -2346,7 +2346,20 @@
             "Cada semana nos juntamos en línea para picar Rust un rato."
           ]
         }
-      }
+      },
+      "anyOf": [
+        {
+          "description": "A translation entry is only a translation if it translates something OTE recognizes. Extension fields may still ride alongside name/description — this only forbids an entry whose entire content is unrecognized, which minProperties alone cannot catch.",
+          "required": [
+            "name"
+          ]
+        },
+        {
+          "required": [
+            "description"
+          ]
+        }
+      ]
     },
     "feedTranslations": {
       "description": "A feed's OWN title and description in other languages, keyed by BCP 47 tag. Never its events': each event carries its own translations, because each event has its own text and its own languages.",
@@ -2474,7 +2487,20 @@
             "Weekly online Rust coding sessions, in Catalan and Spanish."
           ]
         }
-      }
+      },
+      "anyOf": [
+        {
+          "description": "Same rule as an event's own translation: extension fields may still ride alongside title/description, but an entry whose entire content is unrecognized is not a translation.",
+          "required": [
+            "title"
+          ]
+        },
+        {
+          "required": [
+            "description"
+          ]
+        }
+      ]
     },
     "organizers": {
       "description": "Who runs the event or the feed. Kept deliberately small: a name, and where to find them.",

@@ -779,7 +779,7 @@ Nuevos en la v0.3, los dos opcionales. Son **dos campos porque son dos problemas
 - **Un mapa y no una lista, porque el idioma es la clave.** Una entrada por idioma, y **ninguna forma de publicar dos versiones en castellano** que se contradigan.
 - **El texto que vive dentro de un objeto se traduce donde vive**, con un `translations` local a ese objeto: `offers[].translations`, `eligibility.translations`, `partOf.translations`. [Detalle abajo](#traducciones-locales-el-texto-que-vive-dentro-de-un-objeto).
 - **Nunca se traduce al idioma en que ya está el documento.** Una entrada `ca` en un documento con `textLanguage: "ca"` es el mismo texto dos veces, y dos formas de afirmar lo mismo son dos formas de contradecirse — el argumento de [`isFree`](#offers-cuánto-cuesta-y-dónde-se-saca-la-entrada). **El validador lo comprueba de verdad** (no es solo una regla normativa que vigile quien publica): un *keyword* Ajv personalizado rechaza cualquier `translations` que repita `textLanguage`, comparando sin distinguir mayúsculas — `ca` y `CA` son el mismo idioma. Detalle en [DECISIONS.md, D010](DECISIONS.md#d010--a-translations-map-must-not-carry-a-key-equal-to-textlanguage).
-- **Un mapa vacío es inválido**, igual que `location: {}`: decir nada ya se hace omitiendo el campo. Y las claves tienen que ser etiquetas BCP 47 — `"castellano"` no valida, que es justo el error que se comete a mano.
+- **Un mapa vacío es inválido**, igual que `location: {}`: decir nada ya se hace omitiendo el campo. Y las claves tienen que ser etiquetas BCP 47 — `"castellano"` no valida, que es justo el error que se comete a mano. **Y una entrada que solo lleva campos desconocidos tampoco vale como traducción**: sigue pudiendo llevar extensiones junto a `name`/`description` (o `title`/`description` en el feed), pero como único contenido no traduce nada que OTE reconozca — y silenciaría sin querer el aviso de idiomas cubiertos ([D019](DECISIONS.md#d019--recommended-profile-warns-when-a-spoken-languages-entry-has-no-available-text)). Detalle en [DECISIONS.md, D022](DECISIONS.md#d022--eventfeed-top-level-translations-must-carry-at-least-one-recognized-ote-field).
 
 **Cualquier `translations` del documento exige `textLanguage`.** Es la **única dependencia entre campos de toda la spec**, y el schema la comprueba con un `if`/`then` — **a cualquier profundidad**: una traducción dentro de una oferta también la activa, porque el idioma del texto principal es propiedad del documento entero, no de cada objeto. Sin ella, un mapa de traducciones es inservible: nadie puede saber cuál de las entradas duplica el texto principal, ni a qué está cayendo de vuelta si no encuentra su idioma. El orden de lectura de un consumidor es: **el idioma que pide → `translations` → el texto principal**, y ese último paso necesita saber en qué idioma está.
 
@@ -4033,7 +4033,20 @@ Source: spec/v0.3/event.schema.json — JSON Schema for a single event — the n
             "Cada semana nos juntamos en línea para picar Rust un rato."
           ]
         }
-      }
+      },
+      "anyOf": [
+        {
+          "description": "A translation entry is only a translation if it translates something OTE recognizes. Extension fields may still ride alongside name/description — this only forbids an entry whose entire content is unrecognized, which minProperties alone cannot catch.",
+          "required": [
+            "name"
+          ]
+        },
+        {
+          "required": [
+            "description"
+          ]
+        }
+      ]
     },
     "feedTranslations": {
       "description": "A feed's OWN title and description in other languages, keyed by BCP 47 tag. Never its events': each event carries its own translations, because each event has its own text and its own languages.",
@@ -4161,7 +4174,20 @@ Source: spec/v0.3/event.schema.json — JSON Schema for a single event — the n
             "Weekly online Rust coding sessions, in Catalan and Spanish."
           ]
         }
-      }
+      },
+      "anyOf": [
+        {
+          "description": "Same rule as an event's own translation: extension fields may still ride alongside title/description, but an entry whose entire content is unrecognized is not a translation.",
+          "required": [
+            "title"
+          ]
+        },
+        {
+          "required": [
+            "description"
+          ]
+        }
+      ]
     },
     "organizers": {
       "description": "Who runs the event or the feed. Kept deliberately small: a name, and where to find them.",

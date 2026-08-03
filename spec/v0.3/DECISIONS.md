@@ -440,6 +440,30 @@ This is deliberately a **warning, not a validity error** — added to `event.rec
 
 ---
 
+### D022 — Event/feed top-level translations must carry at least one recognized OTE field
+
+**Status:** Decided 2026-08-04. See `CHANGES.log` #P024.
+
+**Context.** An external reviewer's report (not Codex) raised 17 hypotheses about possible schema gaps; hhkaos asked to verify each against the actual repo before acting on any. Most were already resolved by prior decisions, one (rejecting unknown properties via `additionalProperties: false`) directly contradicted the already-documented extension policy (`README.md`, "Dos tipos de extensión") and was excluded before ever reaching Codex, two were modeling proposals with no real producer need, and one didn't apply. Six were confirmed as real gaps and queued for future rounds; Codex picked this one first.
+
+`$defs.translation` (an event's own top-level translation entry) and `$defs.feedTranslation` (a feed's own) both used `minProperties: 1` to reject a completely empty entry, but declared no `required`/`anyOf` over their actual translatable fields (`name`/`description`, `title`/`description`). Since neither object closes `additionalProperties`, an entry consisting entirely of an unrecognized key (`{"unkownField": "x"}`) satisfied `minProperties: 1` and validated as a "translation" that translates nothing OTE recognizes. Confirmed this also degrades P019/D019: `languagesCoveredByText` treats a `translations` key's mere presence as covering that spoken language, so an entry like this silently satisfies a language-coverage check meant to catch exactly this kind of hollow translation.
+
+**Decision.** Added `anyOf: [{required: ["name"]}, {required: ["description"]}]` to `$defs.translation`, and the equivalent with `title`/`description` to `$defs.feedTranslation`. `additionalProperties` stays open on both — an entry may still carry extension fields alongside a recognized one; what it may no longer do is consist ONLY of unrecognized fields while claiming to be a translation.
+
+**Why this doesn't reopen the extension policy.** The report's original framing bundled this with a call for `additionalProperties: false`, which was excluded from ever reaching Codex specifically because it contradicts the deliberate, already-documented design that unprefixed extension fields are legitimate "candidates for core." This decision does not touch that: it only requires that a translation entry — whatever else it carries — also translates something OTE itself defines. An extension author can still add their own field inside a translation entry; they just cannot make that the entry's ONLY content and have it counted as an OTE translation.
+
+**Why this is scoped narrower than the nested translation shapes.** `$defs.offerTranslation`, `$defs.eligibilityTranslation`, `$defs.partOfTranslation` and `$defs.imageTranslation` already had `required` on their one translatable field each (`name`, `note`, `name`, `alt`) — this gap only existed at the two top-level shapes, which have TWO possible fields (`name`-or-`description`, `title`-or-`description`) rather than one, so `required` alone couldn't express it; `anyOf` was needed instead.
+
+**A related, separate hypothesis deliberately NOT addressed here.** The external report also raised whether translating a field that doesn't exist at all in the primary language (e.g. `translations.en.description` when the event has no top-level `description`) should be invalid. Codex's proposal explicitly declined to fold that in — it has its own trade-offs (a producer might legitimately want a translated field the primary-language text omits for brevity) and deserves its own evidence and decision, not to ride in as a corollary of this one.
+
+**Alternatives considered.** (1) `additionalProperties: false`: rejected, contradicts the extension policy — see above. (2) A recommended-tier warning instead of a base-schema error: rejected, a content-free translation entry corrupts validity-level semantics (it silently satisfies P019's language-coverage check), not just editorial completeness. (3) Require the SAME fields present in the primary language: rejected for now as a separate, more complex hypothesis with its own trade-offs. (4) Leave it alone in case some extension needs a translation entry with no OTE field at all: rejected without a real producer case — an extension needing translation of its own can define that policy itself; it doesn't need `translations.en` to count as an OTE translation to do so.
+
+**Compatibility impact.** Restrictive only for documents that already publish a top-level translation entry with no recognized field — confirmed the repo's own corpus has none. No wire-format change; extension fields inside a translation entry remain fully supported alongside a recognized one.
+
+**Revisit if:** the deferred "translating a field absent from the primary language" hypothesis is picked up in a future round — it concerns the same objects and should be read together with this decision, not in isolation.
+
+---
+
 ## Indexed decisions
 
 Already argued in full in `README.md`; summarized here for discoverability.
