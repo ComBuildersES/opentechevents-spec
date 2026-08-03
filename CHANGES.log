@@ -73,7 +73,7 @@ Campos por tipo:
 | P015 | Hacer efectiva la herencia de `textLanguage` en traducciones | Implementada (`86a5389`) |
 | P016 | Corregir la referencia española de `event.textLanguage` que niega su herencia | Implementada (`94703b0`) |
 | P017 | Exigir contenido real en `description` (perfil recomendado) | Implementada (`bf73119`) |
-| P018 | Rechazar texto libre de solo espacios en 21 campos con `minLength: 1` | Implementada — pendiente de revisión final y commit |
+| P018 | Rechazar texto libre de solo espacios en 21 campos con `minLength: 1` | Implementada (`df92d8d`) |
 
 *(actualizar esta tabla a mano al cerrar cada ciclo; sirve de índice rápido, el detalle vive en las entradas de abajo)*
 
@@ -1224,7 +1224,7 @@ Confirmado con hhkaos que, con esta justificación corregida, sigue mereciendo l
 
 ## [2026-08-03] CLAUDE — IMPLEMENTACION #P018
 
-- **Commit:** pendiente — cambios en el árbol de trabajo
+- **Commit:** `73e13fa` (log) y `df92d8d` (implementación)
 - **Ficheros cambiados:**
   - `spec/v0.3/event.schema.json` — `"pattern": "\\S"` añadido junto a los 20 `minLength: 1` existentes: `name`, `tags[]` items, `translation.name`/`description`, `offerTranslation.name`, `eligibilityTranslation.note`, `partOfTranslation.name`, `feedTranslation.title`/`description`, `organizer.name`, `partOf.name`, `location.venue`, `address.street`/`locality`/`region`/`postalCode`, `eligibility.note`, `imageEntry.alt`, `imageTranslation.alt`, `offer.name`, `source.name`.
   - `spec/v0.3/feed.schema.json` — mismo tratamiento para `title`.
