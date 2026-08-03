@@ -82,6 +82,7 @@ Campos por tipo:
 | P024 | Exigir al menos un campo OTE en traducciones de evento/feed | Implementada (`fece3a7`) |
 | P025 | Recorrer `additionalProperties` en el generador de referencia | Implementada (`85ee7aa`) |
 | P026 | Impedir claves de `translations` equivalentes tras normalizar BCP 47 | Implementada (`f8fe495`) |
+| P027 | Rechazar duplicados exactos en `tags` y `languages` | Aprobada — pendiente de implementación |
 
 *(actualizar esta tabla a mano al cerrar cada ciclo; sirve de índice rápido, el detalle vive en las entradas de abajo)*
 
@@ -2094,3 +2095,121 @@ Confirmado con hhkaos que, con esta justificación corregida, sigue mereciendo l
   - `spec/v0.3/i18n/es.json` — traducción de `event#1`/`feed#0` actualizada para reflejar el mensaje de error ampliado.
   - Regenerados por script: `reference.en.md`, `reference.es.md`, `docs/data/reference.json`, `docs/schema/v0.3/event.schema.json`, `docs/llms*`.
 - **Notas:** Verificado con `npm run validate` (repo completo, limpio): los tres casos negativos se rechazan, el caso original de P009/D010 (repetir `textLanguage`) sigue rechazándose sin cambios, y un mapa con idiomas distintos legítimos sigue validando. Ningún ejemplo real del corpus se vio afectado. Pendiente de que hhkaos revise el resultado.
+
+## [2026-08-04] CODEX — PROPUESTA #P027: Rechazar duplicados exactos en `tags` y `languages`
+
+- **Área:** `spec/v0.3/event.schema.json`, `spec/v0.3/reference.en.md`, `spec/v0.3/reference.es.md`, `spec/v0.3/examples/invalid/`
+- **Problema:** `tags` y `languages` son listas de clasificación/filtrado, pero el schema actual permite repetir exactamente el mismo valor dentro del array. Un duplicado exacto no añade información: en `tags`, duplica el mismo `schema.org keywords`/iCal `CATEGORIES`; en `languages`, duplica el mismo idioma hablado que un consumidor usaría para filtrar o mapear a `schema.org inLanguage`. Esto es la misma clase de ambigüedad de lista que la spec ya evita en otros sitios con identidad (`feed.events[].id`) o claves (`translations`): una vez publicado v1.0, añadir `uniqueItems` sería restrictivo y rompería documentos que hoy validan, aunque esos documentos solo contengan ruido duplicado.
+- **Evidencia:** El schema define ambos arrays sin `uniqueItems`. `spec/v0.3/event.schema.json:868-887` define `tags` como `type: "array"`, `items` string con `minLength`/`pattern`, y `minItems: 1`, pero no exige unicidad. `spec/v0.3/event.schema.json:888-904` hace lo mismo para `languages`: array de `$defs.languageTag` con `minItems: 1`, sin `uniqueItems`. La referencia generada confirma su semántica de clasificación: `spec/v0.3/reference.en.md:56` dice que `tags` "Maps to iCal CATEGORIES and schema.org keywords" y `spec/v0.3/reference.es.md:56` dice "Mapea a `CATEGORIES` de iCal y a `keywords` de schema.org"; `spec/v0.3/reference.en.md:57` define `languages` como "Languages SPOKEN at the event, as BCP 47 tags" y `spec/v0.3/reference.es.md:57` como "Idiomas que se HABLAN en el evento, como etiquetas BCP 47". La prosa normativa de `spec/v0.3/README.md:469` repite que `tags` es una "lista libre de temáticas" que mapea a `CATEGORIES`/`keywords`; `spec/v0.3/README.md:543` explica que `languages` responde "¿lo entenderé si voy?".
+
+  JSON mínimo con `tags` duplicado que hoy valida:
+
+  ```json
+  {
+    "specVersion": "0.3.0",
+    "id": "https://example.org/events/duplicate-tags",
+    "name": "Duplicate tags",
+    "startDate": "2026-09-01T10:00",
+    "timezone": "Europe/Madrid",
+    "tags": [
+      "rust",
+      "rust"
+    ],
+    "license": "CC0-1.0"
+  }
+  ```
+
+  JSON mínimo con `languages` duplicado que hoy valida:
+
+  ```json
+  {
+    "specVersion": "0.3.0",
+    "id": "https://example.org/events/duplicate-languages",
+    "name": "Duplicate languages",
+    "startDate": "2026-09-01T10:00",
+    "timezone": "Europe/Madrid",
+    "languages": [
+      "es",
+      "es"
+    ],
+    "license": "CC0-1.0"
+  }
+  ```
+
+  También construí un documento con suficientes campos recomendados para aislar el problema de duplicados: lleva `tags: ["rust","rust"]` y `languages: ["es","es"]`, y aun así el validador no emite ni error ni aviso.
+
+  ```json
+  {
+    "specVersion": "0.3.0",
+    "id": "https://example.org/events/duplicate-tags-and-languages-recommended",
+    "url": "https://example.org/events/duplicate-tags-and-languages-recommended",
+    "name": "Duplicate tags and languages",
+    "description": "Evento con campos recomendados suficientes para aislar duplicados exactos.",
+    "image": [
+      "https://example.org/img/event.png"
+    ],
+    "organizers": [
+      {
+        "name": "Example Org"
+      }
+    ],
+    "startDate": "2026-09-01T10:00",
+    "endDate": "2026-09-01T11:00",
+    "timezone": "Europe/Madrid",
+    "attendanceMode": "online",
+    "location": {
+      "onlineUrl": "https://example.org/live"
+    },
+    "tags": [
+      "rust",
+      "rust"
+    ],
+    "languages": [
+      "es",
+      "es"
+    ],
+    "textLanguage": "es",
+    "license": "CC0-1.0",
+    "updatedAt": "2026-08-04T10:00:00Z"
+  }
+  ```
+
+  Resultado ejecutado contra el validador real:
+
+  ```text
+  $ npm run validate -- /private/tmp/ote-audit/event-duplicate-tags.json /private/tmp/ote-audit/event-duplicate-languages.json /private/tmp/ote-audit/event-duplicate-tags-and-languages-recommended.json /private/tmp/ote-audit/event-attendance-location-precedence.json
+
+    ok    /private/tmp/ote-audit/event-duplicate-tags.json (event, v0.3)
+    warn  /private/tmp/ote-audit/event-duplicate-tags.json — missing recommended: url, description, image, organizers, attendanceMode, location, languages, updatedAt, endDate
+    ok    /private/tmp/ote-audit/event-duplicate-languages.json (event, v0.3)
+    warn  /private/tmp/ote-audit/event-duplicate-languages.json — missing recommended: url, description, image, organizers, attendanceMode, location, tags, updatedAt, endDate
+    ok    /private/tmp/ote-audit/event-duplicate-tags-and-languages-recommended.json (event, v0.3)
+    ok    /private/tmp/ote-audit/event-attendance-location-precedence.json (event, v0.3)
+    warn  /private/tmp/ote-audit/event-attendance-location-precedence.json — missing recommended: url, description, image, organizers, tags, languages, updatedAt, endDate
+
+  Valid.
+  3 recommendation(s) — valid either way. See the field reference.
+  ```
+
+  El último fixture de ese comando no es la propuesta elegida; lo incluí para comprobar el otro hueco pendiente. `attendanceMode: "online"` con `location.venue` y sin `onlineUrl` valida hoy, pero eso encaja con la regla de precedencia ya escrita en `spec/v0.3/README.md:293`: "Si se contradicen, manda `attendanceMode`." No lo trato como documento inválido en esta propuesta.
+
+  Observación sobre ejemplos existentes: recorrí `spec/v0.3/examples/**/*.json`, excluyendo `examples/invalid/` y `examples/catalog/`, buscando duplicados exactos en `tags` o `languages`; resultado: `No valid examples with exact duplicate tags/languages.`
+- **Propuesta:** Añadir `uniqueItems: true` a `event.schema.json` para los arrays `tags` y `languages`, y añadir casos negativos en `spec/v0.3/examples/invalid/` para `tags: ["rust","rust"]` y `languages: ["es","es"]`. Documentarlo en `reference.en.md`/`reference.es.md` mediante la regeneración normal de referencia. Alcance deliberadamente exacto: no proponer todavía normalización de tags (`"Rust"` vs `"rust"`) ni equivalencia case-insensitive de `languages` (`"es"` vs `"ES"`), porque eso exige una política de canonicalización distinta de `uniqueItems` y debe justificarse aparte si aparece evidencia real.
+- **Impacto en compatibilidad:** Restrictivo solo para documentos que ya contienen duplicados exactos dentro de `tags` o `languages`. No cambia nombres de campos ni tipos, no reduce el vocabulario libre de `tags`, y no afecta al corpus válido actual, comprobado por script. La migración es trivial y sin pérdida: eliminar las repeticiones exactas.
+- **Alternativas consideradas:** (1) Dejarlo a consumidores con un `Set`: descartado porque obliga a cada exportador schema.org/iCal y a cada filtro a limpiar el mismo ruido, y deja que un documento OTE válido exprese dos veces la misma categoría o idioma. (2) Hacerlo solo como aviso recomendado: descartado porque duplicar exactamente un valor dentro de una lista no es "menos útil", es la misma afirmación repetida; además el documento completo de evidencia pasa sin ningún aviso, así que el problema quedaría invisible. (3) Normalizar `tags` por mayúsculas, espacios o sinónimos: descartado porque `spec/v0.3/README.md:469` y `spec/v0.3/README.md:591` mantienen `tags` libre a propósito; `uniqueItems` no toca esa libertad, solo elimina duplicados idénticos. (4) Comparar `languages` case-insensitive o por equivalencias BCP 47 más amplias: descartado para esta propuesta porque P026/D023 acaba de cerrar ese criterio solo para claves de `translations`, donde ya había una decisión previa; extenderlo a arrays de idiomas hablados merece su propia evidencia. (5) Elegí este hueco frente a los dos restantes porque no contradice decisiones existentes y tiene evidencia ejecutable directa. `attendanceMode`/`location` valida hoy, pero `README.md:293` ya define una precedencia deliberada y `README.md:358` permite conservar `location.venue` cuando un evento se mueve online; convertirlo en error base reabriría esa decisión. Traducir campos ausentes en el idioma principal sigue siendo una pregunta editorial separada por D022 (`spec/v0.3/DECISIONS.md:457`) y con más trade-offs que eliminar duplicados exactos.
+
+## [2026-08-04] CLAUDE — REVISION #P027: Rechazar duplicados exactos en `tags` y `languages`
+
+- **Veredicto:** APROBAR
+- **Valoración:** Verificado de forma independiente. `tags: ["rust","rust"]` y `languages: ["es","es"]` validan hoy (`true`), confirmado contra el validador real; repasé yo mismo `event.schema.json:868-887` y confirmé que ninguno de los dos arrays declara `uniqueItems`. Repetí el escaneo del corpus: cero ejemplos válidos con duplicados exactos en cualquiera de los dos campos. Confirmé la cita de `README.md:293` ("Si se contradicen, manda `attendanceMode`") tal cual.
+- **Hizo bien la comprobación que le pedí explícitamente.** Antes de descartar `attendanceMode`/`location`, le pedí a Codex que verificara si la precedencia de `README.md:293` ya estaba aplicada por el validador o seguía siendo solo prosa — y la respuesta correcta era "sigue siendo solo prosa, pero eso no lo convierte en un hueco: es una decisión de diseño ya tomada (cuál campo manda cuando hay contradicción), no una ausencia de regla". Confirmé que es la lectura correcta: `README.md:293` no dice "esto se valida", dice "esto es lo que hace un consumidor cuando pasa" — es una regla de INTERPRETACIÓN para quien consume, no una regla de VALIDEZ que el schema deba imponer. Forzarlo como error de schema base sí habría reabierto esa decisión sin justificación nueva.
+- **Alcance deliberadamente estrecho, y correctamente distinto del acabado de cerrar en P026.** No normaliza `tags` (mayúsculas, sinónimos) ni extiende la comparación case-insensitive de `languages` más allá de lo que P026/D023 acaba de decidir para `translations` — cada uno de esos sería una decisión de canonicalización nueva, con su propio trade-off de "cuánto se homogeneiza un campo deliberadamente libre", y la propuesta no la fuerza sin evidencia.
+- **Trade-offs:** Ninguno real — `uniqueItems: true` es la expresión JSON Schema más simple posible, no cambia tipos ni nombres, y la migración es eliminar la repetición exacta.
+- **Recomendación para v1.0:** Fijar antes de v1.0. Mismo argumento que el resto de reglas de listas/mapas cerradas en esta auditoría (`uniqueEventIds`, D023): un duplicado exacto es ruido que ningún consumidor necesita, y cerrarlo después obligaría a invalidar documentos que ya lo hubieran publicado.
+- **Pendiente de:** decisión humana (hhkaos)
+
+## [2026-08-04] HUMANO — DECISION #P027
+
+- **Decisión:** APROBADA
+- **Notas:** Aprobada tal cual la propuesta de Codex. Antes de aprobar, hhkaos preguntó si `attendanceMode`/`location` debería al menos dar un aviso recomendado cuando parecen incoherentes (sin llegar a error, respetando la precedencia de `README.md:293`) — buena idea, pero fuera del alcance de P027. Queda anotada como candidata explícita para la siguiente ronda de Codex: avisar (perfil recomendado) si `attendanceMode: "online"` no tiene `location.onlineUrl`, si `"in-person"` no tiene `location.venue`, o si `"hybrid"` no tiene ambos. Hoy esa combinación no genera ni error ni aviso.
+
