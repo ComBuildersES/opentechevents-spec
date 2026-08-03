@@ -90,6 +90,9 @@ Un evento de una comunidad técnica.
 
 Reglas que el schema impone sobre objetos completos y que el nivel de un campo suelto no puede expresar. También generadas de los schemas: el validador rechaza el documento que las incumple.
 
+- **el documento** — endDate no puede ser anterior a startDate.
+- **el documento** — Un mapa de traducciones no puede repetir el idioma propio de textLanguage.
+- **el documento** — partOf.id no puede ser igual al id propio del evento.
 - **el documento** — startDate y endDate tienen que ser de la misma forma: dos fechas de día completo, o dos fechas-hora locales.
 - **el documento** — Un mapa de traducciones es inservible si no se sabe en qué idioma está el texto principal: quien lo consume no puede saber qué entrada lo duplica ni a qué está cayendo por defecto. Así que CUALQUIER mapa de traducciones del documento —el del propio evento o uno dentro de image, offers, eligibility o partOf— exige textLanguage. Es el único sitio de esta spec donde un campo depende de que otro esté presente, y vale a cualquier profundidad porque el idioma principal es una propiedad del documento entero, no de cada objeto. Un documento suelto no tiene feed del que heredar, así que siempre debe llevar el suyo; dentro de un feed, la misma exigencia se aplica contra el idioma efectivo (propio o heredado) — ver feed.schema.json.
 - **`image[]`** — Con `translations`, `alt` es obligatorio.
@@ -98,8 +101,10 @@ Reglas que el schema impone sobre objetos completos y que el nivel de un campo s
 - **`eligibility`** — Cuando `type` es `"restricted"`, `note` es obligatorio. restricted significa «hay una puerta que el enum no sabe nombrar». Sin note no nombra nada, y quien lo consume solo puede mostrar la palabra: así es como un campo que existe para responder «¿puedo ir?» acaba preguntándolo.
 - **`offers[]`** — Requiere al menos uno de: `price`, `url`. Una oferta tiene que llevar un precio o un enlace —lo ideal es los dos—. Una que no lleva ninguno no dice nada que no dijera ya omitir la lista entera; es la misma regla que sigue location con venue y onlineUrl.
 - **`offers[]`** — Con `currency`, `price` es obligatorio.
+- **`offers[]`** — closesAt no puede ser anterior a opensAt.
 - **`offers[]`** — Con `waitlistUrl`, `availability` no puede ser `"in-stock"`. Una lista de espera para algo que todavía puedes comprar no es una lista de espera: la cola solo tiene sentido cuando la oferta se ha agotado. La disponibilidad puede seguir estando AUSENTE: quien sabe que hay cola y no controla el estado de las entradas no debería verse obligado a afirmar que están agotadas para poder mencionarla. Solo se rechaza la combinación incoherente, nunca la incompleta.
 - **`offers[]`** — Cuando `price` es mayor que 0, `currency` es obligatorio. Una cantidad distinta de cero sin moneda no es un precio: 45 es otra cosa en EUR, en USD y en MXN, y quien tenga que adivinarlo adivinará la suya.
+- **`cfp`** — closesAt no puede ser anterior a opensAt.
 - **`source`** — Requiere al menos uno de: `name`, `url`. La procedencia tiene que apuntar a algo: un nombre que lea una persona, una URL que siga una máquina, idealmente las dos. Cualquiera de ellas basta, y exigir el nombre sería peor que aceptar la URL: quien importa un `.ics` siempre conoce la dirección que descargó y a menudo no tiene nombre de publicador que leer (el X-WR-CALNAME de iCalendar es opcional), así que el requisito se cumpliría inventándolo. Una fuente inventada es peor que una fuente dada solo como enlace. Misma regla que offers con price y url, y que location con venue y onlineUrl.
 
 ## `feed` — Feed
@@ -124,4 +129,8 @@ Una colección de eventos OTE publicada en una URL estable. Un formato de interc
 
 Reglas que el schema impone sobre objetos completos y que el nivel de un campo suelto no puede expresar. También generadas de los schemas: el validador rechaza el documento que las incumple.
 
+- **el documento** — Un mapa de traducciones no puede repetir el idioma propio de textLanguage.
+- **el documento** — Los eventos no pueden repetir el mismo id.
+- **el documento** — Ningún evento puede actualizarse después de que se generara el propio feed.
+- **el documento** — Las traducciones de cada evento deben tener un textLanguage efectivo (propio o heredado del feed) y no repetirlo.
 - **el documento** — Con `translations`, `textLanguage` es obligatorio. Misma regla que en un evento: un mapa de traducciones es inservible si no se sabe en qué idioma está el texto principal. Un feed que traduce su título tiene que decir en qué idioma está ese título.

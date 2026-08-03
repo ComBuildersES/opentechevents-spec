@@ -8,6 +8,27 @@
  */
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import { customKeywords } from "../index.js";
+
+/**
+ * Object-level rules that live outside JSON Schema entirely — a boolean flag
+ * (`"orderedDates": true`) that `index.js`'s `customKeywords` gives real validation logic, not a
+ * shape `rulesOfObject` can parse. Their `error.message` is already written for a human (it is
+ * what a validator prints), so it is reused here as the rule's English text instead of
+ * duplicating a second hand-written sentence that could drift from the one Ajv actually reports.
+ */
+const CUSTOM_KEYWORD_MESSAGES = new Map(customKeywords.map((k) => [k.keyword, k.error.message]));
+
+/**
+ * Adds a trailing period without capitalizing: several of these messages start with a field
+ * name (`endDate must not be earlier than startDate`), and capitalizing "endDate" into "EndDate"
+ * would misspell it. The existing schema-authored prose in this same Constraints section already
+ * does the same — see "startDate and endDate must be of the same form" — so this matches
+ * established style, not introduces a new one.
+ */
+function asSentence(message) {
+  return message.endsWith(".") ? message : `${message}.`;
+}
 
 /** Resolves a local (#/$defs/x) or remote-by-$id ($id#/$defs/x) reference. */
 function resolve(ref, self, registry) {
@@ -185,6 +206,14 @@ function rulesOfObject(node) {
   }
 
   if (node.minProperties) rules.push({ kind: "minProperties", min: node.minProperties });
+
+  // Custom keywords (`"orderedDates": true`, `"uniqueEventIds": true`, …) are real validity
+  // rules with no JSON Schema shape at all — a boolean flag `rulesOfObject` could otherwise only
+  // ignore. Emit one for each that this object actually declares, reusing the message the
+  // validator itself reports rather than a second hand-written sentence that could drift from it.
+  for (const [name, message] of CUSTOM_KEYWORD_MESSAGES) {
+    if (node[name] === true) rules.push({ kind: "prose", note: asSentence(message) });
+  }
 
   for (const branch of [node, ...(node.allOf ?? [])]) {
     if (branch?.if) rules.push(...conditionalRules(branch));

@@ -11,11 +11,50 @@
         {
           "kind": "prose",
           "note": {
+            "en": "endDate must not be earlier than startDate.",
+            "es": "endDate no puede ser anterior a startDate."
+          },
+          "owner": "",
+          "key": "event#0",
+          "text": {
+            "en": "",
+            "es": ""
+          }
+        },
+        {
+          "kind": "prose",
+          "note": {
+            "en": "a translations map must not repeat textLanguage's own language.",
+            "es": "Un mapa de traducciones no puede repetir el idioma propio de textLanguage."
+          },
+          "owner": "",
+          "key": "event#1",
+          "text": {
+            "en": "",
+            "es": ""
+          }
+        },
+        {
+          "kind": "prose",
+          "note": {
+            "en": "partOf.id must not equal the event's own id.",
+            "es": "partOf.id no puede ser igual al id propio del evento."
+          },
+          "owner": "",
+          "key": "event#2",
+          "text": {
+            "en": "",
+            "es": ""
+          }
+        },
+        {
+          "kind": "prose",
+          "note": {
             "en": "startDate and endDate must be of the same form: two all-day dates, or two local date-times.",
             "es": "startDate y endDate tienen que ser de la misma forma: dos fechas de día completo, o dos fechas-hora locales."
           },
           "owner": "",
-          "key": "event#0",
+          "key": "event#3",
           "text": {
             "en": "",
             "es": ""
@@ -28,7 +67,7 @@
             "es": "Un mapa de traducciones es inservible si no se sabe en qué idioma está el texto principal: quien lo consume no puede saber qué entrada lo duplica ni a qué está cayendo por defecto. Así que CUALQUIER mapa de traducciones del documento —el del propio evento o uno dentro de image, offers, eligibility o partOf— exige textLanguage. Es el único sitio de esta spec donde un campo depende de que otro esté presente, y vale a cualquier profundidad porque el idioma principal es una propiedad del documento entero, no de cada objeto. Un documento suelto no tiene feed del que heredar, así que siempre debe llevar el suyo; dentro de un feed, la misma exigencia se aplica contra el idioma efectivo (propio o heredado) — ver feed.schema.json."
           },
           "owner": "",
-          "key": "event#1",
+          "key": "event#4",
           "text": {
             "en": "",
             "es": ""
@@ -125,6 +164,19 @@
           }
         },
         {
+          "kind": "prose",
+          "note": {
+            "en": "closesAt must not be earlier than opensAt.",
+            "es": "closesAt no puede ser anterior a opensAt."
+          },
+          "owner": "offers[]",
+          "key": "event.offers[]#2",
+          "text": {
+            "en": "",
+            "es": ""
+          }
+        },
+        {
           "kind": "conditionalNot",
           "when": {
             "field": "waitlistUrl",
@@ -137,7 +189,7 @@
             "es": "Una lista de espera para algo que todavía puedes comprar no es una lista de espera: la cola solo tiene sentido cuando la oferta se ha agotado. La disponibilidad puede seguir estando AUSENTE: quien sabe que hay cola y no controla el estado de las entradas no debería verse obligado a afirmar que están agotadas para poder mencionarla. Solo se rechaza la combinación incoherente, nunca la incompleta."
           },
           "owner": "offers[]",
-          "key": "event.offers[]#2",
+          "key": "event.offers[]#3",
           "text": {
             "en": "With `waitlistUrl`, `availability` must not be `\"in-stock\"`.",
             "es": "Con `waitlistUrl`, `availability` no puede ser `\"in-stock\"`."
@@ -155,10 +207,23 @@
             "es": "Una cantidad distinta de cero sin moneda no es un precio: 45 es otra cosa en EUR, en USD y en MXN, y quien tenga que adivinarlo adivinará la suya."
           },
           "owner": "offers[]",
-          "key": "event.offers[]#3",
+          "key": "event.offers[]#4",
           "text": {
             "en": "When `price` is above 0, `currency` is required.",
             "es": "Cuando `price` es mayor que 0, `currency` es obligatorio."
+          }
+        },
+        {
+          "kind": "prose",
+          "note": {
+            "en": "closesAt must not be earlier than opensAt.",
+            "es": "closesAt no puede ser anterior a opensAt."
+          },
+          "owner": "cfp",
+          "key": "event.cfp#0",
+          "text": {
+            "en": "",
+            "es": ""
           }
         },
         {
@@ -1343,6 +1408,58 @@
       "name": "feed",
       "rules": [
         {
+          "kind": "prose",
+          "note": {
+            "en": "a translations map must not repeat textLanguage's own language.",
+            "es": "Un mapa de traducciones no puede repetir el idioma propio de textLanguage."
+          },
+          "owner": "",
+          "key": "feed#0",
+          "text": {
+            "en": "",
+            "es": ""
+          }
+        },
+        {
+          "kind": "prose",
+          "note": {
+            "en": "events must not repeat the same id.",
+            "es": "Los eventos no pueden repetir el mismo id."
+          },
+          "owner": "",
+          "key": "feed#1",
+          "text": {
+            "en": "",
+            "es": ""
+          }
+        },
+        {
+          "kind": "prose",
+          "note": {
+            "en": "no event may be updated after the feed itself was generated.",
+            "es": "Ningún evento puede actualizarse después de que se generara el propio feed."
+          },
+          "owner": "",
+          "key": "feed#2",
+          "text": {
+            "en": "",
+            "es": ""
+          }
+        },
+        {
+          "kind": "prose",
+          "note": {
+            "en": "every event's translations must have an effective textLanguage (own or inherited from the feed) and must not repeat it.",
+            "es": "Las traducciones de cada evento deben tener un textLanguage efectivo (propio o heredado del feed) y no repetirlo."
+          },
+          "owner": "",
+          "key": "feed#3",
+          "text": {
+            "en": "",
+            "es": ""
+          }
+        },
+        {
           "kind": "conditional",
           "when": {
             "field": "translations",
@@ -1354,7 +1471,7 @@
             "es": "Misma regla que en un evento: un mapa de traducciones es inservible si no se sabe en qué idioma está el texto principal. Un feed que traduce su título tiene que decir en qué idioma está ese título."
           },
           "owner": "",
-          "key": "feed#0",
+          "key": "feed#4",
           "text": {
             "en": "With `translations`, `textLanguage` is required.",
             "es": "Con `translations`, `textLanguage` es obligatorio."

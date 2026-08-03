@@ -90,6 +90,9 @@ A single tech community event. See https://opentechevents.org for the normative 
 
 Rules the schema enforces on whole objects, which no single field's level can express. Generated from the schemas too — a validator rejects a document that breaks them.
 
+- **the document** — endDate must not be earlier than startDate.
+- **the document** — a translations map must not repeat textLanguage's own language.
+- **the document** — partOf.id must not equal the event's own id.
 - **the document** — startDate and endDate must be of the same form: two all-day dates, or two local date-times.
 - **the document** — A map of translations is unusable without knowing which language the primary text is in: a consumer cannot tell which entry duplicates it, nor what it is falling back to. So ANY translations map in the document — the event's own, or one inside image, offers, eligibility or partOf — requires textLanguage. It is the one place where a field of this spec depends on another being present, and it holds at every depth because the primary language is a property of the whole document, not of each object. A standalone document has no feed to inherit textLanguage from, so it must always carry its own; inside a feed, the same requirement is enforced against the effective (possibly inherited) language — see feed.schema.json.
 - **`image[]`** — With `translations`, `alt` is required.
@@ -98,8 +101,10 @@ Rules the schema enforces on whole objects, which no single field's level can ex
 - **`eligibility`** — When `type` is `"restricted"`, `note` is required. restricted means "there is a door the enum cannot name". Without a note it names nothing, and a consumer can only show the word itself — which is how a field meant to answer "can I go?" ends up asking it.
 - **`offers[]`** — Requires at least one of: `price`, `url`. An offer must carry a price or a link — ideally both. One with neither says nothing that omitting the whole list does not already say, the same rule location follows with venue and onlineUrl.
 - **`offers[]`** — With `currency`, `price` is required.
+- **`offers[]`** — closesAt must not be earlier than opensAt.
 - **`offers[]`** — With `waitlistUrl`, `availability` must not be `"in-stock"`. A waitlist for something you can still buy is not a waitlist: the queue only makes sense once the offer is gone. Availability may still be ABSENT — a publisher who knows there is a queue and does not track the ticket state should not be forced to assert sold-out to mention it. Only the incoherent combination is rejected, never the incomplete one.
 - **`offers[]`** — When `price` is above 0, `currency` is required. A non-zero amount without a currency is not a price: 45 is a different thing in EUR, USD and MXN, and a consumer that has to guess will guess its own.
+- **`cfp`** — closesAt must not be earlier than opensAt.
 - **`source`** — Requires at least one of: `name`, `url`. Provenance has to point somewhere: a name a person can read, a URL a machine can follow, ideally both. Either alone is enough, and demanding the name would be worse than accepting the URL — an importer of an `.ics` always knows the address it fetched and often has no publisher name to read (iCalendar's X-WR-CALNAME is optional), so the requirement would be met by inventing one. A fabricated origin is worse than an origin given only as a link. Same rule as offers with price and url, and location with venue and onlineUrl.
 
 ## `feed` — OTE Feed
@@ -124,4 +129,8 @@ A collection of OTE events published at a stable URL. An exchange format, not an
 
 Rules the schema enforces on whole objects, which no single field's level can express. Generated from the schemas too — a validator rejects a document that breaks them.
 
+- **the document** — a translations map must not repeat textLanguage's own language.
+- **the document** — events must not repeat the same id.
+- **the document** — no event may be updated after the feed itself was generated.
+- **the document** — every event's translations must have an effective textLanguage (own or inherited from the feed) and must not repeat it.
 - **the document** — With `translations`, `textLanguage` is required. Same rule as an event: a map of translations is unusable without knowing which language the primary text is in. A feed that translates its title must say what language that title is in.
