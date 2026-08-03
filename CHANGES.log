@@ -74,6 +74,7 @@ Campos por tipo:
 | P016 | Corregir la referencia española de `event.textLanguage` que niega su herencia | Implementada (`94703b0`) |
 | P017 | Exigir contenido real en `description` (perfil recomendado) | Implementada (`bf73119`) |
 | P018 | Rechazar texto libre de solo espacios en 21 campos con `minLength: 1` | Implementada (`df92d8d`) |
+| P019 | Avisar si un idioma de `languages` no tiene texto disponible | Aprobada — pendiente de implementación |
 
 *(actualizar esta tabla a mano al cerrar cada ciclo; sirve de índice rápido, el detalle vive en las entradas de abajo)*
 
@@ -1232,3 +1233,103 @@ Confirmado con hhkaos que, con esta justificación corregida, sigue mereciendo l
   - `spec/v0.3/DECISIONS.md` — nueva entrada D018.
   - Regenerados por script: `reference.en.md`, `reference.es.md`, `docs/data/reference.json`, `docs/data/examples.json`, `docs/schema/v0.3/event.schema.json`, `docs/schema/v0.3/feed.schema.json`, `docs/llms*`.
 - **Notas:** Durante la implementación, un primer intento de edición automatizada (reemplazo por script sobre dos de los 21 campos, `offers[].name` y `source.name`) insertó el `pattern` en medio del texto de la propia `description`, dejando el JSON inválido — detectado de inmediato al parsear el fichero con `json.load`, corregido con ediciones precisas antes de continuar. Verificado con `npm run validate` (repo completo, limpio): los 4 casos negativos nuevos se rechazan correctamente, ningún ejemplo válido existente se ve afectado, y un recorrido programático confirma que los 21 campos (+ `feed.title`) llevan ahora `pattern` sin excepción. Pendiente de que hhkaos revise el resultado.
+
+## [2026-08-03] CODEX — PROPUESTA #P019: Avisar si un idioma hablado no tiene texto disponible
+
+- **Área:** `spec/v0.3/event.recommended.schema.json`, `scripts/validate.mjs`, `spec/v0.3/event.schema.json`, `spec/v0.3/reference.en.md`, `spec/v0.3/reference.es.md`
+- **Problema:** `languages` ya es un campo recomendado porque contesta si una persona entenderá el evento, pero el perfil recomendado no detecta cuando el documento sí declara idiomas de texto disponibles y aun así deja sin texto a uno de los idiomas hablados. Ejemplo: un evento hablado en catalán y castellano, descrito solo en catalán, es válido por diseño; pero en el perfil recomendado debería producir al menos un aviso de calidad si quien habla castellano no tiene ni texto principal (`textLanguage`) ni entrada en `translations`. Esto no debe convertirse en una regla de validez base: `spec/v0.3/event.schema.json:887-888` dice literalmente que `languages` son "Languages SPOKEN at the event" y añade el caso legítimo "a bilingual session described in Catalan only"; `spec/v0.3/README.md:554-560` refuerza que `languages` y `textLanguage` no son el mismo dato y que `textLanguage` se hereda del feed. El problema es de recomendación y descubribilidad, no de estructura. Dejarlo para después de v1.0 sería arriesgado porque endurecer el perfil recomendado cuando ya haya feeds publicados cambiaría los avisos de calidad que consumidores y CI pueden haber integrado.
+- **Evidencia:** El perfil recomendado actual exige `languages`, pero no relaciona ese array con `textLanguage` ni con `translations`: `spec/v0.3/event.recommended.schema.json:10-23` solo enumera campos requeridos, incluido `"languages"`. La semántica textual está en el schema base: `spec/v0.3/event.schema.json:904-906` define `textLanguage` como "Language THIS DOCUMENT's free text is written in" y dice que ausente hereda de `feed.textLanguage`; `spec/v0.3/event.schema.json:1021-1023` define `translations` como "The same event's free text in other languages, keyed by BCP 47 tag". Además, `scripts/validate.mjs:115-120` construye el evento publicado heredando `organizers`, `license` y `specVersion`, pero no `textLanguage`, de modo que un aviso recomendado correcto dentro de feeds no podría respetar hoy la herencia documentada.
+
+  JSON mínimo de evento recomendado que hoy pasa sin aviso aunque `es` esté en `languages` y no exista texto en castellano:
+
+  ```json
+  {
+    "specVersion": "0.3.0",
+    "id": "https://example.org/events/bilingual-no-spanish-text",
+    "name": "Sessio bilingue",
+    "description": "Sessio parlada en catala i castella.",
+    "url": "https://example.org/events/bilingual-no-spanish-text",
+    "startDate": "2026-09-01T10:00",
+    "endDate": "2026-09-01T11:00",
+    "timezone": "Europe/Madrid",
+    "updatedAt": "2026-08-03T10:00:00Z",
+    "attendanceMode": "online",
+    "location": { "onlineUrl": "https://example.org/live" },
+    "organizers": [{ "name": "Rust Girona" }],
+    "image": [{ "url": "https://example.org/event.png", "alt": "Pantalla de la sessio" }],
+    "tags": ["rust"],
+    "languages": ["ca", "es"],
+    "textLanguage": "ca",
+    "license": "CC0-1.0"
+  }
+  ```
+
+  JSON mínimo de feed donde el idioma textual se declara en el feed, no en el evento; hoy también pasa sin aviso y confirma que `asPublished()` no inyecta `feed.textLanguage`:
+
+  ```json
+  {
+    "specVersion": "0.3.0",
+    "title": "Rust Girona",
+    "license": "CC0-1.0",
+    "updatedAt": "2026-08-03T10:00:00Z",
+    "textLanguage": "ca",
+    "organizers": [{ "name": "Rust Girona" }],
+    "events": [{
+      "id": "https://example.org/events/feed-bilingual-no-spanish-text",
+      "name": "Sessio bilingue",
+      "description": "Sessio parlada en catala i castella.",
+      "url": "https://example.org/events/feed-bilingual-no-spanish-text",
+      "startDate": "2026-09-01T10:00",
+      "endDate": "2026-09-01T11:00",
+      "timezone": "Europe/Madrid",
+      "updatedAt": "2026-08-03T10:00:00Z",
+      "attendanceMode": "online",
+      "location": { "onlineUrl": "https://example.org/live" },
+      "image": [{ "url": "https://example.org/event.png", "alt": "Pantalla de la sessio" }],
+      "tags": ["rust"],
+      "languages": ["ca", "es"]
+    }]
+  }
+  ```
+
+  Verificación ejecutada contra el validador real:
+
+  ```text
+  $ npm run validate -- /private/tmp/ote-audit/event-language-uncovered.json /private/tmp/ote-audit/feed-language-uncovered-inherited.json
+
+  ok /private/tmp/ote-audit/event-language-uncovered.json (event, v0.3)
+  ok /private/tmp/ote-audit/feed-language-uncovered-inherited.json (feed, v0.3)
+
+  Valid.
+  ```
+
+  Verificación directa del perfil recomendado y de la herencia efectiva actual:
+
+  ```text
+  event recommended valid: true
+  event recommended errors: null
+  feed recommended valid: true
+  feed recommended errors: null
+  embedded event has inherited textLanguage in current asPublished: false undefined
+  embedded event recommended valid: true
+  embedded event recommended errors: null
+  ```
+- **Propuesta:** Añadir una comprobación de perfil recomendado, no de validez base, que compare `languages[]` con los idiomas de texto disponibles del evento publicado: el `textLanguage` efectivo (propio o heredado del feed) más las claves de `event.translations`. La comparación debe ser exacta por etiqueta BCP 47 normalizada de forma case-insensitive, sin intentar equivalencias de región, script o macrolengua. Si no existe ni `textLanguage` efectivo ni `translations`, no debe emitirse este aviso: `spec/v0.3/README.md:143` decidió explícitamente que `textLanguage` no es recomendado porque quien importa un `.ics` no lo tiene y no debe inventarlo. Para que funcione en feeds, ampliar `asPublished()` en `scripts/validate.mjs` para inyectar `feed.textLanguage` antes de expandir el evento, igual que ya hace con `organizers`, `license` y `specVersion`. Expresar la regla como keyword/formato custom usado por `event.recommended.schema.json`, o mecanismo equivalente exportado junto al validador, porque JSON Schema estándar no puede comparar un array con la unión de una propiedad y las claves de otro objeto.
+- **Impacto en compatibilidad:** No rompe documentos OTE válidos: el schema base seguiría aceptando la sesión bilingüe descrita solo en catalán. Sí añade avisos en el perfil recomendado para documentos que ya declaran algún idioma textual y dejan descubierto un idioma hablado, por ejemplo `languages: ["ca", "es"]`, `textLanguage: "ca"` y sin `translations.es`. Bajo la forma acotada propuesta, no convierte `textLanguage` en recomendado de facto y no añade avisos a eventos importados de `.ics` que solo tengan `languages` pero ningún idioma textual declarado.
+- **Alternativas consideradas:** (1) Convertirlo en error del schema base: descartado porque contradice el ejemplo normativo de `languages` y mezclaría validez con calidad. (2) Avisar siempre que `languages` exista sin cobertura completa, incluso sin `textLanguage` ni `translations`: descartado porque reintroduce `textLanguage` como recomendado de facto y contradice la decisión documentada de `spec/v0.3/README.md:143`. (3) Contar traducciones anidadas (`offers[].translations`, `image[].translations`, etc.) como cobertura de idioma del evento: descartado porque no traducen el texto libre principal del evento (`name`, `description`). (4) Inferir que `es-ES` cubre `es` o que `pt` cubre `pt-BR`: descartado por el mismo criterio de precisión que ya aplican las decisiones de validación BCP 47; el aviso debe ser mecánico y explicable, no lingüístico. (5) Dejarlo a consumidores o UIs: descartado porque el perfil recomendado existe precisamente para avisos de calidad portables antes de publicar.
+
+## [2026-08-03] CLAUDE — REVISION #P019: Avisar si un idioma hablado no tiene texto disponible
+
+- **Veredicto:** APROBAR
+- **Valoración:** Verificado de forma independiente. Ejecuté el JSON del evento bilingüe (`languages: ["ca","es"]`, `textLanguage: "ca"`, sin `translations.es`) contra `event.recommended.schema.json` real: `valid: true` — confirma que hoy no hay ningún aviso para el idioma "es" sin cobertura textual, exactamente como describe la propuesta. Inspeccioné `scripts/validate.mjs:115-120` (`asPublished`) y confirmé que solo inyecta `organizers`, `license` y `specVersion` del feed al evento antes de comprobar el perfil recomendado — `feed.textLanguage` no viaja, así que un evento embebido que hereda su idioma del feed hoy no podría beneficiarse de este aviso sin el cambio que la propia propuesta pide en `asPublished()`. Repasé también `event.schema.json:887-888` y `README.md:554-560,143`: las citas son exactas y la propuesta las respeta en vez de ignorarlas — no reabre por qué `languages`/`textLanguage` son preguntas distintas, ni por qué `textLanguage` no es recomendado por sí solo.
+- **Respeta los límites ya fijados.** No convierte la combinación en error de validez (P019 no reabre el ejemplo normativo del catalán/castellano de `languages`), no hace `textLanguage` recomendado de facto (la alternativa (2) descartada es exactamente la trampa que había que evitar, y coincide con mi propia lectura de `README.md:143`), y no cuenta traducciones anidadas de `offers[]`/`image[]` como cobertura del texto principal del evento — correcto, esas traducen otra cosa.
+- **Punto de diseño que señalo, no una objeción:** esta sería la primera vez que un `*.recommended.schema.json` necesita un *keyword* personalizado en vez de JSON Schema puro (P017/P018 se quedaron en `minLength`/`pattern`/`properties`, sin tocar `customKeywords`). Lo señalo porque hasta ahora los perfiles recomendados no habían necesitado ese mecanismo, pero no le veo un coste real: comparar `languages[]` contra la unión de `textLanguage` y las claves de `translations` es una comparación de valores entre dos campos distintos que JSON Schema declarativo no puede expresar sin `$data` (una extensión de Ajv, no más "pura" que un keyword) — y los perfiles recomendados ya `$ref`-encian los schemas base, que dependen de `customKeywords` para compilar en modo estricto; un consumidor de `recommendedSchemas` ya tiene que cargar ese mecanismo de todos modos. No es una grieta nueva en la portabilidad, es extender a un fichero más una dependencia que ya existía.
+- **Trade-offs:** Ninguno de compatibilidad — es un aviso nuevo, nunca un rechazo, y solo se activa cuando el documento YA declara información textual (`textLanguage` efectivo o `translations`); un `.ics` importado sin ninguno de los dos sigue sin recibir este aviso, tal como exige la decisión ya tomada sobre por qué `textLanguage` no es recomendado en solitario.
+- **Recomendación para v1.0:** Encaja bien como mejora de calidad antes de v1.0, pero es más opcional que P015-P018: no corrige una contradicción entre el schema y su propia prosa (como P015/P016), ni cierra una rendija de validez ya asumida (P018) — añade una capacidad de descubribilidad nueva. Razonable fijarla ahora para que los primeros adoptantes ya la vean en el perfil recomendado, pero el coste de dejarla para una v1.1 sería bajo si se prefiere priorizar otra cosa primero.
+- **Pendiente de:** decisión humana (hhkaos)
+
+## [2026-08-03] HUMANO — DECISION #P019
+
+- **Decisión:** APROBADA
+- **Notas:** Aprobada tal cual la propuesta de Codex.
+
