@@ -707,7 +707,7 @@ Los tres son **opcionales** y entraron por la misma razón: el importador de `.i
 
 - **`location.geo`** — punto WGS-84 `{ lat, lon }` en grados decimales. Mapea a `GEO` de iCal y a `Place.geo` de schema.org. Es **independiente de `venue`** (texto libre): un punto en el mapa, no un nombre. Va **dentro de `location`** —hermano de `venue`/`onlineUrl`— igual que schema.org anida `geo` dentro de `Place`; no cuelga de `venue`, porque `venue` es una cadena, no un objeto. `geo` no basta por sí solo para satisfacer `location`: sigue haciendo falta `venue` u `onlineUrl`.
 
-- **`updatedAt`** — instante (con offset/Z) en que **los datos del evento** cambiaron por última vez. Es el equivalente de `LAST-MODIFIED` de iCal, **no** de `DTSTAMP`: `DTSTAMP` marca *cuándo se generó el fichero* y cambia en cada exportación aunque no haya cambiado nada, así que no sirve para «qué cambió». Su valor está en la **sincronización incremental**: un consumidor que lee el feed a diario filtra por `updatedAt > última_lectura` en vez de recomparar la colección entera. El `updatedAt` del feed dice «algo cambió»; el del evento dice **qué**. Ausente = desconocido, no «nunca cambió».
+- **`updatedAt`** — instante (con offset/Z) en que **los datos del evento** cambiaron por última vez. Es el equivalente de `LAST-MODIFIED` de iCal, **no** de `DTSTAMP`: `DTSTAMP` marca *cuándo se generó el fichero* y cambia en cada exportación aunque no haya cambiado nada, así que no sirve para «qué cambió». Su valor está en la **sincronización incremental**: un consumidor que lee el feed a diario filtra por `updatedAt > última_lectura` en vez de recomparar la colección entera. El `updatedAt` del feed dice «algo cambió»; el del evento dice **qué**. Ausente = desconocido, no «nunca cambió». **Ningún evento puede tener un `updatedAt` posterior al del propio feed** — el feed no puede contener una revisión que, según sus propios sellos, todavía no existía cuando se generó; el validador lo comprueba comparando los instantes reales, no el texto. Detalle en [DECISIONS.md, D015](DECISIONS.md#d015--no-events-updatedat-may-be-later-than-the-feeds-own-updatedat).
 
 ### `image`: el cartel, su texto alternativo, y por qué la lista admite dos formas
 
@@ -1234,7 +1234,7 @@ A collection of OTE events published at a stable URL. An exchange format, not an
 | `organizers` | object[] | optional | → every event that omits it | Who runs the events in this feed. Not the same as title/url, which name whoever publishes the feed: an aggregator publishes events it does not organise, and must leave this out so each event states its own. | `[{"name":"PyAlmería","url":"https://pyalmeria.example"}]` |
 | `license` | string | **required** | → every event that omits it | License for the feed's contents. SPDX identifier (full list at https://spdx.org/licenses/) or URL. | `"CC-BY-4.0"`<br>`"CC0-1.0"` |
 | `licenseUrl` | string (uri) | optional | | URL of the full license text. | `"https://creativecommons.org/licenses/by/4.0/"` |
-| `updatedAt` | string (date-time) | **required** | | When this feed was generated. | `"2026-07-06T10:00:00Z"` |
+| `updatedAt` | string (date-time) | **required** | | When this feed was generated. Never earlier than any event's own updatedAt — a feed cannot contain a revision that, by its own timestamps, didn't exist yet when it was generated. | `"2026-07-06T10:00:00Z"` |
 | `translations` | object | optional | | This feed's own title and description in other languages. Its EVENTS are not translated here: each one carries its own translations, and unlike license or textLanguage this field is never inherited — a feed's title is not an event's name. Requires textLanguage, like an event's translations do — see the document's constraints. | `{"en":{"title":"Rust Girona events","description":"Weekly online Rust coding sessions, in Catalan and Spanish."}}` |
 | `events` | object[] | **required** | | Events in this feed. Each one inherits the feed's specVersion and license unless it declares its own. No two may share an id — see the document's constraints. | — |
 
@@ -4908,7 +4908,7 @@ Source: spec/v0.3/feed.schema.json — JSON Schema for a feed of events.
       ]
     },
     "updatedAt": {
-      "description": "When this feed was generated.",
+      "description": "When this feed was generated. Never earlier than any event's own updatedAt — a feed cannot contain a revision that, by its own timestamps, didn't exist yet when it was generated.",
       "$ref": "https://opentechevents.org/schema/v0.3/event.schema.json#/$defs/instant",
       "examples": [
         "2026-07-06T10:00:00Z"
@@ -4936,6 +4936,7 @@ Source: spec/v0.3/feed.schema.json — JSON Schema for a feed of events.
   },
   "distinctTranslationLanguages": true,
   "uniqueEventIds": true,
+  "eventsNotNewerThanFeed": true,
   "allOf": [
     {
       "description": "Same rule as an event: a map of translations is unusable without knowing which language the primary text is in. A feed that translates its title must say what language that title is in.",
@@ -5613,7 +5614,7 @@ Source: spec/v0.3/examples/feed-multipart.json — Validated documents, one per 
     { "name": "PyAlmería", "url": "https://pyalmeria.example" }
   ],
   "license": "CC-BY-4.0",
-  "updatedAt": "2026-02-20T09:00:00Z",
+  "updatedAt": "2026-02-25T11:00:00Z",
   "events": [
     {
       "id": "https://pyalmeria.example/study-jams/2026-testing/1",

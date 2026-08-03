@@ -261,4 +261,31 @@ export const customKeywords = [
       !schemaValue || typeof data.partOf?.id !== "string" || data.partOf.id !== data.id,
     error: { message: "partOf.id must not equal the event's own id" },
   },
+  {
+    keyword: "eventsNotNewerThanFeed",
+    type: "object",
+    schemaType: "boolean",
+    /**
+     * `feed`'s own constraint: no event's `updatedAt` may be a later instant than the feed's own
+     * `updatedAt` — "when this feed was generated" cannot be earlier than a revision it already
+     * contains. Reuses `parseInstant` (same as `orderedInstants`, P008): RFC 3339 §5.1 only
+     * guarantees string comparison matches chronological order when zone, offset representation
+     * and fractional-second precision all match, none of which `$defs.instant` requires — so this
+     * compares real instants, never the serialized text. Events without `updatedAt` are
+     * unconstrained (absence means unknown, not "unchanged"); equality is allowed.
+     */
+    validate: (schemaValue, data) => {
+      if (!schemaValue || typeof data.updatedAt !== "string" || !Array.isArray(data.events)) {
+        return true;
+      }
+      const feedUpdatedAt = parseInstant(data.updatedAt);
+      if (feedUpdatedAt === null) return true;
+      return data.events.every((e) => {
+        if (typeof e?.updatedAt !== "string") return true;
+        const eventUpdatedAt = parseInstant(e.updatedAt);
+        return eventUpdatedAt === null || eventUpdatedAt <= feedUpdatedAt;
+      });
+    },
+    error: { message: "no event may be updated after the feed itself was generated" },
+  },
 ];

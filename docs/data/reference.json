@@ -1485,7 +1485,7 @@
             "2026-07-06T10:00:00Z"
           ],
           "description": {
-            "en": "When this feed was generated.",
+            "en": "When this feed was generated. Never earlier than any event's own updatedAt — a feed cannot contain a revision that, by its own timestamps, didn't exist yet when it was generated.",
             "es": "Cuándo se generó este feed."
           },
           "requiredIn": null

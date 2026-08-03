@@ -294,6 +294,26 @@ This is deliberately a **warning, not a validity error** — added to `event.rec
 
 ---
 
+### D015 — No event's `updatedAt` may be later than the feed's own `updatedAt`
+
+**Status:** Decided 2026-08-03. See `CHANGES.log` #P014 — the strongest evidence in this whole audit: not a constructed example, a real defect already present in the repo's own canonical, CI-validated corpus.
+
+**Context.** `feed.updatedAt` is "when this feed was generated"; an event's `updatedAt` is "the instant the event's DATA last changed", equivalent to iCalendar `LAST-MODIFIED`. Nothing enforced that a feed's generation instant is at least as late as any revision it already contains — and `spec/v0.3/examples/feed-multipart.json` had exactly this bug: the feed claimed `updatedAt: "2026-02-20T09:00:00Z"` while containing an event revised `"2026-02-25T10:30:00Z"`, five days later, and validated cleanly with no warning. A feed cannot contain a revision that, by its own timestamps, did not exist yet when the feed was generated — this breaks the incremental-sync cursor `updatedAt` exists to provide (a consumer using the feed's own stamp as a checkpoint could conclude the feed is stale, or miss the very revision that's already there).
+
+**Decision.** A new `eventsNotNewerThanFeed` keyword (same `customKeywords` mechanism as the others, on the feed root) rejects any feed where an event's `updatedAt` names a later instant than the feed's own `updatedAt`. Equality is allowed. Comparison is via real instants (reusing the same `parseInstant`/`Date.parse` approach as `orderedInstants`, D009), never the serialized strings — verified directly against RFC 3339 §5.1's own text: string comparison only matches chronological order when "the time zones... are the same... expressed using the same string... and all times have the same number of fractional second digits", none of which `$defs.instant` requires. Events without `updatedAt` are unconstrained (absence means unknown, not "unchanged").
+
+**Why the bound is one-directional, not equality with the maximum.** The proposal correctly does not require `feed.updatedAt` to equal the maximum of all `events[].updatedAt` — a feed can legitimately change for reasons unrelated to any single event's content (its own title/description, adding or removing events, an event with no `updatedAt` at all). Only the upper bound — nothing in the feed can be newer than the feed's own claimed generation time — is a real invariant; the rest is real variation this decision correctly leaves alone.
+
+**A real example needed fixing, unlike every prior decision in this log.** `feed-multipart.json`'s `updatedAt` was moved from `2026-02-20T09:00:00Z` to `2026-02-25T11:00:00Z` (after the latest event revision it contains) rather than rolling the event's timestamp back — confirmed with hhkaos that since the repo's example data is invented for illustration, there was no "real" chronology being overwritten either way; bumping the feed's stamp was chosen as the more natural repair (representing "the feed was regenerated shortly after that edit") over inventing an earlier, unaffirmed edit time for the event.
+
+**Alternatives considered.** Codex's own proposal already worked through the alternatives this decision would otherwise need to close (fix only the broken example without a rule — would hide the gap that let it happen and any producer could repeat it; recommended-tier warning — this is two incompatible claims within one document, not real-but-suboptimal data; require exact equality with the max — rejected per the one-directional reasoning above; compare serialized strings — rejected per RFC 3339 §5.1, same reasoning as D009; compare against wall-clock "now" — rejected, would make validity depend on when the document happens to be checked; redefine `feed.updatedAt` as unrelated to content — rejected, would gut the sync semantics `README.md` already attributes to it and break the direct Atom/iCalendar mapping). See `CHANGES.log` #P014's `PROPUESTA` and `REVISION` for the full reasoning, including independent verification of all four cited RFCs (5545, 7986, 4287, 3339) against their primary texts.
+
+**Compatibility impact.** Restrictive only for a feed that already contains this exact contradiction — the repo's own corpus had exactly one instance, now fixed. No other example, and no event without `updatedAt`, is affected.
+
+**Revisit if:** a real producer has a legitimate reason for a feed to contain a revision timestamped after its own generation stamp (would be surprising — that is definitionally the feed's own metadata contradicting itself), or a future decision needs a finer-grained per-field revision model that this single-timestamp comparison can't express.
+
+---
+
 ## Indexed decisions
 
 Already argued in full in `README.md`; summarized here for discoverability.

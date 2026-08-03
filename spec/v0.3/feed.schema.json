@@ -81,7 +81,7 @@
       ]
     },
     "updatedAt": {
-      "description": "When this feed was generated.",
+      "description": "When this feed was generated. Never earlier than any event's own updatedAt — a feed cannot contain a revision that, by its own timestamps, didn't exist yet when it was generated.",
       "$ref": "https://opentechevents.org/schema/v0.3/event.schema.json#/$defs/instant",
       "examples": [
         "2026-07-06T10:00:00Z"
@@ -109,6 +109,7 @@
   },
   "distinctTranslationLanguages": true,
   "uniqueEventIds": true,
+  "eventsNotNewerThanFeed": true,
   "allOf": [
     {
       "description": "Same rule as an event: a map of translations is unusable without knowing which language the primary text is in. A feed that translates its title must say what language that title is in.",
