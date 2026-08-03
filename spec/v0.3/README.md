@@ -81,18 +81,7 @@ Todo lo demás es opcional. **Deliberadamente**: la mayoría de los `.ics` publi
 
 Opcional **no** quiere decir prescindible, y ahí entra el segundo nivel: los [campos recomendados](#válido-no-es-lo-mismo-que-útil-los-campos-recomendados).
 
-Ejemplo mínimo real ([`examples/event-minimal.json`](examples/event-minimal.json)):
-
-```json
-{
-  "specVersion": "0.3.0",
-  "id": "https://pyalmeria.example/eventos/2026-06-async",
-  "name": "PyAlmería — Introducción a async/await",
-  "startDate": "2026-06-11T18:30:00",
-  "timezone": "Europe/Madrid",
-  "license": "CC-BY-4.0"
-}
-```
+Ejemplo mínimo real, con esos seis campos y nada más: [`examples/event-minimal.json`](examples/event-minimal.json) — es un fichero validado en CI, así que enlazarlo en vez de copiarlo aquí es lo que garantiza que este ejemplo nunca se desincronice del schema real.
 
 ### Válido no es lo mismo que útil: los campos recomendados
 
