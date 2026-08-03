@@ -112,7 +112,8 @@
       "summary": "Dates without times, when the schedule isn't the point yet.",
       "points": [
         "Both dates use the same form. Mixing (a date for `startDate`, a date-time for `endDate`) is rejected by the schema.",
-        "For all-day events `timezone` contextualises the date — it says which region that day belongs to. It does not shift it, and a consumer must not convert it to another zone."
+        "For all-day events `timezone` contextualises the date — it says which region that day belongs to. It does not shift it, and a consumer must not convert it to another zone.",
+        "`endDate: \"2026-10-17\"` is inclusive — the event runs through the 17th, which is why this is two days, not one. Exported to iCalendar that's `DTEND;VALUE=DATE:20261018` (one day later): RFC 5545 defines DTEND as the non-inclusive end, the opposite convention."
       ]
     },
     {

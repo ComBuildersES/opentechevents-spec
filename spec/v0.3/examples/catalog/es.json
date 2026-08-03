@@ -81,7 +81,8 @@
       "summary": "Fechas sin hora, cuando el horario todavía no es lo relevante.",
       "points": [
         "Ambas fechas usan la misma forma. Mezclar (fecha en `startDate`, fecha-hora en `endDate`) lo rechaza el schema.",
-        "En eventos de todo el día, `timezone` contextualiza la fecha: dice a qué región pertenece ese día. No la desplaza, y un consumidor no debe convertirla a otra zona."
+        "En eventos de todo el día, `timezone` contextualiza la fecha: dice a qué región pertenece ese día. No la desplaza, y un consumidor no debe convertirla a otra zona.",
+        "`endDate: \"2026-10-17\"` es inclusivo — el evento dura hasta el 17 incluido, por eso son dos días y no uno. Exportado a iCalendar, eso es `DTEND;VALUE=DATE:20261018` (un día más): RFC 5545 define `DTEND` como el final no inclusivo, justo la convención contraria."
       ]
     },
     "event-conference-cfp.json": {

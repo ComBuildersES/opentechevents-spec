@@ -118,7 +118,7 @@
           ]
         },
         "endDate": {
-          "description": "Wall-clock end, in the SAME form as startDate (both dates, or both date-times) and never earlier than it. If absent, the event is assumed to end on the day it starts. Both rules belong to the document, not to this field — see the document's constraints.",
+          "description": "Wall-clock end, in the SAME form as startDate (both dates, or both date-times) and never earlier than it. If absent, the event is assumed to end on the day it starts. For an all-day event (date form, no time), endDate is INCLUSIVE — it names the last day the event runs, not the day after. Converting to iCalendar needs +1 day for DTEND;VALUE=DATE (RFC 5545 defines it as the non-inclusive end); importing needs -1 day back. Both rules belong to the document, not to this field — see the document's constraints.",
           "$ref": "#/$defs/wallClock",
           "examples": [
             "2026-06-11T20:00",

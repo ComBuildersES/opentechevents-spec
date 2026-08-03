@@ -432,8 +432,8 @@
             "2026-10-16"
           ],
           "description": {
-            "en": "Wall-clock end, in the SAME form as startDate (both dates, or both date-times) and never earlier than it. If absent, the event is assumed to end on the day it starts. Both rules belong to the document, not to this field — see the document's constraints.",
-            "es": "Fin en hora de reloj de pared, en la MISMA forma que `startDate` (ambas fechas, o ambas fecha-hora) y nunca anterior a él. Si falta, se asume que el evento termina el día que empieza. Ambas reglas son del documento, no de este campo — ver las restricciones del documento."
+            "en": "Wall-clock end, in the SAME form as startDate (both dates, or both date-times) and never earlier than it. If absent, the event is assumed to end on the day it starts. For an all-day event (date form, no time), endDate is INCLUSIVE — it names the last day the event runs, not the day after. Converting to iCalendar needs +1 day for DTEND;VALUE=DATE (RFC 5545 defines it as the non-inclusive end); importing needs -1 day back. Both rules belong to the document, not to this field — see the document's constraints.",
+            "es": "Fin en hora de reloj de pared, en la MISMA forma que `startDate` (ambas fechas, o ambas fecha-hora) y nunca anterior a él. Si falta, se asume que el evento termina el día que empieza. Para un evento de todo el día (forma fecha, sin hora), `endDate` es INCLUSIVO — nombra el último día en que ocurre el evento, no el día siguiente. Convertir a iCalendar exige sumar 1 día para `DTEND;VALUE=DATE` (RFC 5545 lo define como el final no inclusivo); importar exige restar ese día. Ambas reglas son del documento, no de este campo — ver las restricciones del documento."
           },
           "requiredIn": null
         },

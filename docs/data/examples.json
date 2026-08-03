@@ -938,11 +938,13 @@
       "points": {
         "en": [
           "Both dates use the same form. Mixing (a date for `startDate`, a date-time for `endDate`) is rejected by the schema.",
-          "For all-day events `timezone` contextualises the date — it says which region that day belongs to. It does not shift it, and a consumer must not convert it to another zone."
+          "For all-day events `timezone` contextualises the date — it says which region that day belongs to. It does not shift it, and a consumer must not convert it to another zone.",
+          "`endDate: \"2026-10-17\"` is inclusive — the event runs through the 17th, which is why this is two days, not one. Exported to iCalendar that's `DTEND;VALUE=DATE:20261018` (one day later): RFC 5545 defines DTEND as the non-inclusive end, the opposite convention."
         ],
         "es": [
           "Ambas fechas usan la misma forma. Mezclar (fecha en `startDate`, fecha-hora en `endDate`) lo rechaza el schema.",
-          "En eventos de todo el día, `timezone` contextualiza la fecha: dice a qué región pertenece ese día. No la desplaza, y un consumidor no debe convertirla a otra zona."
+          "En eventos de todo el día, `timezone` contextualiza la fecha: dice a qué región pertenece ese día. No la desplaza, y un consumidor no debe convertirla a otra zona.",
+          "`endDate: \"2026-10-17\"` es inclusivo — el evento dura hasta el 17 incluido, por eso son dos días y no uno. Exportado a iCalendar, eso es `DTEND;VALUE=DATE:20261018` (un día más): RFC 5545 define `DTEND` como el final no inclusivo, justo la convención contraria."
         ]
       },
       "source": "{\n  \"specVersion\": \"0.3.0\",\n  \"id\": \"https://devfest-levante.example/2026\",\n  \"url\": \"https://devfest-levante.example/2026\",\n  \"name\": \"DevFest Levante 2026\",\n  \"description\": \"Conferencia de desarrollo del sureste, edición 2026.\",\n  \"image\": [\n    \"https://devfest-levante.example/img/2026-16x9.png\"\n  ],\n  \"organizers\": [\n    {\n      \"name\": \"GDG Levante\",\n      \"url\": \"https://gdglevante.example\"\n    }\n  ],\n  \"startDate\": \"2026-10-16\",\n  \"endDate\": \"2026-10-17\",\n  \"timezone\": \"Europe/Madrid\",\n  \"attendanceMode\": \"in-person\",\n  \"location\": {\n    \"venue\": \"Las Naves, Valencia\",\n    \"address\": {\n      \"street\": \"Carrer de Joan Verdeguer 16\",\n      \"locality\": \"València\",\n      \"postalCode\": \"46024\",\n      \"country\": \"ES\"\n    }\n  },\n  \"tags\": [\n    \"cloud\",\n    \"ai\",\n    \"web\"\n  ],\n  \"languages\": [\n    \"es\",\n    \"en\"\n  ],\n  \"status\": \"scheduled\",\n  \"license\": \"CC-BY-4.0\",\n  \"updatedAt\": \"2026-05-04T09:00:00Z\"\n}",

@@ -221,6 +221,15 @@ Dos formas, y **ambas fechas deben usar la misma**:
 
 Mezclar (`startDate` fecha, `endDate` fecha-hora) es inválido. Si `endDate` falta, el evento termina el día que empieza. Si `endDate` está presente, **no puede ser anterior a `startDate`** — un evento no termina antes de empezar; el schema lo rechaza.
 
+**Para un evento de todo el día, `endDate` es INCLUSIVO: nombra el último día en que ocurre el evento, no el día siguiente.** `startDate: "2026-10-16"` + `endDate: "2026-10-17"` es un evento de **dos días** (16 y 17), no de uno. Es la misma convención que usan Google y schema.org para `endDate` — y la contraria a la de iCalendar: RFC 5545 define `DTEND;VALUE=DATE` como el final **no inclusivo**, con este mismo ejemplo en su propio texto: un evento del 28 de junio al 8 de julio inclusive se codifica como `DTEND;VALUE=DATE:20070709` — el día **siguiente** al último. Por eso la conversión no es copiar el valor:
+
+| | OTE `endDate` | iCalendar `DTEND;VALUE=DATE` |
+| --- | --- | --- |
+| Exportar | `2026-10-17` | súmale 1 día → `20261018` |
+| Importar | réstale 1 día → `2026-10-17` | `20261018` |
+
+Copiar el valor sin este ajuste acorta en un día todo evento OTE de varios días al pasar a iCalendar, y lo alarga en uno al volver. Los valores con hora no llevan esta ambigüedad — un `endDate` con hora ya es un instante exacto, sin que quepan dos lecturas. Detalle en [DECISIONS.md, D013](DECISIONS.md#d013--all-day-enddate-is-inclusive-icalendar-dtend-is-not).
+
 `timezone` (IANA, `Europe/Madrid`) es **siempre obligatoria**. Con hora, es lo que convierte el reloj de pared en un instante inequívoco. En eventos de todo el día, **contextualiza** la fecha: dice a qué región pertenece ese día — **no la desplaza**. Un consumidor **no debe** convertir un evento de todo el día a otra zona horaria.
 
 La única fecha con offset en toda la spec es `source.retrievedAt` (y `updatedAt` en el feed): son metadatos, instantes reales, no cosas que le pasan a la gente en un sitio.

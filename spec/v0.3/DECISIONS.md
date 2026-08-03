@@ -260,6 +260,22 @@ This is deliberately a **warning, not a validity error** — added to `event.rec
 
 ---
 
+### D013 — All-day `endDate` is inclusive; iCalendar `DTEND` is not
+
+**Status:** Decided 2026-08-03. See `CHANGES.log` #P012 — unlike D001–D012, this closes a normative AMBIGUITY, not a validation gap: no document that validates today is wrong: the prose simply never said which of two reasonable readings was intended.
+
+**Context.** For an all-day event (`startDate`/`endDate` as bare dates, no time), nothing said whether `endDate` names the last day the event runs (inclusive) or the first day after it ends (exclusive). The repo's own example (`event-all-day.json`, `startDate: "2026-10-16"`, `endDate: "2026-10-17"`) is catalogued as *"A two-day conference"* — under an exclusive reading that pair would be a one-day event, so the corpus already assumed inclusive without saying so. Verified directly against the primary source rather than trusting the proposal's citation: fetched the full RFC 5545 text and confirmed, word for word, its own worked example in §3.6.1 — *"a multi-day event scheduled from June 28th, 2007 to July 8th, 2007 inclusively. Note that the 'DTEND' property is set to July 9th, 2007, since the 'DTEND' property specifies the non-inclusive end of the event."* Also independently confirmed Google's structured-data guidance for `Event.endDate` uses the real end date/time, never the day after — consistent with the inclusive reading the OTE corpus already assumed.
+
+**Decision.** All-day `endDate` is normatively **inclusive**: `startDate: "2026-10-16"` + `endDate: "2026-10-17"` is a two-day event. Exporting to iCalendar requires adding one day to produce `DTEND;VALUE=DATE`; importing a DATE-typed `DTEND` requires subtracting one day to recover OTE's inclusive `endDate`. This applies ONLY to the date-only (all-day) form — a date-TIME `endDate` is already an unambiguous instant, no inclusive/exclusive question applies to it.
+
+**Alternatives considered.** Codex's own proposal already worked through the alternatives this decision would otherwise need to close (adopt iCalendar's exclusive convention instead — rejected because it would silently turn the spec's own labeled two-day example into a one-day event and contradict Google/schema.org guidance; leave the convention to each exporter; add an `endDateInclusive` boolean or a separate `exclusiveEndDate` field — both rejected as unnecessary wire-format variability for a convention that can and should be singular; always omit `DTEND` for all-day events — rejected because RFC 5545 can then only infer one day, losing real multi-day duration; treat as a recommended-tier warning — rejected because today's documents are all valid, the gap is that the norm never fixed how to interpret and convert them). See `CHANGES.log` #P012's `PROPUESTA` for the full reasoning; independently re-verified the RFC 5545 and Google citations against the primary sources rather than accepting them on faith.
+
+**Compatibility impact.** None on validity or wire format — no document that validates today stops validating, and no JSON shape changes. This is normative clarification plus an explicit conversion table for the OTE↔iCalendar boundary. The real risk it closes: without this, two independently-built, individually reasonable exporters (one reading RFC 5545 literally, one following Google/schema.org convention) would silently produce different durations for the identical OTE document — worse than an outright rejection, because both readings look correct until compared.
+
+**Revisit if:** a future decision wants OTE to also state the schema.org/iCalendar mapping for `startDate` as explicitly as this does for `endDate` (schema.org needs no conversion; iCalendar's `DTSTART` is already inclusive by nature, so this asymmetry is expected, not a sign something was missed).
+
+---
+
 ## Indexed decisions
 
 Already argued in full in `README.md`; summarized here for discoverability.
