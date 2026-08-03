@@ -77,7 +77,7 @@ Campos por tipo:
 | P019 | Avisar si un idioma de `languages` no tiene texto disponible | Implementada (`163e047`) |
 | P020 | Restringir `id`/`partOf.id` a URLs HTTP(S) bajo dominio | Implementada (`6b780bf`) |
 | P021 | Quitar la copia inline del ejemplo mínimo en README, enlazar solo | Implementada (`74aa7b2`) |
-| P022 | Rechazar `offers[].currency` sin `offers[].price` | Implementada — pendiente de revisión final y commit |
+| P022 | Rechazar `offers[].currency` sin `offers[].price` | Implementada (`85f1a36`) |
 
 *(actualizar esta tabla a mano al cerrar cada ciclo; sirve de índice rápido, el detalle vive en las entradas de abajo)*
 
@@ -1573,7 +1573,7 @@ Confirmado con hhkaos que, con esta justificación corregida, sigue mereciendo l
 
 ## [2026-08-03] CLAUDE — IMPLEMENTACION #P022
 
-- **Commit:** pendiente — cambios en el árbol de trabajo
+- **Commit:** `a4a2b3b` (log) y `85f1a36` (implementación)
 - **Ficheros cambiados:**
   - `spec/v0.3/event.schema.json` — `$defs.offer` gana `"dependentRequired": {"currency": ["price"]}`; descripción de `currency` ampliada para explicar la dependencia en ambos sentidos.
   - `spec/v0.3/examples/invalid/event-offer-currency-no-price.json` — caso negativo nuevo.
