@@ -598,7 +598,7 @@
         },
         {
           "path": "location.address.country",
-          "type": "string",
+          "type": "enum: AD | AE | AF | AG | AI | AL | AM | AO | AQ | AR | AS | AT | AU | AW | AX | AZ | BA | BB | BD | BE | BF | BG | BH | BI | BJ | BL | BM | BN | BO | BQ | BR | BS | BT | BV | BW | BY | BZ | CA | CC | CD | CF | CG | CH | CI | CK | CL | CM | CN | CO | CR | CU | CV | CW | CX | CY | CZ | DE | DJ | DK | DM | DO | DZ | EC | EE | EG | EH | ER | ES | ET | FI | FJ | FK | FM | FO | FR | GA | GB | GD | GE | GF | GG | GH | GI | GL | GM | GN | GP | GQ | GR | GS | GT | GU | GW | GY | HK | HM | HN | HR | HT | HU | ID | IE | IL | IM | IN | IO | IQ | IR | IS | IT | JE | JM | JO | JP | KE | KG | KH | KI | KM | KN | KP | KR | KW | KY | KZ | LA | LB | LC | LI | LK | LR | LS | LT | LU | LV | LY | MA | MC | MD | ME | MF | MG | MH | MK | ML | MM | MN | MO | MP | MQ | MR | MS | MT | MU | MV | MW | MX | MY | MZ | NA | NC | NE | NF | NG | NI | NL | NO | NP | NR | NU | NZ | OM | PA | PE | PF | PG | PH | PK | PL | PM | PN | PR | PS | PT | PW | PY | QA | RE | RO | RS | RU | RW | SA | SB | SC | SD | SE | SG | SH | SI | SJ | SK | SL | SM | SN | SO | SR | SS | ST | SV | SX | SY | SZ | TC | TD | TF | TG | TH | TJ | TK | TL | TM | TN | TO | TR | TT | TV | TW | TZ | UA | UG | UM | US | UY | UZ | VA | VC | VE | VG | VI | VN | VU | WF | WS | YE | YT | ZA | ZM | ZW",
           "required": false,
           "recommended": false,
           "examples": [
@@ -606,8 +606,8 @@
             "US"
           ],
           "description": {
-            "en": "ISO 3166-1 alpha-2 code, uppercase (ES, US, MX). A code and not a country name, because the name has one spelling per language: \"España\", \"Spain\" and \"Espagne\" are the same country, and a consumer grouping events by country would see three. Turning a name into a code is a table lookup, not an invention — which is why the spec asks for it here and nowhere else.",
-            "es": "Código ISO 3166-1 alfa-2, en mayúsculas (`ES`, `US`, `MX`). Un código y no el nombre del país, porque el nombre tiene una grafía por idioma: «España», «Spain» y «Espagne» son el mismo país, y un consumidor que agrupe eventos por país vería tres. Convertir un nombre en código es consultar una tabla, no inventar — por eso la spec lo pide aquí y en ningún otro sitio."
+            "en": "A real, currently-assigned ISO 3166-1 alpha-2 code (ES, US, MX), never an invented, reserved or former one. A code and not a country name, because the name has one spelling per language: \"España\", \"Spain\" and \"Espagne\" are the same country, and a consumer grouping events by country would see three. Turning a name into a code is a table lookup, not an invention — which is why the spec asks for it here and nowhere else. Common mistake: the UK is GB, not UK — \"UK\" is not an ISO 3166-1 code.",
+            "es": "Un código ISO 3166-1 alfa-2 real y vigente (`ES`, `US`, `MX`), nunca uno inventado, reservado o retirado. Un código y no el nombre del país, porque el nombre tiene una grafía por idioma: «España», «Spain» y «Espagne» son el mismo país, y un consumidor que agrupe eventos por país vería tres. Convertir un nombre en código es consultar una tabla, no inventar — por eso la spec lo pide aquí y en ningún otro sitio. Error frecuente: Reino Unido es `GB`, no `UK` — «UK» no es un código ISO 3166-1."
           },
           "requiredIn": null
         },

@@ -110,6 +110,33 @@ The corrected source is the **official IANA tzdata release** (`https://data.iana
 
 ---
 
+### D006 — `location.address.country` must be a real, currently-assigned ISO 3166-1 code
+
+**Status:** Decided 2026-08-03. See `CHANGES.log` #P005 for the full trail — including a case where the official source could not be fetched by a script at all, and how that was resolved.
+
+**Context.** `country` is described normatively as "ISO 3166-1 alpha-2 code" and maps 1:1 to `schema.org/PostalAddress.addressCountry`, but the schema only checked `^[A-Z]{2}$`. `{"country": "ZZ"}` validated. Same failure shape as D002/D005: a field whose whole point is to let a consumer group events by country without depending on which language wrote the name can be satisfied with two letters that name nothing.
+
+**Decision.** `country` must be one of an `enum` of the **officially assigned** ISO 3166-1 alpha-2 codes — 249 at the time of writing. ISO 3166-1 alpha-2 space is not simply "assigned or not": the ISO 3166 Maintenance Agency's own decoding table divides all 676 two-letter combinations into seven categories — officially assigned (real, current countries/territories — this decision's enum), user-assigned (reserved for private use, no fixed meaning, e.g. the `AA`/`QM`–`QZ`/`XA`–`XZ`/`ZZ` ranges), exceptionally reserved, transitionally reserved, indeterminately reserved (in wide informal use but never ISO-assigned — `UK` lives here; the real code is `GB`), formerly assigned (real countries that no longer exist in that form — `SU` Soviet Union, `CS` Serbia and Montenegro, …), and unassigned. Only the first category answers "is this a real, currently addressable country" — the field's actual job — so only it goes in the enum.
+
+**Why this one can't just fetch the official source directly, unlike D002/D005.** The official source is the ISO Online Browsing Platform (`iso.org`), and unlike IANA (tzdata, D002) and SIX Group (ISO 4217, D005), **it returns HTTP 403 to automated requests** — tested with and without a realistic browser `User-Agent`, not a simple bot filter to work around. There is nothing at the end of a URL a script can fetch.
+
+**The compromise: automate the fetch, but verify it against a human before trusting it, every time — not just once.** `scripts/update-countries.mjs` fetches the Debian `iso-codes` project's data (used by glibc/GNOME across most Linux distributions for exactly this purpose) automatically, the same convenience-source shape D002/D005 warn about. What makes this safe rather than a repeat of D005's near-miss: the script also holds `scripts/data/iso-3166-1-alpha-2.json`, a snapshot hhkaos retrieved by hand from a real OBP browser session (where the 403 does not apply) on 2026-08-03, and compares the live fetch against it on every run. If they still match — 249/249, as they did the day this was written — the script proceeds. **If they ever disagree, the script refuses to update the schema and prints the difference**, because a disagreement means either the mirror drifted from the real registry or the registry itself changed, and either way a human needs to re-visit the OBP, confirm the truth by hand, and update the snapshot file before the automation is trusted again. The mirror is the fetch mechanism; the human-retrieved snapshot is the standing check on it — the `$comment` this decision generates names both.
+
+This is the structural fix for the mistake D005 (`currency`) almost shipped with: there, a convenience source was checked against the truth *once*, found to agree, and trusted from then on with no ongoing verification. Here, the check runs every time the script does, so a future drift gets caught automatically instead of requiring someone to think to re-verify.
+
+**Alternatives considered.**
+- *Keep the two-letter pattern, accept the field is unenforceable.* Rejected: same reasoning as D002/D005 — the field promises ISO 3166-1, so a value with the right shape but no referent breaks that promise while still passing.
+- *Source the enum from `Intl`, CLDR, or a country-list npm package.* Rejected as the primary source for the reason D002/D005 already established: these are derivatives that can lag or apply different criteria than the registry itself.
+- *Adopt the Debian `iso-codes` mirror as the source of record, trusted unconditionally.* Rejected in that unconditional form even though it agreed with the official table on every code checked — D002's `Intl` also looked fine right up until it wasn't (`Europe/Kiev`/`Kyiv`), and D005's `currency` cross-check reasoning was itself wrong before the real registry was checked. What shipped instead uses the mirror as the fetch mechanism but never unconditionally: the script diffs it against a human-retrieved OBP snapshot every run and refuses to proceed on any disagreement (see above).
+- *Only ever fetch by hand, no automation at all.* Considered as the more conservative option, and initially shipped that way — hhkaos asked, reasonably, why not automate it given the mirror had just been shown to match exactly. Rejected in favor of the diff-and-refuse design: it gets the automation without giving up the guarantee, by making the human-retrieved snapshot a standing check rather than a one-time comparison.
+- *Include "indeterminately reserved" codes like `UK` for leniency, since they are in wide informal use.* Rejected: ISO never assigned `UK` any meaning, so accepting it would not be "being lenient with a real country," it would be inventing a meaning ISO itself declines to give it. Documented as a call-out in the field description and prose instead (the likely real mistake this stricter validation will surface), rather than silently accepted.
+
+**Compatibility impact.** Restrictive, but only for codes that were never officially assigned, or that named an entity that no longer exists in that form. `ES`/`US`, used by real examples in the repo, are unaffected. As with D002/D005, a country ISO assigns in the future needs a new OTE version to become valid — the same explicit, accepted cost of a frozen version.
+
+**Revisit if:** the script ever refuses to run because the mirror and the OBP snapshot disagree (see its output for which codes differ) — re-visit the OBP by hand, confirm the true current list, and update `scripts/data/iso-3166-1-alpha-2.json` before rerunning it. Also revisit if `iso.org` starts serving automated requests at all, which would let this fetch the true authority directly instead of through the Debian mirror.
+
+---
+
 ## Indexed decisions
 
 Already argued in full in `README.md`; summarized here for discoverability.
