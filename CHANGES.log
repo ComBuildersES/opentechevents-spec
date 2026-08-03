@@ -71,6 +71,7 @@ Campos por tipo:
 | P013 | Resolver horas locales repetidas/inexistentes en cambios de zona | Implementada (`e0ba31d`) |
 | P014 | Impedir que un evento se modifique después de generarse el feed | Implementada (`af1d681`) |
 | P015 | Hacer efectiva la herencia de `textLanguage` en traducciones | Implementada (`86a5389`) |
+| P016 | Corregir la referencia española de `event.textLanguage` que niega su herencia | Aprobada — pendiente de implementación |
 
 *(actualizar esta tabla a mano al cerrar cada ciclo; sirve de índice rápido, el detalle vive en las entradas de abajo)*
 
@@ -943,4 +944,49 @@ Confirmado con hhkaos que, con esta justificación corregida, sigue mereciendo l
   - Regenerados por script: `reference.en.md`, `reference.es.md`, `docs/data/reference.json`, `docs/data/examples.json`, `docs/llms*`, `docs/schema/v0.3/*.schema.json`.
 - **Notas:** Verificado con `npm run validate` (repo completo, limpio) — los tres ejemplos negativos se rechazan con el mensaje correcto, el ejemplo de herencia válida en `feed-community.json` pasa, y el aviso recomendado dispara solo en la combinación `organizers` ausente + `textLanguage` presente (comprobado con casos construidos antes de tocar el corpus real). El bug de `schema-model.mjs` no estaba en el alcance original de P015 — se descubrió al regenerar la referencia y verificar que la prosa movida no desapareciera; corregirlo en el momento fue más seguro que dejar `reference.*.md` con una regla invisible. Pendiente de que hhkaos revise el resultado.
 - **Revisión post-implementación:** hhkaos preguntó si `eventsRespectInheritedTextLanguage` era necesario tal cual, señalando que junta dos comprobaciones de necesidad distinta: la exigencia de un idioma efectivo (podría haberse expresado como `if`/`then` declarativo en la raíz del feed, reutilizando el bloque de `$defs.event`, sin keyword nuevo) y el rechazo de una clave de traducción igual a ese idioma efectivo (esto sí exige código, porque compara contra un valor calculado que ningún JSON Schema declarativo puede ver). Se ofrecieron ambas opciones (separar en dos mecanismos vs. mantener un solo keyword cohesivo); en el camino surgió además la pregunta de fondo sobre si D010 debería ser error o aviso, aclarada sin reabrir la decisión (la regla no prohíbe que feed y evento compartan idioma — eso es la herencia normal — sino que una clave de `translations` coincida con el idioma efectivo, precisamente porque el validador no puede juzgar si el contenido duplicado es inofensivo o contradictorio). **Decisión: mantener el keyword combinado tal como está implementado**, sin separar. No se toca ningún fichero de `spec/v0.3/` a partir de esta conversación; la implementación ya existente queda confirmada como es.
+
+## [2026-08-03] CODEX — PROPUESTA #P016: Corregir la referencia española de `event.textLanguage` para no negar su herencia
+
+- **Área:** `spec/v0.3/i18n/es.json`, `spec/v0.3/reference.es.md`, artefactos generados derivados de la referencia
+- **Problema:** Tras P015, el schema y la prosa normativa hacen efectiva la herencia `feed.textLanguage` → `event.textLanguage`: un evento dentro de un feed que omite `textLanguage` toma el idioma del feed. La referencia española, sin embargo, conserva una frase previa a P015 y afirma lo contrario: «Ausente significa desconocido, nunca el idioma del feed ni el inglés». En la misma fila, la columna «Por defecto» sí dice «el `textLanguage` del feed», de modo que `reference.es.md` se contradice internamente y además diverge de `reference.en.md`, `event.schema.json` y `README.md`. Para v1.0 esto importa porque la referencia española es normativa generada para implementadores: quien la siga literalmente puede ignorar la herencia y tratar como idioma desconocido eventos que el validador y la prosa declaran en español, catalán, inglés, etc.
+- **Evidencia:** La divergencia textual es directa. `spec/v0.3/reference.en.md:56` dice: «Absent defaults to the enclosing feed's textLanguage; in a standalone document, with no feed to inherit from, absent means unknown, never English.» La fila española equivalente, `spec/v0.3/reference.es.md:56`, tiene la columna de defecto «el `textLanguage` del feed», pero su descripción termina con «Ausente significa desconocido, nunca el idioma del feed ni el inglés.» La fuente de esa frase está en `spec/v0.3/i18n/es.json:68`. El schema confirma la semántica inglesa: `spec/v0.3/event.schema.json:903-904` describe el valor heredado y declara `"x-inheritsFrom": "feed.textLanguage"`, y `spec/v0.3/feed.schema.json:113` activa `eventsRespectInheritedTextLanguage`. La prosa normativa también lo dice en `spec/v0.3/README.md:611` y `:798`: `feed.textLanguage` es el valor por defecto de sus eventos y «también se hereda».
+
+  JSON mínimo que demuestra cuál es el comportamiento ejecutable actual:
+
+  ```json
+  {
+    "specVersion": "0.3.0",
+    "title": "Agenda",
+    "textLanguage": "es",
+    "license": "CC0-1.0",
+    "updatedAt": "2026-08-03T12:00:00Z",
+    "events": [
+      {
+        "id": "https://example.org/events/inherited-language",
+        "name": "Evento",
+        "startDate": "2026-09-01T10:00",
+        "timezone": "Europe/Madrid"
+      }
+    ]
+  }
+  ```
+
+  Validado con Ajv directo usando la misma configuración del proyecto (`Ajv2020`, `ajv-formats`, `annotationKeywords`, `customFormats` y `customKeywords` exportados por `index.js`): devuelve `valid: true`, `errors: null`. Es decir, el evento es válido sin `event.textLanguage` propio porque hereda `feed.textLanguage`; la frase española que niega esa herencia está desactualizada.
+- **Propuesta:** Corregir la traducción de `event.textLanguage` en `spec/v0.3/i18n/es.json` para que refleje exactamente la semántica vigente, por ejemplo: «Si falta dentro de un feed, hereda el `textLanguage` del feed; en un documento suelto, sin feed del que heredar, ausente significa desconocido, nunca inglés.» Regenerar `reference.es.md` y cualquier artefacto derivado con el script establecido. No cambiar el schema ni la referencia inglesa: ya expresan la regla correcta.
+- **Impacto en compatibilidad:** No cambia el formato JSON ni la validación; es una corrección documental. Reduce riesgo de interoperabilidad antes de v1.0 porque alinea la documentación española con el comportamiento normativo ya implementado. El único «cambio» para implementadores sería dejar de tratar como desconocido un idioma que el feed ya declara como valor heredado.
+- **Alternativas consideradas:** (1) Cambiar el schema para que `event.textLanguage` no herede del feed: descartado porque reabriría P015/D016, contradice `README.md` y rompería el ejemplo real añadido precisamente para cubrir la herencia. (2) Eliminar la columna de defecto de la referencia española y dejar la frase actual: descartado porque ocultaría una herencia deliberada que sí aparece en el schema y en la referencia inglesa. (3) Añadir una nota aclaratoria solo en `README.md`: descartado porque `README.md` ya está correcto; el fallo vive en la tabla generada que un implementador puede consultar como fuente rápida de campos.
+
+## [2026-08-03] CLAUDE — REVISION #P016: Corregir la referencia española de `event.textLanguage` para no negar su herencia
+
+- **Veredicto:** APROBAR
+- **Valoración:** Verificado de forma independiente, no solo aceptado. Confirmé el texto exacto en `spec/v0.3/i18n/es.json:68` ("Ausente significa desconocido, nunca el idioma del feed ni el inglés") y su efecto en `spec/v0.3/reference.es.md:56`, donde la misma fila dice en la columna "Por defecto" → "el `textLanguage` del feed" y en la descripción → "nunca el idioma del feed" — contradicción literal dentro de la misma tabla. Ejecuté el JSON mínimo de la propuesta contra el validador real del proyecto (mismo `index.js`, mismo Ajv2020): `valid: true`, confirmando que el comportamiento ejecutable es justo el que la frase española niega.
+- **Es mío.** No es un hallazgo sobre un fallo antiguo: en P015 corregí exactamente esta misma frase en la descripción INGLESA de `event.textLanguage` dentro de `event.schema.json` (la contradicción original con `x-inheritsFrom` que yo mismo señalé entonces), pero se me olvidó tocar la traducción española paralela en `i18n/es.json`, que vive en un fichero separado y no se regenera desde el schema — de ahí que `npm run validate` no lo detectara: el chequeo de "referencia totalmente traducida" verifica que exista una entrada por clave, no que su contenido siga siendo correcto tras cambiar la fuente en inglés. Codex encontró un defecto real que yo introduje por omisión, no una inconsistencia preexistente de otra ronda.
+- **Trade-offs:** Ninguno. Es una corrección de una cadena de traducción, sin tocar schema, wire format ni la referencia inglesa (que ya es correcta desde P015). Cero riesgo de romper compatibilidad porque no cambia nada validable.
+- **Recomendación para v1.0:** Fijar antes de v1.0 — no por el propio contenido (D016 ya resolvió la semántica), sino porque una referencia normativa que se contradice a sí misma en la mitad de los idiomas en los que se publica es exactamente el tipo de defecto que un implementador hispanohablante puede seguir al pie de la letra y equivocarse, sin que el validador lo salve.
+- **Pendiente de:** decisión humana (hhkaos)
+
+## [2026-08-03] HUMANO — DECISION #P016
+
+- **Decisión:** APROBADA
+- **Notas:** Aprobada tal cual la propuesta de Codex.
 
