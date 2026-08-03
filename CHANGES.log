@@ -58,7 +58,7 @@ Campos por tipo:
 | --- | --- | --- |
 | P001 | Validar fechas y horas reales, no solo su forma | Implementada (`042d12c`) |
 | P002 | Validar `timezone` contra la lista IANA real | Implementada (`042d12c`) |
-| P003 | Rechazar `endDate` anterior a `startDate`; prohibir segundos en `dateTime` | Implementada — pendiente de revisión final y commit |
+| P003 | Rechazar `endDate` anterior a `startDate`; prohibir segundos en `dateTime` | Implementada (`4360135`) |
 
 *(actualizar esta tabla a mano al cerrar cada ciclo; sirve de índice rápido, el detalle vive en las entradas de abajo)*
 
@@ -210,7 +210,7 @@ Prohibir segundos en `$defs.dateTime` (pattern `^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$`
 
 ## [2026-08-03] CLAUDE — IMPLEMENTACION #P003
 
-- **Commit:** pendiente — cambios en el árbol de trabajo
+- **Commit:** `246e675` (log) y `4360135` (implementación)
 - **Ficheros cambiados:**
   - `spec/v0.3/event.schema.json` — `$defs.dateTime` sin grupo opcional de segundos; nuevo keyword `orderedDates: true` en `$defs.event`; descripciones y `examples` de `startDate`/`endDate` actualizados.
   - `index.js` / `index.d.ts` — nuevo export `customKeywords` (paralelo a `annotationKeywords`/`customFormats`): keyword `orderedDates`, comparación directa de cadenas (segura ahora que `dateTime` tiene ancho fijo). `isOteLocalDateTime` simplificada, ya sin componente de segundos.
