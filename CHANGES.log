@@ -75,7 +75,7 @@ Campos por tipo:
 | P017 | Exigir contenido real en `description` (perfil recomendado) | Implementada (`bf73119`) |
 | P018 | Rechazar texto libre de solo espacios en 21 campos con `minLength: 1` | Implementada (`df92d8d`) |
 | P019 | Avisar si un idioma de `languages` no tiene texto disponible | Implementada (`163e047`) |
-| P020 | Restringir `id`/`partOf.id` a URLs HTTP(S) bajo dominio | Aprobada — pendiente de implementación |
+| P020 | Restringir `id`/`partOf.id` a URLs HTTP(S) bajo dominio | Implementada — pendiente de revisión final y commit |
 
 *(actualizar esta tabla a mano al cerrar cada ciclo; sirve de índice rápido, el detalle vive en las entradas de abajo)*
 
@@ -1421,3 +1421,14 @@ Confirmado con hhkaos que, con esta justificación corregida, sigue mereciendo l
 - **Decisión:** APROBADA_CON_CAMBIOS
 - **Notas:** Aprobada la restricción a `^https?://` para `id` y `partOf.id`. Antes de aprobar, hhkaos preguntó si era obligatorio preservar el UID de `.ics` dentro de `id` (no lo es — `source.url` es el sitio para la procedencia original) y si un publicador sin dominio propio (solo Meetup, GitHub, LinkedIn) quedaba cubierto (sí: lo que garantiza la unicidad es que la URL sea estable y nadie más pueda acabar con esa misma ruta, no que el publicador sea dueño del DNS). Como ningún ejemplo del repo ilustra un `id` bajo la URL de una plataforma de terceros, se añade al alcance de P020: aclarar en la descripción del campo (y en `README.md`) que "dominio que controla quien publica" incluye una página canónica en una plataforma de terceros, no solo un dominio propio.
 
+## [2026-08-03] CLAUDE — IMPLEMENTACION #P020
+
+- **Commit:** pendiente — cambios en el árbol de trabajo
+- **Ficheros cambiados:**
+  - `spec/v0.3/event.schema.json` — `id` y `partOf.id`: patrón cambiado de `^[a-zA-Z][a-zA-Z0-9+.-]*:` (cualquier esquema URI) a `^https?://`, igual que `url`/`organizers[].url`/`source.url`. Descripciones ampliadas para aclarar que "dominio que controla quien publica" no exige ser su dueño — una página canónica en Meetup/GitHub Pages/LinkedIn vale igual. Añadido un ejemplo de `id` sobre `meetup.com` en ambos campos.
+  - `spec/v0.3/examples/invalid/event-id-urn-not-url.json`, `event-id-mailto-not-url.json`, `event-partof-id-urn-not-url.json` — casos negativos nuevos.
+  - `spec/v0.3/DECISIONS.md` — nueva entrada D020, incluye la discusión sobre el UID de `.ics` y el publicador sin dominio propio.
+  - `spec/v0.3/README.md` — párrafo de `id` ampliado con la misma aclaración, enlace a D020.
+  - `spec/v0.3/i18n/es.json` — traducciones de `event.id`/`event.partOf.id` actualizadas junto con el cambio, en el mismo commit — evitando repetir el desfase que causó P016.
+  - Regenerados por script: `reference.en.md`, `reference.es.md`, `docs/data/reference.json`, `docs/data/examples.json`, `docs/schema/v0.3/event.schema.json`, `docs/llms*`.
+- **Notas:** Verificado con `npm run validate` (repo completo, limpio): los tres casos negativos se rechazan, `urn:uuid:`/`mailto:` dejan de validar como `id`/`partOf.id`, una URL de `meetup.com` sigue validando. Ningún ejemplo real del corpus se vio afectado (el escaneo inicial con falsos positivos de `examples/catalog/en.json` quedó descartado, según ya constaba en la REVISION). Comprobada la fila española de `reference.es.md` para confirmar que la traducción quedó sincronizada esta vez. Pendiente de que hhkaos revise el resultado.

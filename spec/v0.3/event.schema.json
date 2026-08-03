@@ -112,13 +112,14 @@
           ]
         },
         "id": {
-          "description": "Stable, globally unique identifier. A URI under a domain the publisher controls. Minted once, never rewritten — this is what lets consumers update an event instead of duplicating it.",
+          "description": "Stable, globally unique identifier: an HTTP(S) URL under a domain the publisher controls — not necessarily one they own; a canonical page on a platform they use (Meetup, GitHub Pages, LinkedIn) works exactly as well, since what matters is that the URL is stable and nobody else can end up with that same one. Minted once, never rewritten — this is what lets consumers update an event instead of duplicating it.",
           "type": "string",
           "format": "uri",
-          "pattern": "^[a-zA-Z][a-zA-Z0-9+.-]*:",
+          "pattern": "^https?://",
           "examples": [
             "https://pyalmeria.example/eventos/2026-06-async",
-            "https://calendar.example/ics/rust-madrid#a1b2c3d4-uid"
+            "https://calendar.example/ics/rust-madrid#a1b2c3d4-uid",
+            "https://www.meetup.com/pyalmeria/events/123456789/"
           ]
         },
         "url": {
@@ -2541,10 +2542,10 @@
       ],
       "properties": {
         "id": {
-          "description": "Stable identifier of the series or multi-part event. Same rules as the event's id: a URI under a domain the publisher controls, minted once. It does NOT have to resolve to an OTE document — it is what lets a consumer group occurrences.",
+          "description": "Stable identifier of the series or multi-part event. Same rules as the event's id: an HTTP(S) URL under a domain the publisher controls — not necessarily one they own, a platform page (Meetup, GitHub Pages, LinkedIn) works too — minted once. It does NOT have to resolve to an OTE document — it is what lets a consumer group occurrences.",
           "type": "string",
           "format": "uri",
-          "pattern": "^[a-zA-Z][a-zA-Z0-9+.-]*:",
+          "pattern": "^https?://",
           "examples": [
             "https://rustmadrid.example/meetups",
             "https://pyalmeria.example/study-jams/2026-testing"

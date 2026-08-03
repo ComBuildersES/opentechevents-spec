@@ -429,9 +429,9 @@ Para tu feed es una **sugerencia, no una regla**: publicar en otro orden no romp
 
 `url` es **dónde se describe el evento hoy**. `id` es **qué evento es esto, para siempre**.
 
-Si una comunidad se muda de plataforma a dominio propio, `url` cambia y **`id` no puede cambiar**: es lo que permite a un consumidor *actualizar* el evento que ya tenía en vez de crear un duplicado. Un `id` se acuña una vez, bajo un dominio que controla quien publica (el DNS ya garantiza unicidad: no hace falta registro central), y no se reescribe jamás.
+Si una comunidad se muda de plataforma a dominio propio, `url` cambia y **`id` no puede cambiar**: es lo que permite a un consumidor *actualizar* el evento que ya tenía en vez de crear un duplicado. Un `id` se acuña una vez, bajo un dominio que controla quien publica (el DNS ya garantiza unicidad: no hace falta registro central), y no se reescribe jamás. «Controlar el dominio» no exige ser su dueño: una página canónica en una plataforma que se usa (Meetup, GitHub Pages, LinkedIn) sirve igual — lo que hace falta es que esa URL sea estable y que nadie más pueda acabar con la misma. Por eso `id`, igual que `url`, tiene que ser una URL HTTP(S): un identificador de otro tipo (`urn:`, `mailto:`) no da esa garantía de unicidad sin registro, y el validador lo rechaza. Detalle en [DECISIONS.md, D020](DECISIONS.md#d020--id-and-partofid-must-be-an-https-url-not-any-uri-scheme).
 
-Nadie debería teclear un `id` a mano: las herramientas lo derivan de la URL canónica del evento, o lo acuñan como `<dominio>/events/<comunidad>/<fecha>-<slug>` cuando el evento no tiene página propia.
+Nadie debería teclear un `id` a mano: las herramientas lo derivan de la URL canónica del evento (propia o de la plataforma que se use), o lo acuñan como `<dominio>/events/<comunidad>/<fecha>-<slug>` cuando el evento no tiene página propia.
 
 **Dentro de un mismo feed, dos eventos no pueden compartir `id`** — el validador lo comprueba (igualdad exacta de cadena, sin normalizar URIs). No es la deduplicación heurística entre fuentes que la spec deja fuera de alcance ([más abajo](#lo-que-la-v03-no-resuelve)): es una sola fuente contradiciendo, en el mismo documento, la identidad que ella misma acuñó. Detalle en [DECISIONS.md, D011](DECISIONS.md#d011--no-two-events-in-a-feed-may-share-an-id-compared-by-exact-string-equality).
 
@@ -1136,7 +1136,7 @@ A single tech community event. See https://opentechevents.org for the normative 
 | Field | Type | Level | Default | Description | Examples |
 | --- | --- | :---: | :---: | --- | --- |
 | `specVersion` | const: "0.3.0" | **required** | the feed's `specVersion` | Version of OTE Spec this document adheres to. | `"0.3.0"` |
-| `id` | string (uri) | **required** | | Stable, globally unique identifier. A URI under a domain the publisher controls. Minted once, never rewritten — this is what lets consumers update an event instead of duplicating it. | `"https://pyalmeria.example/eventos/2026-06-async"`<br>`"https://calendar.example/ics/rust-madrid#a1b2c3d4-uid"` |
+| `id` | string (uri) | **required** | | Stable, globally unique identifier: an HTTP(S) URL under a domain the publisher controls — not necessarily one they own; a canonical page on a platform they use (Meetup, GitHub Pages, LinkedIn) works exactly as well, since what matters is that the URL is stable and nobody else can end up with that same one. Minted once, never rewritten — this is what lets consumers update an event instead of duplicating it. | `"https://pyalmeria.example/eventos/2026-06-async"`<br>`"https://calendar.example/ics/rust-madrid#a1b2c3d4-uid"`<br>`"https://www.meetup.com/pyalmeria/events/123456789/"` |
 | `url` | string (uri) | _recommended_ | | Canonical URL where the event is described today. May change over time; id may not. | `"https://pyalmeria.example/eventos/2026-06-async"` |
 | `name` | string | **required** | | Display name of the event. | `"PyAlmería — Introducción a async/await"` |
 | `description` | string | _recommended_ | | Short description. Plain text or Markdown. | `"Charla introductoria a la programación asíncrona en Python, con ejemplos en vivo."` |
@@ -1191,7 +1191,7 @@ A single tech community event. See https://opentechevents.org for the normative 
 | `cfp.coversAccommodation` | boolean | optional | | Whether the event covers a selected speaker's accommodation. Same rule as coversTravel: absent means unknown. | `true` |
 | `status` | enum: scheduled \| tentative \| cancelled \| postponed \| rescheduled \| moved-online | optional | `"scheduled"` | What happened to the event, not to the data. An event that is cancelled, postponed or moved online MUST stay published: removing it leaves a dead event in subscribers' calendars. tentative means announced but not confirmed (iCal STATUS:TENTATIVE) — it exists so an importer never has to upgrade an unconfirmed event to scheduled. | `"scheduled"`<br>`"cancelled"`<br>`"moved-online"` |
 | `partOf` | object | optional | | The series or multi-part event this document is one occurrence of. A REFERENCE, never a recurrence rule: OTE does not generate dates: whoever publishes expands the recurrence into one document per occurrence, each with its own id, dates and status. A consumer that ignores this field still sees complete, correct events. | `{"id":"https://rustmadrid.example/meetups","name":"Rust Madrid — meetup mensual","url":"https://rustmadrid.example/meetups"}`<br>`{"type":"multipart","id":"https://pyalmeria.example/study-jams/2026-testing","name":"Study Jam de testing en Python (3 sesiones)"}` |
-| `partOf.id` | string (uri) | **required** within `partOf` | | Stable identifier of the series or multi-part event. Same rules as the event's id: a URI under a domain the publisher controls, minted once. It does NOT have to resolve to an OTE document — it is what lets a consumer group occurrences. | `"https://rustmadrid.example/meetups"`<br>`"https://pyalmeria.example/study-jams/2026-testing"` |
+| `partOf.id` | string (uri) | **required** within `partOf` | | Stable identifier of the series or multi-part event. Same rules as the event's id: an HTTP(S) URL under a domain the publisher controls — not necessarily one they own, a platform page (Meetup, GitHub Pages, LinkedIn) works too — minted once. It does NOT have to resolve to an OTE document — it is what lets a consumer group occurrences. | `"https://rustmadrid.example/meetups"`<br>`"https://pyalmeria.example/study-jams/2026-testing"` |
 | `partOf.name` | string | optional | | Display name of the series or multi-part event, so a consumer can group occurrences without resolving the id. | `"Rust Madrid — meetup mensual"`<br>`"Study Jam de testing en Python (3 sesiones)"` |
 | `partOf.url` | string (uri) | optional | | Page describing the series or the multi-part event as a whole. | `"https://rustmadrid.example/meetups"` |
 | `partOf.type` | enum: series \| multipart | optional | `"series"` | series: independent occurrences that share an identity (a monthly meetup). multipart: parts of ONE event held on non-consecutive dates (a three-session study jam on non-consecutive Saturdays, one registration). series is the tolerant choice, and the choice changes the translation: a series becomes schema.org EventSeries, a multi-part event becomes an Event whose parts are its subEvent. | `"series"`<br>`"multipart"` |
@@ -1800,13 +1800,14 @@ Source: spec/v0.3/event.schema.json — JSON Schema for a single event — the n
           ]
         },
         "id": {
-          "description": "Stable, globally unique identifier. A URI under a domain the publisher controls. Minted once, never rewritten — this is what lets consumers update an event instead of duplicating it.",
+          "description": "Stable, globally unique identifier: an HTTP(S) URL under a domain the publisher controls — not necessarily one they own; a canonical page on a platform they use (Meetup, GitHub Pages, LinkedIn) works exactly as well, since what matters is that the URL is stable and nobody else can end up with that same one. Minted once, never rewritten — this is what lets consumers update an event instead of duplicating it.",
           "type": "string",
           "format": "uri",
-          "pattern": "^[a-zA-Z][a-zA-Z0-9+.-]*:",
+          "pattern": "^https?://",
           "examples": [
             "https://pyalmeria.example/eventos/2026-06-async",
-            "https://calendar.example/ics/rust-madrid#a1b2c3d4-uid"
+            "https://calendar.example/ics/rust-madrid#a1b2c3d4-uid",
+            "https://www.meetup.com/pyalmeria/events/123456789/"
           ]
         },
         "url": {
@@ -4229,10 +4230,10 @@ Source: spec/v0.3/event.schema.json — JSON Schema for a single event — the n
       ],
       "properties": {
         "id": {
-          "description": "Stable identifier of the series or multi-part event. Same rules as the event's id: a URI under a domain the publisher controls, minted once. It does NOT have to resolve to an OTE document — it is what lets a consumer group occurrences.",
+          "description": "Stable identifier of the series or multi-part event. Same rules as the event's id: an HTTP(S) URL under a domain the publisher controls — not necessarily one they own, a platform page (Meetup, GitHub Pages, LinkedIn) works too — minted once. It does NOT have to resolve to an OTE document — it is what lets a consumer group occurrences.",
           "type": "string",
           "format": "uri",
-          "pattern": "^[a-zA-Z][a-zA-Z0-9+.-]*:",
+          "pattern": "^https?://",
           "examples": [
             "https://rustmadrid.example/meetups",
             "https://pyalmeria.example/study-jams/2026-testing"

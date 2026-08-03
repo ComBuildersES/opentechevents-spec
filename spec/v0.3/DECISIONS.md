@@ -402,6 +402,26 @@ This is deliberately a **warning, not a validity error** — added to `event.rec
 
 ---
 
+### D020 — `id` and `partOf.id` must be an HTTP(S) URL, not any URI scheme
+
+**Status:** Decided 2026-08-03. See `CHANGES.log` #P020.
+
+**Context.** `event.id`'s own description has always said "A URI under a domain the publisher controls", and `README.md` elaborates: minted once under a domain, never rewritten, because DNS already gives global uniqueness without a central registry. `partOf.id` explicitly carries the same rule. But the schema only ever checked `format: "uri"` plus a generic `pattern: "^[a-zA-Z][a-zA-Z0-9+.-]*:"` — any URI scheme with a colon. Confirmed against the real validator that `urn:uuid:...` and `mailto:...` both validate as `event.id` today, and `urn:uuid:...` validates as `partOf.id`. Neither has a domain, so neither can deliver the uniqueness guarantee the field's own prose promises — `mailto:` in particular doesn't even identify an event, it identifies a mailbox. `event.url`, ten lines above `id` in the same file, already uses `pattern: "^https?://"`; `id`/`partOf.id` were the only URL-shaped fields in the whole schema without it.
+
+**Decision.** Changed `id` and `partOf.id`'s `pattern` from the generic URI-scheme check to `^https?://`, matching `url`/`organizers[].url`/`source.url` and every other URL-shaped field in the schema. `format: "uri"` stays. Added three negative examples (`event.id` as `urn:uuid:`, as `mailto:`, and `partOf.id` as `urn:uuid:`).
+
+**"A domain the publisher controls" does not mean a domain they own.** Before approving, hhkaos asked two questions that sharpened this decision rather than blocking it: (1) is preserving a source's original identifier (an iCalendar `UID`, a Meetup event ID) inside `id` mandatory? No — nothing requires it; `source.url` is the field for original provenance, and `id` can be minted independently. The repo's own `event-from-ics.json` example already shows one way to combine both (the source's domain plus the original `UID` as a URL fragment), but that is an illustration, not an algorithm. (2) does this exclude a publisher with no domain of their own — someone who only has a Meetup group, a GitHub Pages site, or a LinkedIn page? No: the actual invariant is that the URL is stable and nobody else can end up with that same one, which a platform's own per-resource URL namespace already guarantees just as well as personally-owned DNS does. Neither `event.schema.json` nor `README.md` said this clearly before — both now do, and `event.id`'s `examples` gained a Meetup URL alongside the two custom-domain ones.
+
+**Why this needed real thought before approving, not just evidence-checking.** `id` is the field the whole audit has treated most carefully throughout: it is the sync/dedup key, explicitly "minted once, never rewritten." A restriction here has a different risk shape than a documentation typo or a whitespace gap — it is the kind of change that, if wrong, either breaks a legitimate identity pattern the spec never meant to exclude, or gets reopened later at real migration cost for anyone who minted an `id` under the old, looser rule. Checking that the ordinary `.ics`-import case and the no-owned-domain case both survive intact (see above) was necessary before treating this as a safe pre-v1.0 tightening, not optional diligence.
+
+**Alternatives considered.** (1) Leave `format: "uri"` as the only check: rejected, contradicts the field's own documented domain-scoped model and forces every consumer to special-case whatever scheme shows up. (2) Also accept `tag:` URIs (RFC 4151), which do incorporate a domain-like authority: rejected for now — no real producer, example, or prior decision asks for it, and expanding what counts as identity just before v1.0 should wait for actual pressure, not be done speculatively. (3) Require `https://` only, not `http://`: rejected, no prior decision closes that door for identity (as opposed to resolvable pages), and every other URL field in the schema accepts both. (4) Make this a recommended-tier warning instead of a base-schema error: rejected — `id` is identity, not quality; a value that doesn't meet the spec's own identity rules should not be considered a valid document.
+
+**Compatibility impact.** Restrictive for any document using a non-HTTP(S) scheme as `id`/`partOf.id` — confirmed the repo's own corpus has none (one initial scan produced false positives from unrelated `id` keys in `examples/catalog/en.json`'s filter metadata; excluding that file, zero matches). No prior decision or documented example ever endorsed another scheme, so this closes an unintended gap rather than removing a supported capability.
+
+**Revisit if:** a real producer needs `tag:` URIs or another domain-anchored-but-non-HTTP(S) scheme, with a concrete use case this decision's alternatives-considered didn't anticipate.
+
+---
+
 ## Indexed decisions
 
 Already argued in full in `README.md`; summarized here for discoverability.

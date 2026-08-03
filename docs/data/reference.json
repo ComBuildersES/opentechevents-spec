@@ -194,11 +194,12 @@
           "recommended": false,
           "examples": [
             "https://pyalmeria.example/eventos/2026-06-async",
-            "https://calendar.example/ics/rust-madrid#a1b2c3d4-uid"
+            "https://calendar.example/ics/rust-madrid#a1b2c3d4-uid",
+            "https://www.meetup.com/pyalmeria/events/123456789/"
           ],
           "description": {
-            "en": "Stable, globally unique identifier. A URI under a domain the publisher controls. Minted once, never rewritten — this is what lets consumers update an event instead of duplicating it.",
-            "es": "Identificador estable y único a nivel global. Una URI bajo un dominio que controle quien publica. Se acuña una vez y no se reescribe jamás: es lo que permite a un consumidor actualizar el evento en vez de duplicarlo."
+            "en": "Stable, globally unique identifier: an HTTP(S) URL under a domain the publisher controls — not necessarily one they own; a canonical page on a platform they use (Meetup, GitHub Pages, LinkedIn) works exactly as well, since what matters is that the URL is stable and nobody else can end up with that same one. Minted once, never rewritten — this is what lets consumers update an event instead of duplicating it.",
+            "es": "Identificador estable y único a nivel global: una URL HTTP(S) bajo un dominio que controla quien publica — no necesariamente uno propio; una página canónica en una plataforma que usa (Meetup, GitHub Pages, LinkedIn) sirve igual de bien, porque lo que importa es que la URL sea estable y nadie más pueda acabar con esa misma. Se acuña una vez y no se reescribe jamás: es lo que permite a un consumidor actualizar el evento en vez de duplicarlo."
           },
           "requiredIn": null
         },
@@ -1127,8 +1128,8 @@
             "https://pyalmeria.example/study-jams/2026-testing"
           ],
           "description": {
-            "en": "Stable identifier of the series or multi-part event. Same rules as the event's id: a URI under a domain the publisher controls, minted once. It does NOT have to resolve to an OTE document — it is what lets a consumer group occurrences.",
-            "es": "Identificador estable de la serie o del evento multi-parte. Mismas reglas que el `id` del evento: una URI bajo un dominio que controle quien publica, acuñada una vez. NO tiene por qué resolver a un documento OTE — es lo que permite a un consumidor agrupar las ocurrencias."
+            "en": "Stable identifier of the series or multi-part event. Same rules as the event's id: an HTTP(S) URL under a domain the publisher controls — not necessarily one they own, a platform page (Meetup, GitHub Pages, LinkedIn) works too — minted once. It does NOT have to resolve to an OTE document — it is what lets a consumer group occurrences.",
+            "es": "Identificador estable de la serie o del evento multi-parte. Mismas reglas que el `id` del evento: una URL HTTP(S) bajo un dominio que controla quien publica — no necesariamente uno propio, una página de plataforma (Meetup, GitHub Pages, LinkedIn) también sirve — acuñada una vez. NO tiene por qué resolver a un documento OTE — es lo que permite a un consumidor agrupar las ocurrencias."
           },
           "requiredIn": "partOf"
         },

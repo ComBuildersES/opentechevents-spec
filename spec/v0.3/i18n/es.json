@@ -12,7 +12,7 @@
   },
   "fields": {
     "event.specVersion": "Versión de OTE Spec a la que se adhiere el documento.",
-    "event.id": "Identificador estable y único a nivel global. Una URI bajo un dominio que controle quien publica. Se acuña una vez y no se reescribe jamás: es lo que permite a un consumidor actualizar el evento en vez de duplicarlo.",
+    "event.id": "Identificador estable y único a nivel global: una URL HTTP(S) bajo un dominio que controla quien publica — no necesariamente uno propio; una página canónica en una plataforma que usa (Meetup, GitHub Pages, LinkedIn) sirve igual de bien, porque lo que importa es que la URL sea estable y nadie más pueda acabar con esa misma. Se acuña una vez y no se reescribe jamás: es lo que permite a un consumidor actualizar el evento en vez de duplicarlo.",
     "event.url": "URL canónica donde se describe el evento hoy. Puede cambiar con el tiempo; el `id` no.",
     "event.name": "Nombre del evento.",
     "event.description": "Descripción breve. Texto plano o Markdown.",
@@ -30,7 +30,7 @@
     "event.endDate": "Fin en hora de reloj de pared, en la MISMA forma que `startDate` (ambas fechas, o ambas fecha-hora) y nunca anterior a él. Si falta, se asume que el evento termina el día que empieza. Para un evento de todo el día (forma fecha, sin hora), `endDate` es INCLUSIVO — nombra el último día en que ocurre el evento, no el día siguiente. Convertir a iCalendar exige sumar 1 día para `DTEND;VALUE=DATE` (RFC 5545 lo define como el final no inclusivo); importar exige restar ese día. Ambas reglas son del documento, no de este campo — ver las restricciones del documento.",
     "event.partOf": "La serie o el evento multi-parte del que este documento es UNA ocurrencia. Es una REFERENCIA, nunca una regla de recurrencia: OTE no genera fechas — quien publica expande la recurrencia en un documento por ocurrencia, cada uno con su `id`, sus fechas y su `status`. Un consumidor que ignore este campo sigue viendo eventos completos y correctos.",
     "event.partOf.type": "`series`: ocurrencias independientes que comparten identidad (un meetup mensual). `multipart`: partes de UN SOLO evento celebrado en fechas no consecutivas (un study jam de tres sesiones en sábados no consecutivos, con una sola inscripción). `series` es la opción tolerante, y la elección cambia la traducción: una serie se convierte en `EventSeries` de schema.org; un evento multi-parte, en un `Event` cuyas partes son su `subEvent`.",
-    "event.partOf.id": "Identificador estable de la serie o del evento multi-parte. Mismas reglas que el `id` del evento: una URI bajo un dominio que controle quien publica, acuñada una vez. NO tiene por qué resolver a un documento OTE — es lo que permite a un consumidor agrupar las ocurrencias.",
+    "event.partOf.id": "Identificador estable de la serie o del evento multi-parte. Mismas reglas que el `id` del evento: una URL HTTP(S) bajo un dominio que controla quien publica — no necesariamente uno propio, una página de plataforma (Meetup, GitHub Pages, LinkedIn) también sirve — acuñada una vez. NO tiene por qué resolver a un documento OTE — es lo que permite a un consumidor agrupar las ocurrencias.",
     "event.partOf.name": "Nombre de la serie o del evento multi-parte, para que un consumidor pueda agrupar sin resolver el `id`.",
     "event.partOf.translations": "El nombre visible de la serie en otros idiomas. Su `id` no se traduce: un identificador con dos grafías son dos series.",
     "event.partOf.url": "Página que describe la serie o el evento multi-parte en conjunto.",
