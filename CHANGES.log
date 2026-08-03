@@ -68,7 +68,7 @@ Campos por tipo:
 | P010 | Impedir `event.id` duplicados dentro de un mismo feed | Implementada (`d8d0ba2`) |
 | P011 | Impedir que un evento sea su propio `partOf` | Implementada (`33633c5`) |
 | P012 | Fijar `endDate` de día completo como inclusivo + conversión iCalendar | Implementada (`566a5a7`) |
-| P013 | Resolver horas locales repetidas/inexistentes en cambios de zona | Implementada — pendiente de revisión final y commit |
+| P013 | Resolver horas locales repetidas/inexistentes en cambios de zona | Implementada (`e0ba31d`) |
 
 *(actualizar esta tabla a mano al cerrar cada ciclo; sirve de índice rápido, el detalle vive en las entradas de abajo)*
 
@@ -814,7 +814,7 @@ Confirmado con hhkaos que, con esta justificación corregida, sigue mereciendo l
 
 ## [2026-08-03] CLAUDE — IMPLEMENTACION #P013
 
-- **Commit:** pendiente — cambios en el árbol de trabajo
+- **Commit:** `4dbd283` (log) y `e0ba31d` (implementación)
 - **Ficheros cambiados:**
   - `spec/v0.3/event.schema.json` — descripción de `timezone` ampliada con la regla RFC 5545 §3.3.5 (primera ocurrencia / offset previo al salto).
   - `spec/v0.3/i18n/es.json` — traducción de `event.timezone` actualizada a juego.
