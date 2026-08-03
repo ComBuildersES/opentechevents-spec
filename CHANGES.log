@@ -69,6 +69,7 @@ Campos por tipo:
 | P011 | Impedir que un evento sea su propio `partOf` | Implementada (`33633c5`) |
 | P012 | Fijar `endDate` de día completo como inclusivo + conversión iCalendar | Implementada (`566a5a7`) |
 | P013 | Resolver horas locales repetidas/inexistentes en cambios de zona | Implementada (`e0ba31d`) |
+| P014 | Impedir que un evento se modifique después de generarse el feed | Implementada — pendiente de revisión final y commit |
 
 *(actualizar esta tabla a mano al cerrar cada ciclo; sirve de índice rápido, el detalle vive en las entradas de abajo)*
 
@@ -822,3 +823,58 @@ Confirmado con hhkaos que, con esta justificación corregida, sigue mereciendo l
   - `spec/v0.3/DECISIONS.md` — nueva entrada D014, incluyendo la corrección del ejemplo del hackathon.
   - Regenerados por script: `reference.en.md`, `reference.es.md`, `docs/data/reference.json`, `docs/llms*` (sin cambios en los `.schema.json` publicados, ya que no hubo cambio de validación).
 - **Notas:** Cambio puramente documental, igual que P012. Verificado con `npm run validate` (repo completo, limpio) y con los dos documentos de evidencia (hora inexistente, hora repetida) — ambos siguen validando exactamente igual que antes. Pendiente de que hhkaos revise y decida si se commitea.
+
+## [2026-08-03] CODEX — PROPUESTA #P014: Impedir que un evento del feed se modifique después de generarse el propio feed
+
+- **Área:** `feed.schema.json`, `event.schema.json`, `reference.en.md`, `reference.es.md`, `README.md`, `examples/`
+- **Problema:** Un feed puede declarar que fue generado antes de la última modificación de uno de los eventos que ya contiene. Las dos marcas son instantes absolutos y sus significados actuales hacen esa relación imposible: el feed no puede incluir una versión de datos que, según el propio documento, todavía no existía al generarlo. El schema valida ambos campos aisladamente, pero no exige `events[].updatedAt <= feed.updatedAt`; esto rompe precisamente la sincronización incremental para la que existen: un consumidor puede concluir que el feed está desactualizado, omitir una modificación al usar el sello del feed como cursor o tener que decidir cuál de las dos afirmaciones temporales descartar. P001–P013/D001–D014 cubren validez de cada instante y otras relaciones temporales, pero ninguna compara el instante de generación del feed con las revisiones de sus elementos.
+- **Evidencia:** El propio corpus válido ya demuestra el fallo sin construir un caso hipotético. `spec/v0.3/examples/feed-multipart.json:13` afirma `"updatedAt": "2026-02-20T09:00:00Z"` para el feed, pero su tercer evento afirma en `:100` `"updatedAt": "2026-02-25T10:30:00Z"`: una revisión ocurrida cinco días después aparece dentro del documento supuestamente generado el día 20. `npm run validate` devuelve actualmente `ok    spec/v0.3/examples/feed-multipart.json` y termina con `All examples validate.` La causa ejecutable está en `spec/v0.3/feed.schema.json:83-88,102-111`: `feed.updatedAt` y cada elemento de `events` se validan, pero los únicos keywords relacionales de la raíz son `distinctTranslationLanguages` y `uniqueEventIds`.
+
+  Las definiciones normativas son literales: `spec/v0.3/feed.schema.json:84` describe el primer valor como `"When this feed was generated."`; `spec/v0.3/event.schema.json:935-940` define el segundo como `"Instant the event's DATA last changed"` y lo equipara a iCalendar `LAST-MODIFIED`. `spec/v0.3/README.md:485` explica que el sello del feed dice «algo cambió» y el del evento «qué», para que un consumidor sincronice incrementalmente. La fuente primaria de ese mapeo, [RFC 5545 §3.8.7.3](https://www.rfc-editor.org/rfc/rfc5545.html#section-3.8.7.3), define `LAST-MODIFIED` como la fecha y hora en que la información del componente fue revisada por última vez; [RFC 7986 §5.4](https://www.rfc-editor.org/rfc/rfc7986.html#section-5.4) extiende la misma propiedad al calendario completo como el momento en que su información fue revisada. Atom expresa la misma separación a nivel de feed y entrada: [RFC 4287 §4.2.15](https://www.rfc-editor.org/rfc/rfc4287.html#section-4.2.15) define `atom:updated` como el instante más reciente en que una entrada o feed sufrió una modificación significativa. Estas fuentes confirman que los valores análogos son sellos de revisiones efectivas; la desigualdad concreta se deriva además de la definición OTE, más fuerte, de `feed.updatedAt` como momento de generación: una revisión posterior no puede estar presente en una serialización anterior.
+
+  Este JSON mínimo reproduce la misma incoherencia y valida hoy:
+
+  ```json
+  {
+    "specVersion": "0.3.0",
+    "title": "Feed imposible",
+    "license": "CC0-1.0",
+    "updatedAt": "2026-02-20T09:00:00Z",
+    "events": [{
+      "id": "https://example.org/events/1",
+      "name": "Evento",
+      "startDate": "2026-03-01T10:00",
+      "timezone": "Europe/Madrid",
+      "updatedAt": "2026-02-25T10:30:00Z"
+    }]
+  }
+  ```
+- **Propuesta:** Añadir a la raíz de `feed.schema.json` un keyword personalizado que, para cada evento que declare `updatedAt`, rechace el documento si ese instante es posterior a `feed.updatedAt`; los eventos que lo omitan siguen siendo válidos porque ausencia significa desconocido. Comparar los instantes reales tras aplicar sus offsets, nunca las cadenas: [RFC 3339 §5.1](https://www.rfc-editor.org/rfc/rfc3339.html#section-5.1) solo garantiza orden lexicográfico cuando zona, representación del offset y precisión son iguales, condición que `$defs.instant` no impone. Documentar la relación en las descripciones del feed y ambas referencias, añadir el JSON mínimo a `examples/invalid/` y corregir `feed-multipart.json` de acuerdo con la cronología pretendida (subiendo el sello del feed al menos al 25 de febrero, o corrigiendo el sello del evento si era una errata). La igualdad debe permitirse y no se propone comparar con el reloj actual del validador.
+- **Impacto en compatibilidad:** Es restrictivo para feeds que ya contienen esta contradicción; el corpus actual tiene al menos uno y deberá corregirse. No cambia el wire format ni afecta eventos independientes, eventos sin `updatedAt` o feeds cuyos sellos son coherentes. Posponer la regla hasta después de v1.0 consolidaría cursores de sincronización no fiables y convertiría en breaking change rechazar más adelante documentos que nunca pudieron representar una cronología real bajo las definiciones ya publicadas.
+- **Alternativas consideradas:** (1) Corregir solo `feed-multipart.json`: descartado porque ocultaría el hueco que permitió declararlo válido y cualquier productor podría repetirlo. (2) Tratarlo como warning recomendado: descartado porque no es un dato válido pero poco idóneo, sino dos afirmaciones incompatibles dentro del mismo documento. (3) Exigir que `feed.updatedAt` sea exactamente el máximo de `events[].updatedAt`: descartado porque el feed también puede cambiar en metadatos propios, incorporar o retirar eventos, o contener eventos sin sello; solo el límite inferior es invariante. (4) Comparar cadenas: descartado porque offsets distintos pueden representar el mismo instante o invertir el orden aparente, justo el riesgo ya documentado en D009 y limitado por RFC 3339 §5.1. (5) Comparar contra la hora actual: descartado porque haría depender la validez del momento y del reloj del validador; P014 solo comprueba coherencia interna estable. (6) Redefinir `feed.updatedAt` como una marca sin relación con el contenido: descartado porque destruiría la función de sincronización que `README.md:485` le atribuye y degradaría los mapeos directos a Atom/iCalendar.
+
+## [2026-08-03] CLAUDE — REVISION #P014: Impedir que un evento del feed se modifique después de generarse el propio feed
+
+- **Veredicto:** APROBAR
+- **Valoración:** Esta es la evidencia más contundente de toda la auditoría: no es un JSON construido para la ocasión, es un **defecto real ya presente en el corpus canónico**. Confirmé yo mismo `spec/v0.3/examples/feed-multipart.json`: `updatedAt` del feed es `2026-02-20T09:00:00Z`, pero el tercer evento declara `2026-02-25T10:30:00Z` — cinco días después — y `npm run validate` lo acepta hoy sin ningún aviso, terminando en `Valid.` Confirmé también, contra las fuentes primarias y no solo la cita de Codex: RFC 5545 §3.8.7.3 y RFC 7986 §5.4 (que extiende `LAST-MODIFIED` al calendario completo, palabra por palabra: *"the date and time that the information associated with the calendar was last revised"*) para el paralelismo iCalendar, y sobre todo RFC 3339 §5.1, cuya condición para que la comparación de cadenas sea válida es literal: *"Assuming that the time zones of the dates and times are the same... expressed using the same string... and all times have the same number of fractional second digits"* — condición que `$defs.instant` no garantiza, así que la propuesta acierta al exigir comparar instantes reales (mismo enfoque que `orderedInstants` de P008/D009), no las cadenas.
+- **Trade-offs:** Alcance correctamente acotado — el límite exigido es solo `events[].updatedAt <= feed.updatedAt`, nunca igualdad exacta con el máximo, porque el feed puede cambiar por razones ajenas al contenido de un evento concreto (metadatos propios, altas/bajas). Descartar la alternativa de comparar con el reloj del validador también es correcto: mantiene la comprobación como coherencia interna estable, no dependiente del momento en que se valida. A diferencia de todas las propuestas anteriores, esta **sí exige tocar un ejemplo real** (`feed-multipart.json`) para que el corpus deje de contradecirse — coste pequeño (una fecha) pero real, y lo prefiero a dejarlo pasar silenciosamente.
+- **Recomendación para v1.0:** Debe fijarse antes de v1.0 por el mismo argumento que toda la auditoría, reforzado aquí por tratarse de un fallo ya demostrado en producción (el propio ejemplo publicado), no solo en teoría: es exactamente el tipo de cursor de sincronización poco fiable que rompería la interoperabilidad incremental que `updatedAt` existe para dar. Propuesta completa y correctamente razonada; mi única puntualización es de implementación, no de fondo: al corregir `feed-multipart.json`, prefiero subir el `updatedAt` del feed (representa mejor «el feed se regeneró después de esa edición») antes que retrasar el del evento, que inventaría una fecha de edición que nadie afirmó.
+- **Pendiente de:** decisión humana (hhkaos)
+
+## [2026-08-03] HUMANO — DECISION #P014
+
+- **Decisión:** APROBADA
+- **Notas:** Sin cambios sobre la propuesta de Codex. Los datos de eventos del repo son de ejemplo/inventados, así que la corrección de `feed-multipart.json` (subir el `updatedAt` del feed) no tiene restricción adicional de fidelidad a ningún hecho real.
+
+## [2026-08-03] CLAUDE — IMPLEMENTACION #P014
+
+- **Commit:** pendiente — cambios en el árbol de trabajo
+- **Ficheros cambiados:**
+  - `index.js`/`index.d.ts` — nuevo keyword `eventsNotNewerThanFeed` en `customKeywords` (reutiliza `parseInstant`, compara instantes reales).
+  - `spec/v0.3/feed.schema.json` — `eventsNotNewerThanFeed: true` en la raíz; descripción de `updatedAt` ampliada.
+  - `spec/v0.3/examples/feed-multipart.json` — **corregido**: `updatedAt` del feed subido de `2026-02-20T09:00:00Z` a `2026-02-25T11:00:00Z` (posterior a la revisión más reciente que contiene). Único ejemplo real afectado por toda esta auditoría.
+  - `spec/v0.3/examples/invalid/feed-event-updated-after-feed.json` — caso negativo nuevo.
+  - `spec/v0.3/README.md` — nota junto a la explicación de `updatedAt`, enlace a `DECISIONS.md` D015.
+  - `spec/v0.3/DECISIONS.md` — nueva entrada D015.
+  - Regenerados por script: `reference.en.md`, `reference.es.md`, `docs/data/reference.json`, `docs/data/examples.json`, `docs/schema/v0.3/feed.schema.json`, `docs/llms*`.
+- **Notas:** Verificado con `npm run validate` (repo completo, limpio) — `feed-multipart.json` ya corregido pasa sin avisos, y el caso negativo se rechaza con el mensaje correcto. Pendiente de que hhkaos revise y decida si se commitea.
