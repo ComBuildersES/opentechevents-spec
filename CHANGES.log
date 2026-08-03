@@ -56,8 +56,8 @@ Campos por tipo:
 
 | ID | Título | Estado |
 | --- | --- | --- |
-| P001 | Validar fechas y horas reales, no solo su forma | Implementada — pendiente de revisión final y commit |
-| P002 | Validar `timezone` contra la lista IANA real | Implementada — pendiente de revisión final y commit |
+| P001 | Validar fechas y horas reales, no solo su forma | Implementada (`042d12c`) |
+| P002 | Validar `timezone` contra la lista IANA real | Implementada (`042d12c`) |
 
 *(actualizar esta tabla a mano al cerrar cada ciclo; sirve de índice rápido, el detalle vive en las entradas de abajo)*
 
@@ -137,7 +137,7 @@ Cuando Ucrania renombró su zona en 2022 (`Europe/Kiev` → `Europe/Kyiv`), la v
 
 ## [2026-08-03] CLAUDE — IMPLEMENTACION #P001 #P002
 
-- **Commit:** sin commit todavía — cambios en el árbol de trabajo, a la espera de que hhkaos revise antes de confirmar
+- **Commit:** `3cadc9a` (workflow: `AGENTS.md`, `CLAUDE.md`, este log) y `042d12c` (implementación: schema, `customFormats`, `update-timezones.mjs`, ejemplos, `DECISIONS.md`)
 - **Ficheros cambiados:**
   - `spec/v0.3/event.schema.json` — `$defs.date` → `format: "date"`; `$defs.instant` → `format: "date-time"`; `$defs.dateTime` → `format: "ote-local-date-time"` (custom); `properties.timezone` → `enum` generado (597 identificadores IANA, canónicos + alias) en vez de `pattern`, con `$comment` de procedencia (versión tzdata `2026c`).
   - `index.js` / `index.d.ts` — nuevo export `customFormats` (paralelo a `annotationKeywords`): función `isOteLocalDateTime` con lógica de calendario real (mismo criterio días-por-mes/bisiesto que usa `ajv-formats` internamente).
