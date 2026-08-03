@@ -82,7 +82,7 @@ Campos por tipo:
 | P024 | Exigir al menos un campo OTE en traducciones de evento/feed | Implementada (`fece3a7`) |
 | P025 | Recorrer `additionalProperties` en el generador de referencia | Implementada (`85ee7aa`) |
 | P026 | Impedir claves de `translations` equivalentes tras normalizar BCP 47 | Implementada (`f8fe495`) |
-| P027 | Rechazar duplicados exactos en `tags` y `languages` | Implementada — pendiente de revisión final y commit |
+| P027 | Rechazar duplicados exactos en `tags` y `languages` | Implementada (`2566a23`) |
 
 *(actualizar esta tabla a mano al cerrar cada ciclo; sirve de índice rápido, el detalle vive en las entradas de abajo)*
 
@@ -2215,7 +2215,7 @@ Confirmado con hhkaos que, con esta justificación corregida, sigue mereciendo l
 
 ## [2026-08-04] CLAUDE — IMPLEMENTACION #P027
 
-- **Commit:** pendiente — cambios en el árbol de trabajo
+- **Commit:** `3e2d68d` (log) y `2566a23` (implementación)
 - **Ficheros cambiados:**
   - `spec/v0.3/event.schema.json` — `"uniqueItems": true` añadido a `tags` y `languages`.
   - `spec/v0.3/examples/invalid/event-tags-duplicate.json`, `event-languages-duplicate.json` — casos negativos nuevos.
