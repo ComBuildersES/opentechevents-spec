@@ -117,7 +117,7 @@ A collection of OTE events published at a stable URL. An exchange format, not an
 | `licenseUrl` | string (uri) | optional | | URL of the full license text. | `"https://creativecommons.org/licenses/by/4.0/"` |
 | `updatedAt` | string (date-time) | **required** | | When this feed was generated. | `"2026-07-06T10:00:00Z"` |
 | `translations` | object | optional | | This feed's own title and description in other languages. Its EVENTS are not translated here: each one carries its own translations, and unlike license or textLanguage this field is never inherited — a feed's title is not an event's name. Requires textLanguage, like an event's translations do — see the document's constraints. | `{"en":{"title":"Rust Girona events","description":"Weekly online Rust coding sessions, in Catalan and Spanish."}}` |
-| `events` | object[] | **required** | | Events in this feed. Each one inherits the feed's specVersion and license unless it declares its own. | — |
+| `events` | object[] | **required** | | Events in this feed. Each one inherits the feed's specVersion and license unless it declares its own. No two may share an id — see the document's constraints. | — |
 
 ### Constraints
 

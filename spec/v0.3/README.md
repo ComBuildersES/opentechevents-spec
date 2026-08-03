@@ -208,6 +208,8 @@ Si una comunidad se muda de plataforma a dominio propio, `url` cambia y **`id` n
 
 Nadie debería teclear un `id` a mano: las herramientas lo derivan de la URL canónica del evento, o lo acuñan como `<dominio>/events/<comunidad>/<fecha>-<slug>` cuando el evento no tiene página propia.
 
+**Dentro de un mismo feed, dos eventos no pueden compartir `id`** — el validador lo comprueba (igualdad exacta de cadena, sin normalizar URIs). No es la deduplicación heurística entre fuentes que la spec deja fuera de alcance ([más abajo](#lo-que-la-v03-no-resuelve)): es una sola fuente contradiciendo, en el mismo documento, la identidad que ella misma acuñó. Detalle en [DECISIONS.md, D011](DECISIONS.md#d011--no-two-events-in-a-feed-may-share-an-id-compared-by-exact-string-equality).
+
 ### Fechas: reloj de pared, no instantes
 
 `startDate` y `endDate` llevan **la hora que aparece en el cartel**, en la zona horaria del evento. **Nunca llevan offset UTC** (`+02:00` ni `Z`): eso lo aporta `timezone`. El schema rechaza un offset dentro de `startDate`.

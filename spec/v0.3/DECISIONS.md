@@ -224,6 +224,24 @@ This is deliberately a **warning, not a validity error** — added to `event.rec
 
 ---
 
+### D011 — No two events in a feed may share an `id`, compared by exact string equality
+
+**Status:** Decided 2026-08-03. See `CHANGES.log` #P010.
+
+**Context.** `id` is described as a "stable, globally unique identifier … minted once, never rewritten — this is what lets consumers update an event instead of duplicating it", but `feed.events` was a plain array with no constraint between its elements: two different event objects could carry the same `id` and both validate, leaving a consumer two incompatible states for one identity with no way to know which to keep. RFC 5545's `UID` (the iCalendar property `id` maps to) makes the same requirement explicit: a persistent, globally unique identifier a generator must ensure is unique, used to correlate an update with the `VEVENT` it modifies.
+
+**Decision.** A new `uniqueEventIds` keyword (same `customKeywords` mechanism as the others) applied to the feed's root rejects any `events` array containing two entries with the same `id`, compared by **exact string equality only** — no URI normalization (trailing slashes, percent-encoding, case-folding of the host), no inferring that two syntactically different identifiers name the same event.
+
+**Why this is not the cross-source deduplication the spec already excludes.** `README.md`'s "what v0.3 does not solve" section explicitly leaves out deduplication *between sources* — two different feeds independently describing what might be the same real-world event, published under different `id`s each publisher minted themselves. That is a heuristic, judgment-laden problem (matching on name/date/venue similarity) this spec correctly declines to solve. This decision is a different, narrower thing: **one document, from one source, asserting the same self-controlled identifier twice.** There is no heuristic involved — the document contradicts its own declared identity, the same category of internal-consistency gap as D004's `endDate`/`startDate` or D010's `translations`, not a new foray into cross-source matching.
+
+**Alternatives considered.** Codex's own proposal already worked through the alternatives this decision would otherwise need to close (`uniqueItems` — compares whole objects, useless when the two events differ elsewhere; heuristic matching by name/date/url; URI normalization before comparing; restructuring `events` into an id-keyed object; prose-only or recommended-tier). See `CHANGES.log` #P010's `PROPUESTA` for the full reasoning; independently verified the evidence (a two-event feed sharing one `id` validates today) and re-scanned every real `feed*.json` example, confirming none already has this problem, rather than accepting the claim on faith.
+
+**Compatibility impact.** Restrictive only for a feed that already repeats an exact `id` across two of its events — not a real, distinct pair of events, so fixing it means correcting the data (one representation per identity, or genuinely distinct `id`s if they really are different events), not migrating a format. No real example in the repo is affected.
+
+**Revisit if:** a real producer needs the same `id` to legitimately appear twice within one feed (would be surprising — that is precisely what `id` exists to prevent), or a future decision wants this to also catch near-duplicate identifiers via normalization — that would need its own evidence and is a larger, different decision than catching an exact, undebatable repeat.
+
+---
+
 ## Indexed decisions
 
 Already argued in full in `README.md`; summarized here for discoverability.

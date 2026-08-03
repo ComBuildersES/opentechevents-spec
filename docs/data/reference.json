@@ -1516,7 +1516,7 @@
           "recommended": false,
           "examples": [],
           "description": {
-            "en": "Events in this feed. Each one inherits the feed's specVersion and license unless it declares its own.",
+            "en": "Events in this feed. Each one inherits the feed's specVersion and license unless it declares its own. No two may share an id — see the document's constraints.",
             "es": "Los eventos del feed. Cada uno hereda `specVersion` y `license` del feed salvo que declare los suyos."
           },
           "requiredIn": null

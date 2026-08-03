@@ -223,4 +223,25 @@ export const customKeywords = [
     },
     error: { message: "a translations map must not repeat textLanguage's own language" },
   },
+  {
+    keyword: "uniqueEventIds",
+    type: "object",
+    schemaType: "boolean",
+    /**
+     * `feed.events`' own constraint: no two events in the same feed may share an `id`. `id` is
+     * "minted once, never rewritten — this is what lets consumers update an event instead of
+     * duplicating it"; two events under the same `id` in one document is that promise broken by
+     * the very document that made it, not the cross-source deduplication this spec deliberately
+     * leaves unsolved (a different feed reusing a URL is not this keyword's problem). Compares
+     * `id` by exact string equality only — no URI normalization, no inferring that two different
+     * identifiers name the same event. `uniqueItems` can't express this: it compares whole event
+     * objects, and two events sharing an `id` typically differ in every other field too.
+     */
+    validate: (schemaValue, data) => {
+      if (!schemaValue || !Array.isArray(data.events)) return true;
+      const ids = data.events.map((e) => e?.id).filter((id) => typeof id === "string");
+      return new Set(ids).size === ids.length;
+    },
+    error: { message: "events must not repeat the same id" },
+  },
 ];

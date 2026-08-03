@@ -100,7 +100,7 @@
       ]
     },
     "events": {
-      "description": "Events in this feed. Each one inherits the feed's specVersion and license unless it declares its own.",
+      "description": "Events in this feed. Each one inherits the feed's specVersion and license unless it declares its own. No two may share an id — see the document's constraints.",
       "type": "array",
       "items": {
         "$ref": "https://opentechevents.org/schema/v0.3/event.schema.json#/$defs/event"
@@ -108,6 +108,7 @@
     }
   },
   "distinctTranslationLanguages": true,
+  "uniqueEventIds": true,
   "allOf": [
     {
       "description": "Same rule as an event: a map of translations is unusable without knowing which language the primary text is in. A feed that translates its title must say what language that title is in.",

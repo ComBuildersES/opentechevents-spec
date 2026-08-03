@@ -433,6 +433,8 @@ Si una comunidad se muda de plataforma a dominio propio, `url` cambia y **`id` n
 
 Nadie debería teclear un `id` a mano: las herramientas lo derivan de la URL canónica del evento, o lo acuñan como `<dominio>/events/<comunidad>/<fecha>-<slug>` cuando el evento no tiene página propia.
 
+**Dentro de un mismo feed, dos eventos no pueden compartir `id`** — el validador lo comprueba (igualdad exacta de cadena, sin normalizar URIs). No es la deduplicación heurística entre fuentes que la spec deja fuera de alcance ([más abajo](#lo-que-la-v03-no-resuelve)): es una sola fuente contradiciendo, en el mismo documento, la identidad que ella misma acuñó. Detalle en [DECISIONS.md, D011](DECISIONS.md#d011--no-two-events-in-a-feed-may-share-an-id-compared-by-exact-string-equality).
+
 ### Fechas: reloj de pared, no instantes
 
 `startDate` y `endDate` llevan **la hora que aparece en el cartel**, en la zona horaria del evento. **Nunca llevan offset UTC** (`+02:00` ni `Z`): eso lo aporta `timezone`. El schema rechaza un offset dentro de `startDate`.
@@ -1218,7 +1220,7 @@ A collection of OTE events published at a stable URL. An exchange format, not an
 | `licenseUrl` | string (uri) | optional | | URL of the full license text. | `"https://creativecommons.org/licenses/by/4.0/"` |
 | `updatedAt` | string (date-time) | **required** | | When this feed was generated. | `"2026-07-06T10:00:00Z"` |
 | `translations` | object | optional | | This feed's own title and description in other languages. Its EVENTS are not translated here: each one carries its own translations, and unlike license or textLanguage this field is never inherited — a feed's title is not an event's name. Requires textLanguage, like an event's translations do — see the document's constraints. | `{"en":{"title":"Rust Girona events","description":"Weekly online Rust coding sessions, in Catalan and Spanish."}}` |
-| `events` | object[] | **required** | | Events in this feed. Each one inherits the feed's specVersion and license unless it declares its own. | — |
+| `events` | object[] | **required** | | Events in this feed. Each one inherits the feed's specVersion and license unless it declares its own. No two may share an id — see the document's constraints. | — |
 
 ### Constraints
 
@@ -4908,7 +4910,7 @@ Source: spec/v0.3/feed.schema.json — JSON Schema for a feed of events.
       ]
     },
     "events": {
-      "description": "Events in this feed. Each one inherits the feed's specVersion and license unless it declares its own.",
+      "description": "Events in this feed. Each one inherits the feed's specVersion and license unless it declares its own. No two may share an id — see the document's constraints.",
       "type": "array",
       "items": {
         "$ref": "https://opentechevents.org/schema/v0.3/event.schema.json#/$defs/event"
@@ -4916,6 +4918,7 @@ Source: spec/v0.3/feed.schema.json — JSON Schema for a feed of events.
     }
   },
   "distinctTranslationLanguages": true,
+  "uniqueEventIds": true,
   "allOf": [
     {
       "description": "Same rule as an event: a map of translations is unusable without knowing which language the primary text is in. A feed that translates its title must say what language that title is in.",
