@@ -62,7 +62,7 @@ Campos por tipo:
 | P004 | Validar `offers[].currency` contra ISO 4217 real | Implementada (`b753c4a`) |
 | P005 | Validar `location.address.country` contra ISO 3166-1 real | Implementada (`f6556b2`) |
 | P006 | `languageTag` debe validar el núcleo BCP 47 + registro IANA | Implementada (`e688852`) |
-| P007 | Validar `license` contra SPDX + aviso "amigable con directorios" | Implementada — pendiente de revisión final y commit |
+| P007 | Validar `license` contra SPDX + aviso "amigable con directorios" | Implementada (`e66a235`) |
 
 *(actualizar esta tabla a mano al cerrar cada ciclo; sirve de índice rápido, el detalle vive en las entradas de abajo)*
 
@@ -465,7 +465,7 @@ hhkaos preguntó, antes de decidir entre las dos fases que planteé, si BCP 47 e
 
 hhkaos, tras ver la implementación base, preguntó dos cosas que ampliaron el alcance: (1) si tiene sentido validar contra toda la lista SPDX dado que son datos, no código — y en concreto le preocupaba que una licencia pudiera bloquear legalmente que estos eventos se den de alta en directorios; (2) si la spec debería exigir o comprobar compatibilidad de licencias entre eventos de un mismo feed.
 
-- **Commit:** pendiente — cambios en el árbol de trabajo
+- **Commit:** `e2f0078` (log) y `e66a235` (implementación)
 - **Ficheros cambiados (además de los ya listados arriba):**
   - `scripts/update-licenses.mjs` — genera también `$defs.dataLicense`: el subconjunto sin cláusula NC/ND/SA (ni copyleft de software), 17 identificadores (`CC0-1.0`, `CC-BY-*` sin NC/ND/SA, `CC-PDDC`, `CC-PDM-1.0`, `PDDL-1.0`, `ODC-By-1.0`).
   - `spec/v0.3/event.schema.json` — nuevo `$defs.dataLicense`, usado solo por el perfil recomendado.
