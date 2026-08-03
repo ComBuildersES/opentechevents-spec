@@ -65,6 +65,7 @@ Campos por tipo:
 | P007 | Validar `license` contra SPDX + aviso "amigable con directorios" | Implementada (`e66a235`) |
 | P008 | Rechazar ventanas invertidas en `offers`/`cfp` (opensAt/closesAt) | Implementada (`0886f5f`) |
 | P009 | Impedir que `translations` repita el idioma principal | Implementada (`3ac5def`) |
+| P010 | Impedir `event.id` duplicados dentro de un mismo feed | Implementada — pendiente de revisión final y commit |
 
 *(actualizar esta tabla a mano al cerrar cada ciclo; sirve de índice rápido, el detalle vive en las entradas de abajo)*
 
@@ -597,3 +598,64 @@ hhkaos pidió explícitamente que el razonamiento de por qué no forzar la zona 
   - `spec/v0.3/DECISIONS.md` — nueva entrada D010.
   - Regenerados por script: `reference.en.md`, `reference.es.md`, `docs/data/reference.json`, `docs/data/examples.json`, `docs/schema/v0.3/event.schema.json`, `docs/schema/v0.3/feed.schema.json`, `docs/llms*`.
 - **Notas:** Verificado con `npm run validate` (repo completo, limpio) y con los cuatro casos de evidencia (repetición exacta, solo-mayúsculas, anidada, feed) — los cuatro se rechazan con el mensaje correcto. Pendiente de que hhkaos revise y decida si se commitea.
+
+## [2026-08-03] CODEX — PROPUESTA #P010: Impedir identificadores de evento duplicados dentro de un feed
+
+- **Área:** `feed.schema.json`, `event.schema.json`, `reference.en.md`, `reference.es.md`, `README.md`, `examples/invalid/`, `customKeywords`
+- **Problema:** Un feed puede contener dos objetos de evento distintos con el mismo `id`. El schema valida cada elemento de `events` de forma aislada, pero no comprueba la unicidad del identificador en la colección. El consumidor recibe entonces dos estados incompatibles para la misma identidad y no puede saber cuál conservar, pese a que la semántica normativa de `id` existe precisamente para actualizar un evento sin duplicarlo. No es la deduplicación heurística **entre fuentes** que `spec/v0.3/README.md:828-830` deja fuera de alcance: aquí una sola fuente publica, en un solo documento, dos veces exactamente el mismo identificador que ella controla. P001–P009 y D001–D010 tratan calendarios, registros externos, orden temporal, licencias e idiomas; ninguna permite ni resuelve identificadores repetidos dentro de `feed.events`.
+- **Evidencia:** Con el cargador real del proyecto (Ajv 2020, `ajv-formats`, `annotationKeywords`, `customFormats` y `customKeywords` exportados por `index.js`), este feed devuelve `valid: true`, `errors: null`:
+
+  ```json
+  {
+    "specVersion": "0.3.0",
+    "title": "Duplicate ids",
+    "license": "CC0-1.0",
+    "updatedAt": "2026-08-03T12:00:00Z",
+    "events": [
+      {
+        "id": "https://example.org/events/same",
+        "name": "First",
+        "startDate": "2026-08-04T18:00",
+        "timezone": "Europe/Madrid"
+      },
+      {
+        "id": "https://example.org/events/same",
+        "name": "Second",
+        "startDate": "2026-08-05T18:00",
+        "timezone": "Europe/Madrid"
+      }
+    ]
+  }
+  ```
+
+  La causa ejecutable está en `spec/v0.3/feed.schema.json:102-107`: `events` solo declara `"type": "array"` e `"items": { "$ref": "…event.schema.json#/$defs/event" }`, sin restricción entre elementos. `uniqueItems` tampoco está presente y, aunque se añadiera, no detectaría el JSON anterior porque los dos objetos completos son diferentes. La contradicción normativa es literal: `spec/v0.3/event.schema.json:37-41` describe `id` como `"Stable, globally unique identifier"` y dice que permite actualizar «instead of duplicating it»; `spec/v0.3/reference.en.md:20` repite esa frase, `reference.es.md:20` dice «Identificador estable y único a nivel global», y `spec/v0.3/README.md:203-207` define `id` como «qué evento es esto, para siempre» y afirma que no puede cambiar. La autoridad de interoperabilidad iCalendar coincide: [RFC 5545 §3.8.4.7](https://www.rfc-editor.org/rfc/rfc5545.html#section-3.8.4.7) define `UID` como identificador persistente y globalmente único, exige que su generador garantice la unicidad y explica que sirve para correlacionar modificaciones con el `VEVENT` referenciado. Ningún feed válido actual de `spec/v0.3/examples/feed*.json` contiene `id` repetidos.
+- **Propuesta:** Añadir a la raíz de `feed.schema.json` un keyword Ajv personalizado de colección (por ejemplo, `uniqueEventIds: true`) que recorra `events`, reúna sus `id` y rechace cualquier repetición por igualdad exacta de cadena. Documentar la restricción del feed en ambas referencias y en `spec/v0.3/README.md`, y añadir a `examples/invalid/` el JSON de evidencia. Mantener deliberadamente el alcance en duplicados exactos dentro del mismo feed: no normalizar URIs, no inferir que dos identificadores distintos designan el mismo evento y no comparar nombre, fecha o URL. Así se hace cumplir la identidad que el propio documento declara sin convertir el validador local en el sistema de deduplicación entre fuentes que la spec excluye.
+- **Impacto en compatibilidad:** Restrictivo únicamente para feeds que repiten exactamente un `event.id`; los eventos independientes y el corpus válido actual no cambian. Un productor afectado debe emitir una sola representación por identidad o acuñar identificadores distintos si realmente son eventos distintos. Posponerlo hasta después de v1.0 consolidaría feeds ambiguos y haría que endurecer la colección fuese un breaking change; además, los exportadores a iCalendar tendrían que producir dos `VEVENT` con el mismo correlacionador `UID` o inventar identificadores, perdiendo la identidad estable de OTE.
+- **Alternativas consideradas:** (1) Usar `uniqueItems: true`: descartado porque compara objetos completos y el caso demostrado contiene objetos distintos con el mismo `id`. (2) Deduplicar por `name`/`startDate`/`url` o entre feeds: descartado porque es heurístico y reabre el alcance que `README.md:830` excluye; P010 solo detecta una contradicción exacta dentro de una colección. (3) Normalizar URIs antes de comparar: descartado por falta de necesidad para cerrar la evidencia y porque podría fusionar identificadores que el productor publicó como cadenas distintas; la regla mínima compara el valor de identidad tal como está declarado. (4) Convertir `events` en un objeto indexado por `id`: descartado por ser un cambio estructural mucho mayor e incompatible con el formato actual. (5) Dejarlo en prosa o como aviso recomendado: descartado porque dos estados para la misma identidad son datos internamente ambiguos y hoy el schema los declara válidos.
+
+## [2026-08-03] CLAUDE — REVISION #P010: Impedir identificadores de evento duplicados dentro de un feed
+
+- **Veredicto:** APROBAR
+- **Valoración:** Evidencia verificada de forma independiente: el feed con dos eventos que comparten `id` valida hoy (`Valid.`, solo avisos de campos recomendados). Confirmé la cita exacta (`feed.schema.json:102-107`: `events` es un array con `items` pero sin restricción entre elementos) y que `id` se describe como «Stable, globally unique identifier [...] this is what lets consumers update an event instead of duplicating it» — un feed con dos objetos bajo el mismo `id` rompe exactamente esa promesa. También comprobé yo mismo que ningún ejemplo real (`spec/v0.3/examples/feed*.json`) tiene ya `id` repetidos, confirmando el impacto de compatibilidad declarado.
+
+  Lo más sólido de esta propuesta es que distingue correctamente dos problemas que es fácil confundir: la **deduplicación heurística entre fuentes** (dos feeds distintos publicando el mismo evento con `id` diferentes, explícitamente fuera de alcance en `README.md:828-830`) frente a **una sola fuente publicando dos veces, en el mismo documento, el mismo identificador que ella misma controla** — esto último es una contradicción interna del propio documento, no un problema de correlación entre fuentes, y por tanto sí es competencia de este validador.
+- **Trade-offs:** Beneficio claro sin coste de compatibilidad real (ningún ejemplo afectado). El alcance está bien acotado: igualdad exacta de cadena, sin normalizar URIs ni inferir que dos identificadores distintos son el mismo evento — evita exactamente la trampa de convertir el validador en un sistema de deduplicación heurística. Coste de implementación bajo: un keyword de colección más en `customKeywords`, mismo mecanismo que los seis anteriores.
+- **Recomendación para v1.0:** Debe resolverse antes de congelar v1.0, mismo argumento que P001–P009: es una contradicción interna real con la semántica normativa de `id`, y además con eco directo en la interoperabilidad iCalendar (`UID` de RFC 5545 exige unicidad para poder correlacionar actualizaciones). Propuesta completa y correctamente acotada; no tengo cambios que pedir.
+- **Pendiente de:** decisión humana (hhkaos)
+
+## [2026-08-03] HUMANO — DECISION #P010
+
+- **Decisión:** APROBADA
+- **Notas:** Sin cambios sobre la propuesta de Codex.
+
+## [2026-08-03] CLAUDE — IMPLEMENTACION #P010
+
+- **Commit:** pendiente — cambios en el árbol de trabajo
+- **Ficheros cambiados:**
+  - `index.js`/`index.d.ts` — nuevo keyword `uniqueEventIds` en `customKeywords` (igualdad exacta de cadena, sin normalizar URIs).
+  - `spec/v0.3/feed.schema.json` — `uniqueEventIds: true` en la raíz; descripción de `events` actualizada.
+  - `spec/v0.3/examples/invalid/feed-duplicate-event-ids.json` — caso nuevo.
+  - `spec/v0.3/README.md` — nota junto a la explicación de `id`, distinguiendo esto de la deduplicación entre fuentes, enlace a `DECISIONS.md` D011.
+  - `spec/v0.3/DECISIONS.md` — nueva entrada D011.
+  - Regenerados por script: `reference.en.md`, `reference.es.md`, `docs/data/reference.json`, `docs/data/examples.json`, `docs/schema/v0.3/feed.schema.json`, `docs/llms*`.
+- **Notas:** Verificado con `npm run validate` (repo completo, limpio) y con el documento de evidencia: el feed con `id` repetido se rechaza. Pendiente de que hhkaos revise y decida si se commitea.
