@@ -1,0 +1,16 @@
+{
+  "specVersion": "0.3.0",
+  "id": "https://www.google.com/calendar/ical/j7gov1cmnqr9tvg14k621j7t5c%40group.calendar.google.com/public/basic.ics#2lk4vqirm8ou04c7eui2l105l9%40google.com",
+  "name": "Conf42 Python 2021",
+  "startDate": "2021-05-27",
+  "timezone": "UTC",
+  "license": "CC-BY-4.0",
+  "source": {
+    "name": "Python Events Calendar",
+    "url": "https://www.google.com/calendar/ical/j7gov1cmnqr9tvg14k621j7t5c%40group.calendar.google.com/public/basic.ics",
+    "retrievedAt": "2026-08-04T14:28:31Z"
+  },
+  "description": "<a href=\"http://www.conf42.com/python2021\" id=\"ow525\" __is_owner=\"true\">website</a>",
+  "endDate": "2021-05-27",
+  "attendanceMode": "online"
+}

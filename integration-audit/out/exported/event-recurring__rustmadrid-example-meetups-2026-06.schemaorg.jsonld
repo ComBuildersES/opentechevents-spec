@@ -1,0 +1,43 @@
+{
+  "@context": "https://schema.org",
+  "@type": "Event",
+  "@id": "https://rustmadrid.example/meetups/2026-06",
+  "url": "https://rustmadrid.example/meetups/2026-06",
+  "name": "Rust Madrid — Meetup de junio",
+  "description": "Segundo lunes de cada mes. Esta edición: WASM y tooling.\n\nPart of: Rust Madrid — meetup mensual",
+  "startDate": "2026-06-08T19:00",
+  "endDate": "2026-06-08T21:00",
+  "eventStatus": "https://schema.org/EventScheduled",
+  "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
+  "inLanguage": [
+    "es"
+  ],
+  "keywords": "rust, wasm",
+  "image": [
+    "https://rustmadrid.example/img/2026-06.png"
+  ],
+  "organizer": [
+    {
+      "@type": "Organization",
+      "name": "Rust Madrid",
+      "url": "https://rustmadrid.example"
+    }
+  ],
+  "location": {
+    "@type": "Place",
+    "name": "Campus Madrid, Calle de Moreno Nieto 2, Madrid",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "Calle de Moreno Nieto 2",
+      "addressLocality": "Madrid",
+      "postalCode": "28005",
+      "addressCountry": "ES"
+    }
+  },
+  "superEvent": {
+    "@type": "EventSeries",
+    "@id": "https://rustmadrid.example/meetups",
+    "name": "Rust Madrid — meetup mensual",
+    "url": "https://rustmadrid.example/meetups"
+  }
+}

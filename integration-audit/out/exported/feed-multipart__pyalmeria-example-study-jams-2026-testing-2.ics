@@ -1,0 +1,20 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//OpenTechEvents Integration Audit//OTE Exporter//EN
+CALSCALE:GREGORIAN
+BEGIN:VEVENT
+UID:https://pyalmeria.example/study-jams/2026-testing/2
+SUMMARY:Study Jam de testing en Python — Sesión 2: dobles de prueba
+DTSTART;TZID=Europe/Madrid:20260314T100000
+DTEND;TZID=Europe/Madrid:20260314T140000
+LAST-MODIFIED:20260218T090000Z
+DTSTAMP:20260218T090000Z
+URL:https://pyalmeria.example/study-jams/2026-testing
+DESCRIPTION:Segunda sesión: dobles de prueba — mocks\, stubs y cuándo NO us
+ arlos.\n\nPart of: Study Jam de testing en Python (3 sesiones)
+LOCATION:El Cable\, Almería
+CATEGORIES:python\,testing
+STATUS:CONFIRMED
+RELATED-TO;RELTYPE=PARENT:https://pyalmeria.example/study-jams/2026-testing
+END:VEVENT
+END:VCALENDAR

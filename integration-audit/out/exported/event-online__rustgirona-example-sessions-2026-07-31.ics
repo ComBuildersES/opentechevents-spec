@@ -1,0 +1,23 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//OpenTechEvents Integration Audit//OTE Exporter//EN
+CALSCALE:GREGORIAN
+BEGIN:VEVENT
+UID:https://rustgirona.example/sessions/2026-07-31
+SUMMARY:Sessió setmanal de codificació — Rust Girona
+DTSTART;TZID=Europe/Madrid:20260731T180000
+DTEND;TZID=Europe/Madrid:20260731T190000
+LAST-MODIFIED:20260724T080000Z
+DTSTAMP:20260724T080000Z
+URL:https://rustgirona.example/sessions/2026-07-31
+DESCRIPTION:Cada setmana ens trobem en línia per picar Rust una estona. Can
+ al de veu de Discord\; l'enllaç és a la pàgina de l'esdeveniment.\n\nEligi
+ bility: Membres del Discord de Rust Girona (https://rustgirona.example/joi
+ n)\n\nPart of: Sessió setmanal de codificació
+LOCATION:https://discord.example/rust-girona
+CATEGORIES:rust\,pair-programming
+STATUS:CONFIRMED
+RELATED-TO;RELTYPE=PARENT:https://rustgirona.example/sessions
+X-OTE-ELIGIBILITY:members-only
+END:VEVENT
+END:VCALENDAR

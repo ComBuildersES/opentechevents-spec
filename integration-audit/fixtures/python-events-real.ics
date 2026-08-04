@@ -1,0 +1,59 @@
+BEGIN:VCALENDAR
+PRODID:-//Google Inc//Google Calendar 70.9054//EN
+VERSION:2.0
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Python Events Calendar
+X-WR-TIMEZONE:Etc/GMT
+X-WR-CALDESC:Calendar for Python conference and similar major events
+X-OTE-SOURCE:https://www.python.org/events/python-events/
+X-OTE-ICAL-SOURCE:https://www.google.com/calendar/ical/j7gov1cmnqr9tvg14k621j7t5c%40group.calendar.google.com/public/basic.ics
+BEGIN:VEVENT
+DTSTART;VALUE=DATE:20260808
+DTEND;VALUE=DATE:20260810
+DTSTAMP:20260804T132943Z
+UID:261e5d80-d103-4d44-82b9-7cc5ebf49cdd
+CREATED:20260718T131827Z
+DESCRIPTION:<a href="https://pycon.id/">PyCon Indonesia 2026</a>
+LAST-MODIFIED:20260718T131827Z
+LOCATION:Jakarta\, Indonesia
+SEQUENCE:0
+STATUS:CONFIRMED
+SUMMARY:PyCon Indonesia 2026
+TRANSP:TRANSPARENT
+X-MOZ-GOOGLE-HTML-DESCRIPTION:true
+END:VEVENT
+BEGIN:VEVENT
+DTSTART:20200516T065000Z
+DTEND:20200516T140000Z
+DTSTAMP:20260804T132943Z
+UID:10m7fbkr716idlvs45animmoke@google.com
+CREATED:20200507T083636Z
+DESCRIPTION:<a href="https://fwdays.com/en/event/python-fwdays-conference">
+ website</a><br><br>Using Kafka in your python applications<br>Python for Sp
+ eed\, Scale\, and Science<br>Building a Python Programmer's Career From Jun
+ ior to Senior<br>Dive into BPF performance tools using python<br>and more<b
+ r><br>May 16&amp\;23\, 2020&nbsp\;&nbsp\;
+LAST-MODIFIED:20200507T083900Z
+LOCATION:Online
+SEQUENCE:0
+STATUS:CONFIRMED
+SUMMARY:Python fwdays'20
+TRANSP:OPAQUE
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;VALUE=DATE:20210527
+DTEND;VALUE=DATE:20210528
+DTSTAMP:20260804T132943Z
+UID:2lk4vqirm8ou04c7eui2l105l9@google.com
+CREATED:20210416T185514Z
+DESCRIPTION:<a href="http://www.conf42.com/python2021" id="ow525" __is_owne
+ r="true">website</a>
+LAST-MODIFIED:20210416T185924Z
+LOCATION:Online
+SEQUENCE:0
+STATUS:CONFIRMED
+SUMMARY:Conf42 Python 2021
+TRANSP:TRANSPARENT
+END:VEVENT
+END:VCALENDAR

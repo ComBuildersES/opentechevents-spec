@@ -1,0 +1,22 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//OpenTechEvents Integration Audit//OTE Exporter//EN
+CALSCALE:GREGORIAN
+BEGIN:VEVENT
+UID:https://rustmadrid.example/meetups/2026-06
+SUMMARY:Rust Madrid — Meetup de junio
+DTSTART;TZID=Europe/Madrid:20260626T190000
+DTEND;TZID=Europe/Madrid:20260626T210000
+LAST-MODIFIED:20260610T180000Z
+DTSTAMP:20260610T180000Z
+URL:https://rustmadrid.example/meetups/2026-06
+DESCRIPTION:Charlas sobre WASM y tooling de Rust.\n\n18:30 Puertas · 19:00 
+ Charlas · 20:30 Networking\n\nOffers:\n- free | https://rustmadrid.example
+ /meetups/2026-06#registro
+LOCATION:Campus Madrid\, Calle de Moreno Nieto 2\, Madrid / Online: https:/
+ /meet.example/rust-madrid
+GEO:40.4081\;-3.7188
+CATEGORIES:rust\,wasm
+STATUS:CONFIRMED
+END:VEVENT
+END:VCALENDAR

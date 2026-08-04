@@ -1,0 +1,58 @@
+{
+  "@context": "https://schema.org",
+  "@type": "Event",
+  "@id": "https://rustmadrid.example/meetups/2026-06",
+  "url": "https://rustmadrid.example/meetups/2026-06",
+  "name": "Rust Madrid — Meetup de junio",
+  "description": "Charlas sobre WASM y tooling de Rust.\n\n18:30 Puertas · 19:00 Charlas · 20:30 Networking\n\nOffers:\n- free | https://rustmadrid.example/meetups/2026-06#registro",
+  "startDate": "2026-06-26T19:00",
+  "endDate": "2026-06-26T21:00",
+  "eventStatus": "https://schema.org/EventScheduled",
+  "eventAttendanceMode": "https://schema.org/MixedEventAttendanceMode",
+  "inLanguage": [
+    "es"
+  ],
+  "keywords": "rust, wasm",
+  "image": [
+    "https://rustmadrid.example/img/2026-06-16x9.png",
+    "https://rustmadrid.example/img/2026-06-4x3.png",
+    "https://rustmadrid.example/img/2026-06-1x1.png"
+  ],
+  "organizer": [
+    {
+      "@type": "Organization",
+      "name": "Rust Madrid",
+      "url": "https://rustmadrid.example"
+    }
+  ],
+  "location": [
+    {
+      "@type": "Place",
+      "name": "Campus Madrid, Calle de Moreno Nieto 2, Madrid",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "Calle de Moreno Nieto 2",
+        "addressLocality": "Madrid",
+        "addressRegion": "Comunidad de Madrid",
+        "postalCode": "28005",
+        "addressCountry": "ES"
+      },
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": 40.4081,
+        "longitude": -3.7188
+      }
+    },
+    {
+      "@type": "VirtualLocation",
+      "url": "https://meet.example/rust-madrid"
+    }
+  ],
+  "offers": [
+    {
+      "@type": "Offer",
+      "price": 0,
+      "url": "https://rustmadrid.example/meetups/2026-06#registro"
+    }
+  ]
+}

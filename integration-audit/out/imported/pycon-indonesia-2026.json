@@ -1,0 +1,18 @@
+{
+  "specVersion": "0.3.0",
+  "id": "https://www.google.com/calendar/ical/j7gov1cmnqr9tvg14k621j7t5c%40group.calendar.google.com/public/basic.ics#261e5d80-d103-4d44-82b9-7cc5ebf49cdd",
+  "name": "PyCon Indonesia 2026",
+  "startDate": "2026-08-08",
+  "timezone": "UTC",
+  "license": "CC-BY-4.0",
+  "source": {
+    "name": "Python Events Calendar",
+    "url": "https://www.google.com/calendar/ical/j7gov1cmnqr9tvg14k621j7t5c%40group.calendar.google.com/public/basic.ics",
+    "retrievedAt": "2026-08-04T14:28:31Z"
+  },
+  "description": "<a href=\"https://pycon.id/\">PyCon Indonesia 2026</a>",
+  "endDate": "2026-08-09",
+  "location": {
+    "venue": "Jakarta, Indonesia"
+  }
+}

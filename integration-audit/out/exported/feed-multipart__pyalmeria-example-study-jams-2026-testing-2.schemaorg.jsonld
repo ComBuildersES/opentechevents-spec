@@ -1,0 +1,43 @@
+{
+  "@context": "https://schema.org",
+  "@type": "Event",
+  "@id": "https://pyalmeria.example/study-jams/2026-testing/2",
+  "url": "https://pyalmeria.example/study-jams/2026-testing",
+  "name": "Study Jam de testing en Python — Sesión 2: dobles de prueba",
+  "description": "Segunda sesión: dobles de prueba — mocks, stubs y cuándo NO usarlos.\n\nPart of: Study Jam de testing en Python (3 sesiones)",
+  "startDate": "2026-03-14T10:00",
+  "endDate": "2026-03-14T14:00",
+  "eventStatus": "https://schema.org/EventScheduled",
+  "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
+  "inLanguage": [
+    "es"
+  ],
+  "keywords": "python, testing",
+  "image": [
+    "https://pyalmeria.example/img/2026-testing-study-jam.png"
+  ],
+  "organizer": [
+    {
+      "@type": "Organization",
+      "name": "PyAlmería",
+      "url": "https://pyalmeria.example"
+    }
+  ],
+  "location": {
+    "@type": "Place",
+    "name": "El Cable, Almería",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "Calle Poeta Villaespesa 1",
+      "addressLocality": "Almería",
+      "postalCode": "04001",
+      "addressCountry": "ES"
+    }
+  },
+  "superEvent": {
+    "@type": "Event",
+    "@id": "https://pyalmeria.example/study-jams/2026-testing",
+    "name": "Study Jam de testing en Python (3 sesiones)",
+    "url": "https://pyalmeria.example/study-jams/2026-testing"
+  }
+}

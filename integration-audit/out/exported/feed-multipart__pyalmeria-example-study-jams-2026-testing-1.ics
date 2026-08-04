@@ -1,0 +1,21 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//OpenTechEvents Integration Audit//OTE Exporter//EN
+CALSCALE:GREGORIAN
+BEGIN:VEVENT
+UID:https://pyalmeria.example/study-jams/2026-testing/1
+SUMMARY:Study Jam de testing en Python — Sesión 1: pytest desde cero
+DTSTART;TZID=Europe/Madrid:20260307T100000
+DTEND;TZID=Europe/Madrid:20260307T140000
+LAST-MODIFIED:20260218T090000Z
+DTSTAMP:20260218T090000Z
+URL:https://pyalmeria.example/study-jams/2026-testing
+DESCRIPTION:Primera sesión: pytest desde cero — fixtures\, parametrización 
+ y estructura de un proyecto.\n\nPart of: Study Jam de testing en Python (3
+  sesiones)
+LOCATION:El Cable\, Almería
+CATEGORIES:python\,testing
+STATUS:CONFIRMED
+RELATED-TO;RELTYPE=PARENT:https://pyalmeria.example/study-jams/2026-testing
+END:VEVENT
+END:VCALENDAR

@@ -1,0 +1,12 @@
+<item>
+<title>Study Jam de testing en Python — Sesión 2: dobles de prueba</title>
+<link>https://pyalmeria.example/study-jams/2026-testing</link>
+<guid isPermaLink="false">https://pyalmeria.example/study-jams/2026-testing/2</guid>
+<description>Segunda sesión: dobles de prueba — mocks, stubs y cuándo NO usarlos.
+
+Part of: Study Jam de testing en Python (3 sesiones)</description>
+<pubDate>Wed, 18 Feb 2026 09:00:00 GMT</pubDate>
+<category>python</category>
+<category>testing</category>
+<enclosure url="https://pyalmeria.example/img/2026-testing-study-jam.png" type="image/*" />
+</item>

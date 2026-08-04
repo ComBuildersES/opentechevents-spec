@@ -1,0 +1,16 @@
+{
+  "specVersion": "0.3.0",
+  "id": "https://www.google.com/calendar/ical/j7gov1cmnqr9tvg14k621j7t5c%40group.calendar.google.com/public/basic.ics#10m7fbkr716idlvs45animmoke%40google.com",
+  "name": "Python fwdays'20",
+  "startDate": "2020-05-16T06:50",
+  "timezone": "UTC",
+  "license": "CC-BY-4.0",
+  "source": {
+    "name": "Python Events Calendar",
+    "url": "https://www.google.com/calendar/ical/j7gov1cmnqr9tvg14k621j7t5c%40group.calendar.google.com/public/basic.ics",
+    "retrievedAt": "2026-08-04T14:28:31Z"
+  },
+  "description": "<a href=\"https://fwdays.com/en/event/python-fwdays-conference\">website</a><br><br>Using Kafka in your python applications<br>Python for Speed, Scale, and Science<br>Building a Python Programmer's Career From Junior to Senior<br>Dive into BPF performance tools using python<br>and more<br><br>May 16&amp;23, 2020&nbsp;&nbsp;",
+  "endDate": "2020-05-16T14:00",
+  "attendanceMode": "online"
+}

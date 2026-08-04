@@ -1,0 +1,24 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//OpenTechEvents Integration Audit//OTE Exporter//EN
+CALSCALE:GREGORIAN
+BEGIN:VEVENT
+UID:https://devfest-levante.example/2026
+SUMMARY:DevFest Levante 2026
+DTSTART;VALUE=DATE:20261016
+DTEND;VALUE=DATE:20261018
+LAST-MODIFIED:20260504T090000Z
+DTSTAMP:20260504T090000Z
+URL:https://devfest-levante.example/2026
+DESCRIPTION:Conferencia de desarrollo del sureste\, edición 2026. Dos días\
+ , tres tracks.\n\nOffers:\n- Early bird | 35 EUR | sold-out | https://devf
+ est-levante.example/2026/entradas\n- General | 45 EUR | in-stock | https:/
+ /devfest-levante.example/2026/entradas\n- Estudiantes | free | sold-out | 
+ https://devfest-levante.example/2026/entradas#estudiantes | waitlist https
+ ://devfest-levante.example/2026/lista-espera\n\nCFP: https://devfest-levan
+ te.example/2026/cfp closes 2026-07-15T23:59:59+02:00
+LOCATION:Las Naves\, Carrer de Joan Verdeguer 16\, València
+CATEGORIES:cloud\,ai\,web
+STATUS:CONFIRMED
+END:VEVENT
+END:VCALENDAR

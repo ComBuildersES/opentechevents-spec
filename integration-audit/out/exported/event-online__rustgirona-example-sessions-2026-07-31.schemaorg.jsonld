@@ -1,0 +1,42 @@
+{
+  "@context": "https://schema.org",
+  "@type": "Event",
+  "@id": "https://rustgirona.example/sessions/2026-07-31",
+  "url": "https://rustgirona.example/sessions/2026-07-31",
+  "name": "Sessió setmanal de codificació — Rust Girona",
+  "description": "Cada setmana ens trobem en línia per picar Rust una estona. Canal de veu de Discord; l'enllaç és a la pàgina de l'esdeveniment.\n\nEligibility: Membres del Discord de Rust Girona (https://rustgirona.example/join)\n\nPart of: Sessió setmanal de codificació",
+  "startDate": "2026-07-31T18:00",
+  "endDate": "2026-07-31T19:00",
+  "eventStatus": "https://schema.org/EventScheduled",
+  "eventAttendanceMode": "https://schema.org/OnlineEventAttendanceMode",
+  "inLanguage": [
+    "ca",
+    "es"
+  ],
+  "keywords": "rust, pair-programming",
+  "image": [
+    "https://rustgirona.example/img/sessio-setmanal.png"
+  ],
+  "organizer": [
+    {
+      "@type": "Organization",
+      "name": "Rust Girona",
+      "url": "https://rustgirona.example"
+    },
+    {
+      "@type": "Person",
+      "name": "Ivan Fraixedes",
+      "url": "https://ifraixedes.example"
+    }
+  ],
+  "location": {
+    "@type": "VirtualLocation",
+    "url": "https://discord.example/rust-girona"
+  },
+  "superEvent": {
+    "@type": "EventSeries",
+    "@id": "https://rustgirona.example/sessions",
+    "name": "Sessió setmanal de codificació",
+    "url": "https://rustgirona.example/sessions"
+  }
+}
