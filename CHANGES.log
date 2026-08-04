@@ -88,6 +88,7 @@ Campos por tipo:
 | P030 | Rechazar duplicados exactos en `organizers` | Implementada (`10d75a7`, `db37880`) |
 | P031 | Rechazar duplicados de `languages` al comparar BCP 47 sin mayúsculas | Implementada (`bc63f0e`, `4535b4f`) |
 | P032 | Permitir feeds agregadores sin `feed.license` solo si cada evento declara la suya | Implementada (`43598bd`, `58f83c0`) |
+| P033 | Avisar cuando una traducción rellena un campo ausente en el texto principal | Aprobada — pendiente de implementación |
 
 *(actualizar esta tabla a mano al cerrar cada ciclo; sirve de índice rápido, el detalle vive en las entradas de abajo)*
 
@@ -2761,3 +2762,86 @@ Confirmado con hhkaos que, con esta justificación corregida, sigue mereciendo l
   - Regenerados por script: `reference.en.md`, `reference.es.md`, `docs/data/reference.json`, `docs/data/examples.json`, `docs/schema/v0.3/feed.schema.json`, `docs/llms*`.
 - **Decisión de alcance tomada al implementar, documentada:** no se añadió un nuevo ejemplo VÁLIDO cataloged en `examples/` (solo el inválido en `examples/invalid/`, que no requiere entrada de catálogo). Añadir un ejemplo válido nuevo a `examples/*.json` exige entradas en `examples/catalog/en.json` y `es.json` (comprobado: `build-examples -- --check` falla si un documento no cataloged) — ninguna propuesta anterior de esta auditoría añadió un ejemplo válido nuevo al catálogo al implementar un cambio de validez, todas se limitaron a `examples/invalid/`. Mismo patrón aquí; la evidencia del caso agregador válido queda documentada en CHANGES.log (PROPUESTA/REVISION) y verificada contra el validador real, no como fichero de catálogo permanente.
 - **Notas:** Verificado con los tres casos exactos de la PROPUESTA/REVISION reconstruidos con Ajv real: agregador sin `feed.license` con ambos eventos licenciados → válido; el mismo agregador con un evento sin licencia → inválido, capturado por el `then` anidado; feed comunitario con herencia → sigue válido. Los tres feeds reales del corpus (`feed.json`, `feed-community.json`, `feed-multipart.json`) validan sin cambios. `npm run validate` limpio, repo completo. Pendiente de que hhkaos revise el resultado.
+
+## [2026-08-04] CODEX — PROPUESTA #P033: Avisar cuando una traducción rellena un campo ausente en el texto principal
+
+- **Área:** `spec/v0.3/event.recommended.schema.json`, `spec/v0.3/feed.recommended.schema.json`, `index.js`, `scripts/validate.mjs`, `spec/v0.3/reference.en.md`, `spec/v0.3/reference.es.md`
+- **Problema:** D022 cerró el hueco de traducciones que no traducen ningún campo OTE reconocido, pero dejó explícitamente aparte una pregunta editorial distinta: si una entrada `translations.<idioma>.<campo>` traduce un campo que no existe en el texto principal. Verificado contra el schema actual, el caso no existe para campos primarios obligatorios (`event.name`, `feed.title`) ni donde ya hay dependencia local (`image[].alt` cuando hay `image[].translations`, `eligibility.note` cuando `type` es `restricted`). Sí existe para campos opcionales: `event.description`, `feed.description`, `offers[].name`, `partOf.name` y `eligibility.note` en tipos no restringidos. No lo trato como contradicción de validez: un productor puede querer que la versión traducida sea más completa que la primaria por una decisión editorial legítima, como D022 ya advertía. Pero sí es una señal de calidad: el productor ya tiene texto en otro idioma, mientras el texto primario queda sin fallback para quien no pueda o no quiera leer `translations`, y parte de esa información se pierde en destinos donde las traducciones no sobreviven igual que en schema.org.
+- **Evidencia:** D022 dejó esta pregunta fuera de alcance a propósito: `spec/v0.3/DECISIONS.md:457` dice que traducir un campo ausente en el idioma principal "has its own trade-offs" y que "a producer might legitimately want a translated field the primary-language text omits for brevity"; `spec/v0.3/DECISIONS.md:459` rechazó exigir los mismos campos primarios "for now as a separate, more complex hypothesis". El schema confirma que el hueco solo aparece donde el campo primario es opcional. `event.name` no puede faltar porque `$defs.event.required` incluye `name` (`spec/v0.3/event.schema.json:97-104`), y `feed.title` tampoco porque el `required` raíz del feed lo incluye (`spec/v0.3/feed.schema.json:7-12`). En cambio, `event.description` es una propiedad opcional (`spec/v0.3/event.schema.json:145-150`) y `$defs.translation.description` existe con `anyOf` de `name` o `description`, no con dependencia hacia el primario (`spec/v0.3/event.schema.json:2332-2368`). Lo mismo ocurre con `feed.description` opcional (`spec/v0.3/feed.schema.json:30-35`) y `$defs.feedTranslation.description` (`spec/v0.3/event.schema.json:2473-2509`), `offers[].name` opcional (`spec/v0.3/event.schema.json:2950-2963`) frente a `offerTranslation.required: ["name"]` (`spec/v0.3/event.schema.json:2394-2412`), `partOf.name` opcional porque `partOf.required` solo exige `id` (`spec/v0.3/event.schema.json:2571-2598`) frente a `partOfTranslation.required: ["name"]` (`spec/v0.3/event.schema.json:2455-2472`), y `eligibility.note` opcional salvo `restricted` (`spec/v0.3/event.schema.json:2771-2844`) frente a `eligibilityTranslation.required: ["note"]` (`spec/v0.3/event.schema.json:2425-2442`). `image[].alt` no tiene el hueco: `imageEntry.dependentRequired` exige `alt` cuando existe `translations` (`spec/v0.3/event.schema.json:2865-2909`).
+
+  JSON mínimos validados contra el validador real:
+
+  ```json
+  {
+    "specVersion": "0.3.0",
+    "id": "https://example.org/events/translated-absent-field",
+    "name": "Translated absent field",
+    "startDate": "2026-09-01T10:00",
+    "timezone": "Europe/Madrid",
+    "textLanguage": "es",
+    "license": "CC0-1.0",
+    "translations": {
+      "en": {
+        "description": "English-only description."
+      }
+    }
+  }
+  ```
+
+  El mismo patrón se probó también en `feed.translations.en.description` sin `feed.description`, `offers[0].translations.en.name` sin `offers[0].name`, `partOf.translations.en.name` sin `partOf.name`, `eligibility.translations.en.note` sin `eligibility.note`, `image[0].translations.en.alt` sin `image[0].alt` y `eligibility.type: "restricted"` sin `eligibility.note`.
+
+  Resultado ejecutado:
+
+  ```text
+  $ npm run validate -- /private/tmp/ote-audit/event-translation-description-without-primary.json /private/tmp/ote-audit/feed-translation-description-without-primary.json /private/tmp/ote-audit/event-offer-translation-name-without-primary.json /private/tmp/ote-audit/event-partof-translation-name-without-primary.json /private/tmp/ote-audit/event-image-translation-alt-without-primary.json /private/tmp/ote-audit/event-eligibility-translation-note-without-primary.json /private/tmp/ote-audit/event-eligibility-restricted-translation-note-without-primary.json
+
+  > @opentechevents/schema@0.3.0 validate
+  > node scripts/validate.mjs /private/tmp/ote-audit/event-translation-description-without-primary.json /private/tmp/ote-audit/feed-translation-description-without-primary.json /private/tmp/ote-audit/event-offer-translation-name-without-primary.json /private/tmp/ote-audit/event-partof-translation-name-without-primary.json /private/tmp/ote-audit/event-image-translation-alt-without-primary.json /private/tmp/ote-audit/event-eligibility-translation-note-without-primary.json /private/tmp/ote-audit/event-eligibility-restricted-translation-note-without-primary.json
+
+    ok    /private/tmp/ote-audit/event-translation-description-without-primary.json (event, v0.3)
+    warn  /private/tmp/ote-audit/event-translation-description-without-primary.json — missing recommended: url, description, image, organizers, attendanceMode, location, tags, languages, updatedAt, endDate
+    ok    /private/tmp/ote-audit/feed-translation-description-without-primary.json (feed, v0.3)
+    warn  /private/tmp/ote-audit/feed-translation-description-without-primary.json — feed missing recommended: url, description, textLanguage
+    warn  /private/tmp/ote-audit/feed-translation-description-without-primary.json — events[0] (https://example.org/events/1) missing recommended: url, description, image, organizers, attendanceMode, location, tags, languages, updatedAt, endDate
+    ok    /private/tmp/ote-audit/event-offer-translation-name-without-primary.json (event, v0.3)
+    warn  /private/tmp/ote-audit/event-offer-translation-name-without-primary.json — missing recommended: url, description, image, organizers, attendanceMode, location, tags, languages, updatedAt, endDate
+    ok    /private/tmp/ote-audit/event-partof-translation-name-without-primary.json (event, v0.3)
+    warn  /private/tmp/ote-audit/event-partof-translation-name-without-primary.json — missing recommended: url, description, image, organizers, attendanceMode, location, tags, languages, updatedAt, endDate
+    FAIL  /private/tmp/ote-audit/event-image-translation-alt-without-primary.json (event, v0.3)
+  data/image/0 must NOT be valid
+  data/image/0 must be string
+  data/image/0 must have property alt when property translations is present
+  data/image/0 must match exactly one schema in oneOf
+    ok    /private/tmp/ote-audit/event-eligibility-translation-note-without-primary.json (event, v0.3)
+    warn  /private/tmp/ote-audit/event-eligibility-translation-note-without-primary.json — missing recommended: url, description, image, organizers, attendanceMode, location, tags, languages, updatedAt, endDate
+    FAIL  /private/tmp/ote-audit/event-eligibility-restricted-translation-note-without-primary.json (event, v0.3)
+  data/eligibility must have required property 'note'
+  data/eligibility must match "then" schema
+
+  2 failure(s)
+  6 recommendation(s) — valid either way. See the field reference.
+  ```
+
+  Observación sobre ejemplos existentes: recorrí `spec/v0.3/examples/**/*.json`, excluyendo `examples/invalid/` y `examples/catalog/`, buscando `translations` que traduzcan un campo primario ausente en esas ubicaciones; resultado: `No valid examples translate an absent primary field in the checked locations.`
+
+  La razón para dejarlo en calidad y no en validez está en la propia prosa de traducciones. `spec/v0.3/README.md:557` mantiene `name` y `description` como cadenas primarias para que consumidores monolingües sigan funcionando; `spec/v0.3/README.md:563` define el fallback de lectura como "el idioma que pide → `translations` → el texto principal"; y `spec/v0.3/README.md:608-614` dice que schema.org recibe `translations` sin pérdida, pero iCal y RSS/Atom sí pierden traducciones parcial o totalmente. Si el primario falta, ese fallback se queda vacío y los destinos que no conserven la traducción pierden texto que el productor sí tenía.
+- **Propuesta:** Añadir un aviso de perfil recomendado, no una regla de validez base: cuando una traducción OTE reconocida (`description`, `offers[].name`, `partOf.name`, `eligibility.note`, y `feed.description`) exista pero el campo primario correspondiente falte, el documento sigue siendo válido pero el validador recomendado debe advertirlo. El aviso debe ser silencioso para `event.translations.*.name` y `feed.translations.*.title` porque sus primarios son obligatorios, y no debe duplicar reglas ya base-schema para `image[].alt` ni para `eligibility.type: "restricted"`. Recomiendo implementarlo como keyword custom de perfil recomendado, por ejemplo `translatedFieldsHavePrimaryText`, aplicado al perfil de evento y al perfil de feed: el caso cruza mapas de traducción con sus objetos propietarios, aparece en varias profundidades, y como warning conviene concentrar la lógica en `index.js` en vez de añadir una red declarativa larga y frágil. Si el keyword reporta en raíz, actualizar `OBJECT_KEYWORD_FIELD`/`missingRecommended()` para que el aviso sea legible; idealmente reportar rutas como `translations.description`, `offers[].name`, `partOf.name`, `eligibility.note` y `feed.translations.description`.
+- **Impacto en compatibilidad:** Ninguno en validez: no rompe ningún documento v0.3 válido porque el base schema no cambia. Sí añade avisos recomendados para documentos que hoy validan y no avisan específicamente de este desajuste; el corpus válido actual no contiene ninguno. En `event.description` y `feed.description` ya existe un aviso genérico por faltar `description`; esta propuesta lo hace más preciso cuando la propia traducción demuestra que el productor sí tenía una descripción en otro idioma. En campos locales opcionales añade una señal nueva, pero accionable: añadir el texto primario, quitar la traducción si fue accidental, o aceptar conscientemente el warning si la asimetría editorial es deliberada.
+- **Alternativas consideradas:** (1) Error de validez base: descartado porque convertiría una asimetría editorial posible en documento inválido, exactamente el trade-off que D022 separó; además haría que campos opcionales como `description`, `offers[].name`, `partOf.name` o `eligibility.note` pasen a ser obligatorios por la puerta de atrás en cuanto haya traducción. (2) No tocar nada: descartado porque el warning no obliga a inventar datos y sí detecta una pérdida real para fallback, RSS/iCal y consumidores que ignoran `translations`; el productor ya escribió el texto traducido, así que el aviso es accionable. (3) Aplicarlo también a `image[].alt`: descartado porque el base schema ya lo rechaza con `dependentRequired`. (4) Aplicarlo a `eligibility.note` cuando `type` es `restricted`: ya es error base, no warning nuevo. (5) Exigir equivalencia de todos los campos entre idioma primario y traducciones: descartado; la propuesta solo mira campos reconocidos ya presentes en una traducción, no exige que cada traducción sea completa ni que el primario traduzca extensiones.
+
+## [2026-08-04] CLAUDE — REVISION #P033: Avisar cuando una traducción rellena un campo ausente en el texto principal
+
+- **Veredicto:** APROBAR_CON_CAMBIOS
+- **Valoración:** Verificado de forma independiente, no solo aceptado. Confirmé cada cita del schema (`event.schema.json` líneas de `description`, `required` de `event`, `offerTranslation`/`partOfTranslation`/`eligibilityTranslation`, `imageEntry.dependentRequired`) y reproduje los siete casos contra el validador real: `event.description` ausente con traducción → válido con aviso genérico solo; `image[].alt` ausente con traducción → **ya falla hoy** por `dependentRequired`; `eligibility.type: "restricted"` sin `note` con traducción → **ya falla hoy** por el `if`/`then` existente. Coincide exactamente con lo reportado. Repetí el escaneo del corpus con mi propio script: cero ejemplos reales afectados.
+- **Acierta en la elección del nivel (recomendado, no base) y en por qué.** Cita textualmente la propia advertencia que D022 dejó escrita ("a producer might legitimately want a translated field the primary-language text omits for brevity") en vez de tratarla como un obstáculo a rodear — es exactamente el criterio que este proceso exige: contrastar contra lo ya decidido antes de proponer un endurecimiento. Un error de validez aquí volvería obligatorios por la puerta de atrás varios campos opcionales (`description`, `offers[].name`, `partOf.name`, `eligibility.note`) en cuanto existiera traducción, contradiciendo el principio de dos niveles que gobierna toda esta auditoría.
+- **La implementación propuesta (un solo keyword custom para los 5 sitios) es más de lo que el problema necesita — tres de los cinco no requieren código.** Comprobé la diferencia estructural entre las dos familias de traducción: `$defs.offerTranslation`/`partOfTranslation`/`eligibilityTranslation` exigen su campo (`name`/`name`/`note`) con `required` incondicional — así que "existe `translations`" YA garantiza que ese campo está en toda entrada, y "traducción existe pero el primario no" es una dependencia simple de dos campos, expresable en JSON Schema declarativo puro dentro del perfil recomendado (`if: {required:["translations"]}, then: {required:["name"]}` anidado en `properties.offers.items`/`properties.partOf`/`properties.eligibility`). Lo probé yo mismo con un prototipo Ajv real para `offers[].name`: el aviso se dispara exactamente donde debe, y `missingRecommended()` ya sabe convertir ese `required` anidado en una ruta legible sin tocar `scripts/validate.mjs`. En cambio, `$defs.translation`/`$defs.feedTranslation` (para `event.description`/`feed.description`) usan `anyOf: [{required:["name"]}, {required:["description"]}]` — confirmado leyendo el schema — así que la presencia de `translations` NO garantiza que ninguna entrada tenga `description` en concreto; ahí sí hace falta inspeccionar los valores del mapa, y el keyword custom (o una doble negación declarativa con `additionalProperties`/`not` bastante menos legible) está justificado igual que en P019.
+- **Recomendación de alcance para la implementación:** limitar el keyword custom a `event.description`/`feed.description` (los 2 sitios que genuinely lo necesitan) y resolver `offers[].name`, `partOf.name` y `eligibility.note` con `if`/`then` declarativo dentro de los perfiles recomendados, reutilizando el mecanismo `missingRecommended()` ya existente sin tocarlo. Reduce la superficie de código nuevo en `index.js` a la mitad de lo propuesto, sin perder cobertura.
+- **Trade-offs:** Ninguno nuevo respecto a los ya identificados en la propia PROPUESTA. La única diferencia es de superficie de implementación, no de comportamiento observable — los 5 avisos deben comportarse exactamente igual para quien valida un documento.
+- **Recomendación para v1.0:** Encaja bien como mejora de calidad, prioridad razonable dado que era el último de los 6 huecos verificados del informe externo. No corrige una contradicción de validez, así que no es bloqueante en el mismo sentido que P029/P032, pero cierra limpiamente una pregunta que D022 dejó abierta a propósito.
+- **Pendiente de:** decisión humana (hhkaos)
+
+## [2026-08-04] HUMANO — DECISION #P033: Avisar cuando una traducción rellena un campo ausente en el texto principal
+
+- **Decisión:** APROBADA
+- **Quién:** hhkaos
+- **Alcance:** Implementar con el ajuste de Claude: `offers[].name`, `partOf.name` y `eligibility.note` resueltos con JSON Schema declarativo en el perfil recomendado; `event.description`/`feed.description` con un keyword custom, solo donde `anyOf` impide decidirlo de forma declarativa.
