@@ -85,6 +85,7 @@ Campos por tipo:
 | P027 | Rechazar duplicados exactos en `tags` y `languages` | Implementada (`2566a23`) |
 | P028 | Avisar si `attendanceMode` no tiene el detalle de `location` correspondiente | Implementada (`eaadf96`, `c2da8c3`) |
 | P029 | Prohibir credenciales embebidas en URLs HTTP(S) | Implementada (`a8badc2`, `b5f0859`) |
+| P030 | Rechazar duplicados exactos en `organizers` | Aprobada — pendiente de implementación |
 
 *(actualizar esta tabla a mano al cerrar cada ciclo; sirve de índice rápido, el detalle vive en las entradas de abajo)*
 
@@ -2413,3 +2414,98 @@ Confirmado con hhkaos que, con esta justificación corregida, sigue mereciendo l
   - Regenerados por script: `reference.en.md`, `reference.es.md`, `docs/data/reference.json`, `docs/data/examples.json`, `docs/schema/v0.3/*.schema.json`, `docs/llms*`.
 - **Desviación deliberada de la PROPUESTA, documentada:** Codex sugería factorizar un `$defs` reutilizable para el patrón. Elegí en su lugar 16 adiciones puntuales de `not` junto al `pattern` ya existente en cada sitio, sin nuevo `$defs`: los 16 usos ya varían ligeramente (`^https?://` vs. `^https://` en imágenes, algunos dentro de `anyOf`/`oneOf`), y P025 encontró un bug real y serio de resolución de `$ref` cruzado entre schemas — introducir una nueva indirección `$ref` compartida en 16 sitios distintos suponía más riesgo que beneficio frente a 16 cambios pequeños e independientemente verificables. `hhkaos` no había atado la aprobación a la factorización concreta ("tal cual" se refería a la regla, no al mecanismo).
 - **Notas:** Verificado con los casos exactos de la PROPUESTA/REVISION más casos límite propios: `user:pass@`/`user@` se rechazan correctamente; `@` legítimo en query string (`?email=a@b.com`) y puertos en la autoridad (`example.org:8443`) siguen validando. `npm run validate` limpio, repo completo. Ningún ejemplo real del corpus se vio afectado. Observación menor no bloqueante: el mensaje de error de Ajv para este rechazo es el genérico `must NOT be valid` (en vez de algo más descriptivo como con `pattern`), porque el proyecto no tiene hoy un mecanismo para personalizar mensajes de errores de schema BASE (solo de perfil recomendado, vía `OBJECT_KEYWORD_FIELD`); coherente con el resto de fallos de `not`/`anyOf` ya existentes en el schema, no es una regresión de esta propuesta. Pendiente de que hhkaos revise el resultado.
+
+## [2026-08-04] CODEX — PROPUESTA #P030: Rechazar duplicados exactos en `organizers`
+
+- **Área:** `spec/v0.3/event.schema.json`, `spec/v0.3/feed.schema.json`, `spec/v0.3/reference.en.md`, `spec/v0.3/reference.es.md`, `spec/v0.3/examples/invalid/`
+- **Problema:** `organizers` es una lista porque la coorganización existe y porque schema.org acepta `Event.organizer` como array, pero el schema actual permite repetir exactamente el mismo organizador dentro de esa lista, tanto en un evento como en un feed que lo hereda a sus eventos. Un duplicado exacto no añade información: duplica la misma persona/organización en schema.org, en Atom `<author>`, y en los campos desde los que un exportador iCal elige el `ORGANIZER` principal. P027/D024 cerró este mismo tipo de ruido para `tags` y `languages`; `organizers` quedó fuera, aunque también es una lista semántica donde repetir byte a byte el mismo objeto solo fuerza a cada consumidor a deduplicar antes de mostrar, exportar o atribuir.
+- **Evidencia:** La prosa normativa define `organizers` como lista por coorganización real, no para repetir entradas. `spec/v0.3/README.md:397-409` dice que `organizers` es "una lista, no un objeto", que "la co-organización es lo normal" y que "el orden es significativo: el primero es el principal, y es el único que sobrevive a iCal." La misma sección fija la semántica de atribución: `spec/v0.3/README.md:413-415` distingue quién organiza de `source`, ponentes y quien publica el feed, y `spec/v0.3/README.md:417` dice que la herencia del feed es por reemplazo, no por fusión. El mapeo schema.org está declarado en `spec/v0.3/README.md:454-458`: `organizers` va a `schema.org organizer` como array de `Organization`/`Person`, con `name`, `url` y `email`. La referencia generada dice lo mismo en ambos idiomas: `spec/v0.3/reference.en.md:29` define `organizers` como "Who runs the event" y "A list: co-organised events are the norm"; `spec/v0.3/reference.es.md:29` dice "Quién organiza el evento" y "Es una lista: la co-organización es lo normal." En feed, `spec/v0.3/reference.en.md:129` / `spec/v0.3/reference.es.md:129` describen `feed.organizers` como quienes organizan los eventos del feed, no quien publica el feed. Sin embargo, el schema compartido no exige unicidad: `spec/v0.3/event.schema.json:2510-2516` define `$defs.organizers` como array con `minItems: 1` e `items: $defs/organizer`, pero sin `uniqueItems`; `spec/v0.3/feed.schema.json:56-58` reutiliza exactamente ese `$defs.organizers` para el feed.
+
+  JSON recomendado-completo que hoy valida sin error ni aviso pese a repetir exactamente el mismo organizador:
+
+  ```json
+  {
+    "specVersion": "0.3.0",
+    "id": "https://example.org/events/duplicate-organizers",
+    "url": "https://example.org/events/duplicate-organizers",
+    "name": "Duplicate organizers",
+    "description": "Evento con el mismo organizador repetido exactamente.",
+    "image": [
+      "https://example.org/img/event.png"
+    ],
+    "organizers": [
+      {
+        "name": "Example Org",
+        "url": "https://example.org"
+      },
+      {
+        "name": "Example Org",
+        "url": "https://example.org"
+      }
+    ],
+    "startDate": "2026-09-01T10:00",
+    "endDate": "2026-09-01T11:00",
+    "timezone": "Europe/Madrid",
+    "attendanceMode": "online",
+    "location": {
+      "onlineUrl": "https://example.org/live"
+    },
+    "tags": [
+      "schema-org"
+    ],
+    "languages": [
+      "es"
+    ],
+    "textLanguage": "es",
+    "license": "CC0-1.0",
+    "updatedAt": "2026-08-04T10:00:00Z"
+  }
+  ```
+
+  También construí un feed completo cuyo `feed.organizers` tiene el mismo duplicado exacto y cuyo evento lo hereda. Resultado ejecutado contra el validador real:
+
+  ```text
+  $ npm run validate -- /private/tmp/ote-audit/event-duplicate-organizers.json /private/tmp/ote-audit/feed-duplicate-organizers.json
+
+  > @opentechevents/schema@0.3.0 validate
+  > node scripts/validate.mjs /private/tmp/ote-audit/event-duplicate-organizers.json /private/tmp/ote-audit/feed-duplicate-organizers.json
+
+    ok    /private/tmp/ote-audit/event-duplicate-organizers.json (event, v0.3)
+    ok    /private/tmp/ote-audit/feed-duplicate-organizers.json (feed, v0.3)
+
+  Valid.
+  ```
+
+  Como control de que esto no repite P027, confirmé que `uniqueItems` ya rechaza duplicados exactos en `tags`/`languages` con los ejemplos inválidos actuales:
+
+  ```text
+  $ npm run validate -- spec/v0.3/examples/invalid/event-tags-duplicate.json spec/v0.3/examples/invalid/event-languages-duplicate.json
+
+    FAIL  spec/v0.3/examples/invalid/event-tags-duplicate.json (event, v0.3)
+  data/tags must NOT have duplicate items (items ## 1 and 0 are identical)
+    FAIL  spec/v0.3/examples/invalid/event-languages-duplicate.json (event, v0.3)
+  data/languages must NOT have duplicate items (items ## 0 and 1 are identical)
+
+  2 failure(s)
+  ```
+
+  Observación sobre ejemplos existentes: recorrí `spec/v0.3/examples/**/*.json`, excluyendo `examples/invalid/` y `examples/catalog/`, buscando duplicados exactos en `organizers` de eventos sueltos, eventos embebidos y feeds; resultado: `No valid examples with exact duplicate organizers.`
+- **Propuesta:** Añadir `uniqueItems: true` a `$defs.organizers` en `event.schema.json`. Como `feed.schema.json` referencia ese mismo `$defs.organizers`, la regla cubriría a la vez `event.organizers`, `feed.organizers` y cualquier evento que declare su propia lista. Añadir ejemplos inválidos para un evento con `organizers` duplicado y un feed con `feed.organizers` duplicado. Documentarlo mediante la regeneración normal de `reference.en.md`/`reference.es.md` y, si se decide llevarlo a prosa, enlazarlo desde la sección de `organizers`.
+- **Impacto en compatibilidad:** Restrictivo solo para documentos que ya publican el mismo objeto organizador dos veces dentro de la misma lista. El corpus válido actual no contiene ninguno, comprobado por script. No cambia tipos, nombres ni herencia; la migración es eliminar la repetición exacta. El orden sigue siendo significativo para organizadores distintos: `uniqueItems` no reordena ni intenta elegir el principal.
+- **Alternativas consideradas:** (1) Dejar que consumidores dedupliquen: descartado porque cada exportador schema.org/Atom/iCal tendría que limpiar la misma repetición antes de atribuir o mostrar organizadores, y el documento OTE seguiría afirmando dos veces el mismo organizador. (2) Hacerlo solo como aviso recomendado: descartado por el mismo criterio que D024/P027 aplicó a `tags` y `languages`; un duplicado exacto no es "menos útil", es la misma entrada repetida. (3) Deduplicar por `name` o por `url` aunque los objetos no sean idénticos: descartado porque ahí sí aparecen decisiones reales de identidad (`type` por defecto, URL omitida, email público o no, dos comunidades con nombres parecidos). Esta propuesta se limita al duplicado exacto que no tiene trade-off. (4) Aplicarlo a otras listas (`image`, `offers`) en la misma propuesta: descartado para mantener una sola decisión; esas listas tienen semánticas adicionales de orden/preferencia o tarifas que merecen evidencia propia. (5) Tratarlo como ya cubierto por P027: descartado; P027/D024 solo menciona y cambia `tags` y `languages`, y `event.schema.json:2510-2516` demuestra que `organizers` sigue sin `uniqueItems`.
+
+## [2026-08-04] CLAUDE — REVISION #P030: Rechazar duplicados exactos en `organizers`
+
+- **Veredicto:** APROBAR
+- **Valoración:** Verificado de forma independiente. Confirmé `event.schema.json:2510-2516` (`$defs.organizers`: `array`, `minItems:1`, `items: $ref organizer`, sin `uniqueItems`) y que `feed.schema.json:56-58` reutiliza ese mismo `$defs.organizers` vía `$ref` remoto — así que la regla, una vez añadida, cubre `event.organizers` y `feed.organizers` a la vez, sin trabajo adicional. Reproduje el caso mínimo (`organizers` con el mismo objeto `{"name":"Example Org","url":"https://example.org"}` repetido) contra el validador real: `ok`/`Valid.`, sin ningún aviso. Repetí el escaneo del corpus (`spec/v0.3/examples/**/*.json`, excluyendo `invalid/` y `catalog/`) con mi propio script: cero duplicados exactos de `organizers` en eventos sueltos, embebidos o feeds. Confirmé también las citas de `README.md:397-409` (lista por co-organización, orden significativo), `README.md:413-417` (las tres confusiones a evitar, y herencia por reemplazo) y `README.md:454-458` (mapeo a schema.org `organizer` como array) — coinciden literalmente.
+- **Es el mismo cierre que P027/D024, aplicado a la lista que quedó fuera por alcance, no por desacuerdo.** La propia PROPUESTA de P027 nunca dijo que `organizers` estuviera resuelto; D024 solo mencionó `tags`/`languages`. `organizers` es la misma clase de lista semántica (repetir byte a byte la misma entrada no añade información, solo fuerza a cada consumidor a deduplicar antes de atribuir), así que extenderle el mismo criterio no reabre nada, cierra un hueco de alcance que ya existía.
+- **`uniqueItems` es la herramienta correcta y no introduce ambigüedad de identidad.** A diferencia de deduplicar por `name`/`url` (alternativa 3, correctamente descartada), la igualdad de objeto completo de JSON Schema no necesita decidir qué campo identifica a un organizador — eso sigue sin resolverse a propósito, igual que con `tags` de texto libre. El orden se mantiene intacto para organizadores distintos: `uniqueItems` no reordena, solo prohíbe la repetición exacta.
+- **Trade-offs:** Ninguno real, mismo balance que D024. Alternativa (4) (extenderlo a `image`/`offers` en la misma propuesta) queda bien descartada: esas listas tienen semántica de orden/tarifa propia que merece su propia evidencia, no debe colarse como generalización apresurada.
+- **Recomendación para v1.0:** Fijar antes de v1.0, con la misma prioridad que D024: cero coste de compatibilidad hoy (corpus limpio), y dejarlo abierto significaría que cerrarlo después de v1.0 exigiría una versión mayor para cualquier documento que hubiera llegado a depender del hueco.
+- **Pendiente de:** decisión humana (hhkaos)
+
+## [2026-08-04] HUMANO — DECISION #P030: Rechazar duplicados exactos en `organizers`
+
+- **Decisión:** APROBADA
+- **Quién:** hhkaos
+- **Alcance:** Implementar la propuesta de Codex tal cual: `uniqueItems: true` en `$defs.organizers` (cubre `event.organizers` y `feed.organizers` a la vez), más ejemplos inválidos representativos.
