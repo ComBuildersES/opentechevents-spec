@@ -87,6 +87,7 @@ Campos por tipo:
 | P029 | Prohibir credenciales embebidas en URLs HTTP(S) | Implementada (`a8badc2`, `b5f0859`) |
 | P030 | Rechazar duplicados exactos en `organizers` | Implementada (`10d75a7`, `db37880`) |
 | P031 | Rechazar duplicados de `languages` al comparar BCP 47 sin mayúsculas | Implementada (`bc63f0e`, `4535b4f`) |
+| P032 | Permitir feeds agregadores sin `feed.license` solo si cada evento declara la suya | Aprobada — pendiente de implementación |
 
 *(actualizar esta tabla a mano al cerrar cada ciclo; sirve de índice rápido, el detalle vive en las entradas de abajo)*
 
@@ -2627,3 +2628,123 @@ Confirmado con hhkaos que, con esta justificación corregida, sigue mereciendo l
   - `scripts/schema-model.mjs` — **bug del generador encontrado al implementar, corregido en el mismo commit**: `constraintsOf()` nunca llamaba a `rulesOfObject()` sobre un nodo de tipo array, solo sobre objetos; `distinctLanguageTags` es el primer custom keyword del proyecto que vive directamente en una propiedad array (no en un objeto raíz), y sin el fix habría desaparecido en silencio de `reference.*.md`, la misma clase de bug que P023/P025 corrigieron para otros casos. Arreglado llamando `rulesOfObject(target)` también sobre el nodo array antes de recorrer sus `items`.
   - Regenerados por script: `reference.en.md`, `reference.es.md`, `docs/data/reference.json`, `docs/data/examples.json`, `docs/schema/v0.3/event.schema.json`, `docs/llms*`.
 - **Notas:** Verificado con el caso exacto de la PROPUESTA/REVISION (`["es","ES"]` rechazado, con mensaje propio) y con los dos controles de alcance: `["pt","pt-BR"]` sigue validando (confirma que no se tocan equivalencias regionales), y el ejemplo inválido de P027 (`["es","es"]`, duplicado exacto) ahora falla por AMBAS reglas (`uniqueItems` y `distinctLanguageTags`), lo cual es correcto, no una regresión — ambas se aplican legítimamente. `npm run validate` limpio, repo completo. Ningún ejemplo real del corpus se vio afectado. Pendiente de que hhkaos revise el resultado.
+
+## [2026-08-04] CODEX — PROPUESTA #P032: Permitir feeds agregadores sin `feed.license` solo si cada evento declara la suya
+
+- **Área:** `spec/v0.3/feed.schema.json`, `spec/v0.3/event.schema.json`, `spec/v0.3/reference.en.md`, `spec/v0.3/reference.es.md`, `spec/v0.3/examples/`
+- **Problema:** `feed.license` es obligatorio de forma incondicional en el feed, incluso para un agregador que publica eventos de varias fuentes con licencias distintas. Eso fuerza a inventar una única "licencia del feed" que no describe correctamente el conjunto agregado, justo donde `README.md` ya dice que la compatibilidad entre licencias de distintos eventos es responsabilidad de quien agrega y que hay que mirar la licencia de cada evento. La herencia de `license` sigue siendo útil para feeds de una sola comunidad, pero hoy no tiene la misma salida que `organizers` y `textLanguage`: un agregador puede omitir `feed.organizers` y `feed.textLanguage` para que cada evento declare su valor, pero no puede omitir `feed.license` aunque todos sus eventos declaren la suya. El cambio debe mantener una garantía más estricta que atribución o idioma: ningún evento OTE válido dentro de un feed debe acabar con licencia desconocida, porque redistribuir datos sin licencia conocida es un riesgo legal real, no solo una señal editorial pobre.
+- **Evidencia:** `feed.license` está hoy en el `required` raíz del feed: `spec/v0.3/feed.schema.json:7-13` exige `specVersion`, `title`, `license`, `updatedAt` y `events`. El propio campo se define en `spec/v0.3/feed.schema.json:68-75` como `$ref` a `$defs.license`. Los eventos embebidos, en cambio, no usan la capa de documento suelto que exige `license`: `spec/v0.3/feed.schema.json:105-110` declara `events.items` como `$ref` a `event.schema.json#/$defs/event`, mientras que `spec/v0.3/event.schema.json:6-17` muestra que `specVersion` y `license` solo son obligatorios en el wrapper raíz de un evento standalone; dentro de `$defs.event`, `license` es una propiedad heredable con `x-inheritsFrom: "feed.license"` (`spec/v0.3/event.schema.json:999-1003`). La prosa normativa coincide con esa herencia: `spec/v0.3/README.md:785-787` dice que el feed exige `license` y que un evento dentro de un feed hereda la del feed si no declara la suya; `spec/v0.3/README.md:797` resume `specVersion`, `license` como "Valor por defecto. El evento que lo declara gana"; `spec/v0.3/README.md:802` explica que el feed referencia `$defs/event`, no el wrapper standalone. Para agregadores, la spec ya marca el patrón de omitir defaults globales cuando serían falsos: `spec/v0.3/README.md:789-791` dice que un feed de agregador debe omitir `organizers`, y que debe omitir `feed.textLanguage` si sus eventos no comparten idioma. Sobre licencias, `spec/v0.3/README.md:387` dice literalmente que "Quien construya un agregador y quiera combinar o redistribuir el feed entero como una sola cosa tiene que mirar la licencia de **cada evento**, no solo la del feed"; `spec/v0.3/DECISIONS.md:177` deja fuera de alcance comprobar compatibilidad legal cruzada, pero por la misma razón afirma que cada evento es una obra licenciada independientemente y que `license` puede sobreescribirse por evento.
+
+  Caso agregador mínimo que debería poder publicarse sin inventar licencia global, porque cada evento declara la suya:
+
+  ```json
+  {
+    "specVersion": "0.3.0",
+    "title": "Mixed-license aggregator",
+    "updatedAt": "2026-08-04T10:00:00Z",
+    "events": [
+      {
+        "id": "https://example.org/events/1",
+        "name": "Aggregator event one",
+        "startDate": "2026-09-01T10:00",
+        "timezone": "Europe/Madrid",
+        "updatedAt": "2026-08-01T10:00:00Z",
+        "license": "CC-BY-4.0"
+      },
+      {
+        "id": "https://example.org/events/2",
+        "name": "Aggregator event two",
+        "startDate": "2026-09-01T10:00",
+        "timezone": "Europe/Madrid",
+        "updatedAt": "2026-08-01T10:00:00Z",
+        "license": "CC0-1.0"
+      }
+    ]
+  }
+  ```
+
+  Resultado actual contra el validador real:
+
+  ```text
+  $ npm run validate -- /private/tmp/ote-audit/feed-missing-feed-license-events-licensed.json
+
+  > @opentechevents/schema@0.3.0 validate
+  > node scripts/validate.mjs /private/tmp/ote-audit/feed-missing-feed-license-events-licensed.json
+
+    FAIL  /private/tmp/ote-audit/feed-missing-feed-license-events-licensed.json (feed, v0.3)
+  data must have required property 'license'
+
+  1 failure(s)
+  ```
+
+  Control de herencia actual: un feed con `license` sí acepta un evento embebido sin `license` propia, confirmando que `$defs/event` no la exige localmente:
+
+  ```text
+  $ npm run validate -- /private/tmp/ote-audit/feed-license-event-inherits.json
+
+  > @opentechevents/schema@0.3.0 validate
+  > node scripts/validate.mjs /private/tmp/ote-audit/feed-license-event-inherits.json
+
+    ok    /private/tmp/ote-audit/feed-license-event-inherits.json (feed, v0.3)
+    warn  /private/tmp/ote-audit/feed-license-event-inherits.json — feed missing recommended: url, description
+    warn  /private/tmp/ote-audit/feed-license-event-inherits.json — events[0] (https://example.org/events/1) missing recommended: url, description, image, organizers, attendanceMode, location, tags, languages, endDate
+
+  Valid.
+  2 recommendation(s) — valid either way. See the field reference.
+  ```
+
+  Probé una copia en memoria del schema actual quitando `license` del `required` raíz de `feed.schema.json` y añadiendo este `if`/`then` declarativo estricto:
+
+  ```json
+  {
+    "if": {
+      "not": {
+        "required": ["license"]
+      }
+    },
+    "then": {
+      "properties": {
+        "events": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["license"]
+          }
+        }
+      }
+    }
+  }
+  ```
+
+  Resultado del prototipo con Ajv y los mismos `annotationKeywords`, `customFormats` y `customKeywords` del repo:
+
+  ```text
+  ok /private/tmp/ote-audit/feed-missing-feed-license-events-licensed.json
+  FAIL /private/tmp/ote-audit/feed-missing-all-licenses.json
+  data/events/0 must have required property 'license'
+  data must match "then" schema
+  ok /private/tmp/ote-audit/feed-license-event-inherits.json
+  ```
+
+  Esto cubre el hueco sin abrir otro: si falta `feed.license`, cada `events[]` debe tener `license`; si existe `feed.license`, la herencia vigente sigue funcionando.
+- **Propuesta:** Quitar `license` del `required` raíz de `feed.schema.json` y añadir una regla declarativa en el propio `feed.schema.json`: si el objeto feed no tiene `license`, entonces `events.items` debe exigir `license` en cada evento embebido. Recomiendo JSON Schema puro con `if: { not: { required: ["license"] } }` y `then.properties.events.items.required: ["license"]`, incluyendo `type: "array"` y `type: "object"` para compilar bajo el `strict: true` actual de Ajv. No hace falta keyword custom: el padre solo necesita condicionar el requisito de una propiedad hija a la ausencia de una propiedad propia, y JSON Schema 2020-12 lo expresa de forma legible. Actualizar la referencia generada para que `feed.license` deje de aparecer como obligatorio incondicional y documentar la nueva garantía: `feed.license` es el default; si no hay default, cada evento debe declarar su licencia. Añadir al menos un ejemplo válido de agregador sin `feed.license` y con licencias por evento, y un inválido sin `feed.license` con un evento sin `license`.
+- **Impacto en compatibilidad:** Es una relajación neta para feeds agregadores que hoy son rechazados aunque cada evento ya tenga licencia conocida. Ningún documento actualmente válido pasa a ser inválido: todo feed válido hoy tiene `feed.license`, así que el nuevo `if`/`then` no se activa y la herencia actual sigue igual. La condición nueva solo se aplica en documentos que hoy no pueden ser válidos porque les falta `feed.license`; dentro de ese nuevo conjunto permitido, mantiene intacta la garantía deliberadamente estricta de que todo evento publicado por OTE resuelve a una licencia conocida.
+- **Alternativas consideradas:** (1) Mantener `feed.license` obligatorio siempre: conserva la garantía legal, pero obliga a los agregadores de licencias mixtas a inventar o sobregeneralizar una licencia global, y contradice la propia nota de `README.md:387` de mirar la licencia de cada evento. (2) Hacer `feed.license` opcional sin regla adicional: descartado por el riesgo legal explícito; permitiría feeds donde algún evento no hereda ni declara licencia. (3) Keyword custom de feed: descartado porque el `if`/`then` anterior ya expresa exactamente la regla, compila con Ajv estricto si se incluyen los `type`, y mantiene la lógica visible en el schema. (4) Crear un campo nuevo tipo `feed.kind: "aggregator"` y condicionar ahí: descartado como wire-format innecesario para v1.0; D016 ya resolvió el caso agregador con ausencia disciplinada de defaults falsos, no con un nuevo marcador global. (5) Exigir que todos los eventos declaren `license` siempre, incluso con `feed.license`: descartado porque rompe el caso comunitario que la herencia existe para simplificar y vuelve a meter ruido en feeds homogéneos.
+
+## [2026-08-04] CLAUDE — REVISION #P032: Permitir feeds agregadores sin `feed.license` solo si cada evento declara la suya
+
+- **Veredicto:** APROBAR
+- **Valoración:** Diseño acordado de antemano entre hhkaos y yo; Codex lo formalizó con precisión y sin desviarse. Verifiqué cada cita yo mismo: `feed.schema.json:7-13` (`license` en el `required` raíz), `event.schema.json:6-17` (solo el wrapper standalone exige `license`; `$defs.event` no) y `:999-1003` (`x-inheritsFrom: "feed.license"`), `README.md:785-787/797/802` (herencia documentada), `:789-791` (patrón ya existente de que un agregador omite `organizers`/`textLanguage`), `:387` (la nota explícita de que la compatibilidad de licencias entre eventos de un feed es responsabilidad de quien agrega) y `DECISIONS.md:177` (esa misma decisión, ya tomada, de no comprobar compatibilidad cruzada). Reproduje el caso agregador (`feed.license` ausente, ambos eventos con la suya): falla hoy, `data must have required property 'license'`, exactamente como reporta Codex.
+- **No me fié del prototipo citado en la propuesta — lo reconstruí yo mismo, con Ajv real y los mismos `customKeywords`/`customFormats`/`annotationKeywords` del paquete.** Con `license` quitado del `required` raíz y el `if`/`then` exacto que propone Codex añadido a `feed.schema.json`, probé tres casos: agregador sin `feed.license` con ambos eventos licenciados → **válido**; el mismo agregador con UN evento sin licencia → **inválido**, capturado exactamente por el `then` anidado; feed comunitario con `feed.license` y un evento que la hereda → **sigue válido**, confirmando que la herencia actual no se toca. Además corrí el `if`/`then` contra los tres feeds reales del corpus (`feed.json`, `feed-community.json`, `feed-multipart.json`): los tres siguen validando sin cambios, confirmando la compatibilidad aditiva que alega la propuesta.
+- **Respeta la garantía que motivó todo esto, sin rodeos.** No relaja `feed.license` "a secas" — la condición nueva hace que sea estructuralmente imposible que un evento válido, dentro de cualquier feed válido, termine sin licencia conocida. Es justo el diseño que se acordó: la garantía de licencia es más estricta que la de atribución/idioma, y el `if`/`then` la mantiene intacta en el único caso nuevo que abre.
+- **La elección de JSON Schema declarativo puro sobre un keyword custom es la correcta**, y por una razón mejor que "es más simple": a diferencia de P019/P031 (que necesitan comparar un campo contra la unión o el plegado de otro), aquí la condición es "si el objeto raíz no tiene X, entonces cada elemento de un array anidado necesita Y" — expresable enteramente con `if`/`not`/`required` anidado, sin ninguna lógica que JSON Schema no sepa ya decir.
+- **Una cosa que la propuesta menciona pero no aterriza, y que sí hay que cerrar al implementar:** `README.md:785` dice literalmente "Obligatorio: `specVersion`, `title`, `license`, `updatedAt`, `events`" — esa frase deja de ser cierta tal cual y hay que reescribirla explícitamente (no solo regenerar la referencia automática), o la prosa normativa quedará contradiciendo al propio schema que describe. Lo marco como parte de la implementación, no como objeción al veredicto.
+- **Trade-offs:** Ninguno real. La pérdida (una comprobación de coherencia cruzada estricta, "si falta X entonces cada Y" en un array) es exactamente del mismo tipo que P028 ya introdujo con éxito, y el corpus real no se ve afectado.
+- **Recomendación para v1.0:** Fijar antes de v1.0. Relaja una restricción existente sin abrir el riesgo que la motivaba a mantenerla — es precisamente el tipo de cambio que, si se deja para después, no se podría introducir sin una discusión mucho más difícil sobre si aflojar `feed.license` en una versión ya congelada compromete la garantía legal que hoy ofrece incondicionalmente.
+- **Pendiente de:** decisión humana (hhkaos)
+
+## [2026-08-04] HUMANO — DECISION #P032: Permitir feeds agregadores sin `feed.license` solo si cada evento declara la suya
+
+- **Decisión:** APROBADA
+- **Quién:** hhkaos
+- **Alcance:** Implementar la propuesta de Codex tal cual (JSON Schema declarativo, sin keyword custom), incluyendo la corrección explícita de `README.md:785` que señaló Claude en la REVISION.
