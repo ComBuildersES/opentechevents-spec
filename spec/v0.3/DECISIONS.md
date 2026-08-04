@@ -354,7 +354,7 @@ This is deliberately a **warning, not a validity error** — added to `event.rec
 
 **Compatibility impact.** None at the validity level — no document that validated before stops validating now. At the recommended level, restrictive only for documents that already carry an empty or whitespace-only `description`: confirmed via `npm run validate` that no example in the repo's own corpus is affected.
 
-**Revisit if:** the deferred 19-field whitespace audit or the `languages`-vs-available-text warning move forward — at that point, revisit whether `description`'s fix should be generalized into whatever mechanism those adopt, rather than staying a bespoke pair of `properties` blocks.
+**Revisit if:** ~~the deferred 19-field whitespace audit or the `languages`-vs-available-text warning move forward~~ — both landed (P018/D018 and P019/D019 respectively); neither generalized `description`'s fix, so this stays a bespoke pair of `properties` blocks by outcome, not by oversight. Revisit only if some future decision gives good reason to unify them.
 
 ---
 
