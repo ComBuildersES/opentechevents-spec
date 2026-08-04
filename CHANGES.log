@@ -84,6 +84,7 @@ Campos por tipo:
 | P026 | Impedir claves de `translations` equivalentes tras normalizar BCP 47 | Implementada (`f8fe495`) |
 | P027 | Rechazar duplicados exactos en `tags` y `languages` | Implementada (`2566a23`) |
 | P028 | Avisar si `attendanceMode` no tiene el detalle de `location` correspondiente | Implementada (`eaadf96`, `c2da8c3`) |
+| P029 | Prohibir credenciales embebidas en URLs HTTP(S) | Aprobada — pendiente de implementación |
 
 *(actualizar esta tabla a mano al cerrar cada ciclo; sirve de índice rápido, el detalle vive en las entradas de abajo)*
 
@@ -2313,3 +2314,90 @@ Confirmado con hhkaos que, con esta justificación corregida, sigue mereciendo l
   - `spec/v0.3/README.md` — nota junto a "`location` y `attendanceMode` no son redundantes", con enlace a D025.
   - Regenerados por script: `reference.en.md`, `reference.es.md`, `docs/data/reference.json`, `docs/data/examples.json`, `docs/schema/v0.3/event.recommended.schema.json`, `docs/llms*`.
 - **Notas:** Verificado con los cuatro casos exactos de la PROPUESTA/REVISION (`online`+solo `venue`, `in-person`+solo `onlineUrl`, `hybrid`+solo `venue` → los tres avisan con el campo correcto; `hybrid`+ambos → sin aviso) y con `npm run validate` (repo completo, limpio). `location.venue` y `location.onlineUrl` pasan de `optional` a `_recommended_` en la referencia generada, mismo patrón ya usado por `endDate`/`cfp.closesAt` (recomendaciones condicionales sin anotación especial en la tabla, solo en la prosa de la propia decisión). Ningún ejemplo real del corpus se vio afectado. Pendiente de que hhkaos revise el resultado.
+
+## [2026-08-04] CODEX — PROPUESTA #P029: Prohibir credenciales embebidas en URLs HTTP(S)
+
+- **Área:** `spec/v0.3/event.schema.json`, `spec/v0.3/feed.schema.json`, `spec/v0.3/reference.en.md`, `spec/v0.3/reference.es.md`, `spec/v0.3/examples/invalid/`
+- **Problema:** Los campos URL de OTE son enlaces públicos para identificar, descubrir, asistir, registrar, verificar o atribuir eventos. El schema actual solo comprueba `format: "uri"` y `pattern: "^https?://"` (o `^https://` para imágenes), así que acepta URLs con userinfo (`https://user:pass@example.org/...`). En URI esa parte son credenciales embebidas, no parte del host: `new URL("https://user:pass@example.org/events/x")` separa `username="user"`, `password="pass"`, `host=example.org`. Publicarlas en un feed abierto puede filtrar secretos, y además deja a consumidores/exportadores schema.org/RSS/iCal ante comportamientos divergentes: algunos clientes eliminan userinfo, otros lo conservan, otros lo rechazan al mostrar enlaces. Si se deja pasar hasta v1.0, cerrarlo luego sería un breaking change para documentos que hoy podrían haber publicado credenciales en cualquier URL.
+- **Evidencia:** No encontré una decisión que apruebe userinfo en URLs; al contrario, `CHANGES.log:1920` lo dejó identificado como política pendiente: "URLs con credenciales embebidas requieren una política de seguridad/privacidad todavía no escrita." Los URL públicos se describen como páginas/enlaces, no como canales autenticados: `spec/v0.3/event.schema.json:125-129` define `event.url` como "Canonical URL where the event is described today" y lo valida con `format: "uri"` + `pattern: "^https?://"`; `spec/v0.3/event.schema.json:2656-2660` define `location.onlineUrl` como "URL to attend online" con la misma forma; `spec/v0.3/feed.schema.json:38-42` define `feed.url` como "Canonical URL of the community, directory or organisation publishing the feed" con la misma forma. La referencia mantiene esas mismas semánticas públicas: `spec/v0.3/reference.en.md:20` describe `id` como una URL HTTP(S) bajo un dominio controlado por quien publica; `spec/v0.3/reference.en.md:46` define `location.onlineUrl` como "URL to attend online"; `spec/v0.3/reference.es.md:46` dice "URL para asistir en remoto"; `spec/v0.3/reference.en.md:127` y `spec/v0.3/reference.es.md:127` definen `feed.url` como URL canónica de quien publica el feed. El patrón débil aparece en todos los URL HTTP(S) del schema: ejecuté `rg -n '"pattern": "\\^https\\??://|"pattern": "\\^https://|\"pattern\": \"\\^https\\?://' spec/v0.3/event.schema.json spec/v0.3/feed.schema.json` y aparecen 16 usos (`feed.url`, `feed.licenseUrl`, `event.id`, `event.url`, `license` como URL, `organizers[].url`, `partOf.id`, `partOf.url`, `location.onlineUrl`, `eligibility.url`, `image[]`, `image[].url`, `offers[].url`, `offers[].waitlistUrl`, `cfp.url`, `source.url`), ninguno con una regla que prohíba userinfo antes del host.
+
+  JSON recomendado-completo que hoy valida sin error ni aviso pese a publicar credenciales en `event.url`:
+
+  ```json
+  {
+    "specVersion": "0.3.0",
+    "id": "https://example.org/events/url-userinfo",
+    "url": "https://user:pass@example.org/events/url-userinfo",
+    "name": "URL userinfo leak",
+    "description": "Evento con URL pública que contiene credenciales embebidas.",
+    "image": [
+      "https://example.org/img/event.png"
+    ],
+    "organizers": [
+      {
+        "name": "Example Org"
+      }
+    ],
+    "startDate": "2026-09-01T10:00",
+    "endDate": "2026-09-01T11:00",
+    "timezone": "Europe/Madrid",
+    "attendanceMode": "online",
+    "location": {
+      "onlineUrl": "https://example.org/live"
+    },
+    "tags": [
+      "security"
+    ],
+    "languages": [
+      "es"
+    ],
+    "textLanguage": "es",
+    "license": "CC0-1.0",
+    "updatedAt": "2026-08-04T10:00:00Z"
+  }
+  ```
+
+  También construí un feed completo con `feed.url: "https://user:pass@example.org/community"` y el mismo evento embebido. Resultado ejecutado contra el validador real:
+
+  ```text
+  $ npm run validate -- /private/tmp/ote-audit/event-url-userinfo.json /private/tmp/ote-audit/feed-url-userinfo.json
+
+  > @opentechevents/schema@0.3.0 validate
+  > node scripts/validate.mjs /private/tmp/ote-audit/event-url-userinfo.json /private/tmp/ote-audit/feed-url-userinfo.json
+
+    ok    /private/tmp/ote-audit/event-url-userinfo.json (event, v0.3)
+    ok    /private/tmp/ote-audit/feed-url-userinfo.json (feed, v0.3)
+
+  Valid.
+  ```
+
+  Confirmé además que el parser estándar distingue el userinfo del host, que es justo la parte que no queremos publicar como dato:
+
+  ```text
+  $ node --input-type=module
+  https://user:pass@example.org/events/x -> username="user" password="pass" host=example.org
+  https://user@example.org/events/x -> username="user" password="" host=example.org
+  https://example.org/events/x -> username="" password="" host=example.org
+  ```
+
+  Observación sobre ejemplos existentes: recorrí `spec/v0.3/examples/**/*.json`, excluyendo `examples/catalog/`, buscando `https?://...@` antes del path; resultado: `No examples with HTTP(S) userinfo URLs.`
+- **Propuesta:** Añadir una definición reutilizable de URL HTTP(S) sin userinfo y usarla en todos los campos URL del evento y del feed. La regla concreta debería rechazar cualquier `@` en la autoridad, antes de la primera `/`, `?` o `#` tras el esquema, por ejemplo con un `not: { "pattern": "^https?://[^/?#]*@" }` combinado con el patrón de esquema actual (`^https?://` o `^https://` en imágenes). Mantener `format: "uri"` y las restricciones de esquema existentes; no cambiar tipos ni exigir que la URL resuelva. Añadir ejemplos inválidos representativos para `event.url`, `location.onlineUrl` y `feed.url`; si se factoriza en `$defs`, un solo cambio cubre también `id`, `partOf.id`, `organizers[].url`, `offers[].url`, `cfp.url`, `source.url`, `licenseUrl` y las URLs de imágenes.
+- **Impacto en compatibilidad:** Restrictivo solo para documentos que ya publican credenciales embebidas en una URL HTTP(S). El corpus actual no contiene ninguno, comprobado por script. La migración correcta no pierde información útil de evento: quitar `user:pass@` y publicar una URL pública, o mover cualquier mecanismo privado de acceso fuera del feed OTE. No afecta a `mailto:` porque `organizers[].email` se modela como email pelado, no como URL, y los `id`/`partOf.id` ya están restringidos a HTTP(S) por D020.
+- **Alternativas consideradas:** (1) Dejarlo a consumidores/exportadores: descartado porque cada destino trata userinfo de forma distinta y el feed ya habría filtrado el secreto antes de que un consumidor pueda sanearlo. (2) Hacerlo solo como warning recomendado: descartado porque no es un problema de completitud; es un valor peligroso en un campo público, igual que D020 trató la forma de `id` como validez base, no como calidad. (3) Prohibir cualquier `@` en toda la URL: descartado porque `@` puede aparecer legítimamente en path/query; lo que debe prohibirse es userinfo en la autoridad. (4) Prohibir solo contraseñas (`user:pass@`) y permitir usuario sin contraseña (`user@`): descartado porque ambos activan la sintaxis de userinfo y ambos pueden filtrar tokens o nombres internos. (5) Prohibir `http://` y exigir `https://` en todas partes: descartado porque es una política distinta; el schema ya diferencia imágenes (`https://`) del resto (`http(s)://`) y esta propuesta no reabre esa decisión.
+
+## [2026-08-04] CLAUDE — REVISION #P029: Prohibir credenciales embebidas en URLs HTTP(S)
+
+- **Veredicto:** APROBAR
+- **Valoración:** Verificado de forma independiente, no solo aceptado. Reproduje `event.url: "https://user:pass@example.org/..."` contra el validador real: pasa `ok`/`Valid.` sin ningún aviso relacionado con la credencial. Confirmé la cita `CHANGES.log:1920` letra por letra ("URLs con credenciales embebidas requieren una política de seguridad/privacidad todavía no escrita") — es exactamente donde P025 dejó este hueco aparcado a propósito, y coincide con la lista de "5 huecos sin proponer" que quedó en mi propia memoria de proceso. Repetí el `rg` de los 16 usos del patrón `^https?://`/`^https://` en `event.schema.json`/`feed.schema.json` — mismo recuento. Repetí el escaneo del corpus (`spec/v0.3/examples/**/*.json`, excluyendo `catalog/`) buscando userinfo: cero coincidencias, igual que reporta Codex.
+- **Contrasté contra lo ya decidido y no encontré contradicción.** A diferencia de P020 (id/partOf.id) o el caso `attendanceMode`/`location`, aquí no hay ninguna prosa normativa previa que ya justifique aceptar userinfo en una URL pública — no es una decisión existente que la propuesta tenga que argumentar por qué ya no aguanta, es un hueco nunca cerrado. `organizers[].email` queda fuera correctamente: se modela como email pelado (`format: "email"`, sin prefijo `mailto:`), no como URL, así que el patrón nuevo no lo toca.
+- **Encaja bien en el nivel de validez base, no en el recomendado, con el mismo criterio usado en toda la auditoría.** El estándar aplicado sistemáticamente en esta auditoría no es "¿esto puede crashear a alguien?" sino "¿el dato es coherente con lo que el campo dice representar?". Un campo `url` se documenta explícitamente como enlace público de descubrimiento (`event.schema.json:125-129`, `feed.schema.json:38-42`, `location.onlineUrl` como "URL to attend online") — una URL que además transporta credenciales no es un enlace público incompleto, es un valor que contradice la naturaleza declarada del campo, igual que D020 trató la forma de `id` (URI de esquema arbitrario vs. HTTP(S) real) como cuestión de validez, no de calidad.
+- **Verifiqué también la solidez técnica del patrón propuesto**, no solo su intención: `not: {"pattern": "^https?://[^/?#]*@"}` combinado con el patrón de esquema existente rechaza correctamente userinfo en la autoridad (`user:pass@example.org`, `user@example.org`) sin falsos positivos sobre `@` legítimo en path/query (`.../callback?email=a@b.com`) ni sobre autoridades con puerto (`example.org:8080`) — comprobé los cuatro casos mentalmente contra la semántica de `[^/?#]*` (se detiene en el primer `/`, `?` o `#`, así que un `@` después de la autoridad nunca activa el `not`).
+- **Trade-offs:** Ninguno que no esté ya bien argumentado en la propia PROPUESTA. Alternativa (2) (dejarlo como warning) queda bien descartada por el mismo criterio de coherencia-de-dato que ya se aplicó en el resto de la auditoría a valores peligrosos o incoherentes, no solo incompletos. Alternativa (4) (permitir usuario sin contraseña) queda bien descartada: un `user@` sin contraseña sigue siendo sintaxis de userinfo y puede filtrar un identificador interno igual de sensible.
+- **Recomendación para v1.0:** Fijar antes de v1.0. Es exactamente el tipo de gap que el criterio rector de `CLAUDE.md` prioriza: cerrarlo ahora es un simple endurecimiento de patrón sin coste de compatibilidad real (cero ejemplos afectados); cerrarlo después de v1.0 exigiría una versión mayor nueva, porque cualquier documento que hoy publicara credenciales dejaría de validar contra `spec/v0.3/` congelada.
+- **Pendiente de:** decisión humana (hhkaos)
+
+## [2026-08-04] HUMANO — DECISION #P029: Prohibir credenciales embebidas en URLs HTTP(S)
+
+- **Decisión:** APROBADA
+- **Quién:** hhkaos
+- **Alcance:** Implementar la propuesta de Codex tal cual: factorizar una definición reutilizable de URL HTTP(S) sin userinfo y aplicarla a los 16 campos URL identificados en `event.schema.json`/`feed.schema.json`, más ejemplos inválidos representativos.
