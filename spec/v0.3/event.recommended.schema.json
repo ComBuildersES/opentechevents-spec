@@ -92,6 +92,85 @@
           "pattern": "\\S"
         }
       }
+    },
+    {
+      "description": "attendanceMode and location are deliberately independent fields — README.md says location is observable fact, attendanceMode is organiser intent, and if they disagree attendanceMode wins — so this is not a validity rule and never overrides that precedence. It only flags that the detail a consumer needs to act on the declared mode is missing: online without location.onlineUrl cannot produce a schema.org VirtualLocation.url, in-person without location.venue cannot produce a Place.name, and hybrid needs both halves of a MixedEventAttendanceMode. Silent when location itself is absent, since the required-fields warning above already covers that case. CHANGES.log #P028.",
+      "if": {
+        "type": "object",
+        "required": [
+          "attendanceMode",
+          "location"
+        ],
+        "properties": {
+          "attendanceMode": {
+            "const": "online"
+          }
+        }
+      },
+      "then": {
+        "type": "object",
+        "properties": {
+          "location": {
+            "type": "object",
+            "required": [
+              "onlineUrl"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "description": "See the 'online' rule above for why this is a warning, not a validity check. in-person without location.venue cannot produce a schema.org Place.name. CHANGES.log #P028.",
+      "if": {
+        "type": "object",
+        "required": [
+          "attendanceMode",
+          "location"
+        ],
+        "properties": {
+          "attendanceMode": {
+            "const": "in-person"
+          }
+        }
+      },
+      "then": {
+        "type": "object",
+        "properties": {
+          "location": {
+            "type": "object",
+            "required": [
+              "venue"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "description": "See the 'online' rule above for why this is a warning, not a validity check. hybrid needs both halves of a schema.org MixedEventAttendanceMode: location.venue for the in-person half and location.onlineUrl for the online half. CHANGES.log #P028.",
+      "if": {
+        "type": "object",
+        "required": [
+          "attendanceMode",
+          "location"
+        ],
+        "properties": {
+          "attendanceMode": {
+            "const": "hybrid"
+          }
+        }
+      },
+      "then": {
+        "type": "object",
+        "properties": {
+          "location": {
+            "type": "object",
+            "required": [
+              "venue",
+              "onlineUrl"
+            ]
+          }
+        }
+      }
     }
   ]
 }

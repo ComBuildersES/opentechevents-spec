@@ -83,7 +83,7 @@ Campos por tipo:
 | P025 | Recorrer `additionalProperties` en el generador de referencia | Implementada (`85ee7aa`) |
 | P026 | Impedir claves de `translations` equivalentes tras normalizar BCP 47 | Implementada (`f8fe495`) |
 | P027 | Rechazar duplicados exactos en `tags` y `languages` | Implementada (`2566a23`) |
-| P028 | Avisar si `attendanceMode` no tiene el detalle de `location` correspondiente | Aprobada — pendiente de implementación |
+| P028 | Avisar si `attendanceMode` no tiene el detalle de `location` correspondiente | Implementada — pendiente de revisión final |
 
 *(actualizar esta tabla a mano al cerrar cada ciclo; sirve de índice rápido, el detalle vive en las entradas de abajo)*
 
@@ -2303,3 +2303,13 @@ Confirmado con hhkaos que, con esta justificación corregida, sigue mereciendo l
 - **Decisión:** APROBADA
 - **Quién:** hhkaos
 - **Alcance:** Implementar la propuesta de Codex tal cual, con la implementación declarativa (sin keyword custom) recomendada por Claude en la REVISION.
+
+## [2026-08-04] CLAUDE — IMPLEMENTACION #P028
+
+- **Commit:** `pendiente — cambios en el árbol de trabajo`
+- **Ficheros cambiados:**
+  - `spec/v0.3/event.recommended.schema.json` — tres reglas `if`/`then` nuevas: `attendanceMode: "online"` + `location` presente → recomienda `location.onlineUrl`; `"in-person"` → recomienda `location.venue`; `"hybrid"` → recomienda ambos. JSON Schema declarativo puro, sin keyword custom, tal y como proponía Codex y avalaba la REVISION.
+  - `spec/v0.3/DECISIONS.md` — nueva entrada D025.
+  - `spec/v0.3/README.md` — nota junto a "`location` y `attendanceMode` no son redundantes", con enlace a D025.
+  - Regenerados por script: `reference.en.md`, `reference.es.md`, `docs/data/reference.json`, `docs/data/examples.json`, `docs/schema/v0.3/event.recommended.schema.json`, `docs/llms*`.
+- **Notas:** Verificado con los cuatro casos exactos de la PROPUESTA/REVISION (`online`+solo `venue`, `in-person`+solo `onlineUrl`, `hybrid`+solo `venue` → los tres avisan con el campo correcto; `hybrid`+ambos → sin aviso) y con `npm run validate` (repo completo, limpio). `location.venue` y `location.onlineUrl` pasan de `optional` a `_recommended_` en la referencia generada, mismo patrón ya usado por `endDate`/`cfp.closesAt` (recomendaciones condicionales sin anotación especial en la tabla, solo en la prosa de la propia decisión). Ningún ejemplo real del corpus se vio afectado. Pendiente de que hhkaos revise el resultado.

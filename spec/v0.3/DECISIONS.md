@@ -502,6 +502,24 @@ This is deliberately a **warning, not a validity error** — added to `event.rec
 
 ---
 
+### D025 — Recommended-tier warning when `attendanceMode` lacks its matching `location` detail
+
+**Status:** Decided 2026-08-04. See `CHANGES.log` #P028 — the deferred idea raised by hhkaos while approving D024, given its own proposal and evidence as agreed there.
+
+**Context.** `location` and `attendanceMode` are deliberately independent fields (see the indexed decision below): `location` states observable fact, `attendanceMode` states organiser intent, and if they disagree `attendanceMode` wins. But the recommended profile only checked that both fields existed, not that `location` carried the one detail the declared mode actually needs: `online` without `location.onlineUrl` cannot produce a schema.org `VirtualLocation.url`; `in-person` without `location.venue` cannot produce a `Place.name`; `hybrid` without both loses one half of a `MixedEventAttendanceMode`. Confirmed against the real validator: all three incomplete combinations passed the recommended-complete profile with zero warnings; a `hybrid` event with both fields present correctly produced none. The repo's own corpus has no example with this gap.
+
+**Decision.** Added three conditional rules to `event.recommended.schema.json` only (`if attendanceMode == X then location requires Y`), expressed as plain declarative JSON Schema (`if`/`then`, no custom keyword needed — unlike D019's `languagesCoveredByText`, this condition doesn't need to compare a field against the union of two others). Silent when `location` is absent entirely, since the existing required-fields warning already covers that case; this only fires when `location` exists but is missing the detail its own declared `attendanceMode` needs.
+
+**Why this doesn't reopen the precedence rule.** The fix stays strictly inside the same "valid but incomplete" register the rest of the recommended profile already uses — it does not infer `attendanceMode` from `location` (the reason `attendanceMode` exists as its own field in the first place, see the indexed decision below), and does not touch base validity or the precedence rule for when the two fields disagree.
+
+**Alternatives considered.** (1) Base-schema error: rejected, contradicts `README.md`'s explicit precedence rule and the `moved-online` status case, where the online URL may legitimately not be public yet ("debería, no debe"). (2) Infer `attendanceMode` from `location`: rejected for the same reason the two fields are independent to begin with. (3) A custom keyword: rejected, this condition is expressible in plain JSON Schema and the validator already turns nested `required` failures into readable warning paths. (4) Also warn when `location` is entirely absent: rejected for this first version, to avoid duplicating the existing generic `location` warning.
+
+**Compatibility impact.** Adds no validity restriction — the change lives entirely in the recommended (warnings-only) profile. The repo's own corpus has no affected example.
+
+**Revisit if:** a real need emerges to warn on the `location`-entirely-absent case too, or to treat this as a base-schema error — the latter would require first revisiting the `attendanceMode`/`location` precedence rule itself, not just this decision.
+
+---
+
 ## Indexed decisions
 
 Already argued in full in `README.md`; summarized here for discoverability.

@@ -625,7 +625,7 @@
           "path": "location.venue",
           "type": "string",
           "required": false,
-          "recommended": false,
+          "recommended": true,
           "examples": [
             "El Cable, Almería",
             "Campus Madrid, Calle de Moreno Nieto 2, Madrid"
@@ -738,7 +738,7 @@
           "path": "location.onlineUrl",
           "type": "string (uri)",
           "required": false,
-          "recommended": false,
+          "recommended": true,
           "examples": [
             "https://meet.example/pyalmeria"
           ],

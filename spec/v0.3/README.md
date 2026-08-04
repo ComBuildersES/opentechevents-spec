@@ -296,6 +296,8 @@ Casi siempre se podrían derivar el uno del otro, y coinciden. El campo existe p
 
 Si `location` está presente, debe traer al menos `venue` o `onlineUrl`. Un `location: {}` es inválido: no dice nada, y decir nada ya se hace omitiendo el campo. **`address` y `geo` no cuentan** para esa regla: describen la sede que `venue` nombra, no la sustituyen.
 
+Esta independencia es deliberada y no se toca: pero el perfil recomendado sí avisa (nunca invalida) cuando falta el detalle concreto que el `attendanceMode` declarado necesita — `onlineUrl` para `online`, `venue` para `in-person`, ambos para `hybrid`. Ver [DECISIONS.md#D025](DECISIONS.md#d025--recommended-tier-warning-when-attendancemode-lacks-its-matching-location-detail).
+
 ### `location.address`: la dirección que se valida por partes
 
 Nueva en la v0.3, opcional, y **hermana de `venue`, no sustituta**:
