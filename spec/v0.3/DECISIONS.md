@@ -578,6 +578,28 @@ This is deliberately a **warning, not a validity error** — added to `event.rec
 
 ---
 
+### D029 — `feed.license` may be omitted only if every event then declares its own
+
+**Status:** Decided 2026-08-04. See `CHANGES.log` #P032. Design agreed in conversation between hhkaos and Claude Code before Codex wrote the formal proposal — the design was fixed in advance, Codex's job was to verify and formalize it, not to explore freely.
+
+**Context.** `feed.license` was unconditionally required, unlike `organizers`/`textLanguage`, which an aggregator feed may already omit so each event states its own (D016). An aggregator whose events carry genuinely different licenses had no way to publish without inventing a single "feed license" that misdescribes the collection — `README.md` already told an aggregator building on this feed to check each event's own license, but the schema never let a PRODUCER avoid asserting one false shared license in the first place. Confirmed against the real validator that a license-free aggregator with every event correctly licensed is rejected today (`data must have required property 'license'`).
+
+**Decision.** Removed `license` from `feed.schema.json`'s root `required`. Added a new `allOf` conditional: if the feed object does NOT have `license`, then every item in `events[]` must have its own `license`. Plain declarative JSON Schema (`if`/`not`/`required`, nested `then.properties.events.items.required`) — no custom keyword, since the condition is "if the root lacks field X, a nested array's items each need field Y", fully expressible without cross-field value comparison.
+
+**Why this guarantee is deliberately stricter than `organizers`/`textLanguage`'s.** Both hhkaos and this decision's own reasoning are explicit: an unknown organiser or an unknown spoken language is an attribution/discoverability gap, unpleasant but not risky. An unknown license is a real legal risk for whoever redistributes the data — so unlike `organizers`/`textLanguage`, which an aggregator may simply omit with no further condition, `feed.license`'s omission is gated: it is allowed only in the one shape where the guarantee "every valid OTE document resolves to a known license" — standalone or inside any feed — remains structurally impossible to violate.
+
+**Verified independently, not just accepted.** Rebuilt the exact `if`/`then` against real Ajv (with the project's own `customKeywords`/`customFormats`/`annotationKeywords`) rather than trusting the proposal's own quoted prototype output: confirmed an aggregator without `feed.license` and with every event licensed validates; the same aggregator with one event missing its license is rejected, caught by the nested `then`; and a community feed with `feed.license` and an event relying on inheritance still validates unchanged. Also ran the modified schema against the three real feed examples in the repo's corpus (`feed.json`, `feed-community.json`, `feed-multipart.json`) — all three still validate with no changes needed.
+
+**Alternatives considered.** (1) Keep `feed.license` unconditionally required: preserves the guarantee but forces a mixed-license aggregator to invent a fictional shared license, contradicting `README.md`'s own instruction to check each event's actual license. (2) Make it optional with no further condition: rejected outright — this is the one relaxation that would have let a valid document end up with an unknown license, the exact risk this decision exists to keep closed. (3) A custom keyword: rejected, the condition is plain "if root lacks X, nested array items each need Y" — no cross-field comparison needed, so declarative JSON Schema is strictly simpler and keeps the rule visible in the schema itself. (4) A new `feed.kind: "aggregator"` field gating the requirement: rejected as unnecessary wire-format growth — D016 already resolved the analogous case for `organizers`/`textLanguage` through disciplined omission of a default that would otherwise be false, not through a new marker field, and this decision follows the same established pattern. (5) Require every event to always declare its own `license`, even when `feed.license` is present: rejected, defeats the entire point of the inheritance that exists to make a single-community feed cheap to publish.
+
+**Prose kept in sync, not just the generated reference.** `README.md`'s own normative line "Obligatorio: `specVersion`, `title`, `license`, `updatedAt`, `events`" was flagged during REVISION as something that would go stale if only the auto-generated reference tables were regenerated — fixed explicitly in the same implementation, not left for the schema and the prose to silently diverge.
+
+**Compatibility impact.** Purely additive: every feed valid before this decision still has `feed.license`, so the new conditional never activates for it and behaves exactly as before. The new condition only ever applies to the previously-impossible case (a feed without `license`), where it substitutes for the guarantee the root `required` used to provide. Confirmed the repo's own corpus is unaffected.
+
+**Revisit if:** a real need emerges to also warn (not just require) when an aggregator's events end up with genuinely incompatible licenses once combined — that is the cross-feed compatibility question `DECISIONS.md`'s existing note (`CHANGES.log` #P007 area) already declined to adjudicate, and reopening it is a materially larger question than this decision's narrow "never unknown" guarantee.
+
+---
+
 ## Indexed decisions
 
 Already argued in full in `README.md`; summarized here for discoverability.

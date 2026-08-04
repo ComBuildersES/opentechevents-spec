@@ -7,7 +7,6 @@
   "required": [
     "specVersion",
     "title",
-    "license",
     "updatedAt",
     "events"
   ],
@@ -66,7 +65,7 @@
       ]
     },
     "license": {
-      "description": "License for the feed's contents. SPDX identifier (full list at https://spdx.org/licenses/) or URL.",
+      "description": "License for the feed's contents, and the default every event inherits when it omits its own. Optional only for an aggregator whose events carry different licenses: if this is absent, every event in the feed must declare its own license — no valid OTE document, standalone or inside any feed, may resolve to an unknown license. SPDX identifier (full list at https://spdx.org/licenses/) or URL.",
       "$ref": "https://opentechevents.org/schema/v0.3/event.schema.json#/$defs/license",
       "examples": [
         "CC-BY-4.0",
@@ -128,6 +127,31 @@
         "required": [
           "textLanguage"
         ]
+      }
+    },
+    {
+      "description": "license is the one default this spec never lets go missing by omission: an aggregator MAY leave feed.license out precisely because its events carry different licenses, but only if every event then declares its own — the same disciplined-omission pattern organizers/textLanguage already use for an aggregator, applied to a guarantee that is deliberately stricter than attribution or language, because redistributing data under an unknown license is a real legal risk, not just an editorial gap. CHANGES.log #P032 / DECISIONS.md D029.",
+      "if": {
+        "type": "object",
+        "not": {
+          "required": [
+            "license"
+          ]
+        }
+      },
+      "then": {
+        "type": "object",
+        "properties": {
+          "events": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "license"
+              ]
+            }
+          }
+        }
       }
     }
   ]

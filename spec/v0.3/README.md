@@ -782,9 +782,11 @@ El precio es que Google, en su ejemplo canónico, emite `"validFrom": "2024-05-2
 
 ## El feed
 
-Obligatorio: `specVersion`, `title`, `license`, `updatedAt`, `events`.
+Obligatorio: `specVersion`, `title`, `updatedAt`, `events`.
 
 **La `license` del feed es el valor por defecto de sus eventos**: un evento que no declare la suya hereda la del feed. Repetir `"license": "CC-BY-4.0"` en 200 eventos es ruido, no rigor. Un evento *dentro de un feed* tampoco repite `specVersion`: hereda la del feed. Un evento **suelto** (fuera de un feed) sí debe declarar ambas — no tiene de quién heredarlas.
+
+**`license` es la única de estas herencias que puede quedar sin valor por defecto — y solo si nada se rompe por ello.** Un feed agregador cuyos eventos tienen licencias distintas puede **omitir** `feed.license`, igual que ya puede omitir `organizers`/`textLanguage` — pero con una condición que esas dos no llevan: si el feed no declara `license`, **cada evento debe declarar la suya propia**. Ningún documento OTE válido, suelto o dentro de un feed, puede terminar con una licencia desconocida — desconocer bajo qué términos se redistribuyen unos datos es un riesgo legal real, no solo una atribución poco clara, y por eso esta garantía es más estricta que la de `organizers`/`textLanguage`. Detalle en [DECISIONS.md, D029](DECISIONS.md#d029--feedlicense-may-be-omitted-only-if-every-event-then-declares-its-own).
 
 **`organizers` se hereda igual, con una diferencia**: la lista del evento **reemplaza** la del feed, no se suma a ella (el porqué, arriba). Y un feed de **agregador** debe **omitir** `organizers`: no organiza lo que publica, y ponerlo ahí atribuiría mal cada evento del feed.
 
