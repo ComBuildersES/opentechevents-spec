@@ -86,6 +86,7 @@ Campos por tipo:
 | P028 | Avisar si `attendanceMode` no tiene el detalle de `location` correspondiente | Implementada (`eaadf96`, `c2da8c3`) |
 | P029 | Prohibir credenciales embebidas en URLs HTTP(S) | Implementada (`a8badc2`, `b5f0859`) |
 | P030 | Rechazar duplicados exactos en `organizers` | Implementada (`10d75a7`, `db37880`) |
+| P031 | Rechazar duplicados de `languages` al comparar BCP 47 sin mayúsculas | Aprobada — pendiente de implementación |
 
 *(actualizar esta tabla a mano al cerrar cada ciclo; sirve de índice rápido, el detalle vive en las entradas de abajo)*
 
@@ -2520,3 +2521,95 @@ Confirmado con hhkaos que, con esta justificación corregida, sigue mereciendo l
   - `spec/v0.3/README.md` — nota junto a la explicación de `organizers`, con enlace a D027.
   - Regenerados por script: `reference.en.md`, `reference.es.md`, `docs/data/reference.json`, `docs/data/examples.json`, `docs/schema/v0.3/event.schema.json`, `docs/llms*`.
 - **Notas:** Verificado con el caso exacto de la PROPUESTA/REVISION, tanto en evento suelto como en feed (`feed.organizers` duplicado también rechaza, confirmando que el `$ref` remoto comparte la regla). `npm run validate` limpio, repo completo. Ningún ejemplo real del corpus se vio afectado. Mismo patrón que P027/D024: `uniqueItems` no genera texto de regla propio en la referencia generada. Pendiente de que hhkaos revise el resultado.
+
+## [2026-08-04] CODEX — PROPUESTA #P031: Rechazar duplicados de `languages` al comparar BCP 47 sin mayúsculas
+
+- **Área:** `spec/v0.3/event.schema.json`, `index.js`, `spec/v0.3/reference.en.md`, `spec/v0.3/reference.es.md`, `spec/v0.3/examples/invalid/`
+- **Problema:** `languages` usa el mismo tipo `languageTag` que las claves de `translations`, pero hoy aplica una regla de unicidad más débil: `uniqueItems: true` rechaza `["es","es"]`, pero no `["es","ES"]`. Para BCP 47, esa diferencia de mayúsculas no nombra otro idioma. La spec ya fijó dos veces que estas etiquetas se comparan case-insensitive: D010 para clave de traducción frente a `textLanguage`, y D023 para claves de traducción dentro del mismo mapa. Dejar `languages` con comparación byte a byte hace que un evento pueda afirmar dos veces el mismo idioma hablado, duplicando `schema.org inLanguage`/filtros de idioma y forzando a cada consumidor a recordar que el mismo tipo `languageTag` se deduplica de una forma en `translations` y de otra en `languages`.
+- **Evidencia:** `languages` es un array de `$defs.languageTag` con `uniqueItems: true`, pero sin comparación normalizada: `spec/v0.3/event.schema.json:891-898` define `languages`, `items: { "$ref": "#/$defs/languageTag" }`, `minItems: 1`, `uniqueItems: true`. D010 ya decidió que esa comparación debe plegar mayúsculas: `spec/v0.3/DECISIONS.md:215` dice que RFC 5646 §2.1.1 compara language tags case-insensitively y que `translations: {"ES": {...}}` nombra el mismo conflicto que `es`; `spec/v0.3/DECISIONS.md:217` decide rechazar claves iguales a `textLanguage`, "compared case-insensitively", con alcance limitado a la misma etiqueta escrita con distinta capitalización. D023 extendió el mismo criterio entre claves de un mapa: `spec/v0.3/DECISIONS.md:471` dice que `en-US` y `EN-us` "name the identical BCP 47 tag once case-folded"; `spec/v0.3/DECISIONS.md:473` decide que dentro de cada mapa no haya dos claves iguales "once lowercased"; `spec/v0.3/DECISIONS.md:475` delimita el alcance: no inferir `en` vs `en-US`, aliases/preferred-values ni macrolenguas. El mecanismo actual en `index.js` confirma que se compara en variables locales, sin canonicalizar ni mutar el documento: `index.js:183-188` construye `keys = Object.keys(map).map((k) => k.toLowerCase())` y compara con `Set`; `index.js:232-242` calcula `primary = data.textLanguage.toLowerCase()` y pasa mapas filtrados a `translationMapsAreDistinct`; `index.js:340-353` calcula el idioma efectivo de eventos embebidos y vuelve a llamar a `translationMapsAreDistinct(maps, effectiveTextLanguage.toLowerCase())`.
+
+  JSON recomendado-completo que hoy valida sin error ni aviso pese a repetir el mismo idioma hablado con distinta capitalización:
+
+  ```json
+  {
+    "specVersion": "0.3.0",
+    "id": "https://example.org/events/languages-case-duplicate",
+    "url": "https://example.org/events/languages-case-duplicate",
+    "name": "Languages case duplicate",
+    "description": "Evento con el mismo idioma hablado escrito con distinta capitalización.",
+    "image": [
+      "https://example.org/img/event.png"
+    ],
+    "organizers": [
+      {
+        "name": "Example Org"
+      }
+    ],
+    "startDate": "2026-09-01T10:00",
+    "endDate": "2026-09-01T11:00",
+    "timezone": "Europe/Madrid",
+    "attendanceMode": "online",
+    "location": {
+      "onlineUrl": "https://example.org/live"
+    },
+    "tags": [
+      "schema-org"
+    ],
+    "languages": [
+      "es",
+      "ES"
+    ],
+    "textLanguage": "es",
+    "license": "CC0-1.0",
+    "updatedAt": "2026-08-04T10:00:00Z"
+  }
+  ```
+
+  Resultado ejecutado contra el validador real:
+
+  ```text
+  $ npm run validate -- /private/tmp/ote-audit/event-languages-case-duplicate.json
+
+  > @opentechevents/schema@0.3.0 validate
+  > node scripts/validate.mjs /private/tmp/ote-audit/event-languages-case-duplicate.json
+
+    ok    /private/tmp/ote-audit/event-languages-case-duplicate.json (event, v0.3)
+
+  Valid.
+  ```
+
+  Como control de alcance, `uniqueItems` sí rechaza el duplicado exacto ya cubierto por P027/D024, lo que demuestra que el hueco es específicamente el plegado de mayúsculas:
+
+  ```text
+  $ npm run validate -- spec/v0.3/examples/invalid/event-languages-duplicate.json
+
+  > @opentechevents/schema@0.3.0 validate
+  > node scripts/validate.mjs spec/v0.3/examples/invalid/event-languages-duplicate.json
+
+    FAIL  spec/v0.3/examples/invalid/event-languages-duplicate.json (event, v0.3)
+  data/languages must NOT have duplicate items (items ## 0 and 1 are identical)
+
+  1 failure(s)
+  ```
+
+  Observación sobre ejemplos existentes: recorrí `spec/v0.3/examples/**/*.json`, excluyendo `examples/invalid/` y `examples/catalog/`, buscando duplicados en `languages` tras `toLowerCase()`; resultado: `No valid examples with case-insensitive duplicate languages.`
+- **Propuesta:** Añadir una regla de validez base para que `languages` no pueda contener dos entradas iguales tras `toLowerCase()`. Recomiendo implementarla como keyword custom nuevo de array, por ejemplo `uniqueCaseFoldedItems: true` o `distinctLanguageTags: true`, aplicado solo a `event.languages`, y compartir internamente un helper pequeño de case-folding con la lógica de `translationMapsAreDistinct` si se quiere evitar duplicación. No recomiendo extender el keyword existente `distinctTranslationLanguages`: vive en objetos raíz, recorre mapas `translations`, compara además contra el idioma primario/efectivo y su mensaje habla de traducciones; colgar ahí un array simple de idiomas hablados mezclaría dos invariantes distintas. `uniqueItems` debe quedarse: sigue siendo útil para duplicados exactos y da un error estándar, pero no basta porque JSON Schema compara igualdad exacta, no igualdad BCP 47 case-insensitive. Añadir un ejemplo inválido específico con `languages: ["es","ES"]`.
+- **Impacto en compatibilidad:** Restrictivo solo para documentos que ya publican dos entradas de `languages` que difieren únicamente por mayúsculas. El corpus válido actual no contiene ninguno, comprobado por script. No canonicaliza ni reescribe valores: igual que D010/D023, la validación compara en local y rechaza la contradicción; quien quiera migrar solo elimina una de las entradas o escoge una capitalización.
+- **Alternativas consideradas:** (1) No tocarlo porque P027 ya añadió `uniqueItems`: descartado porque la evidencia demuestra que `uniqueItems` no cubre `["es","ES"]`. (2) Aplicarlo también a `tags`: descartado explícitamente; `tags` es vocabulario libre por diseño (`spec/v0.3/README.md:473`) y no hay precedente de comparación case-insensitive para tags. (3) Resolver equivalencias más amplias (`pt` vs `pt-BR`, aliases, preferred-values, macrolenguas): descartado por el mismo límite de D010/D023 (`spec/v0.3/DECISIONS.md:217` y `:475`); esta propuesta solo detecta la misma etiqueta con distinta capitalización. (4) Canonicalizar silenciosamente los valores al leer: descartado porque cambiaría el dato publicado y haría depender la salida de cada consumidor; el mecanismo existente en `index.js` compara con `toLowerCase()` en variables locales y no muta `data`. (5) Hacerlo warning recomendado: descartado porque dos entradas case-folded iguales en `languages` son la misma afirmación repetida bajo el mismo tipo `languageTag`, la misma categoría que D023 ya trató como error para claves de traducción.
+
+## [2026-08-04] CLAUDE — REVISION #P031: Rechazar duplicados de `languages` al comparar BCP 47 sin mayúsculas
+
+- **Veredicto:** APROBAR
+- **Valoración:** Alcance acordado de antemano con hhkaos en conversación (no exploración libre de Codex esta vez), y Codex lo respetó con precisión: solo `languages`, solo plegado de mayúsculas, sin tocar `tags` ni equivalencias regionales/macrolenguas. Verifiqué yo mismo, de forma independiente, cada cita: `event.schema.json:891-898` (`languages` como array de `$defs.languageTag` con `uniqueItems` pero sin comparación normalizada), `DECISIONS.md:215-217` (D010, RFC 5646 §2.1.1, comparación case-insensitive contra `textLanguage`) y `:471-475` (D023, mismo criterio entre claves de un mismo mapa, límite explícito de no tocar macrolenguas/alias), e `index.js:183-188` (`translationMapsAreDistinct`: `.toLowerCase()` en variables locales, nunca reescribe `data`). Reproduje `languages: ["es","ES"]` contra el validador real: `ok`/`Valid.`, sin aviso. Reproduje también el control de alcance: el ejemplo inválido existente de P027 (duplicado exacto) sigue fallando por `uniqueItems`, confirmando que el hueco es específicamente el plegado de mayúsculas, no una regresión de esa regla.
+- **La garantía de no-mutación es la correcta, y coincide exactamente con lo que verifiqué yo mismo antes de esta ronda.** Antes de pedir esta propuesta comprobé personalmente que `index.js` nunca reescribe `data` (los `.toLowerCase()` de D010/D023 viven en variables locales de la función validadora). Codex cita las mismas líneas y llega a la misma conclusión de forma independiente — es la confirmación cruzada que este proceso de dos agentes existe para dar.
+- **La decisión de NO extender `distinctTranslationLanguages` es la correcta, con una razón que vale la pena hacer explícita.** Ese keyword valida el objeto RAÍZ (evento o feed completo), recorre múltiples mapas de traducción y compara contra el idioma primario/efectivo — mezclarle una comprobación de un array simple de idiomas hablados uniría dos invariantes distintas bajo un nombre y un mensaje de error que ya no describirían con precisión lo que se está comprobando. Un keyword nuevo, aplicado directamente en la propiedad `languages` (no en el objeto raíz), es además más simple de integrar que P019/D019: al vivir en la propiedad y no en el objeto completo, Ajv reporta el fallo en `/languages` de forma nativa, sin necesitar la entrada `OBJECT_KEYWORD_FIELD` que D019 sí necesitó.
+- **Sugerencia de naming, no bloqueante:** entre las dos opciones que da la propia PROPUESTA, `distinctLanguageTags` describe mejor qué comprueba que `uniqueCaseFoldedItems` (genérico, no dice sobre qué tipo de dato opera) — coherente con el resto de nombres del proyecto (`distinctTranslationLanguages`, `languagesCoveredByText`). Queda a discreción de quien implemente, no cambia el veredicto.
+- **Trade-offs:** Ninguno real. `uniqueItems` se queda intacto (sigue cubriendo el caso exacto con su mensaje de error estándar); el keyword nuevo solo añade la mitad case-folded que faltaba.
+- **Recomendación para v1.0:** Fijar antes de v1.0, mismo criterio que D023/D024/D027: cero coste de compatibilidad hoy, y es la pieza que faltaba para que `languageTag` se compare de forma consistente en todo el spec, no solo en `translations`.
+- **Pendiente de:** decisión humana (hhkaos)
+
+## [2026-08-04] HUMANO — DECISION #P031: Rechazar duplicados de `languages` al comparar BCP 47 sin mayúsculas
+
+- **Decisión:** APROBADA
+- **Quién:** hhkaos
+- **Alcance:** Implementar la propuesta de Codex tal cual, con el nombre de keyword sugerido por Claude (`distinctLanguageTags`) por coherencia de naming con el resto del proyecto.
