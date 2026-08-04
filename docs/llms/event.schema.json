@@ -2511,6 +2511,7 @@
       "description": "Who runs the event or the feed. Kept deliberately small: a name, and where to find them.",
       "type": "array",
       "minItems": 1,
+      "uniqueItems": true,
       "items": {
         "$ref": "#/$defs/organizer"
       }

@@ -631,7 +631,7 @@ Nuevo en la v0.3. Opcional, y **una lista**, no un objeto:
 
 Solo `name` es obligatorio. `url`, `email` y `type` (`organization` por defecto, o `person`) son opcionales. **Y nada más**: ni logo, ni identificadores. El campo describe **quién organiza y dónde escribirle**, no su ficha completa.
 
-**Es una lista porque la co-organización es lo normal**, no la excepción: dos comunidades que juntan meetup, una comunidad y su anfitrión. Luma ya emite `organizer` como array (organización + persona) y schema.org lo acepta. Ensanchar un objeto a lista más tarde habría sido un cambio que rompe; nace lista. **El orden es significativo**: el primero es el principal, y es el único que sobrevive a iCal.
+**Es una lista porque la co-organización es lo normal**, no la excepción: dos comunidades que juntan meetup, una comunidad y su anfitrión. Luma ya emite `organizer` como array (organización + persona) y schema.org lo acepta. Ensanchar un objeto a lista más tarde habría sido un cambio que rompe; nace lista. **El orden es significativo**: el primero es el principal, y es el único que sobrevive a iCal. Repetir exactamente el mismo organizador en la lista es inválido: no añade información, solo obliga a quien exporta a deduplicar. Ver [DECISIONS.md, D027](DECISIONS.md#d027--organizers-must-not-carry-exact-duplicate-entries).
 
 Tres confusiones que conviene desactivar antes de que ocurran:
 
@@ -4214,6 +4214,7 @@ Source: spec/v0.3/event.schema.json — JSON Schema for a single event — the n
       "description": "Who runs the event or the feed. Kept deliberately small: a name, and where to find them.",
       "type": "array",
       "minItems": 1,
+      "uniqueItems": true,
       "items": {
         "$ref": "#/$defs/organizer"
       }

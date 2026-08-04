@@ -538,6 +538,24 @@ This is deliberately a **warning, not a validity error** — added to `event.rec
 
 ---
 
+### D027 — `organizers` must not carry exact duplicate entries
+
+**Status:** Decided 2026-08-04. See `CHANGES.log` #P030 — the same exact-duplicate closure D024 gave `tags`/`languages`, applied to `organizers`, which was out of D024's scope, not left out on purpose.
+
+**Context.** `$defs.organizers` (shared by `event.organizers` and, via a remote `$ref`, `feed.organizers`) declared `array`, `minItems: 1`, but no `uniqueItems`, so the exact same organizer object repeated twice validated cleanly in both a standalone event and a feed. `organizers` is documented as a list specifically because co-organisation is real (`README.md:397-409`), not to allow repeating one entry — a byte-identical repeat adds no information, it only forces every schema.org/Atom/iCal exporter to deduplicate before attributing or displaying organizers. Confirmed against the real validator (both an event and a feed carrying `[{"name":"Example Org","url":"https://example.org"}, {"name":"Example Org","url":"https://example.org"}]` validated clean) and confirmed the repo's own corpus has no such case.
+
+**Decision.** Added `uniqueItems: true` to `$defs.organizers` in `event.schema.json`. Because `feed.schema.json` references that same `$defs.organizers` remotely, one change covers `event.organizers`, `feed.organizers`, and any event's own list at once.
+
+**Scope, deliberately identical to D024's.** This catches only byte-identical repeats of the whole organizer object — it does not deduplicate by `name` or `url` alone when the objects otherwise differ (a missing `email`, a default `type`, a trailing slash): that is a real identity question with genuine trade-offs, not the zero-trade-off case this decision closes. Order is untouched for distinct organizers; `uniqueItems` never reorders or picks a primary.
+
+**Alternatives considered.** (1) Leave it to consumers to deduplicate: rejected, same reasoning as D024 — pushes the same cleanup onto every exporter, and the document itself would still assert the same organizer twice. (2) Recommended-tier warning instead of a base error: rejected, an exact repeat is the same entry twice, not reduced usefulness — the same criterion D024 already applied. (3) Deduplicate by `name`/`url` even when objects differ: rejected, real identity decisions live there (default `type`, optional `email`, near-duplicate names) that this decision deliberately does not touch. (4) Extend the same fix to `image`/`offers` in this proposal: rejected, kept as one decision at a time — those lists carry their own order/pricing semantics that deserve their own evidence. (5) Treat this as already covered by D024: rejected — D024's own text only changed `tags` and `languages`; `organizers` still lacked `uniqueItems` until now.
+
+**Compatibility impact.** Restrictive only for documents that already carry an exact duplicate in `organizers` — confirmed the repo's own corpus has none. No wire-format change.
+
+**Revisit if:** real evidence emerges for deduplicating `organizers` by a looser identity than exact-object equality (e.g. by `name` or `url` alone) — a materially larger question than exact-duplicate rejection, matching the same scoping discipline D024 already applied.
+
+---
+
 ## Indexed decisions
 
 Already argued in full in `README.md`; summarized here for discoverability.
