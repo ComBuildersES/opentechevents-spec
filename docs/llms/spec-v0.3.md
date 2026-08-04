@@ -197,6 +197,8 @@ Si una comunidad se muda de plataforma a dominio propio, `url` cambia y **`id` n
 
 Nadie debería teclear un `id` a mano: las herramientas lo derivan de la URL canónica del evento (propia o de la plataforma que se use), o lo acuñan como `<dominio>/events/<comunidad>/<fecha>-<slug>` cuando el evento no tiene página propia.
 
+Ningún campo URL del schema (`id`, `url`, `location.onlineUrl`, `organizers[].url`, `offers[].url`, etc.) admite credenciales embebidas en la autoridad (`https://user:pass@...`): son enlaces públicos de descubrimiento, no canales autenticados, y publicar un secreto ahí lo filtra a quien lea el feed. Detalle en [DECISIONS.md, D026](DECISIONS.md#d026--https-url-fields-must-not-carry-embedded-userinfo-credentials).
+
 **Dentro de un mismo feed, dos eventos no pueden compartir `id`** — el validador lo comprueba (igualdad exacta de cadena, sin normalizar URIs). No es la deduplicación heurística entre fuentes que la spec deja fuera de alcance ([más abajo](#lo-que-la-v03-no-resuelve)): es una sola fuente contradiciendo, en el mismo documento, la identidad que ella misma acuñó. Detalle en [DECISIONS.md, D011](DECISIONS.md#d011--no-two-events-in-a-feed-may-share-an-id-compared-by-exact-string-equality).
 
 ### Fechas: reloj de pared, no instantes

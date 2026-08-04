@@ -520,6 +520,24 @@ This is deliberately a **warning, not a validity error** — added to `event.rec
 
 ---
 
+### D026 — HTTP(S) URL fields must not carry embedded userinfo credentials
+
+**Status:** Decided 2026-08-04. See `CHANGES.log` #P029 — a gap P025 identified and deliberately left unproposed for its own round ("URLs con credenciales embebidas requieren una política de seguridad/privacidad todavía no escrita").
+
+**Context.** Every HTTP(S) URL field in OTE (`id`, `url`, `location.onlineUrl`, `organizers[].url`, `partOf.id`, `partOf.url`, `eligibility.url`, `offers[].url`, `offers[].waitlistUrl`, `cfp.url`, `source.url`, `license` as URL, `feed.url`, `feed.licenseUrl`, and both forms of `image`) validated only `format: "uri"` plus a scheme pattern (`^https?://`, or `^https://` for images), so `https://user:pass@example.org/...` validated everywhere. These fields are documented as public discovery links (`event.schema.json:125-129` for `event.url`, `location.onlineUrl` as "URL to attend online", `feed.url` as "Canonical URL of the community... publishing the feed"), not as authenticated channels — a value that also carries credentials contradicts what the field claims to represent, and a feed publishing it leaks a secret to anyone who reads it. Confirmed against the real validator (both a standalone event and a feed, each carrying a `user:pass@` URL, validated clean) and confirmed the repo's own corpus has zero examples of this pattern.
+
+**Decision.** Added `"not": {"pattern": "^https?://[^/?#]*@"}` as a sibling of the existing `pattern` keyword at each of the 16 sites, rather than factoring a shared `$defs` entry: the sites already vary slightly (`^https?://` vs. `^https://` for images, some wrapped in `anyOf`/`oneOf`), and given how fragile cross-schema `$ref` resolution turned out to be in D025's implementation (P025), 16 small, independently-readable additions carried less risk than a new shared definition threading through those variants. The pattern rejects any `@` appearing in the authority — before the first `/`, `?`, or `#` after the scheme — which covers both `user:pass@` and bare `user@`, since both are userinfo syntax and either can leak a token or an internal identifier. It does not reject `@` appearing legitimately later in a path or query string (verified: `https://example.org/callback?email=a@b.com` still validates), and does not reject a port in the authority (verified: `https://example.org:8443/...` still validates).
+
+**Why this is base validity, not a recommended-tier warning.** Unlike D025 (same day, opposite tier), this is not a completeness question — a URL with embedded credentials is not an incomplete public link, it is a value that actively contradicts the field's own documented nature. The standard applied throughout this audit is data coherence with what a field claims to represent, not merely crash-safety; the same standard D020 already applied to `id`'s URI scheme.
+
+**Alternatives considered.** (1) Leave it to consumers/exporters to sanitize: rejected, the feed itself would already have leaked the secret before any consumer gets a chance to strip it, and different destinations handle userinfo inconsistently (some strip it, some keep it, some reject the URL outright). (2) Recommended-tier warning instead: rejected, this is a dangerous value in a public field, not an incomplete one. (3) Reject any `@` anywhere in the URL: rejected, `@` is legitimate in path/query. (4) Allow bare `user@` (no password): rejected, still userinfo syntax and still capable of leaking a sensitive identifier. (5) Also require `https://` (not `http://`) everywhere: rejected as a separate policy question this decision does not reopen — the schema already differentiates images (`https://`-only) from the rest (`http(s)://`) on other grounds.
+
+**Compatibility impact.** Restrictive only for documents that already published a URL with embedded credentials — confirmed the repo's own corpus has none. No wire-format change: the fix is a pattern tightening, not a new field or type. Leaving this open past v1.0 would make closing it later a breaking change for any document that had relied on the gap.
+
+**Revisit if:** a legitimate need for authenticated URLs emerges in some OTE field (none currently exists) — that would need its own field and its own security review, not a loosening of this pattern.
+
+---
+
 ## Indexed decisions
 
 Already argued in full in `README.md`; summarized here for discoverability.

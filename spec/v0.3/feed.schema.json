@@ -40,6 +40,7 @@
       "type": "string",
       "format": "uri",
       "pattern": "^https?://",
+      "not": {"pattern": "^https?://[^/?#]*@"},
       "examples": [
         "https://pyalmeria.example"
       ]
@@ -77,6 +78,7 @@
       "type": "string",
       "format": "uri",
       "pattern": "^https?://",
+      "not": {"pattern": "^https?://[^/?#]*@"},
       "examples": [
         "https://creativecommons.org/licenses/by/4.0/"
       ]

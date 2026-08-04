@@ -422,6 +422,8 @@ Si una comunidad se muda de plataforma a dominio propio, `url` cambia y **`id` n
 
 Nadie debería teclear un `id` a mano: las herramientas lo derivan de la URL canónica del evento (propia o de la plataforma que se use), o lo acuñan como `<dominio>/events/<comunidad>/<fecha>-<slug>` cuando el evento no tiene página propia.
 
+Ningún campo URL del schema (`id`, `url`, `location.onlineUrl`, `organizers[].url`, `offers[].url`, etc.) admite credenciales embebidas en la autoridad (`https://user:pass@...`): son enlaces públicos de descubrimiento, no canales autenticados, y publicar un secreto ahí lo filtra a quien lea el feed. Detalle en [DECISIONS.md, D026](DECISIONS.md#d026--https-url-fields-must-not-carry-embedded-userinfo-credentials).
+
 **Dentro de un mismo feed, dos eventos no pueden compartir `id`** — el validador lo comprueba (igualdad exacta de cadena, sin normalizar URIs). No es la deduplicación heurística entre fuentes que la spec deja fuera de alcance ([más abajo](#lo-que-la-v03-no-resuelve)): es una sola fuente contradiciendo, en el mismo documento, la identidad que ella misma acuñó. Detalle en [DECISIONS.md, D011](DECISIONS.md#d011--no-two-events-in-a-feed-may-share-an-id-compared-by-exact-string-equality).
 
 ### Fechas: reloj de pared, no instantes
@@ -1817,6 +1819,7 @@ Source: spec/v0.3/event.schema.json — JSON Schema for a single event — the n
           "type": "string",
           "format": "uri",
           "pattern": "^https?://",
+          "not": {"pattern": "^https?://[^/?#]*@"},
           "examples": [
             "https://pyalmeria.example/eventos/2026-06-async",
             "https://calendar.example/ics/rust-madrid#a1b2c3d4-uid",
@@ -1828,6 +1831,7 @@ Source: spec/v0.3/event.schema.json — JSON Schema for a single event — the n
           "type": "string",
           "format": "uri",
           "pattern": "^https?://",
+          "not": {"pattern": "^https?://[^/?#]*@"},
           "examples": [
             "https://pyalmeria.example/eventos/2026-06-async"
           ]
@@ -3973,7 +3977,8 @@ Source: spec/v0.3/event.schema.json — JSON Schema for a single event — the n
         },
         {
           "format": "uri",
-          "pattern": "^https?://"
+          "pattern": "^https?://",
+          "not": {"pattern": "^https?://[^/?#]*@"}
         }
       ]
     },
@@ -4235,6 +4240,7 @@ Source: spec/v0.3/event.schema.json — JSON Schema for a single event — the n
           "type": "string",
           "format": "uri",
           "pattern": "^https?://",
+          "not": {"pattern": "^https?://[^/?#]*@"},
           "examples": [
             "https://pyalmeria.example",
             "https://www.meetup.com/pyalmeria/"
@@ -4275,6 +4281,7 @@ Source: spec/v0.3/event.schema.json — JSON Schema for a single event — the n
           "type": "string",
           "format": "uri",
           "pattern": "^https?://",
+          "not": {"pattern": "^https?://[^/?#]*@"},
           "examples": [
             "https://rustmadrid.example/meetups",
             "https://pyalmeria.example/study-jams/2026-testing"
@@ -4295,6 +4302,7 @@ Source: spec/v0.3/event.schema.json — JSON Schema for a single event — the n
           "type": "string",
           "format": "uri",
           "pattern": "^https?://",
+          "not": {"pattern": "^https?://[^/?#]*@"},
           "examples": [
             "https://rustmadrid.example/meetups"
           ]
@@ -4359,6 +4367,7 @@ Source: spec/v0.3/event.schema.json — JSON Schema for a single event — the n
           "type": "string",
           "format": "uri",
           "pattern": "^https?://",
+          "not": {"pattern": "^https?://[^/?#]*@"},
           "examples": [
             "https://meet.example/pyalmeria"
           ]
@@ -4496,6 +4505,7 @@ Source: spec/v0.3/event.schema.json — JSON Schema for a single event — the n
           "type": "string",
           "format": "uri",
           "pattern": "^https?://",
+          "not": {"pattern": "^https?://[^/?#]*@"},
           "examples": [
             "https://rustgirona.example/join"
           ]
@@ -4544,7 +4554,8 @@ Source: spec/v0.3/event.schema.json — JSON Schema for a single event — the n
           {
             "type": "string",
             "format": "uri",
-            "pattern": "^https://"
+            "pattern": "^https://",
+            "not": {"pattern": "^https?://[^/?#]*@"}
           },
           {
             "$ref": "#/$defs/imageEntry"
@@ -4564,6 +4575,7 @@ Source: spec/v0.3/event.schema.json — JSON Schema for a single event — the n
           "type": "string",
           "format": "uri",
           "pattern": "^https://",
+          "not": {"pattern": "^https?://[^/?#]*@"},
           "examples": [
             "https://rustmadrid.example/img/2026-06-16x9.png"
           ]
@@ -4673,6 +4685,7 @@ Source: spec/v0.3/event.schema.json — JSON Schema for a single event — the n
           "type": "string",
           "format": "uri",
           "pattern": "^https?://",
+          "not": {"pattern": "^https?://[^/?#]*@"},
           "examples": [
             "https://devfest-levante.example/2026/entradas"
           ]
@@ -4693,6 +4706,7 @@ Source: spec/v0.3/event.schema.json — JSON Schema for a single event — the n
           "type": "string",
           "format": "uri",
           "pattern": "^https?://",
+          "not": {"pattern": "^https?://[^/?#]*@"},
           "examples": [
             "https://devfest-levante.example/2026/lista-espera"
           ]
@@ -4798,6 +4812,7 @@ Source: spec/v0.3/event.schema.json — JSON Schema for a single event — the n
           "type": "string",
           "format": "uri",
           "pattern": "^https?://",
+          "not": {"pattern": "^https?://[^/?#]*@"},
           "examples": [
             "https://devfest-levante.example/2026/cfp"
           ]
@@ -4864,6 +4879,7 @@ Source: spec/v0.3/event.schema.json — JSON Schema for a single event — the n
           "type": "string",
           "format": "uri",
           "pattern": "^https?://",
+          "not": {"pattern": "^https?://[^/?#]*@"},
           "examples": [
             "https://calendar.example/ics/rust-madrid"
           ]
@@ -4935,6 +4951,7 @@ Source: spec/v0.3/feed.schema.json — JSON Schema for a feed of events.
       "type": "string",
       "format": "uri",
       "pattern": "^https?://",
+      "not": {"pattern": "^https?://[^/?#]*@"},
       "examples": [
         "https://pyalmeria.example"
       ]
@@ -4972,6 +4989,7 @@ Source: spec/v0.3/feed.schema.json — JSON Schema for a feed of events.
       "type": "string",
       "format": "uri",
       "pattern": "^https?://",
+      "not": {"pattern": "^https?://[^/?#]*@"},
       "examples": [
         "https://creativecommons.org/licenses/by/4.0/"
       ]

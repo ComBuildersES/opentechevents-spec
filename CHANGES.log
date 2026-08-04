@@ -84,7 +84,7 @@ Campos por tipo:
 | P026 | Impedir claves de `translations` equivalentes tras normalizar BCP 47 | Implementada (`f8fe495`) |
 | P027 | Rechazar duplicados exactos en `tags` y `languages` | Implementada (`2566a23`) |
 | P028 | Avisar si `attendanceMode` no tiene el detalle de `location` correspondiente | Implementada (`eaadf96`, `c2da8c3`) |
-| P029 | Prohibir credenciales embebidas en URLs HTTP(S) | Aprobada — pendiente de implementación |
+| P029 | Prohibir credenciales embebidas en URLs HTTP(S) | Implementada — pendiente de revisión final |
 
 *(actualizar esta tabla a mano al cerrar cada ciclo; sirve de índice rápido, el detalle vive en las entradas de abajo)*
 
@@ -2401,3 +2401,15 @@ Confirmado con hhkaos que, con esta justificación corregida, sigue mereciendo l
 - **Decisión:** APROBADA
 - **Quién:** hhkaos
 - **Alcance:** Implementar la propuesta de Codex tal cual: factorizar una definición reutilizable de URL HTTP(S) sin userinfo y aplicarla a los 16 campos URL identificados en `event.schema.json`/`feed.schema.json`, más ejemplos inválidos representativos.
+
+## [2026-08-04] CLAUDE — IMPLEMENTACION #P029
+
+- **Commit:** `pendiente — cambios en el árbol de trabajo`
+- **Ficheros cambiados:**
+  - `spec/v0.3/event.schema.json`, `spec/v0.3/feed.schema.json` — añadido `"not": {"pattern": "^https?://[^/?#]*@"}` como hermano de `pattern` en los 16 campos URL identificados (`id`, `url`, `license` como URL, `organizers[].url`, `partOf.id`, `partOf.url`, `location.onlineUrl`, `eligibility.url`, ambas formas de `image`, `offers[].url`, `offers[].waitlistUrl`, `cfp.url`, `source.url`, `feed.url`, `feed.licenseUrl`).
+  - `spec/v0.3/examples/invalid/event-url-userinfo.json`, `event-location-onlineurl-userinfo.json`, `feed-url-userinfo.json` — casos negativos nuevos.
+  - `spec/v0.3/DECISIONS.md` — nueva entrada D026.
+  - `spec/v0.3/README.md` — nota junto a la explicación de `id`/`url`, con enlace a D026.
+  - Regenerados por script: `reference.en.md`, `reference.es.md`, `docs/data/reference.json`, `docs/data/examples.json`, `docs/schema/v0.3/*.schema.json`, `docs/llms*`.
+- **Desviación deliberada de la PROPUESTA, documentada:** Codex sugería factorizar un `$defs` reutilizable para el patrón. Elegí en su lugar 16 adiciones puntuales de `not` junto al `pattern` ya existente en cada sitio, sin nuevo `$defs`: los 16 usos ya varían ligeramente (`^https?://` vs. `^https://` en imágenes, algunos dentro de `anyOf`/`oneOf`), y P025 encontró un bug real y serio de resolución de `$ref` cruzado entre schemas — introducir una nueva indirección `$ref` compartida en 16 sitios distintos suponía más riesgo que beneficio frente a 16 cambios pequeños e independientemente verificables. `hhkaos` no había atado la aprobación a la factorización concreta ("tal cual" se refería a la regla, no al mecanismo).
+- **Notas:** Verificado con los casos exactos de la PROPUESTA/REVISION más casos límite propios: `user:pass@`/`user@` se rechazan correctamente; `@` legítimo en query string (`?email=a@b.com`) y puertos en la autoridad (`example.org:8443`) siguen validando. `npm run validate` limpio, repo completo. Ningún ejemplo real del corpus se vio afectado. Observación menor no bloqueante: el mensaje de error de Ajv para este rechazo es el genérico `must NOT be valid` (en vez de algo más descriptivo como con `pattern`), porque el proyecto no tiene hoy un mecanismo para personalizar mensajes de errores de schema BASE (solo de perfil recomendado, vía `OBJECT_KEYWORD_FIELD`); coherente con el resto de fallos de `not`/`anyOf` ya existentes en el schema, no es una regresión de esta propuesta. Pendiente de que hhkaos revise el resultado.
