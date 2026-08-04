@@ -305,6 +305,12 @@ export function* constraintsOf(schema, registry = {}, node = null, prefix = "") 
     const target = raw.$ref ? resolve(raw.$ref, schema, registry) : raw;
     if (target?.properties) yield* constraintsOf(schema, registry, target, path);
     if (target?.type === "array") {
+      // A custom keyword can sit directly on the array property itself (P031's
+      // `distinctLanguageTags` on `languages`), not just on its item shape — `rulesOfObject`
+      // already checks generically for `node[name] === true`, so it works unchanged on an array
+      // node too (arrays never have `anyOf`/`dependentRequired`/`minProperties`/`if`, so every
+      // other branch inside it is a no-op here by construction, not by a second special case).
+      for (const rule of rulesOfObject(target)) yield [path, rule];
       const forms = target.items?.oneOf ?? target.items?.anyOf ?? [target.items];
       for (const form of forms) {
         const itemRef = form?.$ref;

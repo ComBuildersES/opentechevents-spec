@@ -105,6 +105,7 @@ Reglas que el schema impone sobre objetos completos y que el nivel de un campo s
 - **`location`** — Requiere al menos uno de: `venue`, `onlineUrl`.
 - **`location.address`** — Debe llevar al menos una propiedad.
 - **`eligibility`** — Cuando `type` es `"restricted"`, `note` es obligatorio. restricted significa «hay una puerta que el enum no sabe nombrar». Sin note no nombra nada, y quien lo consume solo puede mostrar la palabra: así es como un campo que existe para responder «¿puedo ir?» acaba preguntándolo.
+- **`languages`** — languages no debe repetir la misma etiqueta de idioma escrita con distinta capitalización.
 - **`offers[]`** — Requiere al menos uno de: `price`, `url`. Una oferta tiene que llevar un precio o un enlace —lo ideal es los dos—. Una que no lleva ninguno no dice nada que no dijera ya omitir la lista entera; es la misma regla que sigue location con venue y onlineUrl.
 - **`offers[]`** — Con `currency`, `price` es obligatorio.
 - **`offers[]`** — closesAt no puede ser anterior a opensAt.

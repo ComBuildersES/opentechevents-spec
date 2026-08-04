@@ -131,6 +131,19 @@
           }
         },
         {
+          "kind": "prose",
+          "note": {
+            "en": "languages must not repeat the same language tag under different case.",
+            "es": "languages no debe repetir la misma etiqueta de idioma escrita con distinta capitalización."
+          },
+          "owner": "languages",
+          "key": "event.languages#0",
+          "text": {
+            "en": "",
+            "es": ""
+          }
+        },
+        {
           "kind": "anyOfRequired",
           "fields": [
             "price",

@@ -556,6 +556,28 @@ This is deliberately a **warning, not a validity error** — added to `event.rec
 
 ---
 
+### D028 — `languages` must not repeat the same BCP 47 tag under different case
+
+**Status:** Decided 2026-08-04. See `CHANGES.log` #P031. Scope agreed in conversation between hhkaos and Claude Code before Codex wrote the formal proposal — not free-form exploration this round.
+
+**Context.** `languages` and `translations` keys share the same underlying type, `$defs.languageTag`, but were compared inconsistently: D010 and D023 already established that two BCP 47 tags are compared case-insensitively per RFC 5646 §2.1.1 (`translations` keys against `textLanguage`, and against each other within one map), but `languages`' own `uniqueItems: true` (P027/D024) compares by exact string equality, so `["es","ES"]` validated cleanly — the same spoken language asserted twice under a JSON-distinct pair of strings. Confirmed against the real validator.
+
+**Decision.** Added a new custom keyword, `distinctLanguageTags`, applied directly to the `languages` property (not the whole event object): rejects the array if any two entries name the same tag once lowercased. `uniqueItems` stays — it still gives the standard, cheaper error for a byte-identical repeat; the new keyword only closes the case-folding gap `uniqueItems` cannot express.
+
+**Scope, deliberately identical to D010/D023's.** Confirmed explicitly with hhkaos before this round: detects only the same tag written with different case. `pt` and `pt-BR` are — and stay — different languages; no macrolanguage, alias or regional-variant equivalence is inferred. Does not touch `tags`: free-form vocabulary by design (`README.md`), with no case-insensitive precedent anywhere in the spec to be consistent with.
+
+**Confirmed non-mutating, the same way D010/D023 are.** The keyword's `validate` function lowercases into a local array purely for comparison (`index.js`); it never rewrites `data`. A document with a single, non-duplicated `languages` entry keeps its exact original casing — nothing about this decision canonicalizes what a producer publishes or what a case-sensitive consumer later reads.
+
+**A generator gap found while implementing, fixed in the same round.** `scripts/schema-model.mjs`'s `constraintsOf()` only ever checked object-shaped nodes for a declared custom keyword (`rulesOfObject(node)`, called on `$defs.event` and other object schemas) — `distinctLanguageTags` is the first custom keyword ever attached directly to an ARRAY property rather than an object, and the generator silently produced no Constraints entry for it, the exact class of doc-drift bug P023/P025 exist to prevent. Fixed by calling `rulesOfObject(target)` on the array node itself before recursing into its `items`, reusing the same generic "does this node declare `name: true`" check that already worked for object nodes — arrays never populate the other fields `rulesOfObject` looks at (`anyOf`, `dependentRequired`, `minProperties`, `if`), so this is safe by construction, not a second special case. Added the missing Spanish translation (`i18n/es.json`, `event.languages#0`) in the same commit, learned from the P016 mistake of splitting that across two commits.
+
+**Alternatives considered.** (1) Leave it, since P027 already added `uniqueItems`: rejected, demonstrated `uniqueItems` does not cover the case-folded duplicate. (2) Apply the same fix to `tags`: rejected, no case-insensitive precedent exists for that field anywhere in the spec — see D024. (3) Resolve broader tag equivalence (macrolanguages, aliases, regional variants): rejected, explicitly out of scope, confirmed with hhkaos (`pt` vs `pt-BR` stay distinct) — same boundary D007/D010/D023 already drew. (4) Silently canonicalize `languages` entries on read: rejected, would make the published value depend on validator behavior instead of what the producer wrote — same reasoning as D010/D023. (5) Extend `distinctTranslationLanguages` to also cover `languages`: rejected, that keyword validates the whole root object and already does several unrelated things (walks multiple translation maps, compares against the primary/effective language); folding in a simple array check would blur two different invariants under one name and message.
+
+**Compatibility impact.** Restrictive only for documents that already carry two `languages` entries differing only in case — confirmed the repo's own corpus has none. No wire-format change.
+
+**Revisit if:** a real need emerges to resolve broader BCP 47 equivalence for `languages` specifically — at which point this decision, D007, D010 and D023 should be revisited together, since all four concern how strictly language tags are compared.
+
+---
+
 ## Indexed decisions
 
 Already argued in full in `README.md`; summarized here for discoverability.

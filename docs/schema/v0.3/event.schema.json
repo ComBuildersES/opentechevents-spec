@@ -896,6 +896,7 @@
           },
           "minItems": 1,
           "uniqueItems": true,
+          "distinctLanguageTags": true,
           "examples": [
             [
               "es"

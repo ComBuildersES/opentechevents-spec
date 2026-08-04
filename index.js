@@ -396,4 +396,28 @@ export const customKeywords = [
     },
     error: { message: "languages should be covered by the effective textLanguage or a translations key" },
   },
+  {
+    keyword: "distinctLanguageTags",
+    type: "array",
+    schemaType: "boolean",
+    /**
+     * `languages`' own constraint: `uniqueItems` already rejects a byte-identical repeat, but RFC
+     * 5646 §2.1.1 compares BCP 47 tags case-insensitively, so ["es","ES"] names the same spoken
+     * language twice under a JSON-distinct pair of strings — the same contradiction
+     * `distinctTranslationLanguages`/D010 and its D023 extension already treat as invalid for
+     * `translations` keys, applied here to the other field sharing `$defs.languageTag`. Deliberately
+     * narrow, same boundary as D010/D023: detects only the same tag written with different case,
+     * never infers that two DIFFERENT tags (a regional variant, an alias, a macrolanguage) name the
+     * same language — "pt" and "pt-BR" stay distinct. Lives on the `languages` property itself, not
+     * the whole event object, so a failure reports at `/languages` without needing the
+     * `OBJECT_KEYWORD_FIELD` lookup `languagesCoveredByText` needed. See CHANGES.log #P031 /
+     * DECISIONS.md D028.
+     */
+    validate: (schemaValue, data) => {
+      if (!schemaValue || !Array.isArray(data)) return true;
+      const tags = data.filter((lang) => typeof lang === "string").map((lang) => lang.toLowerCase());
+      return new Set(tags).size === tags.length;
+    },
+    error: { message: "languages must not repeat the same language tag under different case" },
+  },
 ];

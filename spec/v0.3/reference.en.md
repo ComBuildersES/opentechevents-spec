@@ -105,6 +105,7 @@ Rules the schema enforces on whole objects, which no single field's level can ex
 - **`location`** — Requires at least one of: `venue`, `onlineUrl`.
 - **`location.address`** — Must carry at least one property.
 - **`eligibility`** — When `type` is `"restricted"`, `note` is required. restricted means "there is a door the enum cannot name". Without a note it names nothing, and a consumer can only show the word itself — which is how a field meant to answer "can I go?" ends up asking it.
+- **`languages`** — languages must not repeat the same language tag under different case.
 - **`offers[]`** — Requires at least one of: `price`, `url`. An offer must carry a price or a link — ideally both. One with neither says nothing that omitting the whole list does not already say, the same rule location follows with venue and onlineUrl.
 - **`offers[]`** — With `currency`, `price` is required.
 - **`offers[]`** — closesAt must not be earlier than opensAt.
