@@ -846,7 +846,7 @@
           "path": "eligibility.note",
           "type": "string",
           "required": false,
-          "recommended": false,
+          "recommended": true,
           "examples": [
             "Miembros del Discord de Rust Girona",
             "Solo alumnado de la Universidad de Almería"
@@ -1001,7 +1001,7 @@
           "path": "offers[].name",
           "type": "string",
           "required": false,
-          "recommended": false,
+          "recommended": true,
           "examples": [
             "General admission",
             "Estudiantes"
@@ -1301,7 +1301,7 @@
           "path": "partOf.name",
           "type": "string",
           "required": false,
-          "recommended": false,
+          "recommended": true,
           "examples": [
             "Rust Madrid — meetup mensual",
             "Study Jam de testing en Python (3 sesiones)"

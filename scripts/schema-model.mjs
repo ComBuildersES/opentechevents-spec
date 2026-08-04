@@ -345,10 +345,14 @@ export function* constraintsOf(schema, registry = {}, node = null, prefix = "") 
  */
 export function recommendedOf(profile) {
   if (!profile) return new Set();
+  // A conditional recommendation can also live one level deeper, inside an array property's own
+  // `items` (P033's `offers[].name`, recommended only once `offers[].translations` exists) —
+  // same `${parent}[].${name}` path fieldsOf() already uses for these fields' own table rows.
   const nested = (branch) =>
-    Object.entries(branch?.properties ?? {}).flatMap(([parent, sub]) =>
-      (sub?.required ?? []).map((name) => `${parent}.${name}`)
-    );
+    Object.entries(branch?.properties ?? {}).flatMap(([parent, sub]) => [
+      ...(sub?.required ?? []).map((name) => `${parent}.${name}`),
+      ...(sub?.items?.then?.required ?? []).map((name) => `${parent}[].${name}`),
+    ]);
   const names = (branch) => [
     ...(branch?.required ?? []),
     ...nested(branch),

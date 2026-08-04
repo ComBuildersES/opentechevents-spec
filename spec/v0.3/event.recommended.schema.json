@@ -171,6 +171,86 @@
           }
         }
       }
+    },
+    {
+      "description": "offers[].name is only recommended once a translation actually translates one: name itself stays fully optional (worth writing when there is more than one offer, noise when there is only one), but a producer who already wrote offers[].translations.*.name has demonstrated the name exists — leaving the primary blank then loses it for any consumer who reads offers[] directly (schema.org, RSS/iCal) instead of translations. CHANGES.log #P033 / DECISIONS.md D030.",
+      "type": "object",
+      "properties": {
+        "offers": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "if": {
+              "type": "object",
+              "required": [
+                "translations"
+              ]
+            },
+            "then": {
+              "type": "object",
+              "required": [
+                "name"
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "description": "See the offers[].name rule above for the same reasoning, applied to partOf.name: a producer who wrote partOf.translations.*.name has demonstrated the series/multipart event has a name, so leaving partOf.name itself blank loses it for any consumer who does not read translations. CHANGES.log #P033 / DECISIONS.md D030.",
+      "if": {
+        "type": "object",
+        "required": [
+          "partOf"
+        ],
+        "properties": {
+          "partOf": {
+            "type": "object",
+            "required": [
+              "translations"
+            ]
+          }
+        }
+      },
+      "then": {
+        "type": "object",
+        "properties": {
+          "partOf": {
+            "type": "object",
+            "required": [
+              "name"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "description": "See the offers[].name rule above for the same reasoning, applied to eligibility.note: a producer who wrote eligibility.translations.*.note has demonstrated the condition is stated somewhere, so leaving eligibility.note itself blank loses it for any consumer who does not read translations. Already a base-schema error when type is restricted (event.schema.json); this only adds the warning for the other eligibility types, where note stays optional. CHANGES.log #P033 / DECISIONS.md D030.",
+      "if": {
+        "type": "object",
+        "required": [
+          "eligibility"
+        ],
+        "properties": {
+          "eligibility": {
+            "type": "object",
+            "required": [
+              "translations"
+            ]
+          }
+        }
+      },
+      "then": {
+        "type": "object",
+        "properties": {
+          "eligibility": {
+            "type": "object",
+            "required": [
+              "note"
+            ]
+          }
+        }
+      }
     }
   ]
 }
