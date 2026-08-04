@@ -86,7 +86,7 @@ Campos por tipo:
 | P028 | Avisar si `attendanceMode` no tiene el detalle de `location` correspondiente | Implementada (`eaadf96`, `c2da8c3`) |
 | P029 | Prohibir credenciales embebidas en URLs HTTP(S) | Implementada (`a8badc2`, `b5f0859`) |
 | P030 | Rechazar duplicados exactos en `organizers` | Implementada (`10d75a7`, `db37880`) |
-| P031 | Rechazar duplicados de `languages` al comparar BCP 47 sin mayúsculas | Implementada — pendiente de revisión final |
+| P031 | Rechazar duplicados de `languages` al comparar BCP 47 sin mayúsculas | Implementada (`bc63f0e`, `4535b4f`) |
 
 *(actualizar esta tabla a mano al cerrar cada ciclo; sirve de índice rápido, el detalle vive en las entradas de abajo)*
 
@@ -2616,7 +2616,7 @@ Confirmado con hhkaos que, con esta justificación corregida, sigue mereciendo l
 
 ## [2026-08-04] CLAUDE — IMPLEMENTACION #P031
 
-- **Commit:** `pendiente — cambios en el árbol de trabajo`
+- **Commit:** `bc63f0e` (log) y `4535b4f` (implementación)
 - **Ficheros cambiados:**
   - `index.js` — nuevo custom keyword `distinctLanguageTags` (array), reutilizando el mismo criterio de comparación case-insensitive que `translationMapsAreDistinct` (D010/D023), sin mutar `data`.
   - `spec/v0.3/event.schema.json` — `"distinctLanguageTags": true` añadido junto a `uniqueItems` en `languages`.
