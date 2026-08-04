@@ -83,6 +83,7 @@ Campos por tipo:
 | P025 | Recorrer `additionalProperties` en el generador de referencia | Implementada (`85ee7aa`) |
 | P026 | Impedir claves de `translations` equivalentes tras normalizar BCP 47 | Implementada (`f8fe495`) |
 | P027 | Rechazar duplicados exactos en `tags` y `languages` | Implementada (`2566a23`) |
+| P028 | Avisar si `attendanceMode` no tiene el detalle de `location` correspondiente | Aprobada — pendiente de implementación |
 
 *(actualizar esta tabla a mano al cerrar cada ciclo; sirve de índice rápido, el detalle vive en las entradas de abajo)*
 
@@ -2223,3 +2224,82 @@ Confirmado con hhkaos que, con esta justificación corregida, sigue mereciendo l
   - `spec/v0.3/README.md` — nota junto a la explicación de `tags`, con enlace a D024.
   - Regenerados por script: `reference.en.md`, `reference.es.md`, `docs/data/reference.json`, `docs/data/examples.json`, `docs/schema/v0.3/event.schema.json`, `docs/llms*`.
 - **Notas:** Verificado con `npm run validate` (repo completo, limpio, sin traducciones faltantes — `uniqueItems` no genera texto de regla en la referencia, igual que `minItems` tampoco lo hace). Ningún ejemplo real del corpus se vio afectado. Con esta implementación quedan resueltos los 6 huecos que el informe externo (CHANGES.log #P024) dejó verificados como reales. Pendiente de que hhkaos revise el resultado.
+
+## [2026-08-04] CODEX — PROPUESTA #P028: Avisar si `attendanceMode` no tiene el detalle de `location` correspondiente
+
+- **Área:** `spec/v0.3/event.recommended.schema.json`, `scripts/validate.mjs`, `spec/v0.3/reference.en.md`, `spec/v0.3/reference.es.md`
+- **Problema:** La spec ya decidió que `location` y `attendanceMode` son campos distintos y que, si se contradicen, manda `attendanceMode`; por tanto esto NO debe convertirse en error del schema base. Pero el perfil recomendado actual solo comprueba que ambos campos existan, no que `location` contenga el dato accionable que el modo anunciado necesita para discovery/export a schema.org: un evento `online` sin `location.onlineUrl` no puede producir una `VirtualLocation.url`; uno `in-person` sin `location.venue` no puede producir un `Place.name`; uno `hybrid` sin ambos pierde una de las dos mitades del `MixedEventAttendanceMode`. Después de v1.0, añadir este aviso sería compatible a nivel de validez, pero dejar el hueco ahora normaliza documentos que pasan todos los warnings aunque obligan a un exportador schema.org a adivinar o publicar un `Event` incompleto.
+- **Evidencia:** La decisión de no invalidar está escrita en la prosa normativa: `spec/v0.3/README.md:286-293` dice que "`location` y `attendanceMode` no son redundantes", que `location` son "hechos observables" y `attendanceMode` es "la intención de quien organiza", y cierra con: "Si se contradicen, manda `attendanceMode`." El caso `moved-online` confirma que no se puede exigir URL como validez base: `spec/v0.3/README.md:358` dice que "`moved-online` debería traer `location.onlineUrl` y `attendanceMode: \"online\"`", pero "debería, no debe" porque el enlace puede no ser público todavía. El perfil recomendado, en cambio, sí existe para avisos no bloqueantes: `spec/v0.3/event.recommended.schema.json:5` dice que sus fallos son warnings y "MUST NOT reject a document"; `spec/v0.3/event.recommended.schema.json:13-25` exige `attendanceMode` y `location`, pero no contiene ninguna condición por modo. El schema base define el enum en `spec/v0.3/event.schema.json:816-828` y `location` como `$defs.location` en `spec/v0.3/event.schema.json:829-830`; esa definición solo exige "al menos uno de `venue`/`onlineUrl`" (`spec/v0.3/event.schema.json:2626-2705`), sin cruzarlo con `attendanceMode`. La referencia generada expone exactamente esa regla genérica, no una regla por modo: `spec/v0.3/reference.en.md:105` dice "`location` — Requires at least one of: `venue`, `onlineUrl`" y `spec/v0.3/reference.es.md:105` dice "`location` — Requiere al menos uno de: `venue`, `onlineUrl`".
+
+  JSON mínimo recomendado-completo que hoy pasa sin error ni aviso aunque declara `online` y solo publica una sede física:
+
+  ```json
+  {
+    "specVersion": "0.3.0",
+    "id": "https://example.org/events/online-venue-only",
+    "url": "https://example.org/events/online-venue-only",
+    "name": "Attendance location detail",
+    "description": "Evento con campos recomendados suficientes para aislar el detalle de location.",
+    "image": [
+      "https://example.org/img/event.png"
+    ],
+    "organizers": [
+      {
+        "name": "Example Org"
+      }
+    ],
+    "startDate": "2026-09-01T10:00",
+    "endDate": "2026-09-01T11:00",
+    "timezone": "Europe/Madrid",
+    "attendanceMode": "online",
+    "location": {
+      "venue": "Campus Madrid"
+    },
+    "tags": [
+      "schema-org"
+    ],
+    "languages": [
+      "es"
+    ],
+    "textLanguage": "es",
+    "license": "CC0-1.0",
+    "updatedAt": "2026-08-04T10:00:00Z"
+  }
+  ```
+
+  Ejecuté además los otros tres modos incompletos (`in-person` con solo `onlineUrl`, `hybrid` con solo `venue`, `hybrid` con solo `onlineUrl`) contra el validador real:
+
+  ```text
+  $ npm run validate -- /private/tmp/ote-audit/event-online-venue-only.json /private/tmp/ote-audit/event-in-person-online-only.json /private/tmp/ote-audit/event-hybrid-venue-only.json /private/tmp/ote-audit/event-hybrid-online-only.json
+
+  > @opentechevents/schema@0.3.0 validate
+  > node scripts/validate.mjs /private/tmp/ote-audit/event-online-venue-only.json /private/tmp/ote-audit/event-in-person-online-only.json /private/tmp/ote-audit/event-hybrid-venue-only.json /private/tmp/ote-audit/event-hybrid-online-only.json
+
+    ok    /private/tmp/ote-audit/event-online-venue-only.json (event, v0.3)
+    ok    /private/tmp/ote-audit/event-in-person-online-only.json (event, v0.3)
+    ok    /private/tmp/ote-audit/event-hybrid-venue-only.json (event, v0.3)
+    ok    /private/tmp/ote-audit/event-hybrid-online-only.json (event, v0.3)
+
+  Valid.
+  ```
+
+  No hay warnings porque todos los campos recomendados actuales están presentes. Esto confirma que el hueco es del perfil recomendado, no de validez base. También recorrí `spec/v0.3/examples/**/*.json`, excluyendo `examples/invalid/` y `examples/catalog/`, buscando `online` sin `onlineUrl`, `in-person` sin `venue` o `hybrid` sin ambos; resultado: `No valid examples with attendanceMode/location detail gaps.`
+- **Propuesta:** Añadir reglas condicionales solo a `event.recommended.schema.json`: si `attendanceMode` es `"online"` y existe `location`, recomendar `location.onlineUrl`; si es `"in-person"` y existe `location`, recomendar `location.venue`; si es `"hybrid"` y existe `location`, recomendar ambos `location.venue` y `location.onlineUrl`. Si `location` falta por completo, el warning existente de `location` ya cubre el hueco principal y evita duplicar ruido. Implementarlo preferentemente con JSON Schema estándar (`if`/`then` + `properties.location.required`) para que `scripts/validate.mjs:105-120` lo reporte como `location.onlineUrl` o `location.venue` mediante su manejo actual de errores `required`, sin añadir un keyword custom. Regenerar `reference.en.md`/`reference.es.md` para que la referencia explique que son recomendaciones condicionadas por `attendanceMode`, no requisitos de validez.
+- **Impacto en compatibilidad:** Ningún documento deja de ser válido: el cambio vive en el perfil recomendado y sus fallos son warnings por contrato (`event.recommended.schema.json:5`). El corpus válido actual no contiene casos afectados, verificado por script. Productores que todavía no puedan publicar la URL de conexión o la sede pueden seguir publicando; simplemente recibirán un aviso accionable de que el `Event` exportado a schema.org queda incompleto para el modo que ellos mismos declararon.
+- **Alternativas consideradas:** (1) Convertirlo en error del schema base: descartado porque contradice `spec/v0.3/README.md:293` y el caso `moved-online` de `spec/v0.3/README.md:358`. (2) No hacer nada y confiar en la regla de precedencia: descartado porque la precedencia dice qué creer cuando hay contradicción, pero no avisa de que falta la pieza que permite a un consumidor llegar o mapear bien a schema.org. (3) Inferir `attendanceMode` desde `location`: descartado por la misma razón que existe el campo, documentada en `spec/v0.3/README.md:290-293`; la derivación falla y la intención del organizador manda. (4) Añadir un keyword custom: descartado salvo que la implementación encuentre un bloqueo, porque este caso se expresa con JSON Schema declarativo y el validador ya sabe convertir `required` anidado en paths de warning. (5) Avisar también con `location` ausente además del warning genérico de `location`: descartado para la primera versión para no duplicar mensajes; si no hay ningún `location`, el perfil recomendado ya señala el campo raíz que falta.
+
+## [2026-08-04] CLAUDE — REVISION #P028: Avisar si `attendanceMode` no tiene el detalle de `location` correspondiente
+
+- **Veredicto:** APROBAR
+- **Valoración:** Verificado de forma independiente los cuatro casos (`online`+solo `venue`, `in-person`+solo `onlineUrl`, `hybrid`+solo `venue`, y confirmé además que `hybrid` con ambos campos sí pasa, para comprobar que la regla no sea demasiado estricta). Los tres primeros dan `true` en el perfil recomendado cuando deberían avisar — confirmado exactamente. Repasé las citas de `README.md:290-293` (la precedencia) y `README.md:358` (`moved-online`, "debería, no debe") — coinciden literalmente. Repetí el escaneo del corpus con mi propio script: cero eventos reales con este hueco.
+- **Respeta la decisión de precedencia en vez de rodearla con otro mecanismo.** La propuesta no reintroduce el problema por la puerta de atrás (por ejemplo, no propone inferir `attendanceMode` desde `location`, algo que `README.md:290-293` ya descartó explícitamente como el motivo de que el campo exista). Se queda estrictamente en el nivel de "esto es válido, pero incompleto para lo que el propio organizador declaró" — el mismo nivel que ya usa el resto del perfil recomendado.
+- **La implementación propuesta (JSON Schema declarativo, sin keyword custom) es la correcta para este caso.** A diferencia de P019 (que necesitó comparar `languages[]` contra la unión de dos campos distintos, imposible sin código), aquí la condición es "si `attendanceMode` vale X, entonces `location` requiere el campo Y" — un `if`/`then` estándar que el mecanismo de `missingRecommended` ya sabe convertir en un path de aviso legible, sin tocar `scripts/validate.mjs`.
+- **Trade-offs:** Ninguno real. No añade validez, no toca el schema base, y evita duplicar ruido cuando `location` falta por completo (ese caso ya lo cubre el aviso genérico existente).
+- **Recomendación para v1.0:** Encaja bien como mejora de calidad, con la misma prioridad "razonable pero no urgente" que P019 en su día: no corrige una contradicción entre schema y prosa, añade una capacidad de calidad nueva y bien acotada que evita que un exportador a schema.org tenga que adivinar o publicar un `Event` incompleto para el modo que el propio organizador declaró.
+- **Pendiente de:** decisión humana (hhkaos)
+
+## [2026-08-04] HUMANO — DECISION #P028: Avisar si `attendanceMode` no tiene el detalle de `location` correspondiente
+
+- **Decisión:** APROBADA
+- **Quién:** hhkaos
+- **Alcance:** Implementar la propuesta de Codex tal cual, con la implementación declarativa (sin keyword custom) recomendada por Claude en la REVISION.
