@@ -22,8 +22,8 @@
     { "name": "Python Madrid", "url": "https://www.meetup.com/python-madrid/" },
     { "type": "person", "name": "Ada Lovelace", "url": "https://ada.example" }
   ],
-  "startDate": "2026-09-24T19:00:00",
-  "endDate": "2026-09-24T21:00:00",
+  "startDate": "2026-09-24T19:00",
+  "endDate": "2026-09-24T21:00",
   "timezone": "Europe/Madrid",
   "attendanceMode": "in-person",
   "location": {

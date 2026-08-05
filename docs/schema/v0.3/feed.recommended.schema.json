@@ -14,6 +14,36 @@
         "url",
         "description"
       ]
+    },
+    {
+      "description": "textLanguage SHOULD only be set when the feed also names its own organizers — the same field that already tells an aggregator to leave organizers out because its events are not all its own. Without organizers, textLanguage risks handing every event a single language none of them may actually share. Not a validity error: it is not this field's job to decide who is or is not an aggregator, only to flag the one combination most likely to mis-attribute a language. See CHANGES.log #P015 / DECISIONS.md D016.",
+      "if": {
+        "type": "object",
+        "not": {
+          "required": [
+            "organizers"
+          ]
+        }
+      },
+      "then": {
+        "type": "object",
+        "properties": {
+          "textLanguage": {
+            "not": {}
+          }
+        }
+      }
+    },
+    {
+      "description": "description is only useful if it says something: feed.schema.json deliberately leaves it unconstrained beyond being a string, but a feed that carries an empty or whitespace-only description looks complete to this profile's own required check while giving a consumer nothing to show — worse than omitting it, which at least triggers this same warning honestly. CHANGES.log #P017.",
+      "type": "object",
+      "properties": {
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        }
+      }
     }
   ]
 }

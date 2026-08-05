@@ -20,7 +20,7 @@ import { spawnSync } from "node:child_process";
 import { join, basename } from "node:path";
 import Ajv2020 from "ajv/dist/2020.js";
 import addFormats from "ajv-formats";
-import { annotationKeywords } from "../index.js";
+import { annotationKeywords, customFormats, customKeywords } from "../index.js";
 import { fieldsOf, loadSchemas } from "./schema-model.mjs";
 
 const VERSIONS = ["v0.1", "v0.2", "v0.3"];
@@ -47,6 +47,12 @@ function build(version) {
   // The schemas carry annotations strict mode would otherwise refuse to compile. They constrain
   // nothing: registering them changes which SCHEMAS load, never which documents pass.
   for (const kw of annotationKeywords) ajv.addKeyword(kw);
+  // `ote-local-date-time` covers the one temporal shape ajv-formats doesn't: wall-clock,
+  // deliberately without an offset. Strict mode refuses to compile a schema referencing an
+  // unregistered format, same as with annotationKeywords above.
+  for (const f of customFormats) ajv.addFormat(f.name, f.validate);
+  // Unlike annotationKeywords, these restrict which documents pass (e.g. orderedDates).
+  for (const kw of customKeywords) ajv.addKeyword(kw);
 
   const dir = join(SPEC_DIR, version);
   const eventSchema = JSON.parse(readFileSync(join(dir, "event.schema.json"), "utf8"));
@@ -70,34 +76,61 @@ function build(version) {
 }
 
 /**
- * Which recommended fields a document leaves out, as dotted paths (`location.address`).
+ * A handful of recommended-profile keywords validate the WHOLE object (they compare one field
+ * against others — `languagesCoveredByText` checks `languages` against `textLanguage` plus
+ * `translations`, P019), the same reason `distinctTranslationLanguages`/`eventsNotNewerThanFeed`
+ * live at their object's own root in the base schema. Ajv reports their failure at that object's
+ * instancePath (`""`, root), not at the one field a human would say they're "about" — so unlike
+ * every other keyword here, they need an explicit label instead of one derived from instancePath.
+ */
+const OBJECT_KEYWORD_FIELD = { languagesCoveredByText: "languages" };
+
+/**
+ * Which recommended fields a document falls short on, as dotted paths (`location.address`).
+ * Two shapes of shortfall: a field missing entirely (`required`), or a field present but not
+ * good enough (any keyword — `anyOf`, `not`, `minLength`, `pattern`, … — failing at that
+ * field's own instance path: license being a real but not directory-friendly SPDX identifier,
+ * D008; textLanguage set without organizers, D016; description present but empty or
+ * whitespace-only, P017). Both are reported the same bare way, field path only: this profile's
+ * job is to flag where to look, not to explain why — that lives in the field reference.
  *
  * Every `required` error counts, wherever it sits: this only ever runs on a document that
  * already validated against the base schema, so the base half of the profile ($ref) cannot
- * contribute errors — whatever is left was asked for by the profile itself. Other keywords are
- * dropped: `if`/`then` report their own failure alongside the inner one, and reporting both
- * would say the same thing twice.
+ * contribute errors — whatever is left was asked for by the profile itself. Everything else
+ * needs a non-root instancePath, with one exception (`OBJECT_KEYWORD_FIELD`, above): a bare
+ * property-level check always reports a non-root instancePath, while a structural `if`/`allOf`
+ * wrapper failure reports at the root (`""`, falsy) alongside the nested error that actually
+ * names the field — keeping only the nested one avoids saying the same thing twice.
  */
 function missingRecommended(validate, doc) {
   if (!validate || validate(doc)) return [];
   return [
     ...new Set(
       (validate.errors ?? [])
-        .filter((e) => e.keyword === "required")
-        .map((e) => [...e.instancePath.split("/").filter(Boolean), e.params.missingProperty].join("."))
+        .filter(
+          (e) => e.keyword === "required" || Boolean(e.instancePath) || e.keyword in OBJECT_KEYWORD_FIELD
+        )
+        .map((e) =>
+          e.keyword === "required"
+            ? [...e.instancePath.split("/").filter(Boolean), e.params.missingProperty].join(".")
+            : e.keyword in OBJECT_KEYWORD_FIELD
+              ? OBJECT_KEYWORD_FIELD[e.keyword]
+              : e.instancePath.split("/").filter(Boolean).join(".")
+        )
     ),
   ];
 }
 
 /**
- * An event inside a feed inherits the feed's organizers (and license, and specVersion), so the
- * profile has to see the event as a consumer will — otherwise every event in a well-formed
- * community feed gets warned for a field the feed already answered.
+ * An event inside a feed inherits the feed's organizers (and license, specVersion, and
+ * textLanguage), so the profile has to see the event as a consumer will — otherwise every event
+ * in a well-formed community feed gets warned for a field the feed already answered.
  */
 const asPublished = (feed, event) => ({
   ...(feed.organizers ? { organizers: feed.organizers } : {}),
   ...(feed.license ? { license: feed.license } : {}),
   ...(feed.specVersion ? { specVersion: feed.specVersion } : {}),
+  ...(feed.textLanguage ? { textLanguage: feed.textLanguage } : {}),
   ...event,
 });
 
@@ -205,7 +238,10 @@ for (const version of VERSIONS) {
     for (const [path, , meta] of fieldsOf(schema, registry)) {
       for (const [i, example] of meta.examples.entries()) {
         // By reference, not by copy: an isolated subschema cannot resolve #/$defs/… refs.
-        const check = ajv.compile({ $ref: `${schema.$id}#${meta.pointer}` });
+        // `meta.pointer` is already fully qualified with the $id of whichever schema actually
+        // defines the field — not always this loop's own `schema` (a map recursed into via
+        // `additionalProperties`, like `feed.translations.*`, can live in a different schema).
+        const check = ajv.compile({ $ref: meta.pointer });
         const valid = check(example);
         log(
           valid,

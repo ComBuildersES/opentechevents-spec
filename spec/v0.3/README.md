@@ -11,6 +11,7 @@ Especificación mínima para describir eventos de comunidades técnicas y public
 | [`event.recommended.schema.json`](event.recommended.schema.json)<br>[`feed.recommended.schema.json`](feed.recommended.schema.json) | **Normativos, ejecutables.** Perfiles de **calidad, no de validez**: los campos sin los que el evento no se puede descubrir ni seguir. Fallar aquí produce **avisos**, nunca un rechazo. Ver [Campos recomendados](#válido-no-es-lo-mismo-que-útil-los-campos-recomendados). |
 | Este documento | **Normativo, no ejecutable.** Las reglas que un validador no puede comprobar. |
 | [`examples/`](examples/) | Ejemplos, **validados en CI**. Si no pasan el validador, el build falla. |
+| [`DECISIONS.md`](DECISIONS.md) | **No normativo.** Por qué esta spec es como es, en inglés: decisiones de diseño con sus alternativas descartadas y la condición bajo la que valdría la pena reabrirlas. |
 
 Los `$id` son las URLs bajo las que se publican los schemas:
 
@@ -80,18 +81,7 @@ Todo lo demás es opcional. **Deliberadamente**: la mayoría de los `.ics` publi
 
 Opcional **no** quiere decir prescindible, y ahí entra el segundo nivel: los [campos recomendados](#válido-no-es-lo-mismo-que-útil-los-campos-recomendados).
 
-Ejemplo mínimo real ([`examples/event-minimal.json`](examples/event-minimal.json)):
-
-```json
-{
-  "specVersion": "0.3.0",
-  "id": "https://pyalmeria.example/eventos/2026-06-async",
-  "name": "PyAlmería — Introducción a async/await",
-  "startDate": "2026-06-11T18:30:00",
-  "timezone": "Europe/Madrid",
-  "license": "CC-BY-4.0"
-}
-```
+Ejemplo mínimo real, con esos seis campos y nada más: [`examples/event-minimal.json`](examples/event-minimal.json) — es un fichero validado en CI, así que enlazarlo en vez de copiarlo aquí es lo que garantiza que este ejemplo nunca se desincronice del schema real.
 
 ### Válido no es lo mismo que útil: los campos recomendados
 
@@ -203,9 +193,13 @@ Para tu feed es una **sugerencia, no una regla**: publicar en otro orden no romp
 
 `url` es **dónde se describe el evento hoy**. `id` es **qué evento es esto, para siempre**.
 
-Si una comunidad se muda de plataforma a dominio propio, `url` cambia y **`id` no puede cambiar**: es lo que permite a un consumidor *actualizar* el evento que ya tenía en vez de crear un duplicado. Un `id` se acuña una vez, bajo un dominio que controla quien publica (el DNS ya garantiza unicidad: no hace falta registro central), y no se reescribe jamás.
+Si una comunidad se muda de plataforma a dominio propio, `url` cambia y **`id` no puede cambiar**: es lo que permite a un consumidor *actualizar* el evento que ya tenía en vez de crear un duplicado. Un `id` se acuña una vez, bajo un dominio que controla quien publica (el DNS ya garantiza unicidad: no hace falta registro central), y no se reescribe jamás. «Controlar el dominio» no exige ser su dueño: una página canónica en una plataforma que se usa (Meetup, GitHub Pages, LinkedIn) sirve igual — lo que hace falta es que esa URL sea estable y que nadie más pueda acabar con la misma. Por eso `id`, igual que `url`, tiene que ser una URL HTTP(S): un identificador de otro tipo (`urn:`, `mailto:`) no da esa garantía de unicidad sin registro, y el validador lo rechaza. Detalle en [DECISIONS.md, D020](DECISIONS.md#d020--id-and-partofid-must-be-an-https-url-not-any-uri-scheme).
 
-Nadie debería teclear un `id` a mano: las herramientas lo derivan de la URL canónica del evento, o lo acuñan como `<dominio>/events/<comunidad>/<fecha>-<slug>` cuando el evento no tiene página propia.
+Nadie debería teclear un `id` a mano: las herramientas lo derivan de la URL canónica del evento (propia o de la plataforma que se use), o lo acuñan como `<dominio>/events/<comunidad>/<fecha>-<slug>` cuando el evento no tiene página propia.
+
+Ningún campo URL del schema (`id`, `url`, `location.onlineUrl`, `organizers[].url`, `offers[].url`, etc.) admite credenciales embebidas en la autoridad (`https://user:pass@...`): son enlaces públicos de descubrimiento, no canales autenticados, y publicar un secreto ahí lo filtra a quien lea el feed. Detalle en [DECISIONS.md, D026](DECISIONS.md#d026--https-url-fields-must-not-carry-embedded-userinfo-credentials).
+
+**Dentro de un mismo feed, dos eventos no pueden compartir `id`** — el validador lo comprueba (igualdad exacta de cadena, sin normalizar URIs). No es la deduplicación heurística entre fuentes que la spec deja fuera de alcance ([más abajo](#lo-que-la-v03-no-resuelve)): es una sola fuente contradiciendo, en el mismo documento, la identidad que ella misma acuñó. Detalle en [DECISIONS.md, D011](DECISIONS.md#d011--no-two-events-in-a-feed-may-share-an-id-compared-by-exact-string-equality).
 
 ### Fechas: reloj de pared, no instantes
 
@@ -214,13 +208,31 @@ Nadie debería teclear un `id` a mano: las herramientas lo derivan de la URL can
 Dos formas, y **ambas fechas deben usar la misma**:
 
 - **Todo el día**: `"2026-10-15"`.
-- **Con hora**: `"2026-10-15T09:00:00"`.
+- **Con hora**: `"2026-10-15T09:00"` — **sin segundos**: es la hora que aparece en un cartel, nunca un instante técnico ([DECISIONS.md, D004](DECISIONS.md#d004--dateTime-has-no-seconds-and-enddate-must-not-precede-startdate)).
 
-Mezclar (`startDate` fecha, `endDate` fecha-hora) es inválido. Si `endDate` falta, el evento termina el día que empieza.
+Mezclar (`startDate` fecha, `endDate` fecha-hora) es inválido. Si `endDate` falta, el evento termina el día que empieza. Si `endDate` está presente, **no puede ser anterior a `startDate`** — un evento no termina antes de empezar; el schema lo rechaza.
+
+**Para un evento de todo el día, `endDate` es INCLUSIVO: nombra el último día en que ocurre el evento, no el día siguiente.** `startDate: "2026-10-16"` + `endDate: "2026-10-17"` es un evento de **dos días** (16 y 17), no de uno. Es la misma convención que usan Google y schema.org para `endDate` — y la contraria a la de iCalendar: RFC 5545 define `DTEND;VALUE=DATE` como el final **no inclusivo**, con este mismo ejemplo en su propio texto: un evento del 28 de junio al 8 de julio inclusive se codifica como `DTEND;VALUE=DATE:20070709` — el día **siguiente** al último. Por eso la conversión no es copiar el valor:
+
+| | OTE `endDate` | iCalendar `DTEND;VALUE=DATE` |
+| --- | --- | --- |
+| Exportar | `2026-10-17` | súmale 1 día → `20261018` |
+| Importar | réstale 1 día → `2026-10-17` | `20261018` |
+
+Copiar el valor sin este ajuste acorta en un día todo evento OTE de varios días al pasar a iCalendar, y lo alarga en uno al volver. Los valores con hora no llevan esta ambigüedad — un `endDate` con hora ya es un instante exacto, sin que quepan dos lecturas. Detalle en [DECISIONS.md, D013](DECISIONS.md#d013--all-day-enddate-is-inclusive-icalendar-dtend-is-not).
 
 `timezone` (IANA, `Europe/Madrid`) es **siempre obligatoria**. Con hora, es lo que convierte el reloj de pared en un instante inequívoco. En eventos de todo el día, **contextualiza** la fecha: dice a qué región pertenece ese día — **no la desplaza**. Un consumidor **no debe** convertir un evento de todo el día a otra zona horaria.
 
+**"Instante inequívoco" tiene una excepción real: las dos noches al año en que la zona cambia de horario.** Al atrasar el reloj (verano→invierno), una hora local se repite y nombra dos instantes distintos; al adelantarlo (invierno→verano), hay una hora que no llega a existir nunca. Rarísimo en la práctica —nadie programa una charla a las 2:30 de la madrugada a propósito—, pero puede colarse sin que nadie lo mire: un script que genera fechas de una serie de sesiones sin tener en cuenta esa noche concreta, o un `.ics` importado con ese mismo problema. La resolución es la misma que ya usa RFC 5545 §3.3.5 — cualquier herramienta iCalendar existente ya la aplica sin cambiar nada — con sus mismos ejemplos oficiales:
+
+- **Hora repetida**: cuenta la **primera** ocurrencia. `TZID=America/New_York:20071104T013000` son las 1:30 del 4 de noviembre de 2007 en **EDT** (UTC−04:00), no en EST.
+- **Hora inexistente**: se interpreta con el offset vigente **antes** del salto. `TZID=America/New_York:20070311T023000` son, en realidad, las 3:30 EDT (UTC−04:00) — una hora después de las 1:30 EST.
+
+Detalle en [DECISIONS.md, D014](DECISIONS.md#d014--dst-ambiguous-or-nonexistent-local-times-resolve-per-rfc-5545-335).
+
 La única fecha con offset en toda la spec es `source.retrievedAt` (y `updatedAt` en el feed): son metadatos, instantes reales, no cosas que le pasan a la gente en un sitio.
+
+Todas las fechas y horas de esta spec, en cualquier campo, tienen que ser **calendáricamente reales** — nada de meses, días u horas que no existen — y `timezone` tiene que ser una **zona IANA real**, canónica o alias histórico. Ambas cosas las comprueba el validador, no son solo una recomendación de esta página. Por qué (y por qué la primera versión de la comprobación de `timezone` estaba mal) está en [DECISIONS.md, D001 y D002](DECISIONS.md#d001--temporal-fields-must-be-calendar-valid-not-just-lexically-shaped).
 
 ### Recurrencia y eventos multi-parte: `partOf`
 
@@ -236,7 +248,7 @@ Nuevo en la v0.3, opcional. Y lo primero que hay que decir es lo que **no** es: 
 }
 ```
 
-Solo `id` es obligatorio. `name` y `url` evitan que un consumidor tenga que resolver el `id` para poder agrupar. El `id` sigue las mismas reglas que el del evento (URI bajo un dominio propio, acuñado una vez) y **no tiene por qué resolver** a un documento OTE.
+Solo `id` es obligatorio. `name` y `url` evitan que un consumidor tenga que resolver el `id` para poder agrupar. El `id` sigue las mismas reglas que el del evento (URI bajo un dominio propio, acuñado una vez) y **no tiene por qué resolver** a un documento OTE. **Lo que no puede ser es el mismo `id` del propio evento** — una ocurrencia no puede ser el conjunto al que pertenece; el validador lo rechaza. Detalle en [DECISIONS.md, D012](DECISIONS.md#d012--an-events-partofid-must-not-equal-its-own-id).
 
 **`type`: `series` o `multipart`** (por defecto `series`). No es decoración: cambia la traducción.
 
@@ -286,6 +298,8 @@ Casi siempre se podrían derivar el uno del otro, y coinciden. El campo existe p
 
 Si `location` está presente, debe traer al menos `venue` o `onlineUrl`. Un `location: {}` es inválido: no dice nada, y decir nada ya se hace omitiendo el campo. **`address` y `geo` no cuentan** para esa regla: describen la sede que `venue` nombra, no la sustituyen.
 
+Esta independencia es deliberada y no se toca: pero el perfil recomendado sí avisa (nunca invalida) cuando falta el detalle concreto que el `attendanceMode` declarado necesita — `onlineUrl` para `online`, `venue` para `in-person`, ambos para `hybrid`. Ver [DECISIONS.md#D025](DECISIONS.md#d025--recommended-tier-warning-when-attendancemode-lacks-its-matching-location-detail).
+
 ### `location.address`: la dirección que se valida por partes
 
 Nueva en la v0.3, opcional, y **hermana de `venue`, no sustituta**:
@@ -310,7 +324,7 @@ Nueva en la v0.3, opcional, y **hermana de `venue`, no sustituta**:
 
 **Todas las partes son opcionales, y omitir es la forma correcta de no saber.** Una clave ausente significa desconocido. `""` y `null` **no son válidos** —cada parte es una cadena de al menos un carácter—, y esa es una decisión con caso real detrás: Guild emite hoy un `PostalAddress` con los cinco subcampos a `null`, que es publicar un desconocido con forma de dato. `"address": {}` también se rechaza, por el mismo motivo que `location: {}`.
 
-**`country` es un código ISO 3166-1 alfa-2 en mayúsculas** (`ES`, `US`), y es la única parte con formato exigido. Un nombre de país tiene una grafía por idioma —«España», «Spain», «Espagne»— y un consumidor que agrupe eventos por país vería tres países donde hay uno. Convertir el nombre en código es **consultar una tabla, no inventar**: por eso aquí sí se exige, y no se exige en `region`, donde no hay tabla universal que valga (provincia, estado, condado o *Land*, según el país).
+**`country` es un código ISO 3166-1 alfa-2 en mayúsculas** (`ES`, `US`), y es la única parte con formato exigido. Un nombre de país tiene una grafía por idioma —«España», «Spain», «Espagne»— y un consumidor que agrupe eventos por país vería tres países donde hay uno. Convertir el nombre en código es **consultar una tabla, no inventar**: por eso aquí sí se exige, y no se exige en `region`, donde no hay tabla universal que valga (provincia, estado, condado o *Land*, según el país). El validador comprueba el código contra la lista de asignados vigentes, no solo su forma — mismo patrón que `timezone` y `currency`: ver [DECISIONS.md, D006](DECISIONS.md#d006--locationaddresscountry-must-be-a-real-currently-assigned-iso-3166-1-code). **Error frecuente: Reino Unido es `GB`, no `UK`** — «UK» no es un código ISO 3166-1, es de los reservados «indeterminadamente» precisamente por su uso extendido fuera del estándar.
 
 **`locality` y `region` se escriben UNA vez, y no se traducen.** «València» y «Valencia», «Girona» y «Gerona», «Donostia» y «San Sebastián» son grafías reales del mismo sitio, y aquí no hay tabla que consultar como la de `country`. La regla, que es recomendación y no validación: **escribe la grafía más reconocible para la audiencia mayoritaria del evento**, la que esa gente teclearía al buscar. No pongas las dos, no las metas en `translations` —[no está cubierto a propósito](#traducciones-locales-el-texto-que-vive-dentro-de-un-objeto)— y recuerda que quien necesite precisión sin idioma ya la tiene: `location.geo` no tiene grafías.
 
@@ -366,7 +380,11 @@ Un evento **cancelado, pospuesto o movido debe seguir en el feed**. Borrarlo en 
 
 ### `license` y `source`: qué se puede reutilizar, y de dónde salió
 
-`license` es la licencia de **estos datos**, no del evento. SPDX (`CC0-1.0`, `CC-BY-4.0`) o una URL. Va en SPDX y no en prosa (`CC BY 4.0`) porque un importador tiene que compararla contra una allowlist, y para eso necesita un identificador, no una frase.
+`license` es la licencia de **estos datos**, no del evento. SPDX (`CC0-1.0`, `CC-BY-4.0`) o una URL. Va en SPDX y no en prosa (`CC BY 4.0`) porque un importador tiene que compararla contra una allowlist, y para eso necesita un identificador, no una frase — y el validador la comprueba de verdad contra la [SPDX License List](https://spdx.org/licenses/) oficial, no solo por su forma. Identificadores retirados (*deprecated*) siguen siendo válidos, porque la propia SPDX los sigue publicando como tales; lo que no vale es uno inventado. Detalle en [DECISIONS.md, D008](DECISIONS.md#d008--license-validates-simple-spdx-identifiers-against-the-real-spdx-license-list).
+
+**El perfil recomendado avisa (sin invalidar) si `license` tiene una cláusula que puede bloquear a un directorio o agregador**: *NonCommercial* descarta directamente cualquier directorio comercial, *NoDerivatives* bloquea el reformateo/traducción que hace cualquier agregador, y *ShareAlike* (incluido `ODbL`) es "viral" para una base de datos combinada — mezclar tu evento con otros podría obligar a todo el feed agregado a adoptar tu licencia. Las licencias de software copyleft (GPL y familia) tampoco entran en lo recomendado: su mecánica está pensada para "distribuir el Programa", algo legalmente ambiguo aplicado a un documento JSON, y esa ambigüedad ya es motivo suficiente para que el equipo legal de un directorio decline en vez de arriesgarse. Nada de esto invalida el documento — solo `CC0-1.0`, `CC-BY-*` (sin NC/ND/SA), `PDDL-1.0` y `ODC-By-1.0` se libran del aviso.
+
+**La compatibilidad entre licencias de distintos eventos de un mismo feed es responsabilidad de quien agrega**, no algo que esta spec compruebe ni imponga: cada evento es una obra independiente, y `license` se puede sobreescribir por evento precisamente porque no todas las comunidades quieren los mismos términos. Quien construya un agregador y quiera combinar o redistribuir el feed entero como una sola cosa tiene que mirar la licencia de **cada evento**, no solo la del feed — la herencia (`x-inheritsFrom`) da un valor por defecto, no una garantía de que todos los eventos compartan licencia.
 
 `source` es **obligatoria cuando el evento se importó o agregó** de otro sitio (un `.ics`, Meetup, otro directorio). Se omite cuando quien organiza describe su propio evento: **es** la fuente.
 
@@ -388,7 +406,7 @@ Nuevo en la v0.3. Opcional, y **una lista**, no un objeto:
 
 Solo `name` es obligatorio. `url`, `email` y `type` (`organization` por defecto, o `person`) son opcionales. **Y nada más**: ni logo, ni identificadores. El campo describe **quién organiza y dónde escribirle**, no su ficha completa.
 
-**Es una lista porque la co-organización es lo normal**, no la excepción: dos comunidades que juntan meetup, una comunidad y su anfitrión. Luma ya emite `organizer` como array (organización + persona) y schema.org lo acepta. Ensanchar un objeto a lista más tarde habría sido un cambio que rompe; nace lista. **El orden es significativo**: el primero es el principal, y es el único que sobrevive a iCal.
+**Es una lista porque la co-organización es lo normal**, no la excepción: dos comunidades que juntan meetup, una comunidad y su anfitrión. Luma ya emite `organizer` como array (organización + persona) y schema.org lo acepta. Ensanchar un objeto a lista más tarde habría sido un cambio que rompe; nace lista. **El orden es significativo**: el primero es el principal, y es el único que sobrevive a iCal. Repetir exactamente el mismo organizador en la lista es inválido: no añade información, solo obliga a quien exporta a deduplicar. Ver [DECISIONS.md, D027](DECISIONS.md#d027--organizers-must-not-carry-exact-duplicate-entries).
 
 Tres confusiones que conviene desactivar antes de que ocurran:
 
@@ -452,12 +470,12 @@ No hace falta esperar a nadie para usarlo: es un campo de extensión con prefijo
 
 Los tres son **opcionales** y entraron por la misma razón: el importador de `.ics` los tenía delante en cada `VEVENT` y no había dónde ponerlos. Ninguno es una idea especulativa; los tres tienen ya un productor real. Detalle en el [CHANGELOG](../../CHANGELOG.md).
 
-- **`tags`** — lista libre de temáticas (`["rust","wasm"]`). Mapea a `CATEGORIES` de iCal y a `keywords` de schema.org. **Libre a propósito**: quien organiza etiqueta como quiera. Un vocabulario controlado (para no ensuciar interfaces de filtro o suscripción) podría superponerse más adelante **sin** cerrar el campo. Ausente = desconocido, no «sin temática».
+- **`tags`** — lista libre de temáticas (`["rust","wasm"]`). Mapea a `CATEGORIES` de iCal y a `keywords` de schema.org. **Libre a propósito**: quien organiza etiqueta como quiera. Un vocabulario controlado (para no ensuciar interfaces de filtro o suscripción) podría superponerse más adelante **sin** cerrar el campo. Ausente = desconocido, no «sin temática». Sí se rechaza el duplicado exacto (`["rust","rust"]`): no es libertad de vocabulario, es la misma etiqueta afirmada dos veces. `languages` tiene la misma regla, por el mismo motivo — ver [DECISIONS.md, D024](DECISIONS.md#d024--tags-and-languages-must-not-carry-exact-duplicate-entries). `languages`, además, rechaza la misma etiqueta BCP 47 repetida con distinta capitalización (`["es","ES"]`): `tags` es vocabulario libre sin ese precedente, pero `languages` comparte tipo con las claves de `translations`, que ya se comparan así — ver [DECISIONS.md, D028](DECISIONS.md#d028--languages-must-not-repeat-the-same-bcp-47-tag-under-different-case).
   > **`CATEGORIES` no viaja por Google Calendar** (no lo emite ni lo lee). Un importador puede recuperar temáticas de una convención de *hashtags* (`#rust`) en la `description` — pero eso es **comportamiento del importador, no del schema**: aquí `tags` es siempre la lista estructurada.
 
 - **`location.geo`** — punto WGS-84 `{ lat, lon }` en grados decimales. Mapea a `GEO` de iCal y a `Place.geo` de schema.org. Es **independiente de `venue`** (texto libre): un punto en el mapa, no un nombre. Va **dentro de `location`** —hermano de `venue`/`onlineUrl`— igual que schema.org anida `geo` dentro de `Place`; no cuelga de `venue`, porque `venue` es una cadena, no un objeto. `geo` no basta por sí solo para satisfacer `location`: sigue haciendo falta `venue` u `onlineUrl`.
 
-- **`updatedAt`** — instante (con offset/Z) en que **los datos del evento** cambiaron por última vez. Es el equivalente de `LAST-MODIFIED` de iCal, **no** de `DTSTAMP`: `DTSTAMP` marca *cuándo se generó el fichero* y cambia en cada exportación aunque no haya cambiado nada, así que no sirve para «qué cambió». Su valor está en la **sincronización incremental**: un consumidor que lee el feed a diario filtra por `updatedAt > última_lectura` en vez de recomparar la colección entera. El `updatedAt` del feed dice «algo cambió»; el del evento dice **qué**. Ausente = desconocido, no «nunca cambió».
+- **`updatedAt`** — instante (con offset/Z) en que **los datos del evento** cambiaron por última vez. Es el equivalente de `LAST-MODIFIED` de iCal, **no** de `DTSTAMP`: `DTSTAMP` marca *cuándo se generó el fichero* y cambia en cada exportación aunque no haya cambiado nada, así que no sirve para «qué cambió». Su valor está en la **sincronización incremental**: un consumidor que lee el feed a diario filtra por `updatedAt > última_lectura` en vez de recomparar la colección entera. El `updatedAt` del feed dice «algo cambió»; el del evento dice **qué**. Ausente = desconocido, no «nunca cambió». **Ningún evento puede tener un `updatedAt` posterior al del propio feed** — el feed no puede contener una revisión que, según sus propios sellos, todavía no existía cuando se generó; el validador lo comprueba comparando los instantes reales, no el texto. Detalle en [DECISIONS.md, D015](DECISIONS.md#d015--no-events-updatedat-may-be-later-than-the-feeds-own-updatedat).
 
 ### `image`: el cartel, su texto alternativo, y por qué la lista admite dos formas
 
@@ -526,19 +544,22 @@ Nuevos en la v0.3, los dos opcionales. Son **dos campos porque son dos problemas
 }
 ```
 
-**`languages` y `textLanguage` no son el mismo dato**, y este ejemplo es exactamente por qué: en la sesión **se habla** catalán y castellano, y el documento **está escrito** solo en catalán. Ninguno de los dos se deriva del otro, y confundirlos es el riesgo real de esta pareja: `languages` contesta «¿lo entenderé si voy?», `textLanguage` contesta «¿en qué idioma está este texto?». La descripción de `languages` ahora lo dice en el propio schema, porque es donde alguien lo va a leer.
+**`languages` y `textLanguage` no son el mismo dato**, y este ejemplo es exactamente por qué: en la sesión **se habla** catalán y castellano, y el documento **está escrito** solo en catalán. Ninguno de los dos se deriva del otro, y confundirlos es el riesgo real de esta pareja: `languages` contesta «¿lo entenderé si voy?», `textLanguage` contesta «¿en qué idioma está este texto?». La descripción de `languages` ahora lo dice en el propio schema, porque es donde alguien lo va a leer. Que sea válido no significa que sea completo: el perfil recomendado avisa (sin invalidar) si algún idioma de `languages` no tiene ni `textLanguage` (propio o heredado del feed) ni una entrada en `translations` que lo cubra — quien solo lea ese idioma no encuentra ni una palabra que entender. Detalle en [DECISIONS.md, D019](DECISIONS.md#d019--recommended-profile-warns-when-a-spoken-languages-entry-has-no-available-text).
 
 **`textLanguage` es una etiqueta, no una lista.** Un texto está escrito en un idioma. Sin él, un consumidor no puede poner `lang="ca"` en el HTML —lo que decide la separación de sílabas, la voz del lector de pantalla y el diccionario del corrector—, ni ordenar alfabéticamente bien, ni decidir si traducir automáticamente. Nada de eso se puede adivinar del texto sin adivinar.
+
+**«Etiqueta BCP 47» se valida de verdad, no solo por su forma:** el núcleo (idioma, con script/región/variante opcionales) se comprueba subtag a subtag contra el registro real de IANA. Uso privado (`x-...`), etiquetas *grandfathered* (`i-klingon`) y extensiones quedan **deliberadamente fuera de alcance** — sin caso de uso real para «en qué idioma está este texto» — y códigos registrados que no nombran un idioma concreto (`und` Undetermined, `mis`, `mul`...) tampoco valen, mismo motivo que `ZZ` no vale como `country`. Detalle y alternativas descartadas en [DECISIONS.md, D007](DECISIONS.md#d007--languagetag-validates-the-core-of-bcp-47-against-the-real-iana-registry-not-all-of-it).
 
 **Se hereda del feed, y ahí está lo barato.** Como `license` y `organizers`: el feed lo declara una vez y todo evento que no lo declare lo hereda. Para quien publica en un solo idioma —el 99%— el coste de este campo es **una línea en todo el fichero**. Ausente significa **desconocido**: ni el inglés, ni el idioma de la cabecera HTTP, ni el del feed si el feed tampoco lo dice.
 
 **`translations` es un mapa, y el texto principal sigue siendo una cadena.** Es la decisión que sostiene todo lo demás:
 
 - **`name` y `description` no cambian de forma.** Un consumidor de v0.2 lee un documento con `translations` y no se entera de que existe. La alternativa —mapas de idioma en el propio campo, `"name": {"ca": "…", "es": "…"}`, que es el `@container: @language` de JSON-LD— es técnicamente más limpia y **rompe `name` para todos los consumidores que existen hoy**, gravando al 99% monolingüe para servir al 1%. Descartada por eso.
-- **Un mapa y no una lista, porque el idioma es la clave.** Una entrada por idioma, y **ninguna forma de publicar dos versiones en castellano** que se contradigan.
+- **Un mapa y no una lista, porque el idioma es la clave.** Una entrada por idioma, y **ninguna forma de publicar dos versiones en castellano** que se contradigan — ni siquiera escribiendo la etiqueta con mayúsculas distintas: `translations.en-US` y `translations.EN-us` son la misma etiqueta BCP 47 y el validador las trata como el mismo idioma, igual que ya hace al compararlas con `textLanguage`. Detalle en [DECISIONS.md, D023](DECISIONS.md#d023--a-translations-map-must-not-carry-two-keys-naming-the-same-language-in-different-case).
 - **El texto que vive dentro de un objeto se traduce donde vive**, con un `translations` local a ese objeto: `offers[].translations`, `eligibility.translations`, `partOf.translations`. [Detalle abajo](#traducciones-locales-el-texto-que-vive-dentro-de-un-objeto).
-- **Nunca se traduce al idioma en que ya está el documento.** Una entrada `ca` en un documento con `textLanguage: "ca"` es el mismo texto dos veces, y dos formas de afirmar lo mismo son dos formas de contradecirse — el argumento de [`isFree`](#offers-cuánto-cuesta-y-dónde-se-saca-la-entrada). **El schema no lo puede comprobar** (comparar el valor de un campo con el nombre de una clave está fuera de JSON Schema), así que es una regla normativa que vigila quien publica, como la de [actualizar `status`](#status-un-evento-cancelado-sigue-publicado).
-- **Un mapa vacío es inválido**, igual que `location: {}`: decir nada ya se hace omitiendo el campo. Y las claves tienen que ser etiquetas BCP 47 — `"castellano"` no valida, que es justo el error que se comete a mano.
+- **Nunca se traduce al idioma en que ya está el documento.** Una entrada `ca` en un documento con `textLanguage: "ca"` es el mismo texto dos veces, y dos formas de afirmar lo mismo son dos formas de contradecirse — el argumento de [`isFree`](#offers-cuánto-cuesta-y-dónde-se-saca-la-entrada). **El validador lo comprueba de verdad** (no es solo una regla normativa que vigile quien publica): un *keyword* Ajv personalizado rechaza cualquier `translations` que repita `textLanguage`, comparando sin distinguir mayúsculas — `ca` y `CA` son el mismo idioma. Detalle en [DECISIONS.md, D010](DECISIONS.md#d010--a-translations-map-must-not-carry-a-key-equal-to-textlanguage).
+- **Un mapa vacío es inválido**, igual que `location: {}`: decir nada ya se hace omitiendo el campo. Y las claves tienen que ser etiquetas BCP 47 — `"castellano"` no valida, que es justo el error que se comete a mano. **Y una entrada que solo lleva campos desconocidos tampoco vale como traducción**: sigue pudiendo llevar extensiones junto a `name`/`description` (o `title`/`description` en el feed), pero como único contenido no traduce nada que OTE reconozca — y silenciaría sin querer el aviso de idiomas cubiertos ([D019](DECISIONS.md#d019--recommended-profile-warns-when-a-spoken-languages-entry-has-no-available-text)). Detalle en [DECISIONS.md, D022](DECISIONS.md#d022--eventfeed-top-level-translations-must-carry-at-least-one-recognized-ote-field).
+- **Traducir un campo que el texto principal no tiene sigue siendo válido** — puede ser una decisión editorial legítima, no una contradicción — pero el perfil recomendado avisa (sin invalidar) cuando eso ocurre en `offers[].name`, `partOf.name` o `eligibility.note`: quien ya escribió el texto en otro idioma probablemente quiere que también exista en el principal, para quien no lea `translations`. Detalle en [DECISIONS.md, D030](DECISIONS.md#d030--recommended-tier-warning-when-a-translation-exists-for-a-field-the-primary-text-omits).
 
 **Cualquier `translations` del documento exige `textLanguage`.** Es la **única dependencia entre campos de toda la spec**, y el schema la comprueba con un `if`/`then` — **a cualquier profundidad**: una traducción dentro de una oferta también la activa, porque el idioma del texto principal es propiedad del documento entero, no de cada objeto. Sin ella, un mapa de traducciones es inservible: nadie puede saber cuál de las entradas duplica el texto principal, ni a qué está cayendo de vuelta si no encuentra su idioma. El orden de lectura de un consumidor es: **el idioma que pide → `translations` → el texto principal**, y ese último paso necesita saber en qué idioma está.
 
@@ -674,7 +695,7 @@ Un meetup gratuito es **una sola entrada**:
 
 **Es una lista porque el precio de un evento casi nunca es un número.** Early bird, general, estudiantes, empresa: son ofertas distintas, con fechas y disponibilidad distintas. Por eso **no hay rangos ni «desde 45 €»**: un precio que no se puede escribir con un solo número **son varias ofertas**, y escribirlo como texto rompe lo único por lo que merece la pena publicarlo como dato — que alguien pueda **filtrar y comparar**. `price` es un número, sin símbolo de moneda y sin separador de miles.
 
-**`currency` es obligatoria en cuanto `price` pasa de 0**, y sobra cuando es 0. Lo gratis es gratis en cualquier moneda, y exigirla ahí es exactamente cómo Luma acaba publicando `"price": 0, "priceCurrency": "usd"` para una sesión semanal de Rust en Girona: una divisa inventada para un dato que no la necesita. Al revés, un `45` sin moneda no es un precio: es un número que cada consumidor leerá en la suya. Es la misma decisión que `country` en `address` — código ISO (4217 aquí, alfa-3 en mayúsculas), no nombre.
+**`currency` es obligatoria en cuanto `price` pasa de 0**, y sobra cuando es 0. Lo gratis es gratis en cualquier moneda, y exigirla ahí es exactamente cómo Luma acaba publicando `"price": 0, "priceCurrency": "usd"` para una sesión semanal de Rust en Girona: una divisa inventada para un dato que no la necesita. Al revés, un `45` sin moneda no es un precio: es un número que cada consumidor leerá en la suya. Es la misma decisión que `country` en `address` — código ISO (4217 aquí, alfa-3 en mayúsculas), no nombre. El validador lo comprueba contra la lista ISO 4217 activa, no solo por su forma — mismo motivo y mismo patrón que `timezone`: ver [DECISIONS.md, D005](DECISIONS.md#d005--offerscurrency-must-be-a-real-iso-4217-code). Y al revés de esto: `currency` sin ningún `price` tampoco vale — es una moneda que no califica nada, huérfana en el `Offer.priceCurrency` que se mapea a schema.org. Si el precio todavía no se conoce, la forma de decirlo ya existe y es la misma de siempre: omitir el campo. Ver [DECISIONS.md, D021](DECISIONS.md#d021--offerscurrency-requires-offersprice-to-be-present).
 
 **`availability` tiene dos valores, `in-stock` y `sold-out`, y no tiene valor por defecto.** Son los dos estados sobre los que quien asiste puede actuar. Ausente significa desconocido, y eso es deliberado: **un feed desactualizado que sigue afirmando `in-stock` es peor que uno que se calla**, porque manda a alguien a una página de entradas agotadas. Quien no mantenga el dato al día, que lo omita.
 
@@ -748,6 +769,8 @@ Entra por **el otro lado del tubo**: el del consumidor. «¿Qué conferencias es
 
 Y hay un caso que zanja la discusión: **«anywhere on Earth»**. Un CFP que cierra AoE cierra a las 23:59 **en UTC-12**, que no es la zona del evento ni la de nadie que lo organice. Con reloj de pared + `timezone` del evento no se puede expresar; con offset se escribe `"2026-07-15T23:59:59-12:00"` y se acabó. Un `"23:59"` pelado es el bug clásico de las convocatorias — qué medianoche es literalmente toda la pregunta.
 
+**El offset de cada instante es el que quien lo escribe elija — no se exige UTC.** Forzarlo simplificaría la validación, pero obligaría a convertir a mano una fecha que alguien ya piensa en su propia zona horaria, el mismo coste que ya se descartó para `startDate`. Lo que sí exige el validador es que `closesAt` no sea anterior a `opensAt` — comparando los instantes reales, no el texto, porque con offsets distintos el orden de las cadenas puede no coincidir con el orden real. Detalle en [DECISIONS.md, D009](DECISIONS.md#d009--offers-and-cfp-windows-opensatclosesat-must-not-be-inverted-and-instants-keep-their-own-offset-rather-than-being-forced-to-utc).
+
 El precio es que Google, en su ejemplo canónico, emite `"validFrom": "2024-05-21T12:00"` **sin** offset. Un exportador de OTE emite el instante completo, que es un superconjunto: nada se pierde, y lo que llega es menos ambiguo que el ejemplo.
 
 **Traducción a los tres formatos de destino, incluida la pérdida:**
@@ -760,13 +783,15 @@ El precio es que Google, en su ejemplo canónico, emite `"validFrom": "2024-05-2
 
 ## El feed
 
-Obligatorio: `specVersion`, `title`, `license`, `updatedAt`, `events`.
+Obligatorio: `specVersion`, `title`, `updatedAt`, `events`.
 
 **La `license` del feed es el valor por defecto de sus eventos**: un evento que no declare la suya hereda la del feed. Repetir `"license": "CC-BY-4.0"` en 200 eventos es ruido, no rigor. Un evento *dentro de un feed* tampoco repite `specVersion`: hereda la del feed. Un evento **suelto** (fuera de un feed) sí debe declarar ambas — no tiene de quién heredarlas.
 
+**`license` es la única de estas herencias que puede quedar sin valor por defecto — y solo si nada se rompe por ello.** Un feed agregador cuyos eventos tienen licencias distintas puede **omitir** `feed.license`, igual que ya puede omitir `organizers`/`textLanguage` — pero con una condición que esas dos no llevan: si el feed no declara `license`, **cada evento debe declarar la suya propia**. Ningún documento OTE válido, suelto o dentro de un feed, puede terminar con una licencia desconocida — desconocer bajo qué términos se redistribuyen unos datos es un riesgo legal real, no solo una atribución poco clara, y por eso esta garantía es más estricta que la de `organizers`/`textLanguage`. Detalle en [DECISIONS.md, D029](DECISIONS.md#d029--feedlicense-may-be-omitted-only-if-every-event-then-declares-its-own).
+
 **`organizers` se hereda igual, con una diferencia**: la lista del evento **reemplaza** la del feed, no se suma a ella (el porqué, arriba). Y un feed de **agregador** debe **omitir** `organizers`: no organiza lo que publica, y ponerlo ahí atribuiría mal cada evento del feed.
 
-**`textLanguage` también se hereda** —una línea en el feed y ningún evento la repite— y **`translations` no se hereda nunca**: el `title` de un feed no es el `name` de un evento, así que `feed.translations` traduce el feed y cada evento lleva las suyas. [Detalle arriba](#textlanguage-y-translations-en-qué-idioma-está-escrito-esto).
+**`textLanguage` también se hereda** —una línea en el feed y ningún evento la repite— y **`translations` no se hereda nunca**: el `title` de un feed no es el `name` de un evento, así que `feed.translations` traduce el feed y cada evento lleva las suyas. [Detalle arriba](#textlanguage-y-translations-en-qué-idioma-está-escrito-esto). Y, igual que `organizers`, un feed de **agregador** cuyos eventos no comparten idioma debe **omitir** `feed.textLanguage`: heredarlo atribuiría a todo evento un idioma que puede no ser el suyo. El perfil recomendado avisa (sin invalidar) si `textLanguage` está presente y `organizers` no —la misma señal que ya usa el feed para saber que es de agregador—, precisamente para detectar este caso. Detalle en [DECISIONS.md, D016](DECISIONS.md#d016--feedtextlanguage-inheritance-is-enforced-against-the-effective-language-computed-at-the-feed-root).
 
 **Resumen de qué se hereda**, porque son cuatro campos con tres comportamientos distintos:
 

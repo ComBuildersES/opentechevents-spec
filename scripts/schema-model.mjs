@@ -8,6 +8,27 @@
  */
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import { customKeywords } from "../index.js";
+
+/**
+ * Object-level rules that live outside JSON Schema entirely — a boolean flag
+ * (`"orderedDates": true`) that `index.js`'s `customKeywords` gives real validation logic, not a
+ * shape `rulesOfObject` can parse. Their `error.message` is already written for a human (it is
+ * what a validator prints), so it is reused here as the rule's English text instead of
+ * duplicating a second hand-written sentence that could drift from the one Ajv actually reports.
+ */
+const CUSTOM_KEYWORD_MESSAGES = new Map(customKeywords.map((k) => [k.keyword, k.error.message]));
+
+/**
+ * Adds a trailing period without capitalizing: several of these messages start with a field
+ * name (`endDate must not be earlier than startDate`), and capitalizing "endDate" into "EndDate"
+ * would misspell it. The existing schema-authored prose in this same Constraints section already
+ * does the same — see "startDate and endDate must be of the same form" — so this matches
+ * established style, not introduces a new one.
+ */
+function asSentence(message) {
+  return message.endsWith(".") ? message : `${message}.`;
+}
 
 /** Resolves a local (#/$defs/x) or remote-by-$id ($id#/$defs/x) reference. */
 function resolve(ref, self, registry) {
@@ -18,6 +39,22 @@ function resolve(ref, self, registry) {
     .split("/")
     .filter(Boolean)
     .reduce((acc, key) => acc?.[key.replace(/~1/g, "/").replace(/~0/g, "~")], schema);
+}
+
+/**
+ * The document a `$ref` was written from — needed before resolving a SECOND, local ref found
+ * inside whatever the first one pointed to. `feed.schema.json`'s `translations` field is a
+ * remote ref into `event.schema.json#/$defs/feedTranslations`, and THAT object's own
+ * `additionalProperties` is a local ref (`#/$defs/feedTranslation`) written from
+ * `event.schema.json`'s perspective — resolving it against `feed.schema.json` (the caller's
+ * original `schema`) would look for `$defs.feedTranslation` in the wrong file and silently find
+ * nothing. `resolve()` itself gets this right for the first hop (`registry[base]` when `ref` is
+ * remote); this mirrors that same base-selection so a second hop inherits the correct home.
+ */
+function homeOf(ref, fallback, registry) {
+  if (!ref) return fallback;
+  const [base] = ref.split("#");
+  return base ? (registry[base] ?? fallback) : fallback;
 }
 
 /**
@@ -48,8 +85,16 @@ function typeOf(subschema, self, registry) {
 /**
  * Walks a schema's fields, following local $refs into sub-objects.
  * Yields [dottedPath, subschema, meta] — e.g. ["location.venue", {...}, { required, type }].
+ *
+ * `homeId` is the `$id` a field's `pointer` should resolve against — normally `schema.$id`, the
+ * schema this whole call started from. It only ever changes for a map recursed into via
+ * `additionalProperties` whose value shape lives in a DIFFERENT schema than the one currently
+ * being walked (`feed.translations.*` points into `event.schema.json`'s `$defs.feedTranslation`,
+ * while `schema` here is still `feed.schema.json`) — every `pointer` this function yields is
+ * fully qualified with it for exactly that reason: a caller combining it with the WRONG schema's
+ * `$id` (as `validate.mjs` used to, before this) resolves nothing and Ajv throws `missingRef`.
  */
-export function* fieldsOf(schema, registry = {}, node = null, prefix = "", basePointer = null) {
+export function* fieldsOf(schema, registry = {}, node = null, prefix = "", basePointer = null, homeId = schema.$id) {
   const isEvent = Boolean(schema.$defs?.event);
   const root = node ?? schema.$defs?.event ?? schema;
   const pointer = basePointer ?? (isEvent ? "/$defs/event" : "");
@@ -82,9 +127,11 @@ export function* fieldsOf(schema, registry = {}, node = null, prefix = "", baseP
         // A default that is not a literal: no standard keyword can say it, so the schemas carry
         // it as an annotation and the renderers read it from there instead of from prose.
         inheritsFrom: subschema["x-inheritsFrom"],
-        // JSON pointer into the schema, so a validator can compile the field by reference
-        // instead of in isolation (an isolated copy cannot resolve #/$defs/… refs).
-        pointer: `${pointer}/properties/${name}`,
+        // Fully-qualified pointer ($id + fragment) into the schema that actually defines this
+        // field, so a validator can compile it by reference instead of in isolation (an isolated
+        // copy cannot resolve #/$defs/… refs, and a bare fragment resolved against the wrong
+        // schema's $id resolves nothing at all — see `homeId` above).
+        pointer: `${homeId}#${pointer}/properties/${name}`,
       },
     ];
 
@@ -92,7 +139,7 @@ export function* fieldsOf(schema, registry = {}, node = null, prefix = "", baseP
 
     // Recurse into sub-objects (location, source) so their fields are documented too.
     if (target?.properties) {
-      yield* fieldsOf(schema, registry, target, path, targetPointer);
+      yield* fieldsOf(schema, registry, target, path, targetPointer, homeId);
     }
 
     // Same for arrays of objects (organizers): `organizers[].name` is a field people need
@@ -113,7 +160,27 @@ export function* fieldsOf(schema, registry = {}, node = null, prefix = "", baseP
         const itemPointer = itemRef
           ? itemRef.slice(1)
           : `${targetPointer}/items${branch ? `/oneOf${branch}` : ""}`;
-        yield* fieldsOf(schema, registry, items, `${path}[]`, itemPointer);
+        yield* fieldsOf(schema, registry, items, `${path}[]`, itemPointer, homeId);
+      }
+    }
+
+    // Same for maps of objects (every `translations` shape in the schema): each entry is keyed
+    // by a language tag, never a fixed name, so `.* ` is the stable path its OWN fields get
+    // documented under — distinct from `[]`'s "any array index", the same distinction the wire
+    // format itself makes (a map's key is data an event/feed chooses; an array's index is not).
+    // Unlike the array branch above, a remote `target` (`feed.translations` points into
+    // event.schema.json) is still expanded: nothing else documents a translation entry's own
+    // fields, so there is no "already shown elsewhere" reason to stop at the map itself.
+    if (target?.additionalProperties && typeof target.additionalProperties === "object") {
+      const apRef = target.additionalProperties.$ref;
+      const apHome = homeOf(raw.$ref, schema, registry);
+      const values = apRef ? resolve(apRef, apHome, registry) : target.additionalProperties;
+      if (values?.properties) {
+        const apPointer = apRef ? apRef.slice(1) : `${targetPointer}/additionalProperties`;
+        // `apHome`, not `schema`: any further local refs inside the map's value shape (and the
+        // pointer this yields) belong to the schema that actually defines it, which may not be
+        // the one this call started from.
+        yield* fieldsOf(apHome, registry, values, `${path}.*`, apPointer, apHome.$id);
       }
     }
   }
@@ -186,13 +253,27 @@ function rulesOfObject(node) {
 
   if (node.minProperties) rules.push({ kind: "minProperties", min: node.minProperties });
 
+  // Custom keywords (`"orderedDates": true`, `"uniqueEventIds": true`, …) are real validity
+  // rules with no JSON Schema shape at all — a boolean flag `rulesOfObject` could otherwise only
+  // ignore. Emit one for each that this object actually declares, reusing the message the
+  // validator itself reports rather than a second hand-written sentence that could drift from it.
+  for (const [name, message] of CUSTOM_KEYWORD_MESSAGES) {
+    if (node[name] === true) rules.push({ kind: "prose", note: asSentence(message) });
+  }
+
   for (const branch of [node, ...(node.allOf ?? [])]) {
     if (branch?.if) rules.push(...conditionalRules(branch));
   }
 
   // A branch we cannot phrase still has to be readable: if its author explained it, the
   // explanation IS the rule. Silently dropping it is how the docs drifted in the first place.
-  for (const branch of node.allOf ?? []) {
+  // `node` itself only joins this set when IT is a conditional block (has its own `if`), the
+  // same criterion the `conditionalRules` loop above uses — `constraintsOf`'s "wrapping"
+  // branches (the standalone document's own top-level `allOf`, outside `$defs.event`) pass an
+  // if/then block straight in as `node`, never nested inside some other object's `allOf`. An
+  // ordinary object (no `if` of its own) must NOT be swept in here: its plain `description` is
+  // already shown in the field table and is not a "rule".
+  for (const branch of [...(node.if ? [node] : []), ...(node.allOf ?? [])]) {
     const named = branch.if ? conditionalRules(branch).length : 0;
     if (!named && branch.description) rules.push({ kind: "prose", note: branch.description });
   }
@@ -224,6 +305,12 @@ export function* constraintsOf(schema, registry = {}, node = null, prefix = "") 
     const target = raw.$ref ? resolve(raw.$ref, schema, registry) : raw;
     if (target?.properties) yield* constraintsOf(schema, registry, target, path);
     if (target?.type === "array") {
+      // A custom keyword can sit directly on the array property itself (P031's
+      // `distinctLanguageTags` on `languages`), not just on its item shape — `rulesOfObject`
+      // already checks generically for `node[name] === true`, so it works unchanged on an array
+      // node too (arrays never have `anyOf`/`dependentRequired`/`minProperties`/`if`, so every
+      // other branch inside it is a no-op here by construction, not by a second special case).
+      for (const rule of rulesOfObject(target)) yield [path, rule];
       const forms = target.items?.oneOf ?? target.items?.anyOf ?? [target.items];
       for (const form of forms) {
         const itemRef = form?.$ref;
@@ -232,6 +319,16 @@ export function* constraintsOf(schema, registry = {}, node = null, prefix = "") 
         if (!items?.properties) continue;
         yield* constraintsOf(schema, registry, items, `${path}[]`);
       }
+    }
+    // Same set as `fieldsOf`'s map branch, same reason: a map's value shape can carry its own
+    // rules (P024's `anyOf` on a translation entry) that must not go missing just because the
+    // map's keys are language tags instead of fixed names. Same cross-schema fix too — see
+    // `homeOf`'s own comment.
+    if (target?.additionalProperties && typeof target.additionalProperties === "object") {
+      const apRef = target.additionalProperties.$ref;
+      const apHome = homeOf(raw.$ref, schema, registry);
+      const values = apRef ? resolve(apRef, apHome, registry) : target.additionalProperties;
+      if (values?.properties) yield* constraintsOf(apHome, registry, values, `${path}.*`);
     }
   }
 }
@@ -248,10 +345,14 @@ export function* constraintsOf(schema, registry = {}, node = null, prefix = "") 
  */
 export function recommendedOf(profile) {
   if (!profile) return new Set();
+  // A conditional recommendation can also live one level deeper, inside an array property's own
+  // `items` (P033's `offers[].name`, recommended only once `offers[].translations` exists) —
+  // same `${parent}[].${name}` path fieldsOf() already uses for these fields' own table rows.
   const nested = (branch) =>
-    Object.entries(branch?.properties ?? {}).flatMap(([parent, sub]) =>
-      (sub?.required ?? []).map((name) => `${parent}.${name}`)
-    );
+    Object.entries(branch?.properties ?? {}).flatMap(([parent, sub]) => [
+      ...(sub?.required ?? []).map((name) => `${parent}.${name}`),
+      ...(sub?.items?.then?.required ?? []).map((name) => `${parent}[].${name}`),
+    ]);
   const names = (branch) => [
     ...(branch?.required ?? []),
     ...nested(branch),

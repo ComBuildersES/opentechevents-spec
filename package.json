@@ -38,6 +38,7 @@
   "files": [
     "index.js",
     "index.d.ts",
+    "language-subtags.json",
     "spec/v0.1/*.json",
     "spec/v0.1/README.md",
     "spec/v0.2/*.json",

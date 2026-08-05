@@ -7,7 +7,6 @@
   "required": [
     "specVersion",
     "title",
-    "license",
     "updatedAt",
     "events"
   ],
@@ -23,6 +22,7 @@
       "description": "Human-readable name of the feed.",
       "type": "string",
       "minLength": 1,
+      "pattern": "\\S",
       "examples": [
         "Eventos de PyAlmería"
       ]
@@ -39,12 +39,13 @@
       "type": "string",
       "format": "uri",
       "pattern": "^https?://",
+      "not": {"pattern": "^https?://[^/?#]*@"},
       "examples": [
         "https://pyalmeria.example"
       ]
     },
     "textLanguage": {
-      "description": "Language this feed's own free text is written in — title and description. What makes it cheap: a monolingual publisher declares it once for the whole file and no event repeats it. Absent means unknown, never English and never the language of the HTTP response.",
+      "description": "Language this feed's own free text is written in — title and description — and the default every event inherits when it omits its own. What makes it cheap: a monolingual publisher declares it once for the whole file and no event repeats it. Not the same as organizers: an aggregator whose events don't share one language must leave this out, exactly as it must leave out organizers, so each event states its own instead of inheriting the wrong one. Absent means unknown, never English and never the language of the HTTP response.",
       "$ref": "https://opentechevents.org/schema/v0.3/event.schema.json#/$defs/languageTag",
       "examples": [
         "es",
@@ -64,7 +65,7 @@
       ]
     },
     "license": {
-      "description": "License for the feed's contents. SPDX identifier (full list at https://spdx.org/licenses/) or URL.",
+      "description": "License for the feed's contents, and the default every event inherits when it omits its own. Optional only for an aggregator whose events carry different licenses: if this is absent, every event in the feed must declare its own license — no valid OTE document, standalone or inside any feed, may resolve to an unknown license. SPDX identifier (full list at https://spdx.org/licenses/) or URL.",
       "$ref": "https://opentechevents.org/schema/v0.3/event.schema.json#/$defs/license",
       "examples": [
         "CC-BY-4.0",
@@ -76,12 +77,13 @@
       "type": "string",
       "format": "uri",
       "pattern": "^https?://",
+      "not": {"pattern": "^https?://[^/?#]*@"},
       "examples": [
         "https://creativecommons.org/licenses/by/4.0/"
       ]
     },
     "updatedAt": {
-      "description": "When this feed was generated.",
+      "description": "When this feed was generated. Never earlier than any event's own updatedAt — a feed cannot contain a revision that, by its own timestamps, didn't exist yet when it was generated.",
       "$ref": "https://opentechevents.org/schema/v0.3/event.schema.json#/$defs/instant",
       "examples": [
         "2026-07-06T10:00:00Z"
@@ -100,13 +102,17 @@
       ]
     },
     "events": {
-      "description": "Events in this feed. Each one inherits the feed's specVersion and license unless it declares its own.",
+      "description": "Events in this feed. Each one inherits the feed's specVersion and license unless it declares its own. No two may share an id — see the document's constraints.",
       "type": "array",
       "items": {
         "$ref": "https://opentechevents.org/schema/v0.3/event.schema.json#/$defs/event"
       }
     }
   },
+  "distinctTranslationLanguages": true,
+  "uniqueEventIds": true,
+  "eventsNotNewerThanFeed": true,
+  "eventsRespectInheritedTextLanguage": true,
   "allOf": [
     {
       "description": "Same rule as an event: a map of translations is unusable without knowing which language the primary text is in. A feed that translates its title must say what language that title is in.",
@@ -121,6 +127,31 @@
         "required": [
           "textLanguage"
         ]
+      }
+    },
+    {
+      "description": "license is the one default this spec never lets go missing by omission: an aggregator MAY leave feed.license out precisely because its events carry different licenses, but only if every event then declares its own — the same disciplined-omission pattern organizers/textLanguage already use for an aggregator, applied to a guarantee that is deliberately stricter than attribution or language, because redistributing data under an unknown license is a real legal risk, not just an editorial gap. CHANGES.log #P032 / DECISIONS.md D029.",
+      "if": {
+        "type": "object",
+        "not": {
+          "required": [
+            "license"
+          ]
+        }
+      },
+      "then": {
+        "type": "object",
+        "properties": {
+          "events": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "license"
+              ]
+            }
+          }
+        }
       }
     }
   ]
