@@ -36,6 +36,14 @@ body:
     validations:
       required: true
   - type: input
+    id: logo
+    attributes:
+      label: Logo URL
+      description: Square-ish image shown next to your community on opentechevents.org. Leave empty to show your initials instead.
+      placeholder: https://pyalmeria.example/logo.png
+    validations:
+      required: false
+  - type: input
     id: directory
     attributes:
       label: Community directory ID

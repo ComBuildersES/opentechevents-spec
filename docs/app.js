@@ -101,12 +101,10 @@
     empty.hidden = true;
 
     items.forEach(function (item) {
-      var card = el(item.url ? 'a' : 'div', 'entry');
-      if (item.url) {
-        card.href = item.url;
-        card.target = '_blank';
-        card.rel = 'noopener';
-      }
+      // Not an <a>: an entry can carry two separate links (site + feed preview), and
+      // nesting <a> elements is invalid HTML with unreliable click behaviour. The
+      // site link stretches over the whole card via .entry-name-link::after instead.
+      var card = el('div', 'entry');
 
       if (item.logo) {
         var img = el('img', 'entry-logo');
@@ -119,10 +117,24 @@
       }
 
       var body = el('div');
-      body.appendChild(el('div', 'entry-name', item.name));
+      var nameEl = el(item.url ? 'a' : 'div', 'entry-name', item.name);
+      if (item.url) {
+        nameEl.href = item.url;
+        nameEl.target = '_blank';
+        nameEl.rel = 'noopener';
+        nameEl.classList.add('entry-name-link');
+      }
+      body.appendChild(nameEl);
       if (item.desc) body.appendChild(el('p', 'entry-desc', t(item.desc)));
-      if (item.kind) body.appendChild(el('span', 'entry-meta', t(item.kind)));
-      else if (item.feed) body.appendChild(el('span', 'entry-meta', 'OTE feed →'));
+      if (item.kind) {
+        body.appendChild(el('span', 'entry-meta', t(item.kind)));
+      } else if (item.feed) {
+        var preview = el('a', 'entry-meta entry-preview', 'Preview feed →');
+        preview.href = 'https://tools.opentechevents.org/preview?feed=' + encodeURIComponent(item.feed);
+        preview.target = '_blank';
+        preview.rel = 'noopener';
+        body.appendChild(preview);
+      }
       card.appendChild(body);
 
       container.appendChild(card);

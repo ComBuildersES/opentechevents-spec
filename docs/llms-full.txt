@@ -6452,6 +6452,7 @@ Source: docs/data/adopters.json — Communities publishing an OTE feed today.
       "name": "Community Builders Community Events",
       "url": "https://combuilderses.github.io/",
       "feed": "https://combuilderses.github.io/events/feed.json",
+      "logo": "logos/community-builders.png",
       "directory": "101"
     }
   ]

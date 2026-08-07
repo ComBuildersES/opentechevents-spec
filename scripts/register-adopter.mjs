@@ -34,6 +34,7 @@ const LABELS = {
   "Community name": "name",
   "Website": "url",
   "OTE feed URL": "feed",
+  "Logo URL": "logo",
   "Community directory ID": "directory",
 };
 
@@ -131,6 +132,7 @@ const registry = JSON.parse(readFileSync(ADOPTERS, "utf8"));
 const entry = { name: fields.name };
 if (fields.url) entry.url = fields.url;
 entry.feed = fields.feed;
+if (fields.logo) entry.logo = fields.logo;
 if (fields.directory) entry.directory = fields.directory;
 
 const existing = registry.adopters.findIndex((a) => a.feed === fields.feed);
