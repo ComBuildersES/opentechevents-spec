@@ -8,7 +8,7 @@
   },
   "draft": {
     "pill": "Borrador 0.x",
-    "body": "La spec todavía no es estable: los campos pueden cambiar, renombrarse o desaparecer. El núcleo se está decidiendo ahora mismo.",
+    "body": "La spec todavía no es estable: los campos pueden cambiar, renombrarse o desaparecer.",
     "link": "Sigue la discusión"
   },
   "nav": {
@@ -18,7 +18,8 @@
     "reference": "Referencia",
     "developers": "Desarrolladores",
     "tools": "Herramientas",
-    "support": "Apoya"
+    "support": "Apoya",
+    "menu": "Menú"
   },
   "hero": {
     "eyebrow": "Especificación abierta · Borrador 0.x",

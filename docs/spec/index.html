@@ -26,7 +26,7 @@
       <span class="brand-mark">OTE</span>
       <span class="brand-name">OpenTechEvents</span>
     </a>
-    <nav class="nav">
+    <nav class="nav" id="site-nav">
       <a href="/#spec" data-nav="spec" data-t="navSpec">How it works</a>
       <a href="/#adopt" data-nav="adopt" data-t="navAdopt">Adopt it</a>
       <a href="/examples/" data-nav="examples" data-t="navExamples">Examples</a>
@@ -39,6 +39,9 @@
       <button type="button" data-lang="en">EN</button>
       <button type="button" data-lang="es">ES</button>
     </div>
+    <button type="button" class="nav-toggle" aria-expanded="false" aria-controls="site-nav" data-t-aria="navMenu" aria-label="Menu">
+      <span class="nav-toggle-bar"></span>
+    </button>
   </div>
 </header>
 
@@ -128,6 +131,7 @@
 
 <script src="../json-code.js"></script>
 <script src="reference.js"></script>
+<script src="../nav.js"></script>
 <script src="../ask-ai.js"></script>
 </body>
 </html>
