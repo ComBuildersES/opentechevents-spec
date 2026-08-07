@@ -1,4 +1,11 @@
 {
   "_comment": "Communities/events publishing their data in OTE format. Add yours via PR or issue. Fields: name (required), url, feed, logo (path or URL; falls back to initials), desc {en,es}.",
-  "adopters": []
+  "adopters": [
+    {
+      "name": "Community Builders Community Events",
+      "url": "https://combuilderses.github.io/",
+      "feed": "https://combuilderses.github.io/events/feed.json",
+      "directory": "101"
+    }
+  ]
 }
