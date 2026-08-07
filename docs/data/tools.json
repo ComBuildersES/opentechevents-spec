@@ -270,22 +270,22 @@
       "url": "https://github.com/OpenTechEvents/opentechevents-spec/issues/14"
     },
     {
-      "status": "proposed",
+      "status": "working",
       "audience": ["organizers", "developers"],
       "order": 50,
       "name": {
-        "en": "OTE badges & share buttons",
-        "es": "Badges y botones OTE"
+        "en": "OTE feed badge",
+        "es": "Badge de feed OTE"
       },
       "desc": {
-        "en": "Badges and buttons that make OTE feeds visible: subscribe to a community's feed, open it in compatible tools or copy an embeddable widget for another website.",
-        "es": "Badges y botones para hacer visibles los feeds OTE: suscribirse al feed de una comunidad, abrirlo en herramientas compatibles o copiar un widget embebible para otra web."
+        "en": "A static, RSS-style SVG badge that makes a community's feed visible in a README or site footer — full button or icon-only variant, no service or build step involved. Opening the feed in compatible tools, or turning it into an embeddable widget, is still proposed.",
+        "es": "Badge SVG estático, al estilo RSS, para hacer visible el feed de una comunidad en un README o en el pie de página — botón completo o solo icono, sin servicio ni paso de build de por medio. Abrir el feed en herramientas compatibles, o convertirlo en un widget embebible, sigue propuesto."
       },
       "category": {
         "en": "Consume",
         "es": "Consumir"
       },
-      "url": "https://github.com/OpenTechEvents/opentechevents-spec/issues/15"
+      "url": "https://github.com/OpenTechEvents/opentechevents-spec/tree/main/docs/badge"
     },
     {
       "status": "working",

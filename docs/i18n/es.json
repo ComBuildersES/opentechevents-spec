@@ -160,7 +160,8 @@
       "title": "Avísanos y aparece en la lista",
       "body": "Abre un issue con la URL de tu feed. Lo validamos y listamos tu comunidad en esta página; y, a medida que aparezcan agregadores, empezarán a recoger tus eventos.",
       "cta": "Registrar mi feed",
-      "cta2": "Copiar un ejemplo que funciona"
+      "cta2": "Copiar un ejemplo que funciona",
+      "badge": "Opcional: añade el <a href=\"https://github.com/OpenTechEvents/opentechevents-spec/tree/main/docs/badge\">badge de feed</a> a tu README o al pie de tu web — una señal visible, al estilo RSS, de que publicas OTE, junto a la legible por máquinas del paso 2."
     },
     "ics": {
       "tag": "¿Tienes dudas de si merecerá la pena el esfuerzo? Lee esto primero.",
