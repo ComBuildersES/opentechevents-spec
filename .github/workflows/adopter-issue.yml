@@ -64,7 +64,8 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git checkout -B "$BRANCH"
-          git add docs/data/adopters.json
+          npm run build-llms
+          git add docs/data/adopters.json docs/llms.txt docs/llms-full.txt docs/llms/
           git commit -m "feat(adopters): register ${NAME} (#${NUMBER})"
           git push -f origin "$BRANCH"
           # Force-pushing the branch already refreshed an existing PR.
