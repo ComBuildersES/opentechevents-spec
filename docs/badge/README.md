@@ -2,8 +2,7 @@
 
 Static SVGs, served from `https://opentechevents.org/badge/`. Hand-written, no service behind
 them: they keep rendering if shields.io is down, and they never phone home about who is reading
-your README. If you need another wording (a translated one, or "consumes OTE"), open an issue —
-the files are ~10 lines each.
+your README. Localised wordings exist too — see [Other languages](#other-languages) below.
 
 | Badge | Use it if | File |
 | --- | --- | --- |
@@ -55,3 +54,17 @@ HTML:
 ```html
 <a href="https://opentechevents.org#support"><img src="https://opentechevents.org/badge/ote-supporter.svg" alt="OTE: supporter"></a>
 ```
+
+## Other languages
+
+Spanish wording exists: `ote-feed.es.svg` ("feed OTE") and `ote-supporter.es.svg` ("apoya OTE"),
+same files and same linking rules as above — just swap the filename. `feed` is left untranslated
+on purpose: it's what Spanish-speaking technical communities actually say, and `canal` or `fuente`
+would be less recognisable, not more.
+
+```markdown
+[![feed OTE](https://opentechevents.org/badge/ote-feed.es.svg)](https://your-domain.example/events.json)
+[![apoya OTE](https://opentechevents.org/badge/ote-supporter.es.svg)](https://opentechevents.org#support)
+```
+
+Want another language? Open an issue with the wording — the files are ~10-20 lines each.
