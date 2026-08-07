@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" role="img" aria-label="OTE feed — click to subscribe">
+  <title>OTE feed — click to subscribe</title>
+  <rect width="20" height="20" rx="5" fill="#2b5bd7"/>
+  <g fill="none" stroke="#fff" stroke-width="2.1" stroke-linecap="round">
+    <path d="M7 9.5A4.5 4.5 0 0 1 11.5 14"/>
+    <path d="M7 5.5A8.5 8.5 0 0 1 15.5 14"/>
+  </g>
+  <circle cx="7" cy="14" r="1.6" fill="#fff"/>
+</svg>
