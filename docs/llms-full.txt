@@ -6133,24 +6133,7 @@ Source: docs/data/tools.json — The tools listed on the site: validators, gener
   "_comment": "Canonical ecosystem tools catalogue. status: working | wip | proposed. audience: organizers | attendees | developers. order sorts tools within the same status. Fields: name {en,es}, desc {en,es}, status, audience, order, category {en,es}, url (repo or issue), linkKind ('app' → 'Open the tool' for a live app URL; 'npm' → 'View npm package' for a single-package URL; 'npm-scope' → 'View npm packages' for an org/scope URL; omit for a repo URL → 'View repository' unless status is proposed → 'Discuss the idea').",
   "tools": [
     {
-      "status": "wip",
-      "audience": ["developers"],
-      "name": {
-        "en": "OTE event discovery index",
-        "es": "Índice de descubrimiento de eventos OTE"
-      },
-      "desc": {
-        "en": "Indexes registered OTE feeds so tools can discover communities and conferences by the events they actually publish: topic, place, date, language, mode, CFP status and activity.",
-        "es": "Indexa feeds OTE registrados para que las herramientas descubran comunidades y conferencias por los eventos que publican: tema, lugar, fecha, idioma, modalidad, CFP y actividad."
-      },
-      "category": {
-        "en": "Ingest",
-        "es": "Ingesta"
-      },
-      "url": "https://github.com/OpenTechEvents/opentechevents-data"
-    },
-    {
-      "status": "wip",
+      "status": "working",
       "audience": ["organizers"],
       "name": {
         "en": "Organizer kit",
@@ -6207,8 +6190,8 @@ Source: docs/data/tools.json — The tools listed on the site: validators, gener
       "audience": ["organizers"],
       "order": 30,
       "name": {
-        "en": "Conversational bot",
-        "es": "Bot conversacional"
+        "en": "Bot to draft OTE events",
+        "es": "Bot para redactar eventos OTE"
       },
       "desc": {
         "en": "Describe an event in plain language; the bot drafts the OTE fields, lets you pick one of your usual target repos and sends you to the editor to review, complete and submit it.",
@@ -6383,9 +6366,8 @@ Source: docs/data/tools.json — The tools listed on the site: validators, gener
       "url": "https://github.com/OpenTechEvents/opentechevents-spec/issues/13"
     },
     {
-      "status": "proposed",
+      "status": "working",
       "audience": ["organizers", "developers"],
-      "order": 40,
       "name": {
         "en": "Embeddable widget",
         "es": "Widget embebible"
@@ -6398,7 +6380,8 @@ Source: docs/data/tools.json — The tools listed on the site: validators, gener
         "en": "Consume",
         "es": "Consumir"
       },
-      "url": "https://github.com/OpenTechEvents/opentechevents-spec/issues/14"
+      "url": "https://tools.opentechevents.org/embed/",
+      "linkKind": "app"
     },
     {
       "status": "working",
