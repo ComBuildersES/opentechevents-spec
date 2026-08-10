@@ -180,10 +180,11 @@
   },
   "consumers": {
     "title": "Who consumes OTE data",
-    "lead": "Directories, aggregators and people reusing feeds published in this format. Every one of them is another place your events will be able to reach for free.",
+    "lead": "Directories, aggregators, apps and people reusing feeds published in this format. Every one of them is another place your events will be able to reach for free.",
     "empty": "Building a directory, a newsletter or a bot? Consume OTE feeds and get listed here.",
     "emptyCta": "Add your project",
-    "devDocs": "Developer docs"
+    "devDocs": "Developer docs",
+    "note": "💡 <strong>Worried there are few native OTE consumers yet?</strong> When you publish your feed using ecosystem tools (like the <a href=\"#tools\">Organizer Kit</a>), you automatically get export to <strong>iCalendar (.ics)</strong> and <strong>RSS</strong>. Your events can be consumed from day one in any calendar app or traditional feed reader while the OTE ecosystem grows."
   },
   "tools": {
     "title": "Ecosystem of tools",

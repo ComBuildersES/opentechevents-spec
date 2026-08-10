@@ -217,6 +217,24 @@
       "url": "https://github.com/OpenTechEvents/opentechevents-spec/issues/10"
     },
     {
+      "status": "working",
+      "audience": ["attendees"],
+      "name": {
+        "en": "OTE Feed Reader",
+        "es": "Lector de Feeds OTE"
+      },
+      "desc": {
+        "en": "Progressive Web App (PWA) to load, browse, and read events published in OTE feeds directly from your browser or installed on your mobile home screen.",
+        "es": "Aplicación Web Progresiva (PWA) para cargar, explorar y leer eventos publicados en feeds OTE directamente desde el navegador o instalada en la pantalla de inicio del móvil."
+      },
+      "category": {
+        "en": "Consume",
+        "es": "Consumir"
+      },
+      "url": "https://reader.opentechevents.org/",
+      "linkKind": "app"
+    },
+    {
       "status": "proposed",
       "audience": ["attendees"],
       "order": 10,
@@ -225,8 +243,8 @@
         "es": "Suscripciones y recordatorios de eventos"
       },
       "desc": {
-        "en": "RSS-reader-like tools for OTE feeds: subscribe to communities, conferences or topics, save filters and receive event, CFP or ticket reminders.",
-        "es": "Herramientas tipo lector RSS para feeds OTE: suscribirse a comunidades, conferencias o temas, guardar filtros y recibir recordatorios de eventos, CFPs o entradas."
+        "en": "Background subscriptions for OTE feeds: save topic filters, receive push or email notifications and event, CFP or ticket reminders.",
+        "es": "Suscripciones en segundo plano para feeds OTE: guardar filtros por tema, recibir notificaciones push/email y recordatorios de eventos, CFPs o entradas."
       },
       "category": {
         "en": "Consume",
