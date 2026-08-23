@@ -28,7 +28,7 @@
     "lead": "OpenTechEvents (OTE) is an open, free specification to describe tech community events — meetups, conferences, workshops, online or in person — in a single format that directories, calendars and tools can read automatically. It brings together the best of iCalendar, RSS and schema.org/Event, and stays compatible with all of them: write it once and we help you export it automatically to all three. Four formats for the price of one.",
     "ctaPrimary": "Adopt the spec",
     "ctaSecondary": "See the format",
-    "note": "No platform to sign up for. No tool to install: a file you publish, or a link in your site's &lt;head&gt;.",
+    "note": "No platform to sign up for. No tool to install: a file you publish, plus a line in your site's &lt;head&gt; so others can find it.",
     "shortcut": "Already use Meetup, Luma, Eventbrite…? We'll help you import it without leaving it →",
     "tabsLabel": "Example type",
     "tabMeetup": "Meetup",
