@@ -47,10 +47,8 @@ const SECTIONS = [
     ],
   },
   {
-    title: "Data model",
+    title: "Versions",
     entries: [
-      { file: join("spec", "data-model.md"), as: "data-model.md", lead: "Why the fields are the fields: what each one models and what it deliberately does not." },
-      { file: join("spec", "feed.md"), as: "feed.md", lead: "How a feed collects events, how it is discovered from a site, and how it is kept fresh." },
       { file: join("spec", "README.md"), as: "spec-versions.md", lead: "Which spec versions exist and what stability each one carries." },
     ],
   },
