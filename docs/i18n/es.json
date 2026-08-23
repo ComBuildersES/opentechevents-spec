@@ -18,6 +18,7 @@
     "reference": "Referencia",
     "developers": "Desarrolladores",
     "tools": "Herramientas",
+    "priorArt": "Trabajo previo",
     "support": "Apoya",
     "menu": "Menú"
   },
@@ -84,7 +85,7 @@
     },
     "priorArt": {
       "title": "El patrón no lo inventamos nosotros",
-      "body": "<a href=\"https://bioschemas.org\" target=\"_blank\" rel=\"noopener\">Bioschemas</a> hace algo parecido en ciencias de la vida: parte de schema.org, define perfiles sobre tipos existentes indicando qué propiedades son obligatorias, recomendadas u opcionales, y consigue que los recursos científicos se encuentren en la web. OTE hace lo mismo con los eventos de comunidades tech — y suma iCalendar y RSS, más un feed que cualquiera puede descubrir. No somos un proyecto de adopción de schema.org; pero cada feed publicado en OTE deja el marcado <code>schema.org/Event</code> válido al alcance de la mano de un sitio más, a coste casi cero. Ese efecto colateral lo firmamos."
+      "body": "<a href=\"https://bioschemas.org\" target=\"_blank\" rel=\"noopener\">Bioschemas</a> hace algo parecido en ciencias de la vida: parte de schema.org, define perfiles sobre tipos existentes indicando qué propiedades son obligatorias, recomendadas u opcionales, y consigue que los recursos científicos se encuentren en la web. OTE hace lo mismo con los eventos de comunidades tech — y suma iCalendar y RSS, más un feed que cualquiera puede descubrir. No somos un proyecto de adopción de schema.org; pero cada feed publicado en OTE deja el marcado <code>schema.org/Event</code> válido al alcance de la mano de un sitio más, a coste casi cero. Ese efecto colateral lo firmamos. El resto del vecindario — iCalendar, h-event, ActivityPub y los agregadores que ya hacen esto — está en <a href=\"/prior-art/\">trabajo previo</a>."
     }
   },
   "docs": {
@@ -105,6 +106,10 @@
     "d4": {
       "title": "Investigación",
       "body": "El análisis detrás de las decisiones: los estándares, plataformas y directorios que estudiamos."
+    },
+    "d5": {
+      "title": "Trabajo previo",
+      "body": "Quién más está resolviendo esto y cómo se relaciona OTE con ello: iCalendar, schema.org, h-event, ActivityPub — y los agregadores que ya ingieren datos de eventos. Incluido lo que todavía no podemos afirmar."
     },
     "contrib": {
       "title": "¿Algo no encaja con tu comunidad?",
@@ -279,7 +284,7 @@
       },
       {
         "q": "¿Sustituye a RSS o iCalendar?",
-        "a": "No. OTE está diseñada para ser convertible a ellos. Un feed OTE puede exportarse a RSS, JSON Feed o iCal para que la gente lo consuma en su lector de feeds o su app de calendario."
+        "a": "No. OTE está diseñada para ser convertible a ellos. Un feed OTE puede exportarse a RSS, JSON Feed o iCal para que la gente lo consuma en su lector de feeds o su app de calendario. Qué resuelve ya cada uno de esos estándares, y qué añadimos encima, está desarrollado en <a href=\"/prior-art/\">trabajo previo</a>."
       },
       {
         "q": "¿Cómo se suscribe quien asiste?",
@@ -287,7 +292,7 @@
       },
       {
         "q": "¿En qué se diferencia de schema.org/Event?",
-        "a": "schema.org/Event no es un rival de OTE, es su objetivo de mapeo: OTE se serializa a JSON-LD casi 1:1 y puede exportarse a schema.org para que Google y agregadores como dev.events te encuentren. La diferencia es que schema.org describe <em>un</em> evento incrustado en <em>una</em> página HTML —no hay concepto de feed: no puedes suscribirte a «todos los eventos de una comunidad» ni consumirlos sin rascar HTML—, su vocabulario es enorme y casi todo opcional, y no trae validación. OTE aporta lo que le falta: un feed suscribible (una URL, N eventos, con <code>updatedAt</code>) en un fichero JSON suelto, un núcleo pequeño y <strong>validable</strong>, y online/híbrido y CFP como campos de primera clase. En una frase: OTE = el modelo de datos de schema.org + el modelo de distribución de RSS/iCal, sin obligarte a elegir."
+        "a": "schema.org/Event no es un rival de OTE, es su objetivo de mapeo: OTE se serializa a JSON-LD casi 1:1 y puede exportarse a schema.org para que Google y agregadores como dev.events te encuentren. La diferencia es que schema.org describe <em>un</em> evento incrustado en <em>una</em> página HTML —no hay concepto de feed: no puedes suscribirte a «todos los eventos de una comunidad» ni consumirlos sin rascar HTML—, su vocabulario es enorme y casi todo opcional, y no trae validación. OTE aporta lo que le falta: un feed suscribible (una URL, N eventos, con <code>updatedAt</code>) en un fichero JSON suelto, un núcleo pequeño y <strong>validable</strong>, y online/híbrido y CFP como campos de primera clase. En una frase: OTE = el modelo de datos de schema.org + el modelo de distribución de RSS/iCal, sin obligarte a elegir. La respuesta larga — con h-event, ActivityPub y lo que todavía no podemos afirmar — está en <a href=\"/prior-art/\">trabajo previo</a>."
       },
       {
         "q": "¿Esto me sirve para SEO?",

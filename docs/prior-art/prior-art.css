@@ -1,0 +1,123 @@
+/* Prior art — extends styles.css. Two card shapes (a standard, with its fixed
+   Solves/reuses/adds rows; and a project, deliberately short) plus the layer matrix. */
+
+.pa-main { padding: 64px 24px 96px; max-width: 940px; }
+.pa-main h1 { margin-bottom: .4em; }
+.pa-main .lead { margin-bottom: 34px; }
+
+.pa-intro { color: var(--ink-soft); margin-top: 28px; }
+
+.pa-section { margin-top: 72px; padding-top: 8px; }
+.pa-section h2 { margin-bottom: .4em; }
+.pa-section-lead { color: var(--ink-soft); max-width: 60em; }
+
+/* ---------- standards ---------- */
+.pa-std {
+  border: 1px solid var(--line); border-radius: var(--radius);
+  padding: 24px 26px; margin-top: 22px; background: #fff;
+}
+.pa-std-head {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: 14px; flex-wrap: wrap; margin-bottom: 6px;
+}
+.pa-std-head h3 { margin: 0; font-size: 1.18rem; }
+.pa-std-head .badge { align-self: center; }
+.pa-rfc {
+  font: 500 .72rem/1 var(--mono); color: var(--ink-faint);
+  text-transform: uppercase; letter-spacing: .05em; margin-left: 8px;
+  white-space: nowrap;
+}
+.pa-std code {
+  font-family: var(--mono); font-size: .85em;
+  background: var(--accent-soft); color: var(--accent-ink);
+  padding: 2px 5px; border-radius: 5px;
+}
+.pa-std-head h3 code { font-size: .8em; }
+
+/* The fixed template every standard is described with: same four questions, same order. */
+.pa-dl { margin: 16px 0 0; display: grid; grid-template-columns: 9.5em 1fr; gap: 0; }
+.pa-dl dt {
+  font: 650 .74rem/1.5 var(--sans); text-transform: uppercase; letter-spacing: .05em;
+  color: var(--ink-faint); padding: 12px 16px 12px 0;
+  border-top: 1px solid var(--line);
+}
+.pa-dl dd {
+  margin: 0; padding: 12px 0; color: var(--ink-soft); font-size: .95rem;
+  border-top: 1px solid var(--line);
+}
+.pa-dl dt:first-of-type, .pa-dl dd:first-of-type { border-top: 0; padding-top: 0; }
+
+.pa-links { margin: 18px 0 0; font-size: .88rem; font-weight: 600; color: var(--ink-faint); }
+
+/* ---------- projects ---------- */
+.pa-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  gap: 16px; margin-top: 26px;
+}
+.pa-proj {
+  border: 1px solid var(--line); border-radius: var(--radius);
+  padding: 20px 22px; background: #fff;
+  display: flex; flex-direction: column;
+}
+.pa-proj h3 { margin: 0 0 2px; font-size: 1.02rem; }
+.pa-proj-by {
+  font: 500 .72rem/1 var(--mono); color: var(--ink-faint);
+  text-transform: uppercase; letter-spacing: .05em; margin: 0 0 12px;
+}
+.pa-proj p { font-size: .9rem; color: var(--ink-soft); margin: 0 0 10px; }
+.pa-proj-rel strong { color: var(--ink); font-weight: 650; }
+.pa-proj .pa-links { margin-top: auto; padding-top: 6px; font-size: .85rem; }
+
+.pa-more { margin-top: 26px; font-size: .92rem; color: var(--ink-soft); }
+
+/* ---------- layer matrix ---------- */
+.pa-table-wrap { overflow-x: auto; margin-top: 24px; }
+.pa-matrix { border-collapse: collapse; font-size: .92rem; min-width: 660px; width: 100%; }
+.pa-matrix thead th {
+  text-align: center; vertical-align: bottom;
+  font-size: .78rem; letter-spacing: .04em; color: var(--ink);
+  font-weight: 650; padding: 0 10px 10px; border-bottom: 2px solid var(--line);
+}
+.pa-matrix thead th span {
+  display: block; font: 400 .68rem/1.3 var(--sans);
+  color: var(--ink-faint); text-transform: none; letter-spacing: 0; margin-top: 3px;
+}
+.pa-matrix tbody th {
+  text-align: left; font-weight: 550; color: var(--ink-soft);
+  padding: 10px 20px 10px 0; white-space: nowrap; border-bottom: 1px solid var(--line);
+}
+.pa-matrix td {
+  text-align: center; padding: 10px; color: transparent;
+  border-bottom: 1px solid var(--line);
+}
+.pa-matrix td.y { color: var(--accent); font-size: 1.5rem; line-height: 1; }
+/* The line between specifications and software — the whole point of the table. */
+.pa-matrix tbody tr:nth-child(6) th, .pa-matrix tbody tr:nth-child(6) td {
+  border-bottom: 2px solid var(--ink-faint);
+}
+.pa-row-self th { color: var(--ink); font-weight: 700; }
+.pa-row-self td.y { color: var(--accent-ink); }
+.pa-matrix-note { margin-top: 18px; font-size: .92rem; color: var(--ink-soft); max-width: 60em; }
+
+/* ---------- unproven claims ---------- */
+.pa-claims { margin: 24px 0 0; padding-left: 1.2em; color: var(--ink-soft); }
+.pa-claims li { margin-bottom: 14px; }
+.pa-claims strong { color: var(--ink); }
+.pa-claims code {
+  font-family: var(--mono); font-size: .85em;
+  background: var(--bg-alt); padding: 2px 5px; border-radius: 5px;
+}
+#unproven .caveat { margin-top: 28px; }
+
+#talk p { color: var(--ink-soft); max-width: 60em; }
+#talk .cta-row { margin-top: 26px; }
+
+@media (max-width: 640px) {
+  .pa-main { padding: 44px 20px 72px; }
+  .pa-std { padding: 20px; }
+  /* Stacked, the label/value grid becomes two rows per entry instead of two columns. */
+  .pa-dl { grid-template-columns: 1fr; }
+  .pa-dl dt { padding: 12px 0 2px; }
+  .pa-dl dd { padding-top: 0; border-top: 0; }
+  .pa-dl dd:first-of-type { padding-top: 0; }
+}

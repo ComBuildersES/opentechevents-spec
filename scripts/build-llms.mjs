@@ -143,6 +143,7 @@ index.push(
   "## Optional",
   "",
   `- [Website](${SITE}/): the same material as pages, with the field reference rendered in English and Spanish.`,
+  `- [Prior art](${SITE}/prior-art/): which standards and projects already solve part of this, what OTE reuses from each, and which claims are still unproven. Editorial layer over the research files above; the ActivityPub/FEP-8a8e and IndieWeb material exists only here.`,
   `- [Repository](https://github.com/OpenTechEvents/opentechevents-spec): issues, discussion and the validator.`,
   ""
 );

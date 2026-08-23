@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prior art — standards and projects OTE builds on</title>
+<meta name="description" content="What iCalendar, schema.org/Event, h-event and ActivityPub already solve, what OTE reuses from them, and the aggregators and directories working on the same problem.">
+<link rel="canonical" href="https://opentechevents.org/prior-art/">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://opentechevents.org/prior-art/">
+<meta property="og:title" content="Prior art — standards and projects OTE builds on">
+<meta property="og:description" content="OTE exists in an ecosystem, not in a vacuum. What we reuse, what we add, and what we still cannot claim.">
+<link rel="stylesheet" href="../styles.css">
+<link rel="stylesheet" href="prior-art.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📅</text></svg>">
+</head>
+<body>
+
+<a class="skip" href="#main" data-t="skip">Skip to content</a>
+
+<div class="draft-bar">
+  <div class="wrap">
+    <span class="draft-pill" data-t="pill">Draft 0.x</span>
+    <span data-t="draft">The spec is not stable yet: fields can still change, be renamed or be dropped.</span>
+    <a href="https://github.com/OpenTechEvents/opentechevents-spec/issues/5" data-t="follow">Follow the discussion</a>
+  </div>
+</div>
+
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a class="brand" href="/">
+      <span class="brand-mark">OTE</span>
+      <span class="brand-name">OpenTechEvents</span>
+    </a>
+    <nav class="nav" id="site-nav">
+      <a href="/#spec" data-nav="spec" data-t="navSpec">How it works</a>
+      <a href="/#adopt" data-nav="adopt" data-t="navAdopt">Adopt it</a>
+      <a href="/examples/" data-nav="examples" data-t="navExamples">Examples</a>
+      <a href="/spec/" data-nav="reference" data-t="navReference">Reference</a>
+      <a href="/developers/" data-nav="developers" data-t="navDevelopers">Developers</a>
+      <a href="/#tools" data-nav="tools" data-t="navTools">Tools</a>
+      <a href="/prior-art/" data-nav="prior-art" aria-current="true" data-t="navPriorArt">Prior art</a>
+      <a class="nav-repo" href="https://github.com/OpenTechEvents/opentechevents-spec">GitHub</a>
+    </nav>
+    <div class="lang" role="group" aria-label="Language">
+      <button type="button" data-lang="en">EN</button>
+      <button type="button" data-lang="es">ES</button>
+    </div>
+    <button type="button" class="nav-toggle" aria-expanded="false" aria-controls="site-nav" data-t-aria="navMenu" aria-label="Menu">
+      <span class="nav-toggle-bar"></span>
+    </button>
+  </div>
+</header>
+
+<main class="wrap pa-main" id="main">
+  <h1 data-t="title">Prior art</h1>
+  <p class="lead" data-t="lead">Standards and projects that already solve part of this problem — what we reuse from them, what we add, and where we would rather be corrected than be original.</p>
+
+  <div class="pull" data-t="pull"><strong>OTE exists in an ecosystem, not in a vacuum.</strong> Calendar standards, structured web vocabularies, IndieWeb conventions and federation protocols already solve important parts of this problem. Wherever a concept exists somewhere else, we would rather map to it than invent a second, incompatible version of it. This page is what we read before writing the spec — and an invitation to tell us where we got it wrong.</div>
+
+  <p class="pa-intro" data-t="intro">Two things are deliberately kept apart below. <strong>Standards and protocols</strong> are what OTE maps to: they define vocabularies, serialisations and distribution mechanisms. <strong>Aggregators, directories and tools</strong> are software that already ingests event data from somewhere. They are not competing formats, and comparing the two in a single table would be comparing things that live in different layers. The <a href="#layers">layer matrix</a> at the end is there to make those layers explicit.</p>
+
+  <!-- ============ 1. Standards ============ -->
+  <section class="pa-section" id="standards">
+    <h2 data-t="s1.title">1 · Standards and protocols</h2>
+    <p class="pa-section-lead" data-t="s1.lead">The field survey behind this section lives in the repository: <a href="https://github.com/OpenTechEvents/opentechevents-spec/blob/main/research/findings/standards.md">research/findings/standards.md</a>, property by property. Here is the short version, plus what it means for OTE.</p>
+
+    <article class="pa-std">
+      <div class="pa-std-head">
+        <h3 data-t="ical.name">iCalendar / <code>VEVENT</code> <span class="pa-rfc">RFC 5545</span></h3>
+        <span class="badge badge-working" data-t="badge.shipped">Mapping shipped</span>
+      </div>
+      <dl class="pa-dl">
+        <dt data-t="lbl.solves">Solves</dt>
+        <dd data-t="ical.solves">The hardest parts of calendaring, and it has solved them since 1998: date-times in three flavours (floating, UTC, zoned via <code>VTIMEZONE</code>), recurrence (<code>RRULE</code>, <code>RDATE</code>, <code>EXDATE</code>, <code>RECURRENCE-ID</code>), all-day events, and subscription by URL. Every calendar client on earth reads it.</dd>
+        <dt data-t="lbl.reuses">OTE reuses</dt>
+        <dd data-t="ical.reuses">The date model, near-literally: ISO 8601 plus an IANA timezone, convertible to all three iCalendar forms. Recurrence semantics follow <code>RRULE</code> rather than a new invention. The "subscribe to a URL" distribution idea is the same idea.</dd>
+        <dt data-t="lbl.adds">OTE adds</dt>
+        <dd data-t="ical.adds">Things <code>VEVENT</code> has no field for: a CFP with its own open/close dates, an explicit online / in-person / hybrid distinction, structured organisers, a data licence, and per-event translations. In iCalendar these end up as prose inside <code>DESCRIPTION</code>, which is exactly the state we are trying to leave.</dd>
+        <dt data-t="lbl.stand">Where we stand</dt>
+        <dd data-t="ical.stand"><a href="https://www.npmjs.com/package/@opentechevents/import-ics"><code>import-ics</code></a> and <a href="https://www.npmjs.com/package/@opentechevents/export-ics"><code>export-ics</code></a> are published, and the aggregated feed is served as <a href="https://data.opentechevents.org/feed.ics"><code>feed.ics</code></a>. The export is lossy by construction — CFP, attendance mode and structured speakers have nowhere to go — and we would rather say so than pretend otherwise.</dd>
+      </dl>
+      <p class="pa-links"><a href="https://datatracker.ietf.org/doc/html/rfc5545">RFC 5545</a></p>
+    </article>
+
+    <article class="pa-std">
+      <div class="pa-std-head">
+        <h3 data-t="schema.name">schema.org / <code>Event</code> <span class="pa-rfc">JSON-LD</span></h3>
+        <span class="badge badge-wip" data-t="badge.half">Import shipped, export proposed</span>
+      </div>
+      <dl class="pa-dl">
+        <dt data-t="lbl.solves">Solves</dt>
+        <dd data-t="schema.solves">A widely understood vocabulary for describing an event on a web page, and the one search engines actually read: embed it as JSON-LD and you can get <a href="https://developers.google.com/search/docs/appearance/structured-data/event">event rich results</a>. It has the best online/hybrid modelling of anything we surveyed (<code>eventAttendanceMode</code>, <code>VirtualLocation</code>), plus <code>eventStatus</code>, <code>performer</code> and <code>offers</code>.</dd>
+        <dt data-t="lbl.reuses">OTE reuses</dt>
+        <dd data-t="schema.reuses">The data model, close to one-to-one. Attendance mode, status, offers, organiser and location are shaped so that serialising an OTE event to <code>schema.org/Event</code> is a rename, not a redesign. This is our primary mapping target.</dd>
+        <dt data-t="lbl.adds">OTE adds</dt>
+        <dd data-t="schema.adds">A <em>feed</em>. schema.org describes one event inside one HTML page; there is no notion of "all of this community's events" you can subscribe to without scraping. OTE adds the container (one URL, N events, an <code>updatedAt</code>), a small <strong>validatable</strong> core with real JSON Schemas — schema.org ships a huge and almost entirely optional vocabulary with no validation — plus CFP and a data licence.</dd>
+        <dt data-t="lbl.stand">Where we stand</dt>
+        <dd data-t="schema.stand"><a href="https://www.npmjs.com/package/@opentechevents/import-jsonld"><code>import-jsonld</code></a> is published and extracts <code>Event</code> JSON-LD from real pages. The exporter (OTE → <code>schema.org/Event</code>) is still <em>proposed</em>, not built — see the <a href="/#tools">tools section</a>. Until it exists, "maps 1:1" is a claim backed by the field survey, not by running code.</dd>
+      </dl>
+      <p class="pa-links"><a href="https://schema.org/Event">schema.org/Event</a></p>
+    </article>
+
+    <article class="pa-std">
+      <div class="pa-std-head">
+        <h3 data-t="hevent.name">h-event &amp; POSSE <span class="pa-rfc">IndieWeb / microformats2</span></h3>
+        <span class="badge badge-proposed" data-t="badge.notbuilt">Mapping not built</span>
+      </div>
+      <dl class="pa-dl">
+        <dt data-t="lbl.solves">Solves</dt>
+        <dd data-t="hevent.solves">Marking up an event in the HTML you already publish, with no parallel file to maintain — the page <em>is</em> the data. Around it, IndieWeb has a decade of practice on the questions OTE also cares about: who owns the canonical copy (<a href="https://indieweb.org/POSSE">POSSE</a> — publish on your own site, syndicate elsewhere), RSVPs, and replies via Webmention.</dd>
+        <dt data-t="lbl.reuses">OTE reuses</dt>
+        <dd data-t="hevent.reuses">The principle, not yet the markup. "The organiser is the authoritative source and the platforms are destinations" is POSSE restated for events, and we should say so plainly instead of presenting it as new.</dd>
+        <dt data-t="lbl.adds">OTE adds</dt>
+        <dd data-t="hevent.adds">A machine-readable feed decoupled from the page, for consumers that want N events in one fetch rather than a crawl, plus the tech-community fields (CFP, multi-part events, eligibility).</dd>
+        <dt data-t="lbl.open">Open question</dt>
+        <dd data-t="hevent.open">Should OTE be built much more directly on top of h-event instead of alongside it? Our survey rated h-event "low priority" as an HTML markup option, which is a decision about <em>output formats</em> — it never seriously tested whether the IndieWeb conventions should have shaped the model itself. That is a real gap in our homework, and feedback from people who have shipped h-event tooling would change our answer.</dd>
+      </dl>
+      <p class="pa-links"><a href="https://indieweb.org/h-event">h-event</a> · <a href="https://indieweb.org/event">IndieWeb events</a> · <a href="https://indieweb.org/POSSE">POSSE</a></p>
+    </article>
+
+    <article class="pa-std">
+      <div class="pa-std-head">
+        <h3 data-t="fep.name">ActivityPub + FEP-8a8e <span class="pa-rfc">Fediverse</span></h3>
+        <span class="badge badge-proposed" data-t="badge.notanalysed">Not yet analysed</span>
+      </div>
+      <dl class="pa-dl">
+        <dt data-t="lbl.solves">Solves</dt>
+        <dd data-t="fep.solves">Events that propagate between servers, and the social actions around them — RSVP, announcements, replies. FEP-8a8e is the in-progress convention for using ActivityStreams <code>Event</code> consistently enough that Mobilizon, GatherPress and others can actually interoperate; the <a href="https://event-federation.eu/">Event Federation</a> project (NLnet-funded, active) is working on parent/child events, recurrence, RSVP and discovery.</dd>
+        <dt data-t="lbl.reuses">OTE reuses</dt>
+        <dd data-t="fep.reuses">Nothing yet, and that is the honest answer. This is the one standard in this section that our <a href="https://github.com/OpenTechEvents/opentechevents-spec/tree/main/research">original research</a> never covered — it surveyed calendar, web and feed formats, and stopped there.</dd>
+        <dt data-t="lbl.diff">Different problem</dt>
+        <dd data-t="fep.diff">The distribution models genuinely differ: ActivityPub is a push protocol between actors on running servers, while OTE is a static file you can host on GitHub Pages. A community that cannot run a server can publish OTE today. That is complementary, not competing — an OTE ↔ FEP-8a8e adapter would let one published event reach the Fediverse.</dd>
+        <dt data-t="lbl.open">Open question</dt>
+        <dd data-t="fep.open">Are we modelling concepts — event identity, organisers, parent/child events, recurrence — in a way that conflicts with FEP-8a8e for no good reason? We would like this reviewed <em>before</em> the model stabilises, not after.</dd>
+      </dl>
+      <p class="pa-links"><a href="https://event-federation.eu/">event-federation.eu</a> · <a href="https://nlnet.nl/project/Fediverse-event-interop/">NLnet project</a> · <a href="https://socialhub.activitypub.rocks/t/events-interoperability-validation-minimum-requirements-common-extensions/3849">SocialHub discussion</a></p>
+    </article>
+
+    <article class="pa-std">
+      <div class="pa-std-head">
+        <h3 data-t="rss.name">RSS 2.0 &amp; JSON Feed</h3>
+        <span class="badge badge-working" data-t="badge.export">Export shipped</span>
+      </div>
+      <dl class="pa-dl">
+        <dt data-t="lbl.solves">Solves</dt>
+        <dd data-t="rss.solves">Syndication as a settled problem: one URL, many items, subscribers pull. Readers, bots and newsletters already speak it.</dd>
+        <dt data-t="lbl.nots">What they don't do</dt>
+        <dd data-t="rss.nots">Model an event. There is no start date, no end date, no venue, no timezone — an event is just an <code>&lt;item&gt;</code> with a title and a link. They are a distribution format, not a data model.</dd>
+        <dt data-t="lbl.stand">Where we stand</dt>
+        <dd data-t="rss.stand"><a href="https://www.npmjs.com/package/@opentechevents/export-rss"><code>export-rss</code></a> is published: an OTE feed becomes RSS or JSON Feed, one event per item, with the structured data carried alongside and a link back to the full entry.</dd>
+      </dl>
+    </article>
+  </section>
+
+  <!-- ============ 2. Projects ============ -->
+  <section class="pa-section" id="projects">
+    <h2 data-t="s2.title">2 · Aggregators, directories and tools</h2>
+    <p class="pa-section-lead" data-t="s2.lead">Projects solving the same problem from the consuming end. None of these is a competing format; several are the reason a format would be worth having. We describe them in a couple of sentences and link out — deliberately no adoption metrics, because we have not measured any and star counts are not adoption. <strong>If your project is here and we got it wrong, correct us</strong> — every card links to an issue.</p>
+
+    <div class="pa-grid">
+
+      <article class="pa-proj">
+        <h3>Community Calendar</h3>
+        <p class="pa-proj-by">Jon Udell</p>
+        <p data-t="cc.desc">An aggregator built on the premise that <em>event producers are the authoritative sources for their own events</em>: publish once, individuals and aggregators pull. Its gold standard is iCalendar, with scrapers for sites that do not publish a feed. Udell has been making this argument since roughly 2008 — "ICS is RSS for events".</p>
+        <p class="pa-proj-rel" data-t="cc.rel"><strong>Why it matters to us:</strong> it is the sharpest challenge to OTE's existence. If iCalendar plus curation is enough, we should hear that from someone who has actually built the aggregator.</p>
+        <p class="pa-links">
+          <a href="https://github.com/judell/community-calendar" data-t="lbl.repo">Repository</a> ·
+          <a href="https://github.com/OpenTechEvents/opentechevents-spec/issues/new?title=%5BPrior%20art%5D%20Community%20Calendar" data-t="lbl.fix">Correct this →</a>
+        </p>
+      </article>
+
+      <article class="pa-proj">
+        <h3>Brainberg</h3>
+        <p class="pa-proj-by" data-t="brainberg.by">Open source</p>
+        <p data-t="brainberg.desc">An aggregator of AI and tech events in Europe that already tries to ingest structured data from organisers — JSON-LD, schema.org microdata, RSS, iCal — instead of relying only on manual submission.</p>
+        <p class="pa-proj-rel" data-t="brainberg.rel"><strong>Why it matters to us:</strong> it is the fairest test of the whole idea. If Brainberg already gets what it needs from schema.org + RSS + iCal, then an OTE feed has to earn its place by saving them work, not by existing.</p>
+        <p class="pa-links">
+          <a href="https://github.com/Pwuts/brainberg" data-t="lbl.repo">Repository</a> ·
+          <a href="https://github.com/OpenTechEvents/opentechevents-spec/issues/new?title=%5BPrior%20art%5D%20Brainberg" data-t="lbl.fix">Correct this →</a>
+        </p>
+      </article>
+
+      <article class="pa-proj">
+        <h3>Meetable</h3>
+        <p class="pa-proj-by">Aaron Parecki</p>
+        <p data-t="meetable.desc">A minimal event aggregator, deployed at events.indieweb.org, events.oauth.net and meet.modelcontextprotocol.io. Event pages, tags, iCal feeds, "add to calendar", RSVPs and Webmentions.</p>
+        <p class="pa-proj-rel" data-t="meetable.rel"><strong>Why it matters to us:</strong> a working example of a small, self-hosted directory — the kind of consumer OTE should be trivial to plug into — and evidence that iCal output is still what people want at the end.</p>
+        <p class="pa-links">
+          <a href="https://github.com/aaronpk/Meetable" data-t="lbl.repo">Repository</a> ·
+          <a href="https://github.com/OpenTechEvents/opentechevents-spec/issues/new?title=%5BPrior%20art%5D%20Meetable" data-t="lbl.fix">Correct this →</a>
+        </p>
+      </article>
+
+      <article class="pa-proj">
+        <h3>confs.tech</h3>
+        <p class="pa-proj-by">tech-conferences/conference-data</p>
+        <p data-t="confstech.desc">An open, community-curated dataset of tech conferences — JSON per topic and year, with name, dates, city, country, CFP URL and CFP deadline — contributed by pull request or through a web form.</p>
+        <p class="pa-proj-rel" data-t="confstech.rel"><strong>Why it matters to us:</strong> its schema is a directory's internal model, not a standard, and it works. The open question is whether organiser-maintained feeds would add anything to a curation model that already produces clean data.</p>
+        <p class="pa-links">
+          <a href="https://github.com/tech-conferences/conference-data" data-t="lbl.repo">Repository</a> ·
+          <a href="https://confs.tech/">confs.tech</a> ·
+          <a href="https://github.com/OpenTechEvents/opentechevents-spec/issues/new?title=%5BPrior%20art%5D%20confs.tech" data-t="lbl.fix">Correct this →</a>
+        </p>
+      </article>
+
+      <article class="pa-proj">
+        <h3>developers.events</h3>
+        <p class="pa-proj-by">Developers-Conferences-Agenda</p>
+        <p data-t="devevents.desc">A long-running agenda of developer conferences and CFPs, maintained as open data and consumed by several other sites.</p>
+        <p class="pa-proj-rel" data-t="devevents.rel"><strong>Why it matters to us:</strong> OTE is not an alternative to it. The goal is that directories like this one can consume data the organisers maintain themselves, instead of everyone re-typing the same conference.</p>
+        <p class="pa-links">
+          <a href="https://developers.events/">developers.events</a> ·
+          <a href="https://github.com/OpenTechEvents/opentechevents-spec/issues/new?title=%5BPrior%20art%5D%20developers.events" data-t="lbl.fix">Correct this →</a>
+        </p>
+      </article>
+
+      <article class="pa-proj">
+        <h3>NextTechEvent</h3>
+        <p class="pa-proj-by">CodingAfterWork</p>
+        <p data-t="nte.desc">An aggregator for speakers, attendees and organisers that normalises several CFP and event sources — Sessionize, PaperCall, confs.tech, joind.in — into one internal model.</p>
+        <p class="pa-proj-rel" data-t="nte.rel"><strong>Why it matters to us:</strong> its normalised model is a requirements document we did not write. Comparing it against the OTE schema would surface missing concepts and unnecessary complexity quickly.</p>
+        <p class="pa-links">
+          <a href="https://github.com/CodingAfterWork/NextTechEvent" data-t="lbl.repo">Repository</a> ·
+          <a href="https://github.com/OpenTechEvents/opentechevents-spec/issues/new?title=%5BPrior%20art%5D%20NextTechEvent" data-t="lbl.fix">Correct this →</a>
+        </p>
+      </article>
+
+      <article class="pa-proj">
+        <h3>Open Source Event Calendar</h3>
+        <p class="pa-proj-by" data-t="osec.by">WordPress plugin</p>
+        <p data-t="osec.desc">A fully open-source WordPress plugin to create, manage, share and aggregate events, with native iCalendar import and export.</p>
+        <p class="pa-proj-rel" data-t="osec.rel"><strong>Why it matters to us:</strong> WordPress is where a large share of communities actually publish. A publishing tool that emits OTE alongside ICS would test the whole story — publish once, get several formats out.</p>
+        <p class="pa-links">
+          <a href="https://github.com/digitaldonkey/open-source-event-calendar" data-t="lbl.repo">Repository</a> ·
+          <a href="https://github.com/OpenTechEvents/opentechevents-spec/issues/new?title=%5BPrior%20art%5D%20OSEC" data-t="lbl.fix">Correct this →</a>
+        </p>
+      </article>
+
+      <article class="pa-proj">
+        <h3>awesome-developer-conferences</h3>
+        <p class="pa-proj-by">Infrasity-Labs</p>
+        <p data-t="awesome.desc">A curated list of developer, DevRel, cloud-native, platform-engineering, DevOps and API conferences, maintained by hand.</p>
+        <p class="pa-proj-rel" data-t="awesome.rel"><strong>Why it matters to us:</strong> the low-tech end of the same problem — collect, deduplicate, keep fresh — and a plausible consumer if the data can be fetched instead of typed.</p>
+        <p class="pa-links">
+          <a href="https://github.com/Infrasity-Labs/awesome-developer-conferences" data-t="lbl.repo">Repository</a> ·
+          <a href="https://github.com/OpenTechEvents/opentechevents-spec/issues/new?title=%5BPrior%20art%5D%20awesome-developer-conferences" data-t="lbl.fix">Correct this →</a>
+        </p>
+      </article>
+
+    </div>
+
+    <p class="pa-more" data-t="s2.more">More directories, platforms and their export capabilities — EventosWiki, Event Garden, CFP Tracker, CallingAllPapers, dev.events, Meetup, Sessionize, Luma, joind.in, PaperCall — are catalogued in the <a href="https://github.com/OpenTechEvents/opentechevents-spec/tree/main/research">research folder</a>, which is the raw evidence behind this page.</p>
+  </section>
+
+  <!-- ============ 3. Layers ============ -->
+  <section class="pa-section" id="layers">
+    <h2 data-t="s3.title">3 · Which layer is each one in?</h2>
+    <p class="pa-section-lead" data-t="s3.lead">Most arguments about "another event format" are really arguments between different layers. A dot means the project covers that layer as a first-class concern — not that it does it best, and not that the others could not be extended to do it.</p>
+
+    <div class="pa-table-wrap">
+      <table class="pa-matrix">
+        <thead>
+          <tr>
+            <th scope="col"></th>
+            <th scope="col" data-t="m.model">Model<span>vocabulary</span></th>
+            <th scope="col" data-t="m.publish">Publish<span>from the source</span></th>
+            <th scope="col" data-t="m.syndicate">Syndicate<span>subscribe to N</span></th>
+            <th scope="col" data-t="m.federate">Federate<span>server to server</span></th>
+            <th scope="col" data-t="m.aggregate">Aggregate<span>combine sources</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><th scope="row">iCalendar</th><td class="y">•</td><td class="y">•</td><td class="y">•</td><td></td><td></td></tr>
+          <tr><th scope="row">schema.org/Event</th><td class="y">•</td><td class="y">•</td><td></td><td></td><td></td></tr>
+          <tr><th scope="row">h-event</th><td class="y">•</td><td class="y">•</td><td></td><td></td><td></td></tr>
+          <tr><th scope="row">RSS / JSON Feed</th><td></td><td class="y">•</td><td class="y">•</td><td></td><td></td></tr>
+          <tr><th scope="row">ActivityPub + FEP-8a8e</th><td class="y">•</td><td class="y">•</td><td class="y">•</td><td class="y">•</td><td></td></tr>
+          <tr class="pa-row-self"><th scope="row">OTE</th><td class="y">•</td><td class="y">•</td><td class="y">•</td><td></td><td></td></tr>
+          <tr><th scope="row">Community Calendar</th><td></td><td></td><td class="y">•</td><td></td><td class="y">•</td></tr>
+          <tr><th scope="row">Brainberg</th><td></td><td></td><td></td><td></td><td class="y">•</td></tr>
+          <tr><th scope="row">Meetable</th><td></td><td></td><td class="y">•</td><td></td><td class="y">•</td></tr>
+          <tr><th scope="row">confs.tech</th><td></td><td></td><td></td><td></td><td class="y">•</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="pa-matrix-note" data-t="s3.note">Read horizontally, not vertically: the rows below the line are software, the rows above it are specifications, and "OTE vs Meetable" is not a question. What the matrix does show is where OTE places its bet — model, publish and syndicate together, with no server to run — and that the neighbouring rows are the ones we should be exporting to, not arguing with.</p>
+  </section>
+
+  <!-- ============ 4. Honest limits ============ -->
+  <section class="pa-section" id="unproven">
+    <h2 data-t="s4.title">4 · What we can't claim yet</h2>
+    <p class="pa-section-lead" data-t="s4.lead">A page like this is easy to write persuasively and hard to write honestly. These are the load-bearing assumptions behind OTE that we have <em>not</em> demonstrated. If one of them turns out to be false, the right answer may well be to narrow OTE, turn it into a profile of an existing standard, or stop.</p>
+    <ol class="pa-claims">
+      <li data-t="c1"><strong>That the gap is real.</strong> We believe no widely adopted layer combines publish-from-the-source, syndication and a tech-event vocabulary. We have not measured adoption systematically, and "we didn't find one" is not "there isn't one".</li>
+      <li data-t="c2"><strong>That an aggregator saves work.</strong> No independent consumer has yet reported that ingesting OTE was less work than what they already do. Until one does, the efficiency argument is a hypothesis.</li>
+      <li data-t="c3"><strong>That reuse beats rolling your own.</strong> When a community needs structured events it is very easy to invent a small local <code>events.json</code> — that is what <a href="https://github.com/OpenRefine/openrefine.org/issues/506">happens in practice</a>. Whether picking up OTE is genuinely easier than writing twenty lines of schema is untested.</li>
+      <li data-t="c4"><strong>That the schema.org mapping is 1:1.</strong> It is 1:1 on paper, from the field survey. The exporter is not built, so nothing has proved it end to end.</li>
+      <li data-t="c5"><strong>That we are not duplicating FEP-8a8e.</strong> We have not compared the models property by property. This is unreviewed work, not a settled conclusion.</li>
+      <li data-t="c6"><strong>That publishing is worth it for the organiser.</strong> If the only beneficiary is a future aggregator, the incentive to publish is weak. The immediate payoff — ICS, RSS, JSON-LD and a subscribe button from one file — is the bet, and it is only partly built.</li>
+    </ol>
+    <p class="caveat" data-t="s4.caveat"><strong>A standard is not worth anything for being well written</strong> — only for how many people use it. Everything on this page is a draft argument, not a verdict.</p>
+  </section>
+
+  <!-- ============ 5. Outreach ============ -->
+  <section class="pa-section" id="talk">
+    <h2 data-t="s5.title">5 · Tell us where we're wrong</h2>
+    <p data-t="s5.p1">The most useful thing anyone reading this can do is push back. Concretely, we would like: a review of the model by people working on event federation; a straight answer from aggregator maintainers about whether an OTE feed would save them work or add a format; and someone from the IndieWeb side telling us whether this should have been h-event all along.</p>
+    <p data-t="s5.p2">We would rather build the importer or the mapping ourselves than ask a maintainer to implement our format. If your project could be a consumer, that offer is open.</p>
+    <div class="cta-row">
+      <a class="btn btn-primary" href="https://github.com/OpenTechEvents/opentechevents-spec/issues/new?title=%5BPrior%20art%5D%20" data-t="s5.cta1">Open an issue</a>
+      <a class="btn btn-ghost" href="https://github.com/OpenTechEvents/opentechevents-spec/discussions/new?category=general" data-t="s5.cta2">Start a discussion</a>
+      <a class="btn btn-ghost" href="https://github.com/DevRel-Foundation/wg-resource-aggregation/discussions/68" data-t="s5.cta3">The DevRel Foundation thread</a>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap footer-inner">
+    <p class="footer-note" data-t="footerNote">Everything on this page is served from this repository — if a URL here breaks, that's a bug.</p>
+    <nav class="footer-links">
+      <a href="../">opentechevents.org</a>
+      <a href="https://github.com/OpenTechEvents/opentechevents-spec">GitHub</a>
+    </nav>
+  </div>
+</footer>
+
+<script src="prior-art.js"></script>
+<script src="../nav.js"></script>
+<script src="../ask-ai.js"></script>
+</body>
+</html>
