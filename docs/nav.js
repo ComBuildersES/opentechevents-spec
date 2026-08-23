@@ -37,7 +37,7 @@
     // "open" in a layout that no longer has a collapsed state to close it from.
     // Keep this number in sync with the media query in styles.css.
     window.addEventListener("resize", function () {
-      if (window.innerWidth > 1200) close();
+      if (window.innerWidth > 1340) close();
     });
   });
 })();

@@ -83,10 +83,13 @@ a:hover { text-decoration: underline; }
 }
 .brand-name { font-size: .98rem; }
 
-.nav { display: flex; align-items: center; gap: 4px; margin-left: auto; font-size: .92rem; }
+/* Tight on purpose: nine entries in Spanish need ~1230px, and the header .wrap caps at
+   1120 — the nav bleeds into the right margin rather than squeezing anything. Below the
+   1340px breakpoint it collapses instead, which is what keeps the toggle on screen. */
+.nav { display: flex; align-items: center; gap: 2px; margin-left: auto; font-size: .92rem; }
 .nav a {
   color: var(--ink-soft); font-weight: 500; white-space: nowrap;
-  padding: 7px 11px; border-radius: 7px;
+  padding: 7px 9px; border-radius: 7px;
 }
 .nav a:hover { color: var(--ink); background: var(--bg-alt); text-decoration: none; }
 
@@ -100,7 +103,10 @@ a:hover { text-decoration: underline; }
 
 /* margin-left: auto lives here too (not just on .nav): once .nav leaves flex flow behind
    .nav-toggle on mobile, .lang still needs to anchor itself — and whatever follows it — right. */
-.lang { display: flex; border: 1px solid var(--line); border-radius: 7px; overflow: hidden; margin-left: auto; }
+/* flex: none is load-bearing — .lang has `overflow: hidden`, so without it a crowded
+   header squeezes the language toggle down to a couple of pixels instead of pushing
+   back on the nav, and the EN/ES switch silently disappears. */
+.lang { flex: none; display: flex; border: 1px solid var(--line); border-radius: 7px; overflow: hidden; margin-left: auto; }
 .lang button {
   border: 0; background: #fff; color: var(--ink-faint);
   font: 600 .74rem/1 var(--sans); letter-spacing: .04em;
@@ -111,7 +117,7 @@ a:hover { text-decoration: underline; }
 
 .nav-toggle {
   display: none; align-items: center; justify-content: center;
-  width: 36px; height: 36px; padding: 0;
+  flex: none; width: 36px; height: 36px; padding: 0;
   border: 1px solid var(--line); border-radius: 7px; background: #fff; cursor: pointer;
 }
 .nav-toggle:hover { background: var(--bg-alt); }
@@ -531,7 +537,7 @@ p > code, li > code {
 .ask-ai-close:hover { border-color: var(--line); color: var(--ink); }
 
 /* ---------- responsive ---------- */
-@media (max-width: 1200px) {
+@media (max-width: 1340px) {
   .nav-toggle { display: inline-flex; }
 
   /* .site-header (sticky) is the positioned ancestor, so left/right span the full header
