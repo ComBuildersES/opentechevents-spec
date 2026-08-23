@@ -15,10 +15,8 @@ otherwise fetch the pieces you need from the list).
 - [spec-v0.3.md](https://opentechevents.org/llms/spec-v0.3.md): The specification itself for v0.3: every field, and the rules a validator cannot check — why an id must never change, why a cancelled event stays published.
 - [reference-v0.3.md](https://opentechevents.org/llms/reference-v0.3.md): Field reference table generated from the schemas: type, required or recommended, allowed values, examples.
 
-## Data model
+## Versions
 
-- [data-model.md](https://opentechevents.org/llms/data-model.md): Why the fields are the fields: what each one models and what it deliberately does not.
-- [feed.md](https://opentechevents.org/llms/feed.md): How a feed collects events, how it is discovered from a site, and how it is kept fresh.
 - [spec-versions.md](https://opentechevents.org/llms/spec-versions.md): Which spec versions exist and what stability each one carries.
 
 ## Schemas
@@ -64,4 +62,5 @@ otherwise fetch the pieces you need from the list).
 ## Optional
 
 - [Website](https://opentechevents.org/): the same material as pages, with the field reference rendered in English and Spanish.
+- [Prior art](https://opentechevents.org/prior-art/): which standards and projects already solve part of this, what OTE reuses from each, and which claims are still unproven. Editorial layer over the research files above; the ActivityPub/FEP-8a8e and IndieWeb material exists only here.
 - [Repository](https://github.com/OpenTechEvents/opentechevents-spec): issues, discussion and the validator.

@@ -1,58 +1,58 @@
 # OpenTechEvents — OTE Spec
 
-> 🌐 **[opentechevents.org](https://opentechevents.org)** — web del proyecto (código en [`docs/`](docs/)).
+> 🌐 **[opentechevents.org](https://opentechevents.org)** — the project's website (source in [`docs/`](docs/)).
 
-Una especificación estándar y abierta para describir, publicar y compartir **eventos de comunidades tecnológicas** (meetups, conferencias, talleres, eventos online y presenciales).
+An open, standard specification to describe, publish and share **tech community events** (meetups, conferences, workshops, online and in-person events).
 
-El objetivo es ofrecer un formato único al que cualquier comunidad pueda adherirse, que se adapte a todos los formatos de evento y que sea altamente compatible con estándares y herramientas ya existentes (RSS, iCalendar, etc.), de modo que publicar y descubrir eventos deje de ser un trabajo manual y repetitivo.
+The goal is to offer a single format any community can adopt, one that fits every kind of event and stays highly compatible with existing standards and tools (RSS, iCalendar, etc.), so that publishing and discovering events stops being manual, repetitive work.
 
-La propuesta nace desde [**Community Builders (ComBuildersES)**](https://github.com/ComBuildersES) y vive ya en su propia organización, [**OpenTechEvents**](https://github.com/OpenTechEvents), con vocación internacional: aunque impulsada inicialmente desde la comunidad hispana, la especificación se diseña para ser usable por cualquier comunidad del mundo.
+The proposal started at [**Community Builders (ComBuildersES)**](https://github.com/ComBuildersES) and now lives in its own organisation, [**OpenTechEvents**](https://github.com/OpenTechEvents), with an international outlook: although it was first driven from the Spanish-speaking community, the specification is designed to be usable by any community in the world.
 
 ---
 
-## El problema
+## The problem
 
-Cada vez hay **más plataformas, más directorios y más herramientas** para crear y comunicar eventos, y cada vez es más accesible montar herramientas personalizadas. Esto, que en principio es positivo, tiene un contrapunto importante:
+There are **more platforms, more directories and more tools** than ever for creating and announcing events, and building custom tooling keeps getting easier. That is a good thing in principle, but it comes with a serious downside:
 
-- **Los eventos están cada vez más diluidos y dispersos.** La información vive fragmentada en Meetup, Eventbrite, LinkedIn, webs propias, repositorios de GitHub, formularios de terceros, etc.
-- **Para quien organiza/dinamiza**, dar difusión a un evento es cada vez más complejo: hay que dar de alta el mismo evento en múltiples plataformas, con formatos distintos, lo que multiplica el esfuerzo y el mantenimiento.
-- **Para quien asiste**, mantenerse al día exige monitorizar muchas plataformas y directorios distintos para no perderse nada.
+- **Events are increasingly diluted and scattered.** The information lives fragmented across Meetup, Eventbrite, LinkedIn, the organisers' own websites, GitHub repositories, third-party forms, and so on.
+- **For whoever organises**, getting the word out is increasingly complex: the same event has to be submitted to multiple platforms, in different formats, which multiplies both the effort and the maintenance.
+- **For whoever attends**, keeping up means monitoring many different platforms and directories so as not to miss anything.
 
-No falta información: falta **interoperabilidad**.
+There is no shortage of information: what is missing is **interoperability**.
 
-## La propuesta
+## The proposal
 
-Una especificación estándar que permita:
+A standard specification that makes it possible to:
 
-1. **Describir un evento una sola vez**, en un formato único y bien definido.
-2. **Automatizar la difusión** de ese evento hacia múltiples directorios y plataformas a la vez.
-3. **Transformar esos datos** a estándares ya consolidados (RSS, iCalendar…) para que sean compatibles, sin fricción, con las herramientas que la gente ya usa.
+1. **Describe an event once**, in a single, well-defined format.
+2. **Automate its distribution** to multiple directories and platforms at the same time.
+3. **Transform that data** into already established standards (RSS, iCalendar…) so it is compatible, with no friction, with the tools people already use.
 
-La idea: que una comunidad publique sus datos una vez y un ecosistema de herramientas se encargue del resto —ingerir, exportar, transformar y publicar— en cada destino.
+The idea: a community publishes its data once and an ecosystem of tools takes care of the rest — ingesting, exporting, transforming and publishing to each destination.
 
-## Principios de diseño
+## Design principles
 
-- **Universal por formato.** Debe servir igual para un meetup recurrente, una conferencia de varios días, un evento online o uno híbrido.
-- **Compatibilidad ante todo.** Pensada para convivir y mapearse fácilmente a estándares existentes (RSS, iCalendar/ICS, JSON-LD / schema.org `Event`, etc.).
-- **Fácil de adoptar.** Baja barrera de entrada para comunidades pequeñas; sin imponer herramientas concretas.
-- **Reutilizable y automatizable.** Diseñada desde el principio para alimentar un ecosistema de herramientas de import/export y publicación.
-- **Abierta.** Sin restricciones de uso, siguiendo la filosofía de estándares como RSS o iCalendar.
+- **Universal across formats.** It must work equally well for a recurring meetup, a multi-day conference, an online event or a hybrid one.
+- **Compatibility above all.** Designed to coexist with, and map easily onto, existing standards (RSS, iCalendar/ICS, JSON-LD / schema.org `Event`, etc.).
+- **Easy to adopt.** A low barrier to entry for small communities; no specific tooling imposed.
+- **Reusable and automatable.** Designed from the start to feed an ecosystem of import/export and publishing tools.
+- **Open.** No usage restrictions, following the spirit of standards such as RSS or iCalendar.
 
-## Ecosistema de herramientas (visión)
+## Tool ecosystem (the vision)
 
-Una vez estabilizada la especificación, el objetivo es construir un ecosistema que resuelva los problemas anteriores. Casos de uso previstos:
+Once the specification stabilises, the goal is to build an ecosystem that solves the problems above. Expected use cases:
 
-- **Importar / ingerir** eventos desde fuentes existentes hacia el formato OTE.
-- **Exportar / transformar** a RSS, iCalendar y otros formatos compatibles.
-- **Automatizar la publicación** en múltiples destinos: Meetup, LinkedIn, Eventbrite, repositorios de GitHub que aceptan *Pull Requests*, webs con formularios de alta, etc.
+- **Importing / ingesting** events from existing sources into the OTE format.
+- **Exporting / transforming** to RSS, iCalendar and other compatible formats.
+- **Automating publication** to multiple destinations: Meetup, LinkedIn, Eventbrite, GitHub repositories that accept *pull requests*, websites with submission forms, and so on.
 
-👉 El catálogo vivo de herramientas se mantiene en la [web](https://opentechevents.org/#tools) desde [`docs/data/tools.json`](docs/data/tools.json).
+👉 The living tool catalogue is maintained on the [website](https://opentechevents.org/#tools) from [`docs/data/tools.json`](docs/data/tools.json).
 
-## La especificación
+## The specification
 
-👉 **[OTE Spec v0.3](spec/v0.3/README.md)** — schemas ejecutables (JSON Schema 2020-12), prosa normativa y ejemplos validados en CI. Las [v0.1](spec/v0.1/README.md) y [v0.2](spec/v0.2/README.md) quedan congeladas; qué cambió, en el [CHANGELOG](CHANGELOG.md).
+👉 **[OTE Spec v0.3](spec/v0.3/README.md)** — executable schemas (JSON Schema 2020-12), normative prose and examples validated in CI. [v0.1](spec/v0.1/README.md) and [v0.2](spec/v0.2/README.md) are frozen; what changed is in the [CHANGELOG](CHANGELOG.md).
 
-📄 **[Ejemplos prácticos](https://opentechevents.org/examples/)** — un documento entero por cada caso real: meetups pequeños y recurrentes, conferencias, eventos online e híbridos, multi-parte, hackathones, coorganizados y feeds. Todos salen de [`spec/v0.3/examples/`](spec/v0.3/examples/) y se validan en CI, así que se copian tal cual.
+📄 **[Practical examples](https://opentechevents.org/examples/)** — a whole document for every real case: small and recurring meetups, conferences, online and hybrid events, multi-part events, hackathons, co-organised events and feeds. They all come from [`spec/v0.3/examples/`](spec/v0.3/examples/) and are validated in CI, so they can be copied as they are.
 
 ```bash
 npm install @opentechevents/schema
@@ -63,114 +63,114 @@ https://opentechevents.org/schema/v0.3/event.schema.json
 https://opentechevents.org/schema/v0.3/feed.schema.json
 ```
 
-> 🚧 **`0.x` puede romper sin previo aviso.** Se publica para que existan implementaciones reales —empezando por el importador de `.ics`— y para que rompan lo que esté mal. El debate sigue abierto en los issues [#5](https://github.com/OpenTechEvents/opentechevents-spec/issues/5) y [#6](https://github.com/OpenTechEvents/opentechevents-spec/issues/6).
+> 🚧 **`0.x` can break without warning.** It is published so that real implementations exist — starting with the `.ics` importer — and so they break whatever is wrong. The debate is still open in issues [#5](https://github.com/OpenTechEvents/opentechevents-spec/issues/5) and [#6](https://github.com/OpenTechEvents/opentechevents-spec/issues/6).
 
-¿Tienes un feed y quieres comprobarlo? `npm run validate -- mi-feed.json`.
+Got a feed and want to check it? `npm run validate -- my-feed.json`.
 
-🤖 **¿Prefieres preguntárselo a una IA?** El botón *Pregunta a una IA* de [opentechevents.org](https://opentechevents.org/) abre una conversación en tu asistente —en tu cuenta, sin API keys ni backend nuestro— con un mensaje que le manda leer antes de responder [`/llms.txt`](https://opentechevents.org/llms.txt) (índice de todas las fuentes) o [`/llms-full.txt`](https://opentechevents.org/llms-full.txt) (el repositorio entero: spec, schemas, ejemplos, herramientas e investigación). Ambos los genera `npm run build-llms` desde los ficheros del repo, así que nunca dicen algo que la spec no diga.
+🤖 **Would you rather ask an AI?** The *Ask an AI* button on [opentechevents.org](https://opentechevents.org/) opens a conversation in your assistant — in your account, with no API keys and no backend of ours — carrying a message that tells it to read [`/llms.txt`](https://opentechevents.org/llms.txt) (an index of every source) or [`/llms-full.txt`](https://opentechevents.org/llms-full.txt) (the whole repository: spec, schemas, examples, tools and research) before answering. Both are generated by `npm run build-llms` from the repo's own files, so they never say anything the spec does not.
 
-## Estado del proyecto
+## Project status
 
-🚧 **Fase inicial.** Existe una **v0.3 implementable** y el trabajo se centra ahora en **construir sobre ella** (el agregador y su importador de `.ics`) para descubrir qué está mal. El nombre, el alcance y la gobernanza siguen siendo provisionales y abiertos a debate; la [licencia](#licencia) ya está decidida.
+🚧 **Early stage.** There is an **implementable v0.3**, and the work is now focused on **building on top of it** (the aggregator and its `.ics` importer) to find out what is wrong. The name, the scope and the governance are all still provisional and open to debate; the [licence](#licence) is already settled.
 
 ## Roadmap
 
-1. ✅ **Investigación inicial** — análisis de estándares existentes (RSS, iCalendar, schema.org/Event…), plataformas y casos de uso reales. → [research/](research/README.md)
-2. ✅ **v0.1 de la especificación** — modelo de datos mínimo, JSON Schema ejecutable y ejemplos. → [spec/v0.1/](spec/v0.1/README.md)
-3. 🔜 **Validación con implementaciones reales** — el [agregador](https://github.com/OpenTechEvents/opentechevents-data) y su importador de `.ics` son el banco de pruebas: si el modelo no soporta una ingesta real, el modelo está mal. De ahí salieron la [v0.2](CHANGELOG.md) (`tags`, `location.geo`, `updatedAt`) y la v0.3 (`organizers`). Sigue abierto.
-4. 🔜 **Adopción** — comunidades publicando feeds y directorios consumiéndolos. Sin datos reales, el estándar es teoría.
-5. 🔜 **Ecosistema de herramientas** — ingesta, transformación y publicación automatizada. → [catálogo en la web](https://opentechevents.org/#tools)
+1. ✅ **Initial research** — an analysis of existing standards (RSS, iCalendar, schema.org/Event…), platforms and real use cases. → [research/](research/README.md)
+2. ✅ **v0.1 of the specification** — a minimal data model, an executable JSON Schema and examples. → [spec/v0.1/](spec/v0.1/README.md)
+3. 🔜 **Validation against real implementations** — the [aggregator](https://github.com/OpenTechEvents/opentechevents-data) and its `.ics` importer are the test bench: if the model cannot handle a real ingestion, the model is wrong. That is where [v0.2](CHANGELOG.md) (`tags`, `location.geo`, `updatedAt`) and v0.3 (`organizers`) came from. Still open.
+4. 🔜 **Adoption** — communities publishing feeds and directories consuming them. Without real data, a standard is theory.
+5. 🔜 **A tool ecosystem** — ingestion, transformation and automated publishing. → [catalogue on the website](https://opentechevents.org/#tools)
 
-## Estructura del repositorio
+## Repository structure
 
-> El repositorio crecerá a medida que avance el proyecto. Estructura prevista:
+> The repository will grow as the project advances. Expected structure:
 
-- `README.md` — este documento.
-- `CONTRIBUTING.md` — cómo participar en el diseño de la especificación.
-- `research/` — resultados de la investigación inicial: análisis de plataformas, directorios y estándares.
-- `spec/` — la especificación. Por ahora un **borrador inicial** del modelo de datos para ilustrar la idea.
-- `docs/data/` — datos que alimentan la web pública: adoptantes, consumidores y catálogo de herramientas.
+- `README.md` — this document.
+- `CONTRIBUTING.md` — how to take part in the design of the specification.
+- `research/` — the results of the initial research: an analysis of platforms, directories and standards.
+- `spec/` — the specification. For now, an **initial draft** of the data model to illustrate the idea.
+- `docs/data/` — the data feeding the public website: adopters, consumers and the tool catalogue.
 
-## De qué depende el éxito
+## What success depends on
 
-Un estándar no vale por estar bien escrito, sino por **cuánta gente lo usa**. Es un efecto de red: cada comunidad, herramienta y difusión suma valor para todas las demás. El éxito de OTE depende de:
+A standard is not worth anything for being well written, but for **how many people use it**. It is a network effect: every community, tool and mention adds value for all the others. OTE's success depends on:
 
-- **Una buena especificación, definida con apoyo.** Que cubra las necesidades reales de los distintos formatos y comunidades, diseñada de forma abierta y con suficientes manos y puntos de vista. Una spec pobre no la adopta nadie.
-- **Adopción por comunidades y plataformas.** Que la implementen de verdad: que publiquen sus eventos en este formato (que expongan el esquema/feed) y que las plataformas y directorios lo acepten como entrada/salida. Sin datos reales, el estándar es teoría.
-- **Un ecosistema de herramientas amplio y versátil.** Cuantas más herramientas existan —para ingerir, exportar, transformar, validar y publicar—, más fácil y atractivo es adoptarlo. La cantidad **y** la versatilidad importan: cubrir más plataformas, formatos y casos de uso baja la barrera de entrada.
-- **Difusión.** Que se hable de él: blogs, charlas en meetups y conferencias, documentación, ejemplos. Una vía concreta y de bajo coste: que las webs que lo adopten muestren un **logo/badge** enlazando a la URL donde se puede **consumir su feed** (como en su día los botones de RSS), haciendo visible el estándar y facilitando que otros lo descubran y reutilicen.
+- **A good specification, defined with support.** One that covers the real needs of different formats and communities, designed openly and with enough hands and points of view. Nobody adopts a poor spec.
+- **Adoption by communities and platforms.** That they actually implement it: that they publish their events in this format (exposing the schema/feed) and that platforms and directories accept it as input/output. Without real data, a standard is theory.
+- **A broad, versatile tool ecosystem.** The more tools there are — to ingest, export, transform, validate and publish — the easier and more appealing adoption becomes. Both quantity **and** versatility matter: covering more platforms, formats and use cases lowers the barrier to entry.
+- **Getting the word out.** That people talk about it: blog posts, talks at meetups and conferences, documentation, examples. One concrete, low-cost route: sites that adopt it can display a **logo/badge** linking to the URL where their **feed can be consumed** (the way RSS buttons once did), making the standard visible and easy for others to discover and reuse.
 
-Estas piezas se refuerzan entre sí: más adopción atrae más herramientas, más herramientas facilitan la adopción, y la difusión alimenta ambas. Por eso el [roadmap](#roadmap) prioriza primero una **buena especificación** y, sobre ella, el **ecosistema** y su **difusión**.
+These pieces reinforce each other: more adoption attracts more tools, more tools make adoption easier, and word of mouth feeds both. That is why the [roadmap](#roadmap) puts a **good specification** first and, on top of it, the **ecosystem** and its **reach**.
 
-## Organización y gobernanza
+## Organisation and governance
 
-Esta propuesta se impulsa desde [Community Builders (ComBuildersES)](https://github.com/ComBuildersES) y tiene ya **casa propia**: la organización [OpenTechEvents](https://github.com/OpenTechEvents) en GitHub y el dominio [opentechevents.org](https://opentechevents.org).
+This proposal is driven from [Community Builders (ComBuildersES)](https://github.com/ComBuildersES) and already has **a home of its own**: the [OpenTechEvents](https://github.com/OpenTechEvents) organisation on GitHub and the [opentechevents.org](https://opentechevents.org) domain.
 
-La estructura prevista dentro de la organización:
+The expected structure inside the organisation:
 
-- este repositorio para **la especificación**, la web y los proyectos/comunidades adheridos a ella,
-- posiblemente otro para **los datos**,
-- y repositorios independientes para las **diferentes herramientas** del ecosistema.
+- this repository for **the specification**, the website and the projects/communities that adopt it,
+- possibly another one for **the data**,
+- and separate repositories for the ecosystem's **different tools**.
 
-El reparto exacto de repos y el modelo de gobernanza a largo plazo siguen abiertos: forma parte de lo que queremos consensuar con la comunidad.
+The exact split of repos and the long-term governance model are still open: they are part of what we want to agree on with the community.
 
-## Preguntas frecuentes (FAQ)
+## Frequently asked questions (FAQ)
 
-**¿Qué es OTE exactamente?**
-Una **especificación** (un formato de datos), no una plataforma ni una app. Define cómo describir un evento para que sea reutilizable e interoperable.
+**What exactly is OTE?**
+A **specification** (a data format), not a platform or an app. It defines how to describe an event so that it is reusable and interoperable.
 
-**¿Compite con Meetup, Eventbrite, Luma…?**
-No. El objetivo es **interoperar** con ellas: describir el evento una vez y poder publicarlo/transformarlo hacia esas plataformas y directorios, no sustituirlas.
+**Does it compete with Meetup, Eventbrite, Luma…?**
+No. The goal is to **interoperate** with them: describe the event once and be able to publish or transform it towards those platforms and directories, not replace them.
 
-**¿Reemplaza a RSS o iCalendar?**
-No. OTE se diseña para ser **compatible** y convertible a esos estándares. Un feed OTE puede exportarse a RSS, JSON Feed o iCal para consumirse con las herramientas que ya usas (lector RSS, app de calendario).
+**Does it replace RSS or iCalendar?**
+No. OTE is designed to be **compatible** with and convertible to those standards. An OTE feed can be exported to RSS, JSON Feed or iCal so it can be consumed with the tools you already use (an RSS reader, a calendar app).
 
-**¿Tengo que abandonar mis herramientas actuales?**
-No. La idea es justo la contraria: que tus datos fluyan hacia las herramientas y plataformas que ya usas.
+**Do I have to abandon my current tools?**
+No. The idea is exactly the opposite: to let your data flow towards the tools and platforms you already use.
 
-**Como comunidad, ¿qué gano adhiriéndome?**
-Publicar tus eventos **una sola vez** y automatizar su difusión a múltiples directorios y plataformas, en lugar de dar de alta cada evento manualmente en cada sitio.
+**As a community, what do I gain by adopting it?**
+Publishing your events **once** and automating their distribution to multiple directories and platforms, instead of submitting each event by hand in each place.
 
-**Como asistente/usuario, ¿qué gano?**
-Poder **suscribirte a feeds** y filtrar los eventos que te interesan, sin vigilar decenas de plataformas y directorios por separado.
+**As an attendee/user, what do I gain?**
+Being able to **subscribe to feeds** and filter the events you care about, without watching dozens of platforms and directories separately.
 
-**¿Esto es de Community Builders? ¿Es un estándar oficial ya?**
-Lo impulsa [Community Builders](https://github.com/ComBuildersES) con vocación internacional y se desarrolla en su propia organización, [OpenTechEvents](https://github.com/OpenTechEvents), pero **no es un estándar oficial ni estable todavía**: está en fase de diseño y todo es provisional.
+**Is this a Community Builders thing? Is it an official standard yet?**
+It is driven by [Community Builders](https://github.com/ComBuildersES) with an international outlook and developed in its own organisation, [OpenTechEvents](https://github.com/OpenTechEvents), but it is **not an official or stable standard yet**: it is in the design phase and everything is provisional.
 
-**¿Está listo para usarse en producción?**
-Todavía no. Estamos diseñando la especificación (versión `0.x`, inestable). El [borrador del modelo](spec/) es ilustrativo y cambiará.
+**Is it ready for production use?**
+Not yet. We are designing the specification (version `0.x`, unstable). The [draft model](spec/) is illustrative and will change.
 
-**¿Qué relación tiene con el directorio de comunidades de Community Builders?**
-OTE describe **eventos**; el directorio describe **comunidades** (organizadores). Un evento *referencia* a su comunidad por un identificador global, sin acoplarse a ningún directorio concreto. Ese directorio es un **registro compatible** de referencia, no un requisito.
+**How does it relate to Community Builders' community directory?**
+OTE describes **events**; the directory describes **communities** (organisers). An event *references* its community by a global identifier, without coupling itself to any particular directory. That directory is a reference **compatible registry**, not a requirement.
 
-**¿Cómo puedo participar?**
-Ver [Cómo contribuir](#cómo-contribuir).
+**How can I take part?**
+See [How to contribute](#how-to-contribute).
 
-## Cómo contribuir
+## How to contribute
 
-El proyecto está en fase de diseño y **toda aportación es bienvenida**: experiencias, necesidades de tu comunidad, referencias de estándares y propuestas concretas. Lo que más falta ahora son **casos reales que rompan el modelo** y **gente que diga en público que adoptaría esto** — sin eso, ningún directorio se molesta en leer el formato.
+The project is in its design phase and **every contribution is welcome**: experiences, your community's needs, references to standards and concrete proposals. What is most needed right now is **real cases that break the model** and **people saying publicly that they would adopt this** — without that, no directory bothers reading the format.
 
-**Publicar un feed no es el único modo de ayudar, ni el primero:**
+**Publishing a feed is not the only way to help, nor the first one:**
 
-| Qué | Cuánto cuesta | Por dónde |
+| What | How long it takes | Where |
 | --- | --- | --- |
-| Comprometerte a adoptarla cuando sea estable | 2 min | [issue de apoyo](https://github.com/OpenTechEvents/opentechevents-spec/issues/new?template=supporter.yml) |
-| Dar un testimonio publicable | 5 min | [Discussions](https://github.com/OpenTechEvents/opentechevents-spec/discussions) |
-| Contar un evento que la spec no sabe describir | 10 min | [issue de caso real](https://github.com/OpenTechEvents/opentechevents-spec/issues/new?template=case.yml) |
-| Difundirlo o presentarnos a alguien | variable | [issue de embajador](https://github.com/OpenTechEvents/opentechevents-spec/issues/new?template=ambassador.yml) |
-| Publicar un feed / consumirlos / montar una herramienta | ~1 h y más | [CONTRIBUTING.md](CONTRIBUTING.md) |
+| Pledge to adopt it once it is stable | 2 min | [support issue](https://github.com/OpenTechEvents/opentechevents-spec/issues/new?template=supporter.yml) |
+| Give a publishable testimonial | 5 min | [Discussions](https://github.com/OpenTechEvents/opentechevents-spec/discussions) |
+| Tell us about an event the spec cannot describe | 10 min | [real-case issue](https://github.com/OpenTechEvents/opentechevents-spec/issues/new?template=case.yml) |
+| Spread the word or introduce us to someone | varies | [ambassador issue](https://github.com/OpenTechEvents/opentechevents-spec/issues/new?template=ambassador.yml) |
+| Publish a feed / consume feeds / build a tool | ~1 h and up | [CONTRIBUTING.md](CONTRIBUTING.md) |
 
-¿Prefieres hablarlo en una llamada de 20 minutos en vez de escribir un issue? [Reserva hueco](https://calendar.app.google/ZQuRkVw53h8nC2uQA); y si no te encaja ninguno, dilo en [Discussions](https://github.com/OpenTechEvents/opentechevents-spec/discussions).
+Would you rather talk it through in a 20-minute call than write an issue? [Book a slot](https://calendar.app.google/ZQuRkVw53h8nC2uQA); and if none of these fit, say so in [Discussions](https://github.com/OpenTechEvents/opentechevents-spec/discussions).
 
-👉 La lista completa está en [**CONTRIBUTING.md**](CONTRIBUTING.md): cómo apoyar sin publicar nada, cómo debatir la spec, cómo adherirse, cómo aparecer en la web, cómo traducir y cómo reclamar una herramienta del ecosistema.
+👉 The full list is in [**CONTRIBUTING.md**](CONTRIBUTING.md): how to support it without publishing anything, how to debate the spec, how to adopt it, how to appear on the website, how to translate, and how to claim an ecosystem tool.
 
-## Contribuidores
+## Contributors
 
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contribuidores)
+[![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
-Gracias a todas las personas que contribuyen a este proyecto ([clave de emojis](https://allcontributors.org/docs/en/emoji-key)):
+Thanks to everyone who contributes to this project ([emoji key](https://allcontributors.org/docs/en/emoji-key)):
 
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
 <!-- prettier-ignore-start -->
@@ -188,13 +188,13 @@ Gracias a todas las personas que contribuyen a este proyecto ([clave de emojis](
 
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 
-Este proyecto sigue la especificación [all-contributors](https://github.com/all-contributors/all-contributors): se reconoce **cualquier tipo de contribución**, no solo código.
+This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification: **every kind of contribution** is recognised, not only code.
 
-## Licencia
+## Licence
 
-Dos licencias, ambas permisivas. Detalle y motivos en [LICENSE](LICENSE).
+Two licences, both permissive. The detail and the reasoning are in [LICENSE](LICENSE).
 
-- **La especificación** (prosa, investigación, web): [**CC0-1.0**](LICENSES/CC0-1.0.txt) — dominio público. Implementar un estándar no debería exigir permiso ni atribución a nadie.
-- **Los schemas y el código**: [**MIT**](LICENSES/MIT.txt). No van en CC0 porque **CC0 no concede derechos de patente explícitos** y hay políticas corporativas que prohíben consumir código bajo esa licencia — justo la barrera que no queremos delante de quien quiera implementar OTE.
+- **The specification** (prose, research, website): [**CC0-1.0**](LICENSES/CC0-1.0.txt) — public domain. Implementing a standard should not require anyone's permission or attribution.
+- **The schemas and the code**: [**MIT**](LICENSES/MIT.txt). They are not CC0 because **CC0 grants no explicit patent rights**, and there are corporate policies forbidding the consumption of code under that licence — exactly the barrier we do not want in front of anyone who wants to implement OTE.
 
-**La licencia de tus datos es otra cosa** y la eliges tú, en el campo `license` de cada evento o feed. La spec recomienda **`CC-BY-4.0`** (cubre el derecho *sui generis* de bases de datos de la UE, cosa que la 3.0 no hace) o **`CC0-1.0`**. Desaconseja las licencias *share-alike* (`CC-BY-SA`, `ODbL`): contagian la obligación a cualquier feed agregado que incluya tus eventos e impiden que otros directorios los reutilicen.
+**The licence of your data is a separate matter** and you choose it, in the `license` field of each event or feed. The spec recommends **`CC-BY-4.0`** (it covers the EU *sui generis* database right, which 3.0 does not) or **`CC0-1.0`**. It advises against *share-alike* licences (`CC-BY-SA`, `ODbL`): they spread the obligation to any aggregated feed that includes your events and stop other directories from reusing them.

@@ -1,201 +1,201 @@
-# Cómo contribuir
+# How to contribute
 
-Gracias por pasarte. OTE Spec está en **fase de diseño**: nada está cerrado y por eso ahora mismo una opinión vale más que un *pull request*. Si organizas eventos, montas un directorio o mantienes una herramienta, tienes justo el contexto que le falta a este proyecto.
+Thanks for dropping by. OTE Spec is in its **design phase**: nothing is settled, which is why an opinion is worth more than a *pull request* right now. If you organise events, run a directory or maintain a tool, you have exactly the context this project is missing.
 
-> ⚠️ **Aviso importante.** La especificación vigente es **[OTE Spec v0.3](spec/v0.3/README.md)** y es un **borrador `0.x`: puede romper sin previo aviso**. Se publicó para que existan implementaciones reales y para que rompan lo que esté mal. El debate sigue abierto en los issues [#5 (evento)](https://github.com/OpenTechEvents/opentechevents-spec/issues/5) y [#6 (feed)](https://github.com/OpenTechEvents/opentechevents-spec/issues/6).
+> ⚠️ **Important notice.** The current specification is **[OTE Spec v0.3](spec/v0.3/README.md)** and it is a **`0.x` draft: it can break without warning**. It was published so that real implementations exist and so they break whatever is wrong. The debate is still open in issues [#5 (event)](https://github.com/OpenTechEvents/opentechevents-spec/issues/5) and [#6 (feed)](https://github.com/OpenTechEvents/opentechevents-spec/issues/6).
 >
-> Los documentos de `spec/data-model.md` y `spec/feed.md` son el **boceto anterior** y **no son normativos**. No los implementes ni los edites.
+> The earlier, non-normative sketch that used to live in `spec/data-model.md`, `spec/feed.md` and `spec/examples/` has been removed — see [`spec/README.md`](spec/README.md) for where it went and why. Only `spec/v0.3/` is normative.
 
-## Lo que más falta ahora mismo
+## What is most needed right now
 
-En este orden:
+In this order:
 
-1. **Casos reales que rompan el modelo.** Un evento tuyo que no se pueda describir con la spec actual es información valiosísima. Cuéntalo aunque no traigas solución.
-2. **Gente que diga que la adoptaría.** Un «lo publicaremos cuando haya una spec estable» cuesta dos minutos y es lo que hace que un directorio decida que este formato merece la pena leerlo. Ver [apoyar sin publicar nada](#apoyar-sin-publicar-nada).
-3. **Comunidades dispuestas a publicar un feed.** Un estándar sin datos reales es teoría. Ver [adherirse](#adherirse-publicar-tus-eventos-en-ote).
-4. **Consumidores.** Directorios, newsletters o bots que lean feeds OTE. Cada consumidor hace que adherirse compense más.
-5. **Difusión.** Nadie da feedback sobre algo de lo que no ha oído hablar. Ver [difusión y embajadores](#difusión-y-embajadores).
-6. **Herramientas del ecosistema.** Catálogo en [`docs/data/tools.json`](docs/data/tools.json), pintado en [opentechevents.org#tools](https://opentechevents.org#tools).
-7. **Código y documentación.** Llegará, pero va después de lo anterior.
+1. **Real cases that break the model.** An event of yours that the current spec cannot describe is extremely valuable information. Tell us about it even if you bring no solution.
+2. **People saying they would adopt it.** A "we'll publish this once there is a stable spec" takes two minutes, and it is what makes a directory decide this format is worth reading. See [supporting without publishing anything](#supporting-without-publishing-anything).
+3. **Communities willing to publish a feed.** A standard with no real data is theory. See [adopting it](#adopting-it-publishing-your-events-in-ote).
+4. **Consumers.** Directories, newsletters or bots that read OTE feeds. Every consumer makes adopting it more worthwhile.
+5. **Getting the word out.** Nobody gives feedback on something they have never heard of. See [outreach and ambassadors](#outreach-and-ambassadors).
+6. **Ecosystem tools.** The catalogue is in [`docs/data/tools.json`](docs/data/tools.json), rendered at [opentechevents.org#tools](https://opentechevents.org#tools).
+7. **Code and documentation.** It will come, but it comes after all of the above.
 
-## Todas las formas de participar
+## Every way to take part
 
-Cada fila es una puerta de entrada distinta, ordenadas de menos a más esfuerzo. **Ninguna es un peldaño obligatorio para la siguiente**: entra por donde te apetezca.
+Each row is a different way in, ordered from least to most effort. **None of them is a required step towards the next**: come in wherever you feel like.
 
-| Qué | Cuánto cuesta | Por dónde |
+| What | How long it takes | Where |
 | --- | --- | --- |
-| Comprometerte a adoptarla cuando haya una spec estable | 2 min | [issue de apoyo](https://github.com/OpenTechEvents/opentechevents-spec/issues/new?template=supporter.yml) |
-| Contárnoslo en una llamada en vez de por escrito | 20 min | [reservar hueco](https://calendar.app.google/ZQuRkVw53h8nC2uQA) |
-| Dar un testimonio publicable | 5 min | [Discussions](https://github.com/OpenTechEvents/opentechevents-spec/discussions) |
-| Ponerte la chapa en tu README | 1 min | [`docs/badge/`](docs/badge/README.md) |
-| Contar un evento tuyo que la spec no sabe describir | 10 min | [issue de caso real](https://github.com/OpenTechEvents/opentechevents-spec/issues/new?template=case.yml) |
-| Revisar la spec cuando toque tu caso | reactivo | [issue de apoyo](https://github.com/OpenTechEvents/opentechevents-spec/issues/new?template=supporter.yml) («asesora») |
-| Presentarnos a un directorio, plataforma o conferencia | 1 mensaje | [issue de embajador](https://github.com/OpenTechEvents/opentechevents-spec/issues/new?template=ambassador.yml) |
-| Hablar de esto (charla, artículo, podcast, hilo) | variable | [issue de embajador](https://github.com/OpenTechEvents/opentechevents-spec/issues/new?template=ambassador.yml) |
-| Traducir la web o las descripciones de campos | 1-3 h | [traducir](#traducir) |
-| Debatir la especificación | variable | [issues](https://github.com/OpenTechEvents/opentechevents-spec/issues) |
-| Publicar un feed | ~1 h | [adherirse](#adherirse-publicar-tus-eventos-en-ote) |
-| Consumir feeds (directorio, bot, newsletter) | días | [issue de consumidor](https://github.com/OpenTechEvents/opentechevents-spec/issues/new?template=consumer.yml) |
-| Montar una herramienta | días | [issue de herramienta](https://github.com/OpenTechEvents/opentechevents-spec/issues/new?template=tool.yml) |
+| Pledge to adopt it once there is a stable spec | 2 min | [support issue](https://github.com/OpenTechEvents/opentechevents-spec/issues/new?template=supporter.yml) |
+| Tell us on a call instead of in writing | 20 min | [book a slot](https://calendar.app.google/ZQuRkVw53h8nC2uQA) |
+| Give a publishable testimonial | 5 min | [Discussions](https://github.com/OpenTechEvents/opentechevents-spec/discussions) |
+| Put the badge in your README | 1 min | [`docs/badge/`](docs/badge/README.md) |
+| Tell us about an event of yours the spec cannot describe | 10 min | [real-case issue](https://github.com/OpenTechEvents/opentechevents-spec/issues/new?template=case.yml) |
+| Review the spec when it touches your case | reactive | [support issue](https://github.com/OpenTechEvents/opentechevents-spec/issues/new?template=supporter.yml) ("advisor") |
+| Introduce us to a directory, platform or conference | 1 message | [ambassador issue](https://github.com/OpenTechEvents/opentechevents-spec/issues/new?template=ambassador.yml) |
+| Talk about this (a talk, an article, a podcast, a thread) | varies | [ambassador issue](https://github.com/OpenTechEvents/opentechevents-spec/issues/new?template=ambassador.yml) |
+| Translate the website or the field descriptions | 1-3 h | [translating](#translating) |
+| Debate the specification | varies | [issues](https://github.com/OpenTechEvents/opentechevents-spec/issues) |
+| Publish a feed | ~1 h | [adopting it](#adopting-it-publishing-your-events-in-ote) |
+| Consume feeds (a directory, a bot, a newsletter) | days | [consumer issue](https://github.com/OpenTechEvents/opentechevents-spec/issues/new?template=consumer.yml) |
+| Build a tool | days | [tool issue](https://github.com/OpenTechEvents/opentechevents-spec/issues/new?template=tool.yml) |
 
-¿Prefieres que lo hablemos y no escribir un issue? **[Reserva 20 minutos](https://calendar.app.google/ZQuRkVw53h8nC2uQA)** y ya está. Quien organiza eventos tiene cosas mejores que hacer que aprenderse nuestras plantillas. Si no te encaja ningún hueco, abre un [hilo en Discussions](https://github.com/OpenTechEvents/opentechevents-spec/discussions) y buscamos uno.
+Would you rather talk it through than write an issue? **[Book 20 minutes](https://calendar.app.google/ZQuRkVw53h8nC2uQA)** and that's it. People who organise events have better things to do than learn our templates. If none of the slots work for you, open a [thread in Discussions](https://github.com/OpenTechEvents/opentechevents-spec/discussions) and we'll find one.
 
-## Cómo participar
+## How to take part
 
-### Apoyar sin publicar nada
+### Supporting without publishing anything
 
-No hace falta que publiques un feed para que tu apoyo sirva. Un estándar joven se muere de dos cosas: de que nadie lo conozca y de que nadie se crea que alguien lo va a usar. Contra la segunda solo hay un remedio, y es **decirlo en público**.
+You don't have to publish a feed for your support to count. A young standard dies of two things: nobody knowing about it, and nobody believing anyone will ever use it. Against the second there is only one remedy, and that is **saying so in public**.
 
-Abre un [issue de apoyo](https://github.com/OpenTechEvents/opentechevents-spec/issues/new?template=supporter.yml) y marca lo que te encaje:
+Open a [support issue](https://github.com/OpenTechEvents/opentechevents-spec/issues/new?template=supporter.yml) and tick whatever fits:
 
-- **Compromiso** — «publicaremos (o consumiremos) OTE cuando haya una spec estable». No es vinculante: se retira comentando en el mismo issue. Se lista **aparte** de quien ya publica, porque prometer y hacerlo no son lo mismo y mezclarlo sería mentir.
-- **Apoyo** — te parece bien la idea y quieres aparecer respaldándola.
-- **Asesoría** — no vas a implementar nada, pero revisas borradores y traes tu caso real cuando la spec toque tu terreno.
-- **Recursos** — hosting, dominio, diseño, ilustración, una revisión legal o de accesibilidad, un volcado de eventos históricos contra el que probar, un hueco en tu evento, una sala para un taller de adopción. No todo lo útil es código.
+- **A pledge** — "we will publish (or consume) OTE once there is a stable spec". It is not binding: you withdraw it by commenting on the same issue. It is listed **separately** from those already publishing, because promising and doing are not the same thing and mixing them would be a lie.
+- **Support** — you like the idea and want to appear backing it.
+- **Advice** — you are not going to implement anything, but you review drafts and bring your real case when the spec touches your territory.
+- **Resources** — hosting, a domain, design, illustration, a legal or accessibility review, a dump of historical events to test against, a slot at your event, a room for an adoption workshop. Not everything useful is code.
 
-Y si tienes una frase publicable sobre por qué esto importa en tu comunidad, déjala en [Discussions](https://github.com/OpenTechEvents/opentechevents-spec/discussions): los testimonios se revisan **a mano** y se pasan a [`docs/data/consumers.json`](docs/data/consumers.json) con tu permiso explícito.
+And if you have a publishable sentence about why this matters in your community, leave it in [Discussions](https://github.com/OpenTechEvents/opentechevents-spec/discussions): testimonials are reviewed **by hand** and moved into [`docs/data/consumers.json`](docs/data/consumers.json) with your explicit permission.
 
-Todo esto sale en [opentechevents.org#support](https://opentechevents.org#support), desde [`docs/data/supporters.json`](docs/data/supporters.json).
+All of this appears at [opentechevents.org#support](https://opentechevents.org#support), from [`docs/data/supporters.json`](docs/data/supporters.json).
 
-### Difusión y embajadores
+### Outreach and ambassadors
 
-Nadie da feedback sobre algo de lo que no ha oído hablar. Ahora mismo **la difusión rinde más que el código**: [issue de embajador](https://github.com/OpenTechEvents/opentechevents-spec/issues/new?template=ambassador.yml).
+Nobody gives feedback on something they have never heard of. Right now **outreach pays off more than code**: [ambassador issue](https://github.com/OpenTechEvents/opentechevents-spec/issues/new?template=ambassador.yml).
 
-- **Hablar de esto.** Una charla, una lightning talk, un artículo, una newsletter, un podcast, un hilo. **Pídenos el material**: slides, una demo, un diagrama, media hora para ponerte al día o que alguien copresente contigo. Si te toca fabricarte tú el material, no lo vas a hacer, y con razón.
-- **Presentarnos a alguien.** Esto es lo más valioso y lo que menos cuesta. Si conoces a quien mantiene un directorio, un calendario, una plataforma de eventos o la web de una conferencia, **un mensaje tuyo vale más que cincuenta correos fríos nuestros**.
-- **Abrir un issue en un proyecto de terceros** pidiendo soporte OTE. Dinos dónde y te pasamos el texto; que llegue de alguien que ya usa ese proyecto pesa mucho más que si llega de nosotros.
-- **Ponerte la chapa** en tu README o en el pie de tu web: [`docs/badge/`](docs/badge/README.md). Es lo único de esta lista que sigue funcionando mientras nadie lo mira.
-- **Traducir** a un tercer idioma: abre una región entera de comunidades. Ver [traducir](#traducir).
+- **Talk about this.** A talk, a lightning talk, an article, a newsletter, a podcast, a thread. **Ask us for the material**: slides, a demo, a diagram, half an hour to get you up to speed, or someone to co-present with you. If you have to build the material yourself, you won't do it, and rightly so.
+- **Introduce us to someone.** This is the most valuable thing and the one that costs least. If you know whoever maintains a directory, a calendar, an event platform or a conference website, **one message from you is worth more than fifty cold emails from us**.
+- **Open an issue on a third-party project** asking for OTE support. Tell us where and we'll give you the text; it carries far more weight coming from someone who already uses that project than from us.
+- **Put the badge** in your README or in your site's footer: [`docs/badge/`](docs/badge/README.md). It is the only thing on this list that keeps working while nobody is looking.
+- **Translate** into a third language: it opens up a whole region of communities. See [translating](#translating).
 
-A los embajadores se les lista en la web y se les reconoce con [all-contributors](https://allcontributors.org) (`talk`, `blog`, `translation`, `ideas`…). Si has hecho algo y no apareces, dilo: es un olvido.
+Ambassadors are listed on the website and recognised with [all-contributors](https://allcontributors.org) (`talk`, `blog`, `translation`, `ideas`…). If you have done something and you are not there, say so: it is an oversight.
 
-### Debatir la especificación
+### Debating the specification
 
-**Abre un [issue](https://github.com/OpenTechEvents/opentechevents-spec/issues)** (o comenta en uno existente). No hace falta que la propuesta esté pulida ni que sepas de estándares. Lo que sí ayuda a que un cambio avance:
+**Open an [issue](https://github.com/OpenTechEvents/opentechevents-spec/issues)** (or comment on an existing one). The proposal does not have to be polished, and you do not have to know about standards. What does help a change move forward:
 
-- **El caso real detrás.** «En mi comunidad hacemos X y no sé cómo representarlo» pesa más que «faltaría un campo Y».
-- **Qué se rompe si no se arregla.** ¿Se pierde información? ¿Un importador se inventa un dato? ¿Un evento aparece mal en un directorio?
-- **Cómo lo resuelven otros.** Si iCalendar, schema.org o RSS ya tienen una solución para eso, dilo: la compatibilidad es un principio de diseño, no un extra.
+- **The real case behind it.** "In my community we do X and I don't know how to represent it" carries more weight than "a Y field is missing".
+- **What breaks if it isn't fixed.** Is information lost? Does an importer invent a value? Does an event show up wrong in a directory?
+- **How others solve it.** If iCalendar, schema.org or RSS already have a solution for that, say so: compatibility is a design principle, not an extra.
 
-**Un caso real vale más que una propuesta de campo.** Si tu evento no cabe en la spec, cuéntalo aunque no traigas solución: eso es exactamente lo que necesitamos, y tiene [plantilla propia](https://github.com/OpenTechEvents/opentechevents-spec/issues/new?template=case.yml).
+**A real case is worth more than a proposed field.** If your event does not fit in the spec, tell us even if you bring no solution: that is exactly what we need, and it has [a template of its own](https://github.com/OpenTechEvents/opentechevents-spec/issues/new?template=case.yml).
 
-### Cambiar la especificación
+### Changing the specification
 
-Un cambio en la spec **no es solo editar un `.md`**. La versión vigente tiene cuatro piezas que se validan entre sí, y **van en el mismo PR**:
+A change to the spec is **not just editing a `.md`**. The current version has four pieces that validate against each other, and **they go in the same PR**:
 
-| Pieza | Fichero |
+| Piece | File |
 | --- | --- |
-| El schema ejecutable | `spec/v0.3/event.schema.json` / `feed.schema.json` |
-| La prosa normativa (lo que un validador no puede comprobar) | `spec/v0.3/README.md` |
-| Los ejemplos, incluidos los que **deben fallar** | `spec/v0.3/examples/` y `examples/invalid/` |
-| La ficha del ejemplo en la galería de la web (EN + traducciones) | `spec/<versión>/examples/catalog/` → `npm run build-examples` |
-| Las copias publicadas (los `$id` deben resolver) | `docs/schema/` → `npm run publish-schemas` |
+| The executable schema | `spec/v0.3/event.schema.json` / `feed.schema.json` |
+| The normative prose (what a validator cannot check) | `spec/v0.3/README.md` |
+| The examples, including those that **must fail** | `spec/v0.3/examples/` and `examples/invalid/` |
+| The example's entry in the website gallery (EN + translations) | `spec/<version>/examples/catalog/` → `npm run build-examples` |
+| The published copies (the `$id`s must resolve) | `docs/schema/` → `npm run publish-schemas` |
 
-Antes de enviar: `npm run validate`. **Si el cambio no viene con un ejemplo que lo demuestre, no está terminado** — y si relaja una regla, quita el ejemplo de `invalid/` que ya no debe fallar.
+Before submitting: `npm run validate`. **If the change does not come with an example demonstrating it, it is not finished** — and if it relaxes a rule, remove the example in `invalid/` that must no longer fail.
 
-**Un campo nuevo se declara donde le toca.** El orden en que el schema declara sus `properties` es el orden canónico de los campos: lo hereda la referencia generada y el autocompletado del editor, y los ejemplos deben seguirlo (`npm run validate` falla si no). Está explicado, con sus bloques y el porqué, en [«El orden de los campos»](spec/v0.3/README.md#el-orden-de-los-campos-no-es-normativo-pero-hay-uno). Colocarlo al final «porque es nuevo» es lo único que no vale.
+**A new field is declared where it belongs.** The order in which the schema declares its `properties` is the canonical field order: the generated reference and the editor's autocompletion inherit it, and the examples must follow it (`npm run validate` fails otherwise). It is explained, with its blocks and the reasoning, in ["Field order"](spec/v0.3/README.md#field-order-is-not-normative-but-there-is-one). Putting it at the end "because it's new" is the one thing that does not work.
 
-**Añadir un campo no requiere cambiar el schema.** Los schemas no prohíben campos adicionales: si tu comunidad necesita `tags` o `cfp` hoy, los pones y tu documento sigue siendo válido. La spec crece con **campos que alguien ya usa de verdad**, no con campos que imaginamos que harán falta. Trae el uso real y hablamos de estandarizarlo.
+**Adding a field does not require changing the schema.** The schemas do not forbid additional fields: if your community needs `tags` or `cfp` today, you add them and your document stays valid. The spec grows with **fields somebody already really uses**, not with fields we imagine will be needed. Bring the real usage and we'll talk about standardising it.
 
-### Versionado
+### Versioning
 
-- **`0.x` puede romper.** No hay compromiso de compatibilidad hasta la 1.0.
-- **Una versión publicada no se toca.** Los cambios que rompen van a un directorio nuevo (`spec/v0.4/`), no encima de `spec/v0.3/`. Es lo que permite que un documento diga `specVersion: "0.3.0"` y alguien sepa dentro de tres años contra qué validarlo.
-- Correcciones que **no** cambian qué documentos son válidos (una errata en la prosa, una descripción) sí van sobre la versión vigente.
+- **`0.x` can break.** There is no compatibility commitment until 1.0.
+- **A published version is not touched.** Breaking changes go into a new directory (`spec/v0.4/`), not on top of `spec/v0.3/`. That is what lets a document say `specVersion: "0.3.0"` and lets someone know three years from now what to validate it against.
+- Corrections that do **not** change which documents are valid (a typo in the prose, a description) do go on top of the current version.
 
-### Adherirse: publicar tus eventos en OTE
+### Adopting it: publishing your events in OTE
 
-Tres pasos, explicados con detalle en [opentechevents.org](https://opentechevents.org#adopt):
+Three steps, explained in detail at [opentechevents.org](https://opentechevents.org#adopt):
 
-1. Publica un archivo JSON con tus eventos en una URL que controles.
-2. Enlázalo desde el `<head>` de tu web para que las herramientas lo descubran solas.
-3. **Regístralo** con el [formulario](https://opentechevents.org/register/) —que te rellena el issue— o directamente con la [plantilla de adherido](https://github.com/OpenTechEvents/opentechevents-spec/issues/new?template=adopter.yml), para que lo validemos y te listemos en la web.
+1. Publish a JSON file with your events at a URL you control.
+2. Link it from your site's `<head>` so tools discover it on their own.
+3. **Register it** with the [form](https://opentechevents.org/register/) — which fills the issue in for you — or directly with the [adopter template](https://github.com/OpenTechEvents/opentechevents-spec/issues/new?template=adopter.yml), so we can validate it and list you on the website.
 
-**Valida tu feed antes de abrir el issue.** Clona este repo y pásale tu fichero:
+**Validate your feed before opening the issue.** Clone this repo and hand it your file:
 
 ```bash
 npm install
-npm run validate -- mi-feed.json
+npm run validate -- my-feed.json
 ```
 
-Detecta si es un evento suelto o un feed, y te dice qué falta (`data/events/0 must have required property 'timezone'`). Desde código, con el paquete `@opentechevents/schema`: ver [spec/v0.3/README.md](spec/v0.3/README.md#consumir-los-schemas).
+It detects whether it is a standalone event or a feed, and tells you what is missing (`data/events/0 must have required property 'timezone'`). From code, with the `@opentechevents/schema` package: see [spec/v0.3/README.md](spec/v0.3/README.md#consuming-the-schemas).
 
-> 🗓️ **¿Ya tienes un `.ics` y no quieres escribir JSON?** El agregador —que convierte calendarios existentes a OTE— es una de las herramientas del catálogo y **está por construir**. Dinos la URL de tu calendario en un [issue de apoyo](https://github.com/OpenTechEvents/opentechevents-spec/issues/new?template=supporter.yml) y la damos de alta como fuente en cuanto exista: es la vía de entrada más barata y no te compromete a nada.
+> 🗓️ **Already have an `.ics` and don't want to write JSON?** The aggregator — which converts existing calendars to OTE — is one of the catalogue's tools and is **still to be built**. Tell us your calendar's URL in a [support issue](https://github.com/OpenTechEvents/opentechevents-spec/issues/new?template=supporter.yml) and we'll register it as a source as soon as it exists: it is the cheapest way in and commits you to nothing.
 
-Al dar de alta una fuente que no sea tuya, ten en cuenta que el agregador **solo ingerirá datos con licencia abierta declarada o con permiso explícito del organizador** — y que un `.ics` público no es automáticamente reutilizable (los TdS de muchas plataformas lo restringen).
+When registering a source that is not yours, bear in mind that the aggregator **will only ingest data with a declared open licence or with the organiser's explicit permission** — and that a public `.ics` is not automatically reusable (many platforms' terms of service restrict it).
 
-### Aparecer en la web
+### Appearing on the website
 
-Las listas de la web salen de cuatro archivos JSON. Añadirte es un PR de una entrada:
+The website's lists come from four JSON files. Adding yourself is a one-entry PR:
 
-| Archivo | Para |
+| File | For |
 | --- | --- |
-| [`docs/data/adopters.json`](docs/data/adopters.json) | Comunidades que **ya publican** sus eventos en OTE |
-| [`docs/data/supporters.json`](docs/data/supporters.json) | Quien apoya el proyecto: compromisos de adopción, apoyos, embajadores, asesoras, recursos |
-| [`docs/data/consumers.json`](docs/data/consumers.json) | Quien consume feeds OTE (directorios, apps, personas) y sus testimonios |
-| [`docs/data/tools.json`](docs/data/tools.json) | Herramientas del ecosistema |
+| [`docs/data/adopters.json`](docs/data/adopters.json) | Communities that **already publish** their events in OTE |
+| [`docs/data/supporters.json`](docs/data/supporters.json) | Whoever supports the project: adoption pledges, endorsements, ambassadors, advisors, resources |
+| [`docs/data/consumers.json`](docs/data/consumers.json) | Whoever consumes OTE feeds (directories, apps, people) and their testimonials |
+| [`docs/data/tools.json`](docs/data/tools.json) | Ecosystem tools |
 
-Los textos libres admiten `{ "en": "…", "es": "…" }`. Detalles y ejemplos en [`docs/README.md`](docs/README.md). Si prefieres no tocar JSON, abre el issue que corresponda y lo añadimos nosotros.
+Free-text fields accept `{ "en": "…", "es": "…" }`. Details and examples in [`docs/README.md`](docs/README.md). If you would rather not touch JSON, open the matching issue and we'll add it for you.
 
-### Reclamar o proponer una herramienta
+### Claiming or proposing a tool
 
-El catálogo está en [`docs/data/tools.json`](docs/data/tools.json) y se pinta en [opentechevents.org#tools](https://opentechevents.org#tools). **Ninguna de las ideas marcadas como *proposed* tiene dueño.** Si te quieres poner con una, **[abre un issue diciéndolo](https://github.com/OpenTechEvents/opentechevents-spec/issues/new?template=tool.yml)** antes de empezar: te ahorra duplicar trabajo y sirve para acordar el alcance.
+The catalogue is in [`docs/data/tools.json`](docs/data/tools.json) and rendered at [opentechevents.org#tools](https://opentechevents.org#tools). **None of the ideas marked *proposed* has an owner.** If you want to take one on, **[open an issue saying so](https://github.com/OpenTechEvents/opentechevents-spec/issues/new?template=tool.yml)** before you start: it saves duplicated work and it is how the scope gets agreed.
 
-### Traducir
+### Translating
 
-Inglés y español. Hay **tres sitios distintos**, y no se mezclan:
+English and Spanish. There are **three separate places**, and they don't mix:
 
-| Qué | Dónde |
+| What | Where |
 | --- | --- |
-| Los textos de la web | [`docs/i18n/`](docs/i18n/) — ver [`docs/README.md`](docs/README.md) |
-| Las descripciones de los campos de la spec | [`spec/v0.3/i18n/`](spec/v0.3/i18n/) |
-| Las fichas de la galería de ejemplos | [`spec/v0.3/examples/catalog/`](spec/v0.3/examples/catalog/) |
+| The website's copy | [`docs/i18n/`](docs/i18n/) — see [`docs/README.md`](docs/README.md) |
+| The descriptions of the spec's fields | [`spec/v0.3/i18n/`](spec/v0.3/i18n/) |
+| The entries in the example gallery | [`spec/v0.3/examples/catalog/`](spec/v0.3/examples/catalog/) |
 
-Las `description` **dentro de los schemas se quedan en inglés**: viajan en el paquete npm hacia implementadores de todo el mundo. Las traducciones van aparte, indexadas por campo, y `npm run validate` **falla si falta alguna**. Tras traducir: `npm run build-reference` regenera `reference.<idioma>.md` y la página de referencia, y `npm run build-examples` regenera la galería de <https://opentechevents.org/examples/>.
+The `description`s **inside the schemas stay in English**: they travel in the npm package to implementers all over the world. Translations live apart, indexed by field, and `npm run validate` **fails if any is missing**. After translating: `npm run build-reference` regenerates `reference.<language>.md` and the reference page, and `npm run build-examples` regenerates the gallery at <https://opentechevents.org/examples/>.
 
-**¿Un idioma nuevo?** Se puede, y hace falta: cada idioma abre una región entera de comunidades. Añade `docs/i18n/<código>.json`, mete el código en `SUPPORTED` de [`docs/app.js`](docs/app.js) y añade el botón al grupo `.lang`. Dilo antes en un issue: hay que decidir si ese idioma se mantiene también en la spec, no solo en la web, porque una traducción que se queda a medias envejece peor que no tenerla.
+**A new language?** It is possible, and it is needed: each language opens up a whole region of communities. Add `docs/i18n/<code>.json`, put the code in `SUPPORTED` in [`docs/app.js`](docs/app.js) and add the button to the `.lang` group. Say so in an issue first: we have to decide whether that language is also maintained in the spec, not only on the website, because a half-finished translation ages worse than not having one.
 
 ## Pull requests
 
-Para cambios pequeños (erratas, enlaces rotos, una entrada en una lista, una traducción), manda el PR directamente.
+For small changes (typos, broken links, an entry in a list, a translation), send the PR straight away.
 
-Para cualquier cosa que toque **la especificación**, abre antes un issue. Un PR al modelo de datos sin debate previo es muy probable que se quede parado, no por burocracia sino porque el acuerdo es justo la parte difícil.
+For anything touching **the specification**, open an issue first. A PR to the data model with no prior debate is very likely to stall, not out of bureaucracy but because agreement is precisely the hard part.
 
-- Una rama por cambio, desde `main`.
-- Mensajes de commit en imperativo; si sigues [Conventional Commits](https://www.conventionalcommits.org/), mejor.
-- Explica **el porqué** en la descripción del PR. El qué ya se ve en el diff.
-- Si **añades un ejemplo**, catalógalo en `spec/<versión>/examples/catalog/en.json` (y tradúcelo): el CI falla si un ejemplo no está catalogado o si le falta una traducción. La galería de la web lee el JSON **del propio fichero validado**, así que no puede enseñar un documento inválido.
-- Si tocas los **schemas o los ejemplos**, ejecuta `npm run validate` antes de enviar. El CI lo hace igualmente y **falla si un ejemplo deja de validar** — es lo que impide que la spec y sus ejemplos se separen (ya pasó una vez).
-- Si añades o cambias un schema, `npm run publish-schemas` copia la versión publicada a `docs/schema/` (las URLs de los `$id` deben resolver). El validador comprueba que no se hayan separado.
-- Si tocas la **web**, levántala en local con `npm run dev` (→ <http://localhost:8000>) y comprueba que no rompes nada.
+- One branch per change, from `main`.
+- Commit messages in the imperative; if you follow [Conventional Commits](https://www.conventionalcommits.org/), even better.
+- Explain **the why** in the PR description. The what is already visible in the diff.
+- If you **add an example**, catalogue it in `spec/<version>/examples/catalog/en.json` (and translate it): CI fails if an example is not catalogued or is missing a translation. The website gallery reads the JSON **from the validated file itself**, so it cannot show an invalid document.
+- If you touch the **schemas or the examples**, run `npm run validate` before submitting. CI does it anyway and **fails if an example stops validating** — that is what stops the spec and its examples from drifting apart (it happened once).
+- If you add or change a schema, `npm run publish-schemas` copies the published version into `docs/schema/` (the `$id` URLs must resolve). The validator checks they have not drifted apart.
+- If you touch the **website**, run it locally with `npm run dev` (→ <http://localhost:8000>) and check you are not breaking anything.
 
-## Publicar una versión (mantenedores)
+## Releasing a version (maintainers)
 
-Los schemas se publican en npm como [`@opentechevents/schema`](https://www.npmjs.com/package/@opentechevents/schema) y se sirven en `https://opentechevents.org/schema/v0.3/…`.
+The schemas are published to npm as [`@opentechevents/schema`](https://www.npmjs.com/package/@opentechevents/schema) and served at `https://opentechevents.org/schema/v0.3/…`.
 
-1. `npm run publish-schemas` — sincroniza las copias que sirve la web.
-2. Sube la versión en `package.json`.
+1. `npm run publish-schemas` — syncs the copies the website serves.
+2. Bump the version in `package.json`.
 3. Tag: `git tag schema-v0.3.1 && git push origin schema-v0.3.1`.
 
-El resto lo hace [`publish-schema.yml`](.github/workflows/publish-schema.yml), con dos frenos deliberados: **falla si el tag no coincide con la versión del `package.json`**, y **no publica si los ejemplos no validan** — un schema que rompe sus propios ejemplos no llega a npm. No hay token: npm confía en este repo y en este workflow (*trusted publishing*, OIDC), y el paquete se firma con *provenance*.
+[`publish-schema.yml`](.github/workflows/publish-schema.yml) does the rest, with two deliberate brakes: it **fails if the tag does not match the `package.json` version**, and it **does not publish if the examples do not validate** — a schema that breaks its own examples never reaches npm. There is no token: npm trusts this repo and this workflow (*trusted publishing*, OIDC), and the package is signed with *provenance*.
 
-## Idioma
+## Language
 
-El repositorio está en **español**, pero la especificación tiene vocación internacional. **Escribe en el idioma que te resulte cómodo**: si abres un issue en inglés, se te responde en inglés. Los nombres de campo de la spec son en inglés, sin discusión.
+The repository is in **English**, and the specification has an international outlook. **Write in whichever language you are comfortable with**: if you open an issue in Spanish, you get an answer in Spanish. The website and the spec's field descriptions are maintained in English and Spanish. The spec's field names are in English, no debate.
 
-## Reconocimiento
+## Recognition
 
-Se usa [all-contributors](https://allcontributors.org): se reconoce **cualquier tipo de contribución**, no solo código — ideas, investigación, documentación, traducción, difusión, charlas, presentaciones que abren una puerta, revisión. Si has aportado algo y no apareces, dilo: es un olvido, no un criterio.
+We use [all-contributors](https://allcontributors.org): **every kind of contribution** is recognised, not only code — ideas, research, documentation, translation, outreach, talks, introductions that open a door, review. If you have contributed something and you are not there, say so: it is an oversight, not a judgement.
 
-## Licencia de tus contribuciones
+## The licence of your contributions
 
-Al contribuir aceptas que tu aportación se publique bajo las licencias del proyecto (ver [LICENSE](LICENSE)):
+By contributing you accept that your contribution is published under the project's licences (see [LICENSE](LICENSE)):
 
-- **prosa** (spec, docs, web, investigación) → [CC0-1.0](LICENSES/CC0-1.0.txt), dominio público;
-- **schemas y código** → [MIT](LICENSES/MIT.txt).
+- **prose** (spec, docs, website, research) → [CC0-1.0](LICENSES/CC0-1.0.txt), public domain;
+- **schemas and code** → [MIT](LICENSES/MIT.txt).
 
-No hace falta firmar ningún CLA. Si esto te supone un problema, dilo en el issue **antes** de contribuir y lo hablamos.
+There is no CLA to sign. If this is a problem for you, say so in the issue **before** contributing and we'll talk it through.
 
-## Conducta
+## Conduct
 
-Todavía no hay un código de conducta formal (falta, y se agradecen propuestas). Mientras tanto, la regla es la obvia: se debate sobre ideas, no sobre personas. Quien organiza comunidades ya sabe de qué va esto.
+There is no formal code of conduct yet (it is missing, and proposals are welcome). In the meantime, the rule is the obvious one: we debate ideas, not people. Anyone who organises communities already knows how this goes.

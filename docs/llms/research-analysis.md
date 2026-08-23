@@ -1,57 +1,57 @@
-# Análisis — comparación, patrones y conclusiones
+# Analysis — comparison, patterns and conclusions
 
-Síntesis de los hallazgos de [platforms.md](platforms.md), [directories.md](directories.md) y [standards.md](standards.md), orientada al diseño de OTE Spec.
+A synthesis of the findings in [platforms.md](platforms.md), [directories.md](directories.md) and [standards.md](standards.md), aimed at the design of OTE Spec.
 
-## Resumen
+## Summary
 
-Se analizaron plataformas populares para anunciar eventos tecnológicos (Meetup, Sessionize y Luma, además de joind.in y Papercall) y varios proyectos/directorios de comunidad (EventosWiki, Event Garden, developers.events, Confs.tech, CallingAllPapers, CFP Tracker, TechConf.Directory, dev.events y Developer Events.org). Las plataformas difieren en el modo de creación de eventos y los datos que requieren, pero comparten un núcleo común de información: nombre del evento, descripción, fechas y horarios (con zonas horarias), ubicación, enlaces de registro y, en su caso, fechas de apertura y cierre de la llamada a propuestas (CFP). Los directorios basados en GitHub utilizan estructuras de datos YAML o JSON, mientras que las plataformas ofrecen APIs (GraphQL o REST) o formularios web.
+We analysed popular platforms for announcing tech events (Meetup, Sessionize and Luma, plus joind.in and Papercall) and several community projects/directories (EventosWiki, Event Garden, developers.events, Confs.tech, CallingAllPapers, CFP Tracker, TechConf.Directory, dev.events and Developer Events.org). The platforms differ in how events are created and in the data they require, but they share a common core of information: event name, description, dates and times (with time zones), location, registration links and, where applicable, the opening and closing dates of the call for papers (CFP). The GitHub-based directories use YAML or JSON data structures, while the platforms offer APIs (GraphQL or REST) or web forms.
 
-## Comparación y patrones comunes
+## Comparison and common patterns
 
-1. **Datos imprescindibles**. La mayoría de plataformas exigen, como mínimo, nombre del evento, descripción breve, fechas de inicio y fin, zona horaria y ubicación. Joind.in especifica además la zona geográfica (`tz_continent` y `tz_place`)[docs.joind.in](https://docs.joind.in/joindin-api/events.html#:~:text=the%20images%20associated%20with%20this,See%20also%20%202).
+1. **Essential data**. Most platforms require, at a minimum, the event name, a short description, start and end dates, a time zone and a location. joind.in additionally specifies the geographic area (`tz_continent` and `tz_place`)[docs.joind.in](https://docs.joind.in/joindin-api/events.html#:~:text=the%20images%20associated%20with%20this,See%20also%20%202).
 
-2. **Información de CFP**. En los proyectos que recogen CFP (developers.events, Confs.tech, joind.in, CallingAllPapers), los datos clave incluyen URL de la convocatoria, fecha de apertura y fecha de cierre[docs.joind.in](https://docs.joind.in/joindin-api/events.html#:~:text=the%20images%20associated%20with%20this,See%20also%20%202)[developers.events](https://developers.events/all-events.json#:~:text=%5B%7B%22name%22%3A%22Craft%20Conf%22%2C%22date%22%3A%5B1493078400000%2C1493337600000%5D%2C%22hyperlink%22%3A%22https%3A%2F%2Fcraft,ta).
+2. **CFP information**. In the projects that collect CFPs (developers.events, Confs.tech, joind.in, CallingAllPapers), the key data are the call's URL, its opening date and its closing date[docs.joind.in](https://docs.joind.in/joindin-api/events.html#:~:text=the%20images%20associated%20with%20this,See%20also%20%202)[developers.events](https://developers.events/all-events.json#:~:text=%5B%7B%22name%22%3A%22Craft%20Conf%22%2C%22date%22%3A%5B1493078400000%2C1493337600000%5D%2C%22hyperlink%22%3A%22https%3A%2F%2Fcraft,ta).
 
-3. **Imágenes y redes sociales**. Algunos directorios permiten indicar logotipo, imagen de portada y redes sociales (Twitter, Mastodon, Bluesky, etc.)[raw.githubusercontent.com](https://raw.githubusercontent.com/DeclanChidlow/techconf.directory/main/data/conferences/afup-day-bordeaux.yaml#:~:text=title%3A%20AFUP%20Day%20Bordeaux%20website%3A,location%3A%20country%3A%20FR%20city%3A%20Bordeaux)[raw.githubusercontent.com](https://raw.githubusercontent.com/DeclanChidlow/techconf.directory/main/data/speakers/barret-blake.yaml#:~:text=name%3A%20Barret%20Blake%20website%3A%20barretblake,location%3A%20country%3A%20US%20city%3A%20Columbus). Estos campos suelen ser opcionales, pero enriquecen la ficha.
+3. **Images and social profiles**. Some directories allow a logo, a cover image and social profiles (Twitter, Mastodon, Bluesky, etc.)[raw.githubusercontent.com](https://raw.githubusercontent.com/DeclanChidlow/techconf.directory/main/data/conferences/afup-day-bordeaux.yaml#:~:text=title%3A%20AFUP%20Day%20Bordeaux%20website%3A,location%3A%20country%3A%20FR%20city%3A%20Bordeaux)[raw.githubusercontent.com](https://raw.githubusercontent.com/DeclanChidlow/techconf.directory/main/data/speakers/barret-blake.yaml#:~:text=name%3A%20Barret%20Blake%20website%3A%20barretblake,location%3A%20country%3A%20US%20city%3A%20Columbus). These fields are usually optional, but they enrich the entry.
 
-4. **Etiquetas y categorías**. Muchos repositorios utilizan etiquetas (`tags`) para clasificar las conferencias por temática (AI, cloud, etc.)[raw.githubusercontent.com](https://raw.githubusercontent.com/tech-conferences/confs.tech/main/README.md#:~:text=pull%20requests,contributing%3F%20Tag%20any%20of%20the).
+4. **Tags and categories**. Many repositories use tags to classify conferences by topic (AI, cloud, etc.)[raw.githubusercontent.com](https://raw.githubusercontent.com/tech-conferences/confs.tech/main/README.md#:~:text=pull%20requests,contributing%3F%20Tag%20any%20of%20the).
 
-5. **Automatización**. Algunos sitios soportan APIs o feeds que devuelven datos estructurados (Meetup GraphQL, Sessionize JSON/iCal, Luma API, developers.events JSON, joind.in REST, CallingAllPapers API). Otros confían en plantillas YAML/Markdown y en la revisión manual. dev.events menciona la utilización de metadatos **JSON‑LD** en la web del evento para detectar datos automáticamente[dev.events](https://dev.events/about#:~:text=You%20can%20submit%20an%20event,it%20meets%20the%20eligibility%20criteria).
+5. **Automation**. Some sites support APIs or feeds returning structured data (Meetup GraphQL, Sessionize JSON/iCal, Luma API, developers.events JSON, joind.in REST, CallingAllPapers API). Others rely on YAML/Markdown templates and manual review. dev.events mentions using **JSON‑LD** metadata on the event's own site to detect data automatically[dev.events](https://dev.events/about#:~:text=You%20can%20submit%20an%20event,it%20meets%20the%20eligibility%20criteria).
 
-6. **Proceso de contribución**. Las plataformas como Meetup, Luma y Papercall gestionan eventos desde sus propias interfaces; los directorios comunitarios basados en GitHub (EventosWiki, developers.events, Confs.tech, TechConf.Directory) requieren Pull Requests o issues. dev.events y Developer Events tienen formularios de envío que se revisan manualmente.
+6. **Contribution process**. Platforms such as Meetup, Luma and Papercall manage events from their own interfaces; the GitHub-based community directories (EventosWiki, developers.events, Confs.tech, TechConf.Directory) require pull requests or issues. dev.events and Developer Events have submission forms that are reviewed by hand.
 
-7. **Agregadores**. CallingAllPapers y CFP Tracker no permiten alta manual; dependen de otras fuentes. dev.events también funciona como agregador combinando automatización y envíos manuales[dev.events](https://dev.events/about#:~:text=The%20project%20is%20coded%20and,organizers%2C%20tech%20community%2C%20and%20volunteers).
+7. **Aggregators**. CallingAllPapers and CFP Tracker allow no manual submission; they depend on other sources. dev.events also works as an aggregator, combining automation with manual submissions[dev.events](https://dev.events/about#:~:text=The%20project%20is%20coded%20and,organizers%2C%20tech%20community%2C%20and%20volunteers).
 
-8. **Licencia de los datos** 🔲 _(pendiente en todas las fuentes)_. No hemos revisado aún bajo qué términos publica cada fuente sus datos. Es **crítico**: condiciona si las herramientas pueden ingerir y re-publicar legalmente, y si hace falta **atribución**. Implicaciones para OTE: (a) la spec debe permitir declarar **procedencia/atribución** y **licencia** de cada evento (ver `source`/`license` en [../../spec/data-model.md](../../spec/data-model.md)); (b) conviene recomendar a las comunidades adheridas una licencia abierta y clara para sus eventos.
+8. **Data licence** 🔲 _(pending across every source)_. We have not yet reviewed the terms under which each source publishes its data. This is **critical**: it determines whether tools can legally ingest and re-publish, and whether **attribution** is required. Implications for OTE: (a) the spec must allow declaring the **provenance/attribution** and **licence** of each event (see `source`/`license` in [../../spec/v0.3/README.md](../../spec/v0.3/README.md#license-and-source-what-can-be-reused-and-where-it-came-from)); (b) it is worth recommending that adopting communities pick a clear, open licence for their events.
 
-## Conclusiones para el diseño de un nuevo estándar
+## Conclusions for the design of a new standard
 
-- **Esquema modular**: El nuevo estándar debería definir un núcleo obligatorio (nombre, descripción, fechas, zona horaria, ubicación) y módulos opcionales para CFP, redes sociales, etiquetas, imágenes y logística. La experiencia de joind.in demuestra que basta con unos pocos campos obligatorios[docs.joind.in](https://docs.joind.in/joindin-api/events.html#:~:text=the%20images%20associated%20with%20this,See%20also%20%202), mientras que otros datos enriquecen la ficha.
+- **A modular schema**: the new standard should define a mandatory core (name, description, dates, time zone, location) and optional modules for the CFP, social profiles, tags, images and logistics. joind.in's experience shows that a handful of required fields is enough[docs.joind.in](https://docs.joind.in/joindin-api/events.html#:~:text=the%20images%20associated%20with%20this,See%20also%20%202), while the rest enriches the entry.
 
-- **Compatibilidad con JSON e YAML**: La mayoría de proyectos usan estos formatos. El estándar debería ofrecer ambas serializaciones, e idealmente una representación JSON‑LD para permitir la detección automática por motores como dev.events[dev.events](https://dev.events/about#:~:text=You%20can%20submit%20an%20event,it%20meets%20the%20eligibility%20criteria).
+- **Compatibility with JSON and YAML**: most projects use these formats. The standard should offer both serialisations, and ideally a JSON‑LD representation to allow automatic detection by engines such as dev.events[dev.events](https://dev.events/about#:~:text=You%20can%20submit%20an%20event,it%20meets%20the%20eligibility%20criteria).
 
-- **Soporte de CFP**: Incluir campos `cfp_url`, `cfp_start` y `cfp_end` como opcionales pero normalizados; son clave para agregadores[docs.joind.in](https://docs.joind.in/joindin-api/events.html#:~:text=the%20images%20associated%20with%20this,See%20also%20%202).
+- **CFP support**: include `cfp_url`, `cfp_start` and `cfp_end` fields as optional but normalised; they are key for aggregators[docs.joind.in](https://docs.joind.in/joindin-api/events.html#:~:text=the%20images%20associated%20with%20this,See%20also%20%202).
 
-- **Zonas horarias y localización**: Es recomendable separar los campos de zona horaria (`tz_continent` y `tz_place`) de la ubicación para facilitar la conversión de horarios y permitir eventos online.
+- **Time zones and location**: it is advisable to keep the time zone fields (`tz_continent` and `tz_place`) separate from the location, to make converting times easier and to allow online events.
 
-- **Extensibilidad de redes sociales**: Un bloque `socials` debería aceptar múltiples plataformas (Twitter, Mastodon, Bluesky, LinkedIn, etc.) con la posibilidad de incluir identificadores descentralizados (DID) como en techconf.directory[raw.githubusercontent.com](https://raw.githubusercontent.com/DeclanChidlow/techconf.directory/main/data/speakers/barret-blake.yaml#:~:text=name%3A%20Barret%20Blake%20website%3A%20barretblake,location%3A%20country%3A%20US%20city%3A%20Columbus).
+- **Extensible social profiles**: a `socials` block should accept multiple platforms (Twitter, Mastodon, Bluesky, LinkedIn, etc.) with the option of including decentralised identifiers (DIDs), as techconf.directory does[raw.githubusercontent.com](https://raw.githubusercontent.com/DeclanChidlow/techconf.directory/main/data/speakers/barret-blake.yaml#:~:text=name%3A%20Barret%20Blake%20website%3A%20barretblake,location%3A%20country%3A%20US%20city%3A%20Columbus).
 
-- **Sistema de etiquetas**: Permitir una lista de `tags` normalizada; ello facilita la clasificación por temáticas y la interoperabilidad con motores de búsqueda y agregadores[raw.githubusercontent.com](https://raw.githubusercontent.com/tech-conferences/confs.tech/main/README.md#:~:text=pull%20requests,contributing%3F%20Tag%20any%20of%20the).
+- **A tagging system**: allow a normalised list of `tags`; it makes classification by topic easier and improves interoperability with search engines and aggregators[raw.githubusercontent.com](https://raw.githubusercontent.com/tech-conferences/confs.tech/main/README.md#:~:text=pull%20requests,contributing%3F%20Tag%20any%20of%20the).
 
-- **Licencias y privacidad**: Incluir metadatos sobre derechos de imagen, consentimiento para publicación, enlaces al código de conducta y políticas de privacidad; varios formularios (Confs.tech, Developer Events) contemplan estos elementos.
+- **Licensing and privacy**: include metadata about image rights, consent to publish, and links to the code of conduct and privacy policies; several forms (Confs.tech, Developer Events) cover these.
 
-- **Canales de contribución**: Prever tanto contribución manual (formularios o PRs) como automática mediante API o detección de JSON‑LD[dev.events](https://dev.events/about#:~:text=You%20can%20submit%20an%20event,it%20meets%20the%20eligibility%20criteria).
+- **Contribution channels**: plan for both manual contribution (forms or PRs) and automatic contribution via an API or JSON‑LD detection[dev.events](https://dev.events/about#:~:text=You%20can%20submit%20an%20event,it%20meets%20the%20eligibility%20criteria).
 
-- **Consumo sencillo**: Publicar un feed unificado (JSON y iCal) y permitir filtros (por fecha, localización, tags) similares a joind.in y developers.events[docs.joind.in](https://docs.joind.in/joindin-api/events.html#:~:text=the%20images%20associated%20with%20this,See%20also%20%202)[developers.events](https://developers.events/all-events.json#:~:text=%5B%7B%22name%22%3A%22Craft%20Conf%22%2C%22date%22%3A%5B1493078400000%2C1493337600000%5D%2C%22hyperlink%22%3A%22https%3A%2F%2Fcraft,ta).
+- **Easy consumption**: publish a unified feed (JSON and iCal) and allow filters (by date, location, tags) similar to joind.in and developers.events[docs.joind.in](https://docs.joind.in/joindin-api/events.html#:~:text=the%20images%20associated%20with%20this,See%20also%20%202)[developers.events](https://developers.events/all-events.json#:~:text=%5B%7B%22name%22%3A%22Craft%20Conf%22%2C%22date%22%3A%5B1493078400000%2C1493337600000%5D%2C%22hyperlink%22%3A%22https%3A%2F%2Fcraft,ta).
 
-La consolidación de estas prácticas facilitará la adopción del nuevo estándar en distintos ecosistemas y herramientas.
+Consolidating these practices will make the new standard easier to adopt across different ecosystems and tools.
 
-## Interoperabilidad con estándares existentes
+## Interoperability with existing standards
 
-Del análisis de [standards.md](standards.md):
+From the analysis in [standards.md](standards.md):
 
-- **Modelo de referencia: schema.org/`Event`** (JSON-LD) — el más alineado con OTE (online/híbrido nativo vía `eventAttendanceMode`, ponentes, estado, offers) y detectado automáticamente por buscadores y agregadores como dev.events.
-- **iCalendar (`VEVENT`)** — mapeo sólido del núcleo y **única fuente con recurrencia formal** (`RRULE`), clave para meetups periódicos.
-- **RSS 2.0 y JSON Feed** — sin modelo de evento; se usan como **formato de difusión** (un evento por `item`, enlace a la ficha), con datos estructurados vía namespace (RSS) o campo `_ote` (JSON Feed).
-- **h-event** — marcado opcional en HTML; baja prioridad.
-- **Hueco común**: ningún estándar generalista modela el **CFP** → OTE debe definirlo como módulo propio.
+- **Reference model: schema.org/`Event`** (JSON-LD) — the one most aligned with OTE (native online/hybrid via `eventAttendanceMode`, speakers, status, offers) and detected automatically by search engines and aggregators such as dev.events.
+- **iCalendar (`VEVENT`)** — a solid mapping of the core and the **only source with formal recurrence** (`RRULE`), key for regular meetups.
+- **RSS 2.0 and JSON Feed** — no event model; used as a **broadcast format** (one event per `item`, a link to the entry), with structured data via a namespace (RSS) or an `_ote` field (JSON Feed).
+- **h-event** — optional HTML markup; low priority.
+- **A shared gap**: no general-purpose standard models the **CFP** → OTE has to define it as a module of its own.

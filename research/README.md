@@ -1,33 +1,33 @@
-# Investigación
+# Research
 
-Esta carpeta recoge la investigación previa al diseño de la especificación **OpenTechEvents (OTE Spec)** (nombre provisional).
+This folder collects the research done before designing the **OpenTechEvents (OTE Spec)** specification (working name).
 
-## Objetivo
+## Goal
 
-Antes de diseñar el estándar necesitamos saber **qué datos usan hoy** las plataformas, directorios y estándares de eventos tecnológicos: qué campos requieren, cuáles son opcionales, cómo se contribuye y en qué formatos se pueden consumir. El estándar debe poder cubrir las necesidades de todos ellos y ser fácilmente convertible a los formatos que ya usan.
+Before designing the standard we need to know **what data is in use today** across tech event platforms, directories and standards: which fields they require, which are optional, how you contribute data, and in which formats it can be consumed. The standard has to be able to cover all of their needs and be easy to convert into the formats they already use.
 
-Los hallazgos de esta carpeta alimentan directamente el diseño de la spec (modelo de datos, campos núcleo vs. módulos opcionales, reglas de compatibilidad).
+The findings in this folder feed directly into the design of the spec (data model, core fields vs. optional modules, compatibility rules).
 
-## Qué extraemos de cada fuente
+## What we extract from each source
 
-Plantilla común que aplicamos a cada plataforma/proyecto analizado, para poder comparar:
+A common template applied to every platform/project analysed, so they can be compared:
 
-- **Qué soporta**: eventos, call for papers/speakers (CFP), ponentes, etc.
-- **Datos y tipos**: qué campos maneja cada formato soportado y de qué tipo son.
-- **Obligatorio vs. opcional**: qué exige y qué es opcional.
-- **Formas de contribuir**: manual (formulario, issue, PR) o automatizable (API).
-- **Consumo estándar**: si ya expone los datos en algún formato estándar (JSON, iCal, RSS, JSON-LD…).
-- **Licencia de los datos** 🔲: bajo qué licencia/términos publica sus datos la fuente y qué permite (reutilización, redistribución, atribución requerida). **Crítico**: determina si las herramientas del ecosistema pueden legalmente **ingerir y re-publicar** esos eventos. Pendiente de revisar en todas las fuentes.
-- **¿Es agregador?**: si a su vez recopila datos de otras fuentes (y cuáles).
-- **URLs relevantes**: de dónde se extrajo la información (verificable), dónde se envían los datos (formulario/endpoint), etc.
+- **What it supports**: events, call for papers/speakers (CFP), speakers, etc.
+- **Data and types**: which fields each supported format handles, and of what type.
+- **Required vs. optional**: what it demands and what it leaves optional.
+- **Ways to contribute**: manual (form, issue, PR) or automatable (API).
+- **Standard consumption**: whether it already exposes the data in some standard format (JSON, iCal, RSS, JSON-LD…).
+- **Data licence** 🔲: under which licence/terms the source publishes its data and what that allows (reuse, redistribution, required attribution). **Critical**: it determines whether ecosystem tools can legally **ingest and re-publish** those events. Still to be reviewed across every source.
+- **Is it an aggregator?**: whether it in turn collects data from other sources (and which).
+- **Relevant URLs**: where the information was taken from (verifiable), where data is submitted (form/endpoint), etc.
 
-Para los **estándares** existentes (iCal, RSS, schema.org…) el enfoque cambia: nos interesa su modelo de datos, campos y cómo mapear hacia/desde ellos, no el "alta de evento".
+For existing **standards** (iCal, RSS, schema.org…) the angle changes: what matters is their data model, their fields and how to map to and from them — not "how to submit an event".
 
-## Inventario de fuentes
+## Inventory of sources
 
-### Plataformas — [findings/platforms.md](findings/platforms.md)
+### Platforms — [findings/platforms.md](findings/platforms.md)
 
-| Fuente | URL | Estado |
+| Source | URL | Status |
 | --- | --- | --- |
 | Meetup | https://www.meetup.com/ | ✅ |
 | Sessionize | https://sessionize.com/ | ✅ |
@@ -36,11 +36,11 @@ Para los **estándares** existentes (iCal, RSS, schema.org…) el enfoque cambia
 | Papercall.io | https://www.papercall.io/ | ✅ |
 | Guild | https://guild.host/ | 🔲 |
 | Saraos.tech | https://saraos.tech/ | 🔲 |
-| Eventos de Linkedin | https://www.linkedin.com/help/linkedin/answer/a552496 | 🔲 |
+| LinkedIn events | https://www.linkedin.com/help/linkedin/answer/a552496 | 🔲 |
 
-### Directorios y agregadores — [findings/directories.md](findings/directories.md)
+### Directories and aggregators — [findings/directories.md](findings/directories.md)
 
-| Fuente | URL | Estado |
+| Source | URL | Status |
 | --- | --- | --- |
 | EventosWiki | https://github.com/achamorro-dev/eventoswiki | ✅ |
 | Event Garden | https://eventgarden.io/ | ✅ |
@@ -56,9 +56,9 @@ Para los **estándares** existentes (iCal, RSS, schema.org…) el enfoque cambia
 | LegalTechConference.com | https://www.legaltechnologyconference.com/ | 🔲 |
 | iotevents.org / marketing-events.net (TechForge) | — | 🔲 |
 
-### Estándares — [findings/standards.md](findings/standards.md)
+### Standards — [findings/standards.md](findings/standards.md)
 
-| Estándar | Referencia | Estado |
+| Standard | Reference | Status |
 | --- | --- | --- |
 | iCalendar | RFC 5545 | ✅ |
 | RSS 2.0 | https://www.rssboard.org/rss-specification | ✅ |
@@ -66,13 +66,19 @@ Para los **estándares** existentes (iCal, RSS, schema.org…) el enfoque cambia
 | hCalendar / microformats | http://microformats.org/wiki/h-event | ✅ |
 | JSON Feed | https://www.jsonfeed.org/ | ✅ |
 
-## Análisis y conclusiones
+## Analysis and conclusions
 
-- [findings/analysis.md](findings/analysis.md) — comparación, patrones comunes y conclusiones para el diseño del estándar.
+- [findings/analysis.md](findings/analysis.md) — comparison, common patterns and conclusions for the design of the standard.
 
-## Índice de ficheros
+## Public version
 
-- [findings/platforms.md](findings/platforms.md) — plataformas que crean/gestionan eventos.
-- [findings/directories.md](findings/directories.md) — directorios y agregadores que listan eventos.
-- [findings/standards.md](findings/standards.md) — estándares existentes y cómo mapear hacia/desde ellos *(pendiente)*.
-- [findings/analysis.md](findings/analysis.md) — comparación, patrones y conclusiones.
+This folder is the raw evidence. The editorial reading of it — what each standard already solves, what OTE reuses from each, which neighbouring projects exist and **what we cannot claim yet** — is published at [opentechevents.org/prior-art/](https://opentechevents.org/prior-art/), in English and Spanish, so that the people maintaining those projects can correct us.
+
+Two things live only there, because this research never covered them: **ActivityPub / FEP-8a8e** (event federation) and the **IndieWeb** conventions beyond `h-event` markup.
+
+## File index
+
+- [findings/platforms.md](findings/platforms.md) — platforms that create/manage events.
+- [findings/directories.md](findings/directories.md) — directories and aggregators that list events.
+- [findings/standards.md](findings/standards.md) — existing standards and how to map to and from them.
+- [findings/analysis.md](findings/analysis.md) — comparison, patterns and conclusions.

@@ -1,707 +1,723 @@
 # Changelog — OTE Spec
 
-Todos los cambios relevantes de la especificación. El formato sigue
-[Keep a Changelog](https://keepachangelog.com/es/1.1.0/) y el versionado es
-[SemVer](https://semver.org/lang/es/): mientras la spec esté en `0.x` se
-considera **inestable** (puede romper entre versiones menores; la `1.0.0` será
-la primera estable).
+Every relevant change to the specification. The format follows
+[Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the versioning is
+[SemVer](https://semver.org/): while the spec is at `0.x` it is considered
+**unstable** (it can break between minor versions; `1.0.0` will be the first
+stable one).
 
-Cada versión publicada vive congelada en su carpeta (`spec/v0.1/`, `spec/v0.2/`, `spec/v0.3/`…)
-y bajo su `$id` (`https://opentechevents.org/schema/vX.Y/…`). Un documento declara
-a cuál se adhiere con `specVersion`, así que **nada se rompe al publicar una
-versión nueva**: los documentos `0.1.0` siguen validando contra `spec/v0.1/`.
+Each published version lives frozen in its own folder (`spec/v0.1/`, `spec/v0.2/`, `spec/v0.3/`…)
+and under its own `$id` (`https://opentechevents.org/schema/vX.Y/…`). A document declares
+which one it adheres to with `specVersion`, so **nothing breaks when a new
+version is published**: `0.1.0` documents keep validating against `spec/v0.1/`.
 
 ## [0.3.0] — 2026-07-29
 
-Nueve campos nuevos y dos valores nuevos de `status`, todo **opcional y
-retrocompatible** (por eso MINOR): un documento `0.2.0` válido, con solo cambiar
-`specVersion` a `"0.3.0"`, sigue siendo válido.
+Nine new fields and two new `status` values, all **optional and
+backwards-compatible** (hence MINOR): a valid `0.2.0` document, by changing only
+`specVersion` to `"0.3.0"`, stays valid.
 
-Entra `organizers` —**quién organiza el evento**— porque era el único hueco del
-núcleo que aparece en **las cuatro** plataformas estudiadas (Meetup, Eventbrite,
-Luma, Guild) y en el ejemplo canónico de Google, y porque tiene destino nativo en
-los tres formatos de salida: `organizer` de schema.org, `ORGANIZER` de iCal,
-`<author>` de Atom.
+`organizers` gets in — **who runs the event** — because it was the only gap in
+the core that shows up in **all four** platforms studied (Meetup, Eventbrite,
+Luma, Guild) and in Google's canonical example, and because it has a native
+destination in all three output formats: schema.org's `organizer`, iCal's
+`ORGANIZER`, Atom's `<author>`.
 
-El agujero que tapa es concreto: sin él, un consumidor solo puede atribuir un
-evento cayendo en `feed.title` — lo que hace que **un feed de agregador atribuya
-al agregador todos los eventos que agrega**.
+The hole it plugs is concrete: without it, a consumer can only attribute an
+event by falling back on `feed.title` — which makes **an aggregator's feed
+attribute to the aggregator every event it aggregates**.
 
-Y entra `partOf`, que agrupa las ocurrencias de una serie o las partes de un
-evento multi-parte **sin** meter una regla de recurrencia dentro del feed.
+And `partOf` gets in, grouping the occurrences of a series or the parts of a
+multi-part event **without** putting a recurrence rule inside the feed.
 
-Además, un **segundo nivel de exigencia**: los perfiles de campos recomendados.
-No cambian lo que es válido —ni un solo documento deja de validar— pero ponen
-nombre a la diferencia entre un evento válido y uno que de verdad se puede
-descubrir y seguir.
+Plus a **second tier of expectation**: the recommended-field profiles. They do
+not change what is valid — not one document stops validating — but they put a
+name to the difference between a valid event and one that can really be
+discovered and followed.
 
 ### Added
 
-- **`organizers`** (`array`, mín. 1) en el **evento** y en el **feed**. Cada
-  entrada: `name` (obligatorio), `url`, `email` y `type` (`organization` por
-  defecto, o `person`) opcionales. **Nada más** — sin logo ni identificadores: el
-  campo describe **quién organiza y dónde escribirle**, no su ficha completa.
-  - **Es una lista, no un objeto.** La co-organización es lo normal (dos
-    comunidades, o comunidad + anfitrión); Luma ya emite `organizer` como array.
-    Ensanchar objeto → lista después habría roto. **El orden es significativo**:
-    el primero es el principal, y es el único que sobrevive a iCal.
-  - **`type` sí tiene valor por defecto** (`organization`), a diferencia de
-    `attendanceMode`. Motivo: al traducir hay que elegir un `@type` de schema.org
-    sí o sí, y `Organization` es la opción tolerante.
-  - **Herencia feed → evento por REEMPLAZO, no por fusión.** Como `license`, el
-    `organizers` del feed es el valor por defecto de sus eventos; pero el evento
-    que declara el suyo **sustituye la lista entera**. Con fusión no habría forma
-    de *quitar* un organizador heredado. Consecuencia práctica: en un evento
-    co-organizado dentro de un feed comunitario hay que **repetir** la comunidad
-    del feed.
-  - **Un feed de agregador debe OMITIR `organizers`**: no organiza lo que
-    publica.
-  - **`email`** (`format: email`, sin el prefijo `mailto:`) entra por el mismo
-    camino que `tags`, `location.geo` y `updatedAt` en la v0.2: **el importador de
-    `.ics` lo tenía delante y no había dónde ponerlo**. Un `VEVENT` publicado trae
-    `ORGANIZER;CN="…":mailto:…` con muchísima frecuencia, y sin este campo
-    `.ics` → OTE → `.ics` **perdía el `ORGANIZER`** — la única pérdida que la spec
-    califica de grave. Arregla además el `<author>` de RSS 2.0, que exige email.
-    Ninguna de las cinco plataformas estudiadas lo emite en su JSON-LD: **el
-    productor es iCalendar, no la web de eventos**, y por eso el campo llega con
-    reglas. Dirección **de rol** (`info@`, `hola@`), no el buzón de nadie; un
-    importador **MUST NOT** rellenarlo desde una fuente que no esté publicada
-    públicamente (copiar de un calendario privado a un feed abierto le cambia el
-    nivel de exposición a una dirección que nadie publicó); un consumidor **MUST
-    NOT** usarlo para nada que no sea escribir sobre el evento; y un exportador
-    **no se inventa** el `mailto:` a partir del dominio de `url` — sin `email` no
-    hay `ORGANIZER`, y punto.
-  - **`email` NO es un campo recomendado**, y es el único de la spec que se queda
-    fuera del perfil por una razón que no es técnica: avisar de un email ausente
-    es presionar a alguien para que publique una dirección que decidió no
-    publicar. (La razón técnica también aplica: quien importa un `.ics` sin
-    `ORGANIZER` no puede atender el aviso.)
-  - **`email` no añade ninguna regla de herencia.** Vive dentro de
-    `organizers[]`, así que hereda con la lista y **por reemplazo**: un evento que
-    declara `organizers` no hereda el email del feed, y un feed de agregador —que
-    debe omitir `organizers`— no tiene ninguno que propagar. El riesgo de heredar
-    un email ajeno solo existiría con un `feed.organizerEmail` suelto o con fusión
-    campo a campo, y no se hace ni lo uno ni lo otro.
+- **`organizers`** (`array`, min. 1) on the **event** and on the **feed**. Each
+  entry: `name` (required), plus optional `url`, `email` and `type`
+  (`organization` by default, or `person`). **Nothing else** — no logo and no
+  identifiers: the field describes **who runs it and where to write to them**,
+  not their full profile.
+  - **It is a list, not an object.** Co-organising is the norm (two communities,
+    or a community plus a host); Luma already emits `organizer` as an array.
+    Widening object → list later would have broken. **Order is significant**:
+    the first one is the main one, and the only one that survives into iCal.
+  - **`type` does have a default** (`organization`), unlike `attendanceMode`.
+    The reason: when translating you have to pick a schema.org `@type` one way
+    or another, and `Organization` is the permissive option.
+  - **Feed → event inheritance by REPLACEMENT, not by merging.** Like `license`,
+    the feed's `organizers` is the default for its events; but an event that
+    declares its own **substitutes the entire list**. With merging there would
+    be no way to *remove* an inherited organiser. Practical consequence: in a
+    co-organised event inside a community feed you have to **repeat** the feed's
+    community.
+  - **An aggregator feed must OMIT `organizers`**: it does not organise what it
+    publishes.
+  - **`email`** (`format: email`, without the `mailto:` prefix) gets in by the
+    same route as `tags`, `location.geo` and `updatedAt` in v0.2: **the `.ics`
+    importer had it in front of it and there was nowhere to put it**. A published
+    `VEVENT` very frequently carries `ORGANIZER;CN="…":mailto:…`, and without
+    this field `.ics` → OTE → `.ics` **lost the `ORGANIZER`** — the only loss the
+    spec calls serious. It also fixes RSS 2.0's `<author>`, which requires an
+    email. None of the five platforms studied emits it in their JSON-LD: **the
+    producer is iCalendar, not the events web**, and that is why the field
+    arrives with rules. A **role** address (`info@`, `hello@`), not anybody's
+    mailbox; an importer **MUST NOT** fill it from a source that is not publicly
+    published (copying from a private calendar into an open feed changes the
+    level of exposure of an address nobody published); a consumer **MUST NOT**
+    use it for anything other than writing about the event; and an exporter
+    **does not invent** the `mailto:` from the `url`'s domain — with no `email`
+    there is no `ORGANIZER`, full stop.
+  - **`email` is NOT a recommended field**, and it is the only one in the spec
+    left out of the profile for a reason that is not technical: warning about a
+    missing email is pressuring somebody to publish an address they chose not to
+    publish. (The technical reason applies too: whoever imports an `.ics` with no
+    `ORGANIZER` cannot act on the warning.)
+  - **`email` adds no inheritance rule.** It lives inside `organizers[]`, so it
+    is inherited with the list and **by replacement**: an event that declares
+    `organizers` does not inherit the feed's email, and an aggregator feed —
+    which must omit `organizers` — has none to propagate. The risk of inheriting
+    somebody else's email would only exist with a loose `feed.organizerEmail` or
+    with field-by-field merging, and neither is done.
 
-- **`partOf`** (`object`) en el **evento**. La serie o el evento multi-parte del
-  que este documento es **una ocurrencia**. `id` obligatorio; `name`, `url` y
-  `type` (`series` por defecto, o `multipart`) opcionales.
-  - **Es una referencia, no una regla de recurrencia.** La norma que lo acompaña:
-    **un documento = una ocurrencia, y quien publica expande**. Un meetup mensual
-    son doce documentos, cada uno con su `id`, sus fechas y su `status`; un study
-    jam en tres sesiones, tres. `partOf` solo dice a qué conjunto pertenecen.
-  - **`type` cambia la traducción**, no es decoración: `series` → `EventSeries` de
-    schema.org; `multipart` → un `Event` cuyas partes son su `subEvent`. En iCal,
-    `RELATED-TO;RELTYPE=PARENT` en ambos casos. En Atom/RSS no hay equivalente y
-    **se ignora, sin daño**: la entrada sigue describiendo un evento con su fecha
-    real. Un campo de identidad que se ignora deja datos incompletos; uno de
-    fechas que se ignora deja datos **falsos**. Solo lo primero es aceptable.
-  - **Un evento multi-parte no se expresa estirando las fechas.** `startDate` en
-    la primera parte + `endDate` en la última afirma un evento continuo de quince
-    días y ocupa dos semanas en el calendario de quien se suscriba.
-  - Reglas para quien expande: horizonte acotado en series infinitas (12 meses o
-    12 ocurrencias), `id` por ocurrencia (`<id-serie>#<fecha>` si no tiene página
-    propia — el equivalente de `RECURRENCE-ID`), y `EXDATE` deja de existir: es
-    *no emitir* ese documento, o `status: cancelled` si ya se había publicado.
+- **`partOf`** (`object`) on the **event**. The series or multi-part event this
+  document is **one occurrence** of. `id` required; `name`, `url` and `type`
+  (`series` by default, or `multipart`) optional.
+  - **It is a reference, not a recurrence rule.** The rule that comes with it:
+    **one document = one occurrence, and whoever publishes expands**. A monthly
+    meetup is twelve documents, each with its own `id`, its own dates and its own
+    `status`; a study jam across three sessions, three. `partOf` only says which
+    set they belong to.
+  - **`type` changes the translation**, it is not decoration: `series` →
+    schema.org's `EventSeries`; `multipart` → an `Event` whose parts are its
+    `subEvent`. In iCal, `RELATED-TO;RELTYPE=PARENT` in both cases. In Atom/RSS
+    there is no equivalent and **it is ignored, harmlessly**: the entry still
+    describes an event with its real date. An identity field that gets ignored
+    leaves incomplete data; a date field that gets ignored leaves **false** data.
+    Only the first is acceptable.
+  - **A multi-part event is not expressed by stretching the dates.** `startDate`
+    on the first part + `endDate` on the last asserts a continuous fifteen-day
+    event and takes up two weeks in a subscriber's calendar.
+  - Rules for whoever expands: a bounded horizon for infinite series (12 months
+    or 12 occurrences), one `id` per occurrence (`<series-id>#<date>` if it has
+    no page of its own — the equivalent of `RECURRENCE-ID`), and `EXDATE` stops
+    existing: it is *not emitting* that document, or `status: cancelled` if it
+    had already been published.
 
-- **`image`** (`array`, mín. 1) en el **evento**. Imágenes promocionales: cartel,
-  portada, tarjeta. Cada entrada es **o una URL `https` pelada, o un objeto
-  `{ url, alt?, translations? }`**. **El orden es significativo** — la primera es
-  la principal, y a menudo la única que un destino puede usar.
-  - **No es una galería.** Lo habitual es que las entradas sean **la misma
-    imagen** en distintos recortes o resoluciones, que es lo que pide Google
-    (1:1, 4:3, 16:9) y lo que ya emiten Meetup, Luma y Guild. Pero es lo
-    habitual, **no una garantía**: nadie impide publicar el cartel y una foto de
-    la sede, y un consumidor no puede distinguir los dos casos. La regla que vale
-    es la del orden; ninguna interfaz debe renderizarla como carrusel.
-  - **`image[].alt`** (`string`, no vacío, ≤ 250) — texto alternativo, por
-    accesibilidad. Describe **lo que se ve**, no lo que ya dicen `name` y
-    `description`: repetirlos hace que un lector de pantalla los diga dos veces.
-    Sin cadena vacía: el `alt=""` de HTML significa «decorativa», y una imagen
-    decorativa no pinta nada en un feed.
-    - **Va dentro de la entrada, no en un `imageAlt` hermano del evento.** Un
-      solo `alt` para toda la lista describiría la primera imagen y se aplicaría
-      a las tres; solo sería correcto si la lista fuese siempre el mismo cartel
-      recortado, y eso **no se puede garantizar**.
-    - **Las dos formas de entrada conviven** en vez de migrar la lista a objetos:
-      así **ningún documento `0.2` o `0.3` ya publicado deja de validar** —esta
-      versión sigue siendo retrocompatible— y los recortes extra, que no
-      necesitan `alt`, siguen siendo una cadena. Quien consume normaliza en una
-      línea (`typeof i === "string" ? { url: i } : i`).
-    - **Se traduce, y no se escribe en «inglés internacional».** Un `alt` se lee
-      en voz alta con la pronunciación del idioma que lo rodea, así que va en el
-      `textLanguage` del documento y se traduce con el `translations` **de la
-      propia entrada** (nunca un espejo posicional, como `offers[].name`).
-      Escribirlo siempre en inglés sería peor accesibilidad que no tenerlo
-      —[WCAG 3.1.2](https://www.w3.org/WAI/WCAG22/Understanding/language-of-parts.html)
-      existe justo por esto— y lo convertiría en el único texto libre de la spec
-      que no sigue a `textLanguage`.
-    - **No es SEO**: Google no puntúa el `alt` de `Event.image`. Entra por las
-      personas que no ven el cartel, y por eso **no** espera a tener un productor
-      que ya lo emita — es el único criterio de esta spec que cede ante la
-      accesibilidad.
-  - Traducción: en schema.org, URLs peladas para las entradas sin `alt` y
-    `ImageObject { url, caption }` para las que lo llevan (`Event.image` admite
-    `ImageObject`, así que el rich result se conserva; schema.org **no tiene
-    propiedad `alt`**, y `caption` —la que usa Google— pierde el matiz);
-    `IMAGE;VALUE=URI` (RFC 7986) en iCal, solo la primera en la práctica y **sin
-    `alt`, que no tiene dónde ir**; `<enclosure>` o `<media:content>` +
-    `<media:description>` en RSS y `<link rel="enclosure">` en Atom — donde el
-    `type` (MIME) hay que inferirlo, porque OTE no lo modela.
-  - **Entra en el perfil recomendado.** No rompe nada en los tres destinos, pero
-    el aviso es **accionable**: las cinco fuentes estudiadas ya emiten imagen, así
-    que un feed sin `image` casi nunca es un evento sin cartel — es un cartel sin
-    mapear. Sigue siendo un aviso: nada deja de validar.
-  - Era una **extensión sin prefijo** en los ejemplos desde la v0.1 (como cadena
-    suelta). Se gradúa a núcleo **como lista**: si la emitías como cadena, migra.
+- **`image`** (`array`, min. 1) on the **event**. Promotional images: poster,
+  cover, card. Each entry is **either a bare `https` URL or an object
+  `{ url, alt?, translations? }`**. **Order is significant** — the first one is
+  the main one, and often the only one a destination can use.
+  - **It is not a gallery.** The usual case is for the entries to be **the same
+    image** in different crops or resolutions, which is what Google asks for
+    (1:1, 4:3, 16:9) and what Meetup, Luma and Guild already emit. But that is
+    the usual case, **not a guarantee**: nothing stops anyone publishing the
+    poster and a photo of the venue, and a consumer cannot tell the two apart.
+    The rule that holds is the one about order; no interface should render it as
+    a carousel.
+  - **`image[].alt`** (`string`, non-empty, ≤ 250) — alt text, for accessibility.
+    It describes **what is visible**, not what `name` and `description` already
+    say: repeating them makes a screen reader say them twice. No empty string:
+    HTML's `alt=""` means "decorative", and a decorative image has no business in
+    a feed.
+    - **It goes inside the entry, not in an `imageAlt` alongside the event.** A
+      single `alt` for the whole list would describe the first image and apply to
+      all three; it would only be correct if the list were always the same poster
+      cropped, and that **cannot be guaranteed**.
+    - **The two entry forms coexist** instead of migrating the list to objects:
+      that way **no already-published `0.2` or `0.3` document stops validating** —
+      this version stays backwards-compatible — and the extra crops, which need
+      no `alt`, stay strings. Whoever consumes normalises in one line
+      (`typeof i === "string" ? { url: i } : i`).
+    - **It is translated, and not written in "international English".** An `alt`
+      is read aloud with the pronunciation of the surrounding language, so it
+      lives in the document's `textLanguage` and is translated with the entry's
+      **own** `translations` (never a positional mirror, like `offers[].name`).
+      Always writing it in English would be worse accessibility than not having
+      it —[WCAG 3.1.2](https://www.w3.org/WAI/WCAG22/Understanding/language-of-parts.html)
+      exists for exactly this — and it would make it the only free text in the
+      spec that does not follow `textLanguage`.
+    - **It is not SEO**: Google does not score the `alt` of `Event.image`. It
+      gets in for the people who cannot see the poster, and that is why it does
+      **not** wait for a producer that already emits it — it is the only
+      criterion in this spec that yields to accessibility.
+  - Translation: in schema.org, bare URLs for entries with no `alt` and
+    `ImageObject { url, caption }` for those that carry one (`Event.image`
+    accepts `ImageObject`, so the rich result is preserved; schema.org **has no
+    `alt` property**, and `caption` — the one Google uses — loses the nuance);
+    `IMAGE;VALUE=URI` (RFC 7986) in iCal, in practice only the first one and
+    **without the `alt`, which has nowhere to go**; `<enclosure>` or
+    `<media:content>` + `<media:description>` in RSS and
+    `<link rel="enclosure">` in Atom — where the `type` (MIME) has to be
+    inferred, because OTE does not model it.
+  - **It enters the recommended profile.** It breaks nothing in the three
+    destinations, but the warning is **actionable**: the five sources studied
+    already emit an image, so a feed with no `image` is almost never an event
+    with no poster — it is an unmapped poster. It is still a warning: nothing
+    stops validating.
+  - It had been an **unprefixed extension** in the examples since v0.1 (as a bare
+    string). It graduates into the core **as a list**: if you were emitting it as
+    a string, migrate.
 
-- **`location.address`** (`object`) en el **evento**: la dirección postal de la
-  sede física **por partes** — `street`, `locality`, `region`, `postalCode` y
-  `country`, todas opcionales, con al menos una presente.
-  - **Complementa a `venue`, no lo sustituye.** `venue` sigue siendo la cadena
-    legible que imprimen `LOCATION` de iCal y el texto de un ítem RSS —los dos
-    formatos que **no modelan direcciones**—, y `Place.name` de schema.org.
-    `address` es lo que necesita el traductor para emitir un `PostalAddress`
-    cuyos subcampos **Google valida uno a uno** en el rich result de `Event`.
-    `venue` para leer, `address` para procesar.
-  - **Entra porque ya existe ahí fuera**: cuatro de las cinco fuentes estudiadas
-    (Meetup, Eventbrite, Guild y el ejemplo canónico de Google) emiten
-    `PostalAddress` con sus subcampos. Sin el campo, un exportador solo podía
-    emitir la dirección como texto suelto o **partir `venue` por comas**, que es
-    inventar datos.
-  - **`country` es ISO 3166-1 alfa-2 en mayúsculas** (`ES`, `US`), la única parte
-    con formato exigido: el nombre del país tiene una grafía por idioma, y quien
-    agrupe por país vería «España», «Spain» y «Espagne» como tres países.
-    Convertir nombre → código es consultar una tabla, no inventar. `region` se
-    deja libre: no hay tabla universal (provincia, estado, condado, *Land*).
-  - **Omitir es la forma correcta de no saber**: `""` y `null` se rechazan (cada
-    parte es una cadena de longitud ≥ 1), y `"address": {}` también, igual que
-    `location: {}`. Con caso real detrás: Guild emite hoy los cinco subcampos a
-    `null`.
-  - **No satisface `location` por sí solo**: sigue haciendo falta `venue` u
-    `onlineUrl`, misma regla que `geo`.
-  - **No entra en el perfil recomendado**: lo recomendado es `location`. Qué hace
-    falta saber del sitio depende del tipo de evento —a uno online la dirección
-    postal no le aplica, y a un meetup en un bar le basta el nombre del bar—, así
-    que el aviso no sería accionable para buena parte de los eventos. Es una
-    mejora real cuando se tiene, no un mínimo de calidad.
+- **`location.address`** (`object`) on the **event**: the physical venue's postal
+  address **in parts** — `street`, `locality`, `region`, `postalCode` and
+  `country`, all optional, with at least one present.
+  - **It complements `venue`, it does not replace it.** `venue` remains the
+    human-readable string printed by iCal's `LOCATION` and by an RSS item's text
+    — the two formats that **do not model addresses** — and by schema.org's
+    `Place.name`. `address` is what the translator needs in order to emit a
+    `PostalAddress` whose subfields **Google validates one by one** in the
+    `Event` rich result. `venue` to read, `address` to process.
+  - **It gets in because it already exists out there**: four of the five sources
+    studied (Meetup, Eventbrite, Guild and Google's canonical example) emit
+    `PostalAddress` with its subfields. Without the field, an exporter could only
+    emit the address as loose text or **split `venue` on commas**, which is
+    inventing data.
+  - **`country` is an uppercase ISO 3166-1 alpha-2 code** (`ES`, `US`), the only
+    part with a required format: a country's name has one spelling per language,
+    and anyone grouping by country would see "España", "Spain" and "Espagne" as
+    three countries. Turning a name into a code is looking up a table, not
+    inventing. `region` is left free: there is no universal table (province,
+    state, county, *Land*).
+  - **Omitting is the correct way of not knowing**: `""` and `null` are rejected
+    (each part is a string of length ≥ 1), and so is `"address": {}`, just like
+    `location: {}`. With a real case behind it: Guild today emits all five
+    subfields as `null`.
+  - **It does not satisfy `location` on its own**: you still need `venue` or
+    `onlineUrl`, the same rule as `geo`.
+  - **It does not enter the recommended profile**: what is recommended is
+    `location`. What you need to know about the place depends on the type of
+    event — a postal address does not apply to an online one, and a meetup in a
+    bar only needs the bar's name — so the warning would not be actionable for a
+    good share of events. It is a real improvement when you have it, not a
+    quality floor.
 
-- **`offers`** (`array`, mín. 1) en el **evento**: qué cuesta asistir y dónde
-  registrarse. Cada entrada: `name`, `price`, `currency`, `url`, `availability`
-  (`in-stock` \| `sold-out`), `opensAt` y `closesAt`, con al menos `price` o
-  `url` presente.
-  - **Ausente significa DESCONOCIDO, nunca gratis.** Decir «gratis» tiene una
-    forma, y es `price: 0`. Un consumidor que lea «sin `offers` = gratis»
-    convierte en gratuita toda conferencia de pago cuyo exportador no mapeó el
-    precio.
-  - **Es una lista** porque el precio de un evento casi nunca es un número:
-    early bird, general, estudiantes. Por eso **no hay rangos ni «desde 45 €»** —
-    `price` es un **número**, sin símbolo ni separador de miles: un precio que no
-    cabe en un número **son varias ofertas**, y como texto no se puede filtrar ni
-    comparar, que es lo único por lo que merece la pena publicarlo como dato.
-  - **`currency` (ISO 4217 alfa-3) es obligatoria en cuanto `price` pasa de 0**, y
-    sobra cuando es 0 — lo gratis es gratis en cualquier moneda. Es exactamente
-    cómo Luma acaba emitiendo `"price": 0, "priceCurrency": "usd"` para una sesión
-    que no cuesta nada. El schema lo expresa con un `if`/`then`.
-  - **`availability` no tiene valor por defecto**: ausente = desconocido. Un feed
-    desactualizado que sigue afirmando `in-stock` es peor que uno callado, porque
-    manda a alguien a una taquilla cerrada.
-  - **`waitlistUrl`**: dónde apuntarse a la cola una vez agotada la oferta.
-    «Agotado y nada que hacer» y «agotado, pero puedes hacer cola» dejan de ser
-    el mismo documento.
-    - **No es un tercer valor de `availability`**, y la razón es **cómo degrada**:
-      con `sold-out` + `waitlistUrl`, todo consumidor que ya existe sigue leyendo
-      «agotado», que es **verdad**. Con `availability: "waitlist"`, el que no
-      conozca el valor no tiene lectura segura, y el que parsee
-      `availability !== "sold-out"` ⇒ disponible —lo normal— anunciaría como
-      comprable algo que no lo es. Omitir la cola es una omisión; decir «a la
-      venta» es una mentira.
-    - **`price` no contradice a `sold-out` ni a la cola**: `price` describe el
-      trato, `availability` si puedes actuar sobre él ahora. El caso que más lo
-      necesita —**evento gratuito con aforo limitado**— es `price: 0` +
-      `sold-out` + `waitlistUrl`. Apuntarse a una cola no cuesta dinero.
-    - **El schema rechaza `in-stock` + `waitlistUrl`** con un `if`/`then`: una
-      cola para algo que está a la venta no es una cola. **Permite**
-      `waitlistUrl` sin `availability`: quien no mantiene el estado de la
-      taquilla no debe verse forzado a *afirmar* `sold-out` para mencionar la
-      cola. Se prohíbe lo incoherente, nunca lo incompleto.
-    - Traducción: schema.org **no tiene término** para lista de espera
-      (`BackOrder` y `PreOrder` significan otra cosa) → se emite `SoldOut`, que
-      no es falso, y la cola se degrada al texto. Un valor de enum habría
-      perdido lo mismo.
-    - **Descartado `last-tickets`** (`LimitedAvailability` de schema.org, que
-      Google lee): de las cinco fuentes estudiadas, las tres que emiten
-      `availability` emiten `InStock` y nada más; el umbral no se puede definir
-      —cinco plazas, el 10%, lo que diga el marketing—, así que nadie podría
-      filtrar ni comparar; es el estado más volátil posible; y sobre todo **no
-      cambia la acción**: sigues pudiendo comprar. Eso es urgencia, y la urgencia
-      es aforo — taquilla, que la spec deja fuera.
+- **`offers`** (`array`, min. 1) on the **event**: what attending costs and where
+  to register. Each entry: `name`, `price`, `currency`, `url`, `availability`
+  (`in-stock` \| `sold-out`), `opensAt` and `closesAt`, with at least `price` or
+  `url` present.
+  - **Absent means UNKNOWN, never free.** Saying "free" has a shape, and it is
+    `price: 0`. A consumer reading "no `offers` = free" turns into free every
+    paid conference whose exporter did not map the price.
+  - **It is a list** because an event's price is almost never one number: early
+    bird, general, students. That is why **there are no ranges and no "from
+    €45"** — `price` is a **number**, with no symbol and no thousands separator:
+    a price that does not fit in one number **is several offers**, and as text it
+    can be neither filtered nor compared, which is the only thing that makes
+    publishing it as data worthwhile.
+  - **`currency` (ISO 4217 alpha-3) is required as soon as `price` goes above
+    0**, and is surplus when it is 0 — free is free in any currency. It is
+    exactly how Luma ends up emitting `"price": 0, "priceCurrency": "usd"` for a
+    session that costs nothing. The schema expresses it with an `if`/`then`.
+  - **`availability` has no default**: absent = unknown. A stale feed that keeps
+    asserting `in-stock` is worse than a quiet one, because it sends somebody to
+    a closed box office.
+  - **`waitlistUrl`**: where to join the queue once the offer has sold out.
+    "Sold out and nothing to be done" and "sold out, but you can queue" stop
+    being the same document.
+    - **It is not a third `availability` value**, and the reason is **how it
+      degrades**: with `sold-out` + `waitlistUrl`, every consumer that already
+      exists still reads "sold out", which is **true**. With
+      `availability: "waitlist"`, whoever does not know the value has no safe
+      reading, and whoever parses `availability !== "sold-out"` ⇒ available — the
+      normal case — would announce as buyable something that is not. Omitting the
+      queue is an omission; saying "on sale" is a lie.
+    - **`price` contradicts neither `sold-out` nor the queue**: `price` describes
+      the deal, `availability` whether you can act on it right now. The case that
+      needs it most — a **free event with limited capacity** — is `price: 0` +
+      `sold-out` + `waitlistUrl`. Joining a queue costs no money.
+    - **The schema rejects `in-stock` + `waitlistUrl`** with an `if`/`then`: a
+      queue for something that is on sale is not a queue. It **allows**
+      `waitlistUrl` without `availability`: whoever does not keep the box office
+      state up to date should not be forced to *assert* `sold-out` in order to
+      mention the queue. The incoherent is forbidden, never the incomplete.
+    - Translation: schema.org **has no term** for a waiting list (`BackOrder` and
+      `PreOrder` mean something else) → `SoldOut` is emitted, which is not false,
+      and the queue degrades to text. An enum value would have lost the same.
+    - **`last-tickets` rejected** (schema.org's `LimitedAvailability`, which
+      Google reads): of the five sources studied, the three that emit
+      `availability` emit `InStock` and nothing else; the threshold cannot be
+      defined — five places, 10%, whatever marketing says — so nobody could
+      filter or compare; it is the most volatile state possible; and above all it
+      **does not change the action**: you can still buy. That is urgency, and
+      urgency is capacity — the box office, which the spec leaves out.
 
-- **Regla de compatibilidad hacia delante para consumidores** (no es un campo,
-  es normativa): **un valor de enum que no conozcas se trata como desconocido,
-  nunca como el valor tolerante.** Es «ausente = desconocido» aplicada al futuro
-  en vez de al vacío, y sin ella cualquier valor añadido en una versión posterior
-  se convierte en «disponible» o en «presencial» para quien parsea con
-  desigualdades.
-  - **Entra porque ya existe ahí fuera**: tres de las cinco fuentes estudiadas
-    (Luma, Guild y el ejemplo canónico de Google) emiten `offers` con esta misma
-    forma, y Google lo **muestra** en el rich result de `Event`.
-  - **Sin `isFree`** (estaba en el boceto anterior): redundante con `price: 0`, y
-    dos formas de afirmar lo mismo son dos formas de contradecirse. Sin `capacity`
-    ni plazas restantes: eso es **taquilla**, no entrada. `registrationUrl` pasa a
-    llamarse `url` — el objeto ya se llama oferta.
-  - Traducción: `Offer` de schema.org **1:1** (`currency` → `priceCurrency`,
-    `opensAt`/`closesAt` → `validFrom`/`validThrough`, `availability` → las URLs
-    `InStock`/`SoldOut`). En **iCal y RSS/Atom no hay nada**: RFC 5545 no modela
-    precio. Va a la `DESCRIPTION` o al cuerpo del ítem.
+- **A forward-compatibility rule for consumers** (not a field, it is normative):
+  **an enum value you do not know is treated as unknown, never as the permissive
+  value.** It is "absent = unknown" applied to the future instead of to the void,
+  and without it any value added in a later version becomes "available" or
+  "in person" for whoever parses with inequalities.
+  - **It gets in because it already exists out there**: three of the five sources
+    studied (Luma, Guild and Google's canonical example) emit `offers` in this
+    very shape, and Google **displays** it in the `Event` rich result.
+  - **No `isFree`** (it was in the earlier sketch): redundant with `price: 0`,
+    and two ways of asserting the same thing are two ways of contradicting
+    yourself. No `capacity` and no places left: that is the **box office**, not
+    the ticket. `registrationUrl` is renamed `url` — the object is already called
+    an offer.
+  - Translation: schema.org's `Offer` **1:1** (`currency` → `priceCurrency`,
+    `opensAt`/`closesAt` → `validFrom`/`validThrough`, `availability` → the
+    `InStock`/`SoldOut` URLs). In **iCal and RSS/Atom there is nothing**: RFC
+    5545 does not model price. It goes into the `DESCRIPTION` or the item's body.
 
-- **`cfp`** (`object`) en el **evento**: la convocatoria de propuestas. `url`
-  obligatoria; `opensAt`, `closesAt`, `coversTravel` y `coversAccommodation`
-  opcionales.
-  - **Es el único campo de la spec sin equivalente en ninguno de los tres
-    destinos**, y entra igualmente — por el otro lado del tubo. «¿Qué conferencias
-    aceptan propuestas ahora mismo?» es una de las preguntas que este proyecto
-    existe para contestar, y hoy se contesta **scrapeando**: confs.tech,
-    developers.events o CFP Land mantienen a mano justo estos dos datos, enlace y
-    fecha límite. El productor existe; publica en HTML, no en JSON-LD. OTE no es
-    solo un formato de exportación: es también donde puede vivir un dato que los
-    otros tres no saben nombrar.
-  - **Un objeto, no una lista**, al contrario que `organizers`: allí Luma **ya
-    emite** varios, aquí ningún productor real publica dos convocatorias por
-    evento. Si el caso aparece, ensanchar objeto → lista rompe y llegará con su
-    versión; no se paga hoy por un caso hipotético.
-  - **`coversTravel` y `coversAccommodation` no tienen valor por defecto**:
-    ausente = desconocido, nunca `false`. Están porque son lo que se filtra antes
-    de decidir si uno puede permitirse enviar una propuesta.
-  - **`closesAt` entra en el perfil recomendado, de forma condicional** (solo si
-    hay `cfp`): sin fecha límite, un consumidor ve un enlace y no sabe si cerró en
-    marzo. `offers` y `cfp` **no** son recomendados en sí: la mayoría de eventos no
-    tiene convocatoria, y el precio no siempre se puede recuperar de la fuente.
-  - **Sin `timezone` propio** (lo tenía el boceto anterior): sus fechas son
-    instantes con offset, ver abajo.
-  - Traducción: **nada en schema.org, nada en iCal, nada en RSS/Atom.** Se
-    degrada a texto en la `DESCRIPTION` o en el cuerpo del ítem, o a un
+- **`cfp`** (`object`) on the **event**: the call for proposals. `url` required;
+  `opensAt`, `closesAt`, `coversTravel` and `coversAccommodation` optional.
+  - **It is the only field in the spec with no equivalent in any of the three
+    destinations**, and it gets in anyway — from the other end of the pipe.
+    "Which conferences are accepting proposals right now?" is one of the
+    questions this project exists to answer, and today it is answered by
+    **scraping**: confs.tech, developers.events or CFP Land maintain by hand
+    exactly these two values, a link and a deadline. The producer exists; it
+    publishes in HTML, not in JSON-LD. OTE is not only an export format: it is
+    also where data the other three cannot name can live.
+  - **An object, not a list**, unlike `organizers`: there Luma **already emits**
+    several, here no real producer publishes two calls per event. If the case
+    shows up, widening object → list breaks and will arrive with its own version;
+    nothing is paid today for a hypothetical case.
+  - **`coversTravel` and `coversAccommodation` have no default**: absent =
+    unknown, never `false`. They are here because they are what gets filtered on
+    before deciding whether one can afford to submit a proposal.
+  - **`closesAt` enters the recommended profile, conditionally** (only if there
+    is a `cfp`): with no deadline, a consumer sees a link and cannot tell whether
+    it closed in March. `offers` and `cfp` are **not** recommended in themselves:
+    most events have no call for papers, and the price cannot always be recovered
+    from the source.
+  - **No `timezone` of its own** (the earlier sketch had one): its dates are
+    instants with an offset, see below.
+  - Translation: **nothing in schema.org, nothing in iCal, nothing in RSS/Atom.**
+    It degrades to text in the `DESCRIPTION` or the item's body, or to an
     `X-OTE-CFP-URL`.
 
-- **`eligibility`** (`object`) en el **evento**: quién puede entrar, cuando la
-  respuesta no es «cualquiera». `type` obligatorio (`open` \| `members-only` \|
-  `approval-required` \| `restricted`); `note` y `url` opcionales.
-  - **Es la tercera parte de «¿puedo ir?»**, junto a `attendanceMode` y
-    `location`: esos dos dicen si el evento **está a tu alcance**, este si **te
-    dejan entrar**. Se contradicen sin problema — una sesión online, gratis y
-    abierta a cualquiera con conexión cuyo canal de voz está dentro de un Discord
-    al que hay que pertenecer.
-  - **Sustituye a la práctica de meterlo en `tags`.** En una lista libre,
-    `["rust","members-only"]` obliga al consumidor a **adivinar** cuál de esas
-    cadenas es una condición de acceso, y ninguna interfaz puede ofrecer un
-    filtro «solo eventos a los que puedo entrar». La descripción de `tags` ahora
-    dice explícitamente que es **de qué va** el evento, no quién puede entrar.
-    El otro eje que también se cuela ahí —**público y nivel**— sigue sin
-    resolver: es pregunta abierta, no este campo.
-  - **`approval-required` es un juicio sobre la persona, no aforo.** Alguien mira
-    tu solicitud y decide (el «request to approve» de Luma, un grupo de Meetup con
-    pregunta de admisión). Un evento al que se entra **por orden de llegada** hasta
-    que se acaban las plazas **no tiene puerta**: es `open`, y que se agoten es
-    `offers[].availability: "sold-out"` (o `capacity`, que sigue siendo extensión).
-    Regla que sostiene el campo: si la respuesta a «¿puedo ir?» cambia sola con el
-    tiempo, **no es `eligibility`** — es taquilla.
-  - **Sin `invite-only`**, y se cae **por alcance, no por forma**: esta spec existe
-    para encontrar eventos y comunidades **en los que se puede participar**, y un
-    evento al que solo se entra por invitación es un club privado. Los casos que
-    rozan el límite —una cena de speakers y patrocinadores, un encuentro de un
-    programa de embajadores— siguen siendo publicables con `restricted`, y con
-    **más** información: su `note` obligatoria dice **quién** puede entrar, donde
-    `invite-only` solo decía «tú no».
-  - **`restricted` exige `note`**, con un `if`/`then` como el de `currency`: es
-    el escape que mantiene el enum pequeño («solo alumnado de la UAL») sin que
-    nadie tenga que meter a martillazos su condición en `members-only`. Y
-    `restricted` a secas no dice nada.
-  - **Sin valor por defecto**: ausente = desconocido, **nunca `open`**. Quien
-    importa un `.ics` no tiene el dato, y un defecto convertiría cada evento
-    importado en una afirmación que nadie hizo. Corolario: `"type": "open"` **sí
-    aporta información**, al contrario que `"status": "scheduled"`.
-  - **Un objeto, no una cadena**: *qué* comunidad es un dato que quien publica ya
-    tiene, y ensanchar cadena → objeto después rompe. Solo `type` es obligatorio.
-  - **No va dentro de `offers`**, aunque el eje por tramo exista (la tarifa de
-    estudiante pide carné): `offers` está ausente en la mayoría de los eventos y
-    nunca llega desde un `.ics`, así que la puerta desaparecería donde más
-    eventos hay. `offers[].eligibility` queda **reservado**, con este mismo enum,
-    para cuando haya productor real.
-  - **No modela** aforo ni plazas (eso es taquilla), el estado de *tu* solicitud,
-    códigos de acceso, listas de invitados ni el código de conducta: describe
-    **la condición, no el trámite**.
-  - Traducción: **nada estructurado en ninguno de los tres destinos** — el caso
-    de `cfp`. Se degrada al texto (`DESCRIPTION`, cuerpo del ítem,
-    `description`), que es para lo que está `note`, o a un `X-OTE-ELIGIBILITY`.
-    Tres falsos amigos a evitar: `CLASS:PRIVATE` de iCal es la **visibilidad del
-    dato**, `Offer.eligibleCustomerType` de schema.org es B2B/B2C, y
-    `isAccessibleForFree` es el precio. Ninguno es la puerta.
+- **`eligibility`** (`object`) on the **event**: who can get in, when the answer
+  is not "anyone". `type` required (`open` \| `members-only` \|
+  `approval-required` \| `restricted`); `note` and `url` optional.
+  - **It is the third part of "can I go?"**, alongside `attendanceMode` and
+    `location`: those two say whether the event is **within your reach**, this
+    one whether **they will let you in**. They contradict each other quite
+    happily — an online session, free and open to anyone with a connection, whose
+    voice channel sits inside a Discord you have to belong to.
+  - **It replaces the practice of putting this in `tags`.** In a free list,
+    `["rust","members-only"]` forces the consumer to **guess** which of those
+    strings is an access condition, and no interface can offer an "only events I
+    can get into" filter. The `tags` description now says explicitly that it is
+    **what the event is about**, not who can get in. The other axis that also
+    sneaks in there — **audience and level** — is still unsolved: that is an open
+    question, not this field.
+  - **`approval-required` is a judgement on the person, not capacity.** Somebody
+    looks at your request and decides (Luma's "request to approve", a Meetup
+    group with an admission question). An event you get into **first come, first
+    served** until the places run out **has no door**: it is `open`, and running
+    out is `offers[].availability: "sold-out"` (or `capacity`, which is still an
+    extension). The rule that holds the field up: if the answer to "can I go?"
+    changes on its own over time, **it is not `eligibility`** — it is the box
+    office.
+  - **No `invite-only`**, and it falls **on scope, not on form**: this spec
+    exists to find events and communities **you can take part in**, and an event
+    you only get into by invitation is a private club. The cases near the line —
+    a speakers-and-sponsors dinner, a gathering of an ambassador programme —
+    remain publishable with `restricted`, and with **more** information: its
+    mandatory `note` says **who** can get in, where `invite-only` only said
+    "not you".
+  - **`restricted` requires `note`**, with an `if`/`then` like `currency`'s: it
+    is the escape hatch that keeps the enum small ("University of Almería
+    students only") without anyone having to hammer their condition into
+    `members-only`. And `restricted` on its own says nothing.
+  - **No default**: absent = unknown, **never `open`**. Whoever imports an `.ics`
+    does not have the data, and a default would turn every imported event into an
+    assertion nobody made. Corollary: `"type": "open"` **does add information**,
+    unlike `"status": "scheduled"`.
+  - **An object, not a string**: *which* community is data whoever publishes
+    already has, and widening string → object later breaks. Only `type` is
+    required.
+  - **It does not go inside `offers`**, even though the per-tier axis exists (the
+    student rate asks for a card): `offers` is absent from most events and never
+    arrives from an `.ics`, so the door would disappear where most events are.
+    `offers[].eligibility` is **reserved**, with this very enum, for when there is
+    a real producer.
+  - **It does not model** capacity or places (that is the box office), the state
+    of *your* request, access codes, guest lists or the code of conduct: it
+    describes **the condition, not the process**.
+  - Translation: **nothing structured in any of the three destinations** — the
+    `cfp` case. It degrades to text (`DESCRIPTION`, the item's body,
+    `description`), which is what `note` is for, or to an `X-OTE-ELIGIBILITY`.
+    Three false friends to avoid: iCal's `CLASS:PRIVATE` is the **visibility of
+    the data**, schema.org's `Offer.eligibleCustomerType` is B2B/B2C, and
+    `isAccessibleForFree` is the price. None of them is the door.
 
-- **`textLanguage`** (etiqueta BCP 47) en el **evento** y en el **feed**: el
-  idioma en que está escrito el **texto libre del documento**.
-  - **No es `languages`, y no se derivan.** `languages` son los idiomas que se
-    **hablan** en el evento; `textLanguage` es el idioma en que está **escrito**
-    este texto. Una sesión bilingüe descrita solo en catalán es
-    `languages: ["ca","es"]` + `textLanguage: "ca"`. La descripción de
-    `languages` ahora lo dice en el schema, que es donde alguien lo leerá.
-  - **Una etiqueta, no una lista**: un texto está escrito en un idioma.
-  - **Se hereda del feed**, como `license` y `organizers`: quien publica en un
-    solo idioma lo declara **una vez en todo el fichero**. Ausente = desconocido,
-    nunca el inglés ni el idioma de la respuesta HTTP.
-  - **Desbloquea cosas concretas** que hoy no se pueden ni adivinar: el `lang`
-    del HTML —del que dependen la separación de sílabas, el lector de pantalla y
-    el corrector—, la ordenación alfabética correcta y la decisión de traducir
-    automáticamente o no.
-  - Traducción: **los tres destinos lo reciben**. `LANGUAGE` es un parámetro
-    nativo de iCal (`SUMMARY;LANGUAGE=ca:…`, RFC 5545), RSS tiene `<language>`,
-    Atom `xml:lang` y JSON-LD `@language`.
+- **`textLanguage`** (a BCP 47 tag) on the **event** and on the **feed**: the
+  language the document's **free text** is written in.
+  - **It is not `languages`, and they are not derived from each other.**
+    `languages` are the languages **spoken** at the event; `textLanguage` is the
+    language this text is **written** in. A bilingual session described only in
+    Catalan is `languages: ["ca","es"]` + `textLanguage: "ca"`. The `languages`
+    description now says so in the schema, which is where somebody will read it.
+  - **One tag, not a list**: a text is written in one language.
+  - **It is inherited from the feed**, like `license` and `organizers`: whoever
+    publishes in a single language declares it **once in the whole file**. Absent
+    = unknown, never English and never the language of the HTTP response.
+  - **It unlocks concrete things** that today cannot even be guessed: the HTML
+    `lang` — which hyphenation, the screen reader and the spellchecker all depend
+    on — correct alphabetical sorting, and the decision whether to
+    machine-translate.
+  - Translation: **all three destinations receive it**. `LANGUAGE` is a native
+    iCal parameter (`SUMMARY;LANGUAGE=ca:…`, RFC 5545), RSS has `<language>`,
+    Atom `xml:lang` and JSON-LD `@language`.
 
-- **`translations`** (`object` indexado por etiqueta BCP 47) en el **evento**
-  (`name`, `description`) y en el **feed** (`title`, `description`): el mismo
-  texto en otros idiomas.
-  - **Aditivo: `name` y `description` siguen siendo cadenas.** Un consumidor de
-    v0.2 lee un documento con `translations` sin enterarse de que existe. La
-    alternativa —mapas de idioma en el propio campo, `"name": {"ca":…,"es":…}`,
-    el `@container: @language` de JSON-LD— es más limpia y **rompe `name` para
-    todos los consumidores actuales**, gravando al 99% monolingüe para servir al
-    1%. Descartada por eso.
-  - **Un mapa, no una lista**, porque el idioma **es** la clave: una entrada por
-    idioma y ninguna forma de publicar dos versiones en castellano que se
-    contradigan. Claves BCP 47 (`"castellano"` no valida) y **mapa vacío
-    inválido**, como `location: {}`.
-  - **El texto que vive dentro de un objeto se traduce donde vive**, con un
-    `translations` local: `offers[].translations` (`name`),
-    `eligibility.translations` (`note`) y `partOf.translations` (`name`).
-    **Nunca un espejo posicional** (`translations.es.offers[0].name`): una lista
-    no tiene claves estables, así que reordenar las ofertas colgaría la
-    traducción de la tarifa equivocada **sin que nada dejara de validar**.
-  - **Lo que NO se traduce, y por qué.** Nombres propios (`organizers[].name`,
-    `location.venue`): «PyAlmería» es «PyAlmería» en todos los idiomas.
-    Identificadores (`id`, `partOf.id`, las `url`): dos grafías serían dos
-    eventos. Códigos (`country`, `currency`, `languages`) y **enums**
-    (`eligibility.type`, `status`, `attendanceMode`, `availability`): un valor
-    cerrado es **multilingüe gratis** — se renderiza en el idioma de quien lee y
-    el dato no cambia. Y `tags`, que al ser texto libre deja una arista real
-    —`["aprenentatge-automàtic"]` y `["machine-learning"]` no se encuentran—:
-    la recomendación es etiquetar en el idioma del ecosistema técnico.
-  - **`offers[].name` sigue siendo texto libre**: se valoró un `kind` con enum,
-    que habría sido multilingüe gratis, y se descarta porque le quitaría a quien
-    organiza el derecho a nombrar sus propias entradas. Libertad ahora, y
-    `offers[].translations` es su precio.
-  - **`locality` y `region` no se traducen**: «València»/«Valencia» son grafías
-    del mismo sitio y no hay tabla como la de países. Regla, no validación:
-    **la grafía más reconocible para la audiencia mayoritaria del evento**. Quien
-    necesite precisión sin idioma tiene `location.geo`, que no tiene grafías.
-  - **Cualquier `translations` del documento exige `textLanguage`**, con un
-    `if`/`then` y **a cualquier profundidad**: una traducción dentro de una oferta
-    también lo activa. Es la **única dependencia entre campos de la spec**. Sin
-    saber en qué idioma está el texto principal, nadie puede saber cuál entrada
-    lo duplica ni a qué está cayendo de vuelta.
-  - **Nunca se traduce al idioma que ya declara `textLanguage`** — sería el mismo
-    texto dos veces. Regla **normativa que el schema no puede comprobar**:
-    comparar el valor de un campo con el nombre de una clave está fuera de JSON
+- **`translations`** (`object` indexed by BCP 47 tag) on the **event** (`name`,
+  `description`) and on the **feed** (`title`, `description`): the same text in
+  other languages.
+  - **Additive: `name` and `description` stay strings.** A v0.2 consumer reads a
+    document with `translations` without noticing it exists. The alternative —
+    language maps in the field itself, `"name": {"ca":…,"es":…}`, JSON-LD's
+    `@container: @language` — is cleaner and **breaks `name` for every current
+    consumer**, taxing the monolingual 99% to serve the 1%. Rejected for that.
+  - **A map, not a list**, because the language **is** the key: one entry per
+    language and no way of publishing two Spanish versions that contradict each
+    other. BCP 47 keys (`"spanish"` does not validate) and an **empty map is
+    invalid**, like `location: {}`.
+  - **Text living inside an object is translated where it lives**, with a local
+    `translations`: `offers[].translations` (`name`),
+    `eligibility.translations` (`note`) and `partOf.translations` (`name`).
+    **Never a positional mirror** (`translations.es.offers[0].name`): a list has
+    no stable keys, so reordering the offers would hang the translation off the
+    wrong tier **without anything stopping validating**.
+  - **What is NOT translated, and why.** Proper nouns (`organizers[].name`,
+    `location.venue`): "PyAlmería" is "PyAlmería" in every language. Identifiers
+    (`id`, `partOf.id`, the `url`s): two spellings would be two events. Codes
+    (`country`, `currency`, `languages`) and **enums** (`eligibility.type`,
+    `status`, `attendanceMode`, `availability`): a closed value is **multilingual
+    for free** — it is rendered in the reader's language and the data does not
+    change. And `tags`, which being free text leaves a real rough edge —
+    `["aprenentatge-automàtic"]` and `["machine-learning"]` do not find each
+    other: the recommendation is to tag in the language of the technical
+    ecosystem.
+  - **`offers[].name` stays free text**: a `kind` with an enum was considered,
+    which would have been multilingual for free, and it is rejected because it
+    would take away whoever organises the right to name their own tickets.
+    Freedom now, and `offers[].translations` is its price.
+  - **`locality` and `region` are not translated**: "València"/"Valencia" are
+    spellings of the same place and there is no table like the one for countries.
+    A rule, not validation: **the spelling most recognisable to the event's main
+    audience**. Anyone needing precision without a language has `location.geo`,
+    which has no spellings.
+  - **Any `translations` in the document requires `textLanguage`**, with an
+    `if`/`then` and **at any depth**: a translation inside an offer triggers it
+    too. It is the **only cross-field dependency in the spec**. Without knowing
+    what language the primary text is in, nobody can tell which entry duplicates
+    it nor what they are falling back to.
+  - **It is never translated into the language `textLanguage` already declares** —
+    that would be the same text twice. A **normative rule the schema cannot
+    check**: comparing a field's value against a key's name is outside JSON
     Schema.
-  - **En el feed no se hereda**: `feed.translations` traduce el título DEL FEED,
-    nunca el nombre de sus eventos. `feed.textLanguage` sí se hereda.
-  - **Deuda declarada**: a diferencia del resto de campos de esta versión,
-    **ningún productor real lo emite** — cada plataforma sirve una página por
-    idioma. Entra porque en catalán, euskera, galego y valenciano el evento
-    bilingüe **es el caso normal**, y hoy la única salida es meter dos idiomas
-    dentro de la misma cadena, que es peor. Sigue en pie la alternativa de **un
-    feed por idioma** (`/feed.ca.json`, `/feed.es.json`). Si nadie lo emite, se
-    retirará igual de en voz alta.
-  - Traducción: **solo JSON-LD lo recibe entero** (mapas de idioma). En iCal no
-    hay dónde —`SUMMARY` no se repite— y en RSS el idioma es del canal; Atom
-    aguanta algo más porque `xml:lang` es por elemento.
+  - **In the feed it is not inherited**: `feed.translations` translates the
+    FEED's title, never the names of its events. `feed.textLanguage` is
+    inherited.
+  - **A declared debt**: unlike every other field in this version, **no real
+    producer emits it** — each platform serves one page per language. It gets in
+    because in Catalan, Basque, Galician and Valencian the bilingual event **is
+    the normal case**, and today the only way out is cramming two languages into
+    the same string, which is worse. The alternative of **one feed per language**
+    (`/feed.ca.json`, `/feed.es.json`) still stands. If nobody emits it, it will
+    be withdrawn just as out loud.
+  - Translation: **only JSON-LD receives it whole** (language maps). In iCal
+    there is nowhere — `SUMMARY` is not repeatable — and in RSS the language
+    belongs to the channel; Atom holds up a little better because `xml:lang` is
+    per element.
 
-- **Fechas límite como INSTANTES** (`cfp.opensAt`, `cfp.closesAt`,
-  `offers[].opensAt`, `offers[].closesAt`): exigen offset o `Z`, a diferencia de
-  `startDate`/`endDate`, que son reloj de pared. No es una incoherencia: un evento
-  le pasa a la gente **en un sitio**, y una fecha límite es **un botón que deja de
-  funcionar**, que ocurre a la vez en Madrid y en Bogotá. El caso que lo zanja es
-  *anywhere on Earth*: un CFP que cierra AoE lo hace en **UTC-12**, que no es la
-  zona del evento ni la de nadie que lo organice, y con reloj de pared +
-  `timezone` no se puede expresar. Un `"23:59"` pelado es el bug clásico de las
-  convocatorias.
+- **Deadlines as INSTANTS** (`cfp.opensAt`, `cfp.closesAt`,
+  `offers[].opensAt`, `offers[].closesAt`): they require an offset or `Z`, unlike
+  `startDate`/`endDate`, which are wall clocks. It is not an inconsistency: an
+  event happens to people **in a place**, and a deadline is **a button that stops
+  working**, which happens at the same moment in Madrid and in Bogotá. The case
+  that settles it is *anywhere on Earth*: a CFP closing AoE does so in
+  **UTC-12**, which is neither the event's zone nor that of anyone organising it,
+  and with a wall clock plus `timezone` it cannot be expressed. A bare `"23:59"`
+  is the classic call-for-papers bug.
 
-- **Dos valores nuevos de `status`: `moved-online` y `tentative`.** El enum pasa a
-  ser `scheduled` (por defecto), `tentative`, `cancelled`, `postponed`,
-  `rescheduled`, `moved-online`. Añadir valores a un enum no invalida ningún
-  documento anterior.
-  - **`moved-online`** completa el enum `eventStatus` de schema.org
-    (`EventMovedOnline`), que es el que consume Google. **Debería** —no debe—
-    venir con `location.onlineUrl` y `attendanceMode: "online"`: el schema no lo
-    exige porque el enlace de conexión a menudo no es público todavía, y exigirlo
-    obligaría a quien importa a inventárselo o a descartar el evento. En iCal no
-    hay forma de distinguirlo: se emite `CONFIRMED` con la URL en `LOCATION`.
-  - **`tentative`** no viene de schema.org sino de iCal (`STATUS:TENTATIVE`), que
-    es lo que emite cualquier calendario para lo que aún no está cerrado. Entra
-    porque `status` es **el único campo de la spec con valor por defecto**: sin
-    `tentative`, quien importa un `.ics` solo puede **ascender el evento a
-    `scheduled`**, afirmando algo que nadie afirmó. Mismo argumento que el de
-    `attendanceMode` sin valor por defecto. Al traducir a schema.org se pierde
-    (se emite `EventScheduled`): es el único valor que viaja mejor a iCal.
-  - Se documenta también la diferencia entre **`postponed`** (aplazado, **sin**
-    fecha nueva: el documento conserva las fechas antiguas) y **`rescheduled`**
-    (ya con fecha nueva, que es la que lleva el documento). Y que **RSS/Atom no
-    tienen `status`**: quien exporte debe llevarlo al título de la entrada
-    (`[CANCELADO] …`).
+- **Two new `status` values: `moved-online` and `tentative`.** The enum becomes
+  `scheduled` (default), `tentative`, `cancelled`, `postponed`, `rescheduled`,
+  `moved-online`. Adding values to an enum invalidates no earlier document.
+  - **`moved-online`** completes schema.org's `eventStatus` enum
+    (`EventMovedOnline`), which is the one Google consumes. It **should** — not
+    must — come with `location.onlineUrl` and `attendanceMode: "online"`: the
+    schema does not require it because the joining link is often not public yet,
+    and requiring it would force whoever imports either to invent it or to
+    discard the event. In iCal there is no way to distinguish it: `CONFIRMED` is
+    emitted with the URL in `LOCATION`.
+  - **`tentative`** does not come from schema.org but from iCal
+    (`STATUS:TENTATIVE`), which is what any calendar emits for something not yet
+    settled. It gets in because `status` is **the only field in the spec with a
+    default**: without `tentative`, whoever imports an `.ics` can only **promote
+    the event to `scheduled`**, asserting something nobody asserted. The same
+    argument as `attendanceMode` having no default. Translating to schema.org
+    loses it (`EventScheduled` is emitted): it is the only value that travels
+    better to iCal.
+  - The difference between **`postponed`** (postponed, **with no** new date: the
+    document keeps the old dates) and **`rescheduled`** (already with a new date,
+    which is the one the document carries) is documented too. And that
+    **RSS/Atom have no `status`**: whoever exports must carry it into the entry's
+    title (`[CANCELLED] …`).
 
-- **Campos recomendados**, como dos schemas nuevos y publicados:
-  [`event.recommended.schema.json`](spec/v0.3/event.recommended.schema.json) y
+- **Recommended fields**, as two new published schemas:
+  [`event.recommended.schema.json`](spec/v0.3/event.recommended.schema.json) and
   [`feed.recommended.schema.json`](spec/v0.3/feed.recommended.schema.json).
-  - **Son perfiles de calidad, no de validez.** `event.schema.json` responde «¿es
-    esto un evento OTE?»; el perfil responde «¿sirve para algo?». Regla
-    normativa: una herramienta **puede avisar** de un campo recomendado que
-    falta y **no debe rechazar** el documento por ello. Lo contrario
-    reintroduciría por la puerta de atrás lo que la permisividad evita: quien
-    importa un `.ics` pelado tendría que inventarse el dato o tirar el evento.
-  - **Recomendados en el evento**: `url`, `description`, `organizers`,
-    `location`, `attendanceMode`, `tags`, `languages`, `updatedAt` — y `endDate`
-    **solo si `startDate` lleva hora** (en un evento de todo el día su ausencia
-    ya significa «acaba el día que empieza», así que avisar sería ruido). El
-    criterio no es «estaría bien tenerlo» sino **qué se rompe en los tres
-    destinos si falta**: sin `url` no hay enlace en RSS/Atom, sin `tags` no hay
-    filtrado por interés, sin `updatedAt` no hay sincronización incremental —
-    que es lo que hace posible *suscribirse* en vez de releerlo todo.
-  - **Recomendados en el feed**: solo `url` y `description`. Casi toda la calidad
-    de un feed está en sus eventos, y un checker aplica el perfil de evento a
-    cada uno **con la herencia ya resuelta**.
-  - **`status` NO es recomendado**: es el único campo con valor por defecto, y
-    escribir `"scheduled"` no añade nada a su ausencia. Lo que importa de
-    `status` es *actualizarlo cuando el evento se cae*, y eso ningún schema lo
-    puede comprobar.
-  - **`feed.organizers` NO es recomendado**: un agregador **debe** omitirlo. Un
-    aviso ahí le empujaría a atribuirse eventos que no organiza, corrompiendo el
-    dato que el campo existe para proteger.
-  - La referencia de campos pasa a tener tres niveles (`obligatorio`,
-    `recomendado`, `opcional`), leídos **de los perfiles**, no escritos a mano.
-    En el índice de la web, un punto naranja marca los recomendados junto al
-    punto de acento que ya marcaba los obligatorios.
-    `npm run validate` los reporta como avisos y **nunca** cambia el código de
-    salida.
+  - **They are profiles of quality, not of validity.** `event.schema.json`
+    answers "is this an OTE event?"; the profile answers "is it good for
+    anything?". A normative rule: a tool **may warn** about a missing recommended
+    field and **must not reject** the document because of it. The opposite would
+    reintroduce through the back door what permissiveness avoids: whoever imports
+    a bare `.ics` would have to invent the value or throw the event away.
+  - **Recommended on the event**: `url`, `description`, `organizers`,
+    `location`, `attendanceMode`, `tags`, `languages`, `updatedAt` — and
+    `endDate` **only if `startDate` carries a time** (in an all-day event its
+    absence already means "it ends the day it starts", so warning would be
+    noise). The criterion is not "it would be nice to have" but **what breaks in
+    the three destinations if it is missing**: with no `url` there is no link in
+    RSS/Atom, with no `tags` there is no filtering by interest, with no
+    `updatedAt` there is no incremental synchronisation — which is what makes
+    *subscribing* possible instead of re-reading everything.
+  - **Recommended on the feed**: only `url` and `description`. Almost all of a
+    feed's quality lives in its events, and a checker applies the event profile to
+    each one **with inheritance already resolved**.
+  - **`status` is NOT recommended**: it is the only field with a default, and
+    writing `"scheduled"` adds nothing to its absence. What matters about
+    `status` is *updating it when the event falls through*, and no schema can
+    check that.
+  - **`feed.organizers` is NOT recommended**: an aggregator **must** omit it. A
+    warning there would push it into claiming events it does not organise,
+    corrupting the very data the field exists to protect.
+  - The field reference now has three tiers (`required`, `recommended`,
+    `optional`), read **from the profiles**, not written by hand. In the
+    website's index, an orange dot marks the recommended ones alongside the
+    accent dot that already marked the required ones.
+    `npm run validate` reports them as warnings and **never** changes the exit
+    code.
 
-- **Política de extensiones con prefijo**, en el README de la spec. Se distinguen
-  dos tipos de campo adicional: **candidato a núcleo** (sin prefijo: `capacity`,
-  `sponsors`) y **vocabulario externo** (con prefijo: `combuilders:communityId`).
-  - **Compromiso normativo: OTE no acuñará jamás un nombre de campo que contenga
-    `:`.** Es una reserva de espacio de nombres — un campo con prefijo no puede
-    colisionar con uno del núcleo, hoy ni en la v1.0.
-  - Es lo que permite que OTE **conecte** con otras especificaciones (un
-    directorio de comunidades, por ejemplo) sin **acoplarse** a ellas.
+- **A prefixed extension policy**, in the spec's README. Two kinds of additional
+  field are distinguished: **core candidate** (no prefix: `capacity`,
+  `sponsors`) and **external vocabulary** (prefixed:
+  `combuilders:communityId`).
+  - **A normative commitment: OTE will never mint a field name containing a
+    `:`.** It is a namespace reservation — a prefixed field cannot collide with a
+    core one, today or in v1.0.
+  - It is what lets OTE **connect** with other specifications (a community
+    directory, for instance) without **coupling** to them.
 
-### Decidido NO incluir
+### Decided NOT to include
 
-- **`eventSchedule` (schema.org `Schedule`), en sustitución de
-  `timezone`/`startDate`/`endDate`.** Sería más expresivo —`repeatFrequency`,
-  `byDay`, `exceptDate`— y se descarta por cuatro razones:
-  1. **Mete un motor de expansión en un fichero.** El feed es un formato de
-     intercambio, no una API: el consumidor lee, no calcula. Con una regla, hasta
-     el script de treinta líneas que pinta un listado necesita aritmética de
-     calendario (DST, excepciones, series infinitas, semántica de `"2MO"`).
-  2. **RSS/Atom no pueden expresarla.** Quien exporte tiene que expandir
-     igualmente: la expansión ocurre siempre, y la pregunta es solo **quién** la
-     hace. Mejor quien publica —una vez, con el dato delante— que cada consumidor
-     por su cuenta, cada uno con su bug.
-  3. **Rompe reglas que la spec ya tiene.** Un `id` estable no sobrevive a N
-     ocurrencias en un documento (haría falta un `RECURRENCE-ID`), y
-     `status: cancelled` deja de ser expresable por ocurrencia: cancelar *la
-     sesión de agosto* volvería a ser imposible.
-  4. **No hay productor real.** De las cinco fuentes estudiadas (Meetup,
-     Eventbrite, Luma, Guild y el ejemplo canónico de Google), **ninguna** emite
-     `eventSchedule` — todas emiten fecha plana por ocurrencia, incluida la sesión
-     *semanal* de Luma. Y Google, que consume schema.org a escala, pide
-     explícitamente un `Event` por fecha.
-- **`RRULE` como campo del núcleo.** Misma razón. Un importador que quiera
-  round-trip sin pérdida la guarda como vocabulario externo con prefijo
-  (`"ics:rrule": "FREQ=MONTHLY;BYDAY=2MO"`): informativa, y ningún consumidor de
-  OTE está obligado a evaluarla.
-- **`organizers[].email` como campo recomendado.** El campo **sí entra** (ver
-  *Added*): sin él no hay `ORGANIZER` de iCal válido que emitir. Lo que se
-  descarta es **recomendarlo**. Publicar una dirección en un feed abierto y
-  rastreable es regalarla a los recolectores de spam, y lo publicado no se
-  despublica; un aviso por su ausencia sería el perfil de calidad empujando a
-  alguien a exponer datos de contacto. Sigue siendo opcional, y quien no lo ponga
-  degrada el `ORGANIZER` a `X-OTE-ORGANIZER` o a la `DESCRIPTION`.
-- **Un `email` heredable a nivel de feed** (`feed.organizerEmail`, o herencia
-  campo a campo dentro de `organizers`). Sería la forma de que un feed de
-  agregador acabara atribuyendo **su** dirección a eventos que no organiza, o de
-  que un evento invitado heredara la de la comunidad anfitriona. El reemplazo de
-  lista que `organizers` ya tiene resuelve el caso comunitario sin abrir ninguno
-  de los dos: el email viaja dentro de su objeto y nunca por su cuenta.
-- **`previousStartDate`** (schema.org), la fecha que tenía un evento
-  `rescheduled` antes de moverse. Ninguna de las fuentes estudiadas la emite, y
-  `updatedAt` ya dice que el dato cambió. Entra como candidata a núcleo (campo sin
-  prefijo) el día que alguien la use de verdad.
-- **Aforo y estado de la venta** (`maximumAttendeeCapacity`, plazas restantes,
-  códigos de descuento, inscripción única de un evento multi-parte). Guild sí
-  emite el aforo, así que es un candidato razonable — pero el resto es **estado
-  de la taquilla**: cambia solo, caduca en minutos y un fichero JSON regenerado
-  cada noche no lo puede sostener. `offers` describe **la entrada**, no la venta.
-  El aforo entra hoy como extensión sin prefijo (ver
+- **`eventSchedule` (schema.org's `Schedule`), replacing
+  `timezone`/`startDate`/`endDate`.** It would be more expressive —
+  `repeatFrequency`, `byDay`, `exceptDate` — and it is rejected for four reasons:
+  1. **It puts an expansion engine in a file.** The feed is an interchange
+     format, not an API: the consumer reads, it does not compute. With a rule,
+     even the thirty-line script rendering a listing needs calendar arithmetic
+     (DST, exceptions, infinite series, the semantics of `"2MO"`).
+  2. **RSS/Atom cannot express it.** Whoever exports has to expand anyway:
+     expansion always happens, and the only question is **who** does it. Better
+     whoever publishes — once, with the data in front of them — than every
+     consumer separately, each with their own bug.
+  3. **It breaks rules the spec already has.** A stable `id` does not survive N
+     occurrences in one document (you would need a `RECURRENCE-ID`), and
+     `status: cancelled` stops being expressible per occurrence: cancelling *the
+     August session* would become impossible again.
+  4. **There is no real producer.** Of the five sources studied (Meetup,
+     Eventbrite, Luma, Guild and Google's canonical example), **none** emits
+     `eventSchedule` — they all emit a flat date per occurrence, including Luma's
+     *weekly* session. And Google, which consumes schema.org at scale,
+     explicitly asks for one `Event` per date.
+- **`RRULE` as a core field.** Same reason. An importer wanting a lossless
+  round-trip keeps it as prefixed external vocabulary
+  (`"ics:rrule": "FREQ=MONTHLY;BYDAY=2MO"`): informative, and no OTE consumer is
+  obliged to evaluate it.
+- **`organizers[].email` as a recommended field.** The field **does get in** (see
+  *Added*): without it there is no valid iCal `ORGANIZER` to emit. What is
+  rejected is **recommending it**. Publishing an address in an open, crawlable
+  feed is handing it to the spam harvesters, and what is published cannot be
+  unpublished; a warning about its absence would be the quality profile pushing
+  somebody into exposing contact details. It stays optional, and whoever leaves
+  it out degrades the `ORGANIZER` to `X-OTE-ORGANIZER` or to the `DESCRIPTION`.
+- **An inheritable `email` at feed level** (`feed.organizerEmail`, or
+  field-by-field inheritance inside `organizers`). It would be the way for an
+  aggregator feed to end up attributing **its** address to events it does not
+  organise, or for a guest event to inherit the host community's. The list
+  replacement `organizers` already has solves the community case without opening
+  either: the email travels inside its object and never on its own.
+- **`previousStartDate`** (schema.org), the date a `rescheduled` event had before
+  it moved. None of the sources studied emits it, and `updatedAt` already says
+  the data changed. It gets in as a core candidate (an unprefixed field) the day
+  somebody really uses it.
+- **Capacity and sale state** (`maximumAttendeeCapacity`, places left, discount
+  codes, the single registration of a multi-part event). Guild does emit
+  capacity, so it is a reasonable candidate — but the rest is **box-office
+  state**: it changes on its own, expires in minutes and a JSON file regenerated
+  every night cannot sustain it. `offers` describes **the ticket**, not the sale.
+  Capacity gets in today as an unprefixed extension (see
   [`event-meetup.json`](spec/v0.3/examples/event-meetup.json)).
-- **Ponentes (`speakers` / `performer`) y agenda.** Siguen fuera: `cfp` modela la
-  convocatoria, no lo que sale de ella. Meter a un ponente en `organizers`
-  corrompe el dato para todo el que lo consuma.
-- **`organizers[].logo`, `organizers[].sameAs`.** Sobrecargan el campo sin que
-  ningún consumidor los pida todavía.
-- **`organizers[].id` / `linking.communityId`.** Se valoró un identificador
-  (`combuilders:mi-comunidad`) que enlazara con un directorio de comunidades.
-  Descartado: exige una **gobernanza de prefijos** que este proyecto no tiene y
-  que acoplaría OTE a otro; contradice la regla de `id` de la propia spec (*una
-  URI bajo un dominio que controlas*, que no necesita registro central porque el
-  DNS ya garantiza unicidad); y **no hay todavía un consumidor real** — el
-  directorio no existe como especificación. Entra hoy como extensión con prefijo,
-  y se graduará a núcleo si sobrevive al uso real, con la forma que dicte ese uso.
+- **Speakers (`speakers` / `performer`) and the agenda.** Still out: `cfp` models
+  the call, not what comes out of it. Putting a speaker in `organizers` corrupts
+  the data for everyone who consumes it.
+- **`organizers[].logo`, `organizers[].sameAs`.** They overload the field without
+  any consumer asking for them yet.
+- **`organizers[].id` / `linking.communityId`.** An identifier
+  (`combuilders:my-community`) linking to a community directory was considered.
+  Rejected: it demands **prefix governance** this project does not have and that
+  would couple OTE to another one; it contradicts the spec's own `id` rule (*a
+  URI under a domain you control*, which needs no central registry because DNS
+  already guarantees uniqueness); and **there is no real consumer yet** — the
+  directory does not exist as a specification. It gets in today as a prefixed
+  extension, and will graduate into the core if it survives real use, in whatever
+  shape that use dictates.
 
 ### Changed
 
-- El campo de extensión **`community`** (`{ uri, name }`) que aparecía en los
-  ejemplos como campo *en discusión* queda **superado por `organizers`** y se
-  retira de ellos. Nunca fue normativo, así que esto no rompe nada: quien lo
-  emita seguirá validando.
-- El paquete npm exportaba solo los subpaths de `v0.1`. Ahora expone `v0.1`,
-  `v0.2` y `v0.3`.
-- **Los campos se declaran en un orden canónico** —identidad, cuándo, dónde,
-  filtros, estado, procedencia— y lo siguen el schema, los ejemplos y la
-  referencia generada. **No cambia nada de lo que es válido**: JSON no tiene
-  orden y ningún consumidor debe depender de él. Cambia lo que se lee: la tabla
-  de referencia, el autocompletado del editor y el ejemplo que alguien copia
-  ahora enseñan la misma forma. `npm run validate` lo comprueba en los ejemplos
-  de `v0.3`; las versiones congeladas conservan el suyo. El orden y el porqué,
-  en [«El orden de los campos»](spec/v0.3/README.md#el-orden-de-los-campos-no-es-normativo-pero-hay-uno).
-- **`source` ya no exige `name`: pide `name` **o** `url`** (lo ideal, las dos).
-  **Relaja** lo que era válido, así que ningún documento `0.3.0` deja de validar
-  —y una `source` vacía, o con solo `license`/`retrievedAt`, sigue siendo
-  rechazada—. El motivo: quien importa un `.ics` siempre conoce la dirección que
-  descargó y a menudo no tiene nombre de publicador que leer (el `X-WR-CALNAME`
-  de iCalendar es opcional), así que la regla anterior se cumplía **inventando**
-  el nombre, y una fuente inventada es peor que una fuente dada solo como
-  enlace. Misma regla que `offers` (`price` o `url`) y `location` (`venue` o
-  `onlineUrl`). Quien consuma: no dé por hecho que `source.name` está — cuando
-  falte, la etiqueta se saca del host de `source.url`.
-- **La referencia generada ahora publica las restricciones de objeto** que el
-  validador aplica y que ninguna columna «Nivel» podía expresar: `location` con
-  `venue` o `onlineUrl`, `currency` en cuanto `price` pasa de 0, `alt` cuando una
-  imagen trae `translations`, `textLanguage` cuando hay traducciones… Se extraen
-  de los `anyOf`, `if`/`then`, `dependentRequired` y `minProperties` de los
-  schemas, igual que el resto de la referencia. Y un campo obligatorio **dentro
-  de un objeto opcional** (`source.name`, `cfp.url`, `location.geo.lat`) se
-  marca como tal —`obligatorio dentro de X`— en vez de como `obligatorio` a
-  secas: la palabra significaba dos cosas distintas en la misma página.
-- **Nueva regla normativa de consumo, sin cambio de schema:** un consumidor o
-  agregador **MAY descartar** un evento que no traiga ni `url`, ni `location`,
-  ni `cfp.url`, y cuyo feed tampoco declare `url`. Ningún documento deja de
-  validar —la validez la sigue decidiendo `event.schema.json`— pero queda dicho
-  que validez y visibilidad son decisiones distintas: un evento sin ningún sitio
-  a donde mandar a quien lo lee no obliga a nadie a listarlo. El detalle y la
-  cadena de reservas (`url` → `location` → `cfp.url` → `feed.url`), en
-  [«Sin `url` ni `location`»](spec/v0.3/README.md#sin-url-ni-location-válido-pero-descartable).
+- The extension field **`community`** (`{ uri, name }`) that appeared in the
+  examples as a field *under discussion* is **superseded by `organizers`** and is
+  withdrawn from them. It was never normative, so this breaks nothing: whoever
+  emits it will keep validating.
+- The npm package exported only the `v0.1` subpaths. It now exposes `v0.1`,
+  `v0.2` and `v0.3`.
+- **Fields are declared in a canonical order** — identity, when, where, filters,
+  status, provenance — and the schema, the examples and the generated reference
+  all follow it. **It changes nothing about what is valid**: JSON has no order
+  and no consumer should depend on it. What it changes is what people read: the
+  reference table, the editor's autocompletion and the example somebody copies
+  now show the same shape. `npm run validate` checks it against the `v0.3`
+  examples; the frozen versions keep their own. The order and the reasoning, in
+  ["Field order"](spec/v0.3/README.md#field-order-is-not-normative-but-there-is-one).
+- **`source` no longer requires `name`: it asks for `name` **or** `url`** (ideally
+  both). It **relaxes** what was valid, so no `0.3.0` document stops validating —
+  and an empty `source`, or one with only `license`/`retrievedAt`, is still
+  rejected. The reason: whoever imports an `.ics` always knows the address they
+  downloaded and often has no publisher name to read (iCalendar's `X-WR-CALNAME`
+  is optional), so the previous rule was met by **inventing** the name, and an
+  invented source is worse than a source given only as a link. The same rule as
+  `offers` (`price` or `url`) and `location` (`venue` or `onlineUrl`). For
+  consumers: do not assume `source.name` is there — when it is missing, derive
+  the label from the host of `source.url`.
+- **The generated reference now publishes the object constraints** the validator
+  applies and that no "Tier" column could express: `location` with `venue` or
+  `onlineUrl`, `currency` as soon as `price` goes above 0, `alt` when an image
+  carries `translations`, `textLanguage` when there are translations… They are
+  extracted from the schemas' `anyOf`, `if`/`then`, `dependentRequired` and
+  `minProperties`, like the rest of the reference. And a required field **inside
+  an optional object** (`source.name`, `cfp.url`, `location.geo.lat`) is marked
+  as such — `required within X` — instead of plain `required`: the word meant two
+  different things on the same page.
+- **A new normative consumption rule, with no schema change:** a consumer or
+  aggregator **MAY discard** an event that carries neither `url`, nor `location`,
+  nor `cfp.url`, and whose feed does not declare a `url` either. No document
+  stops validating — validity is still decided by `event.schema.json` — but it is
+  now stated that validity and visibility are different decisions: an event with
+  nowhere to send whoever reads it obliges nobody to list it. The detail and the
+  chain of fallbacks (`url` → `location` → `cfp.url` → `feed.url`), in
+  ["With no `url` and no `location`"](spec/v0.3/README.md#with-no-url-and-no-location-valid-but-discardable).
 
-### Migration — cómo actualizar una herramienta
+### Migration — how to update a tool
 
-- **Consumidores:** el campo es opcional; el código de v0.2 lo ignora sin
-  romperse. Para aprovecharlo: leer `event.organizers` y, si falta, caer en
-  `feed.organizers` — **nunca** en `feed.title`. Ausente en ambos = desconocido.
-  Si usabas el campo de extensión `community`, migra a `organizers`.
-- **Validadores por paquete:** `npm install @opentechevents/schema@0.3.0`. El
-  paquete exporta ahora los schemas de `v0.3` y `specVersion === "0.3.0"`.
-- **Validadores por URL:** apuntar a
-  `https://opentechevents.org/schema/v0.3/{event,feed}.schema.json`. Las URLs de
-  `v0.1` y `v0.2` siguen sirviéndose sin cambios.
-- **Exportadores a schema.org:** `organizers` → `organizer` (array), con `@type`
-  `Organization` o `Person` según `type`; `email` → `Organization.email`, y
-  emitirlo es **opcional** — mete la dirección en una página pública y Google no
-  lo lee para el rich result de `Event`. `offers` → `offers` (array de `Offer`),
-  con `currency` → `priceCurrency` y `availability` → la URL
-  `https://schema.org/InStock` o `SoldOut`. `cfp` no tiene destino: menciónalo en
-  `description` si quieres que un humano lo vea.
-- **Quien emitía `cfp` u `offers` como extensión** (estaban en los ejemplos desde
-  la v0.1): ya son normativos, y con otra forma. `offers` pasa a **lista**, sin
-  `isFree` (usa `price: 0`) y sin `capacity` (extensión); `registrationUrl` se
-  llama ahora `url`. `cfp` pierde su `timezone`: las fechas límite llevan offset.
-- **Exportadores a Atom / RSS:** Atom → un `<author>` por entrada, con `<name>`,
-  `<uri>` y `<email>` si lo hay. RSS 2.0 → `<author>` **si** el organizador trae
-  `email` (el elemento lo exige), y `<dc:creator>` si no. `textLanguage` →
-  `<language>` del canal (RSS) o `xml:lang` (Atom, que además lo admite por
-  entrada).
-- **Exportadores a iCal:** solo `organizers[0]`, y solo si trae `email`:
-  `ORGANIZER;CN="…":mailto:…`. Sin `email`, `X-OTE-ORGANIZER` — **no** un
-  `mailto:` deducido del dominio de `url`. Los demás organizadores no tienen dónde
-  ir.
-  `textLanguage` → el parámetro `LANGUAGE` de cada propiedad de texto
-  (`SUMMARY;LANGUAGE=ca:…`); de `translations` solo sobrevive el texto principal,
-  porque `SUMMARY` no se repite.
-- **Consumidores con interfaz multilingüe:** el orden de resolución es **el
-  idioma que pide quien lee → `translations[idioma]` → el texto principal**, y
-  ese último paso necesita `textLanguage` para saber en qué idioma está lo que
-  está mostrando. Ausente = desconocido: no lo supongas del feed ni del
+- **Consumers:** the field is optional; v0.2 code ignores it without breaking. To
+  take advantage of it: read `event.organizers` and, if missing, fall back to
+  `feed.organizers` — **never** to `feed.title`. Absent in both = unknown. If you
+  were using the `community` extension field, migrate to `organizers`.
+- **Package-based validators:** `npm install @opentechevents/schema@0.3.0`. The
+  package now exports the `v0.3` schemas and `specVersion === "0.3.0"`.
+- **URL-based validators:** point at
+  `https://opentechevents.org/schema/v0.3/{event,feed}.schema.json`. The `v0.1`
+  and `v0.2` URLs keep being served unchanged.
+- **schema.org exporters:** `organizers` → `organizer` (array), with `@type`
+  `Organization` or `Person` per `type`; `email` → `Organization.email`, and
+  emitting it is **optional** — it puts the address on a public page and Google
+  does not read it for the `Event` rich result. `offers` → `offers` (an array of
+  `Offer`), with `currency` → `priceCurrency` and `availability` → the
+  `https://schema.org/InStock` or `SoldOut` URL. `cfp` has no destination:
+  mention it in `description` if you want a human to see it.
+- **Whoever was emitting `cfp` or `offers` as an extension** (they were in the
+  examples from v0.1 onwards): they are now normative, and in a different shape.
+  `offers` becomes a **list**, with no `isFree` (use `price: 0`) and no
+  `capacity` (an extension); `registrationUrl` is now called `url`. `cfp` loses
+  its `timezone`: deadlines carry an offset.
+- **Atom / RSS exporters:** Atom → one `<author>` per entry, with `<name>`,
+  `<uri>` and `<email>` if there is one. RSS 2.0 → `<author>` **if** the
+  organiser carries an `email` (the element requires it), and `<dc:creator>` if
+  not. `textLanguage` → the channel's `<language>` (RSS) or `xml:lang` (Atom,
+  which also allows it per entry).
+- **iCal exporters:** only `organizers[0]`, and only if it carries an `email`:
+  `ORGANIZER;CN="…":mailto:…`. With no `email`, `X-OTE-ORGANIZER` — **not** a
+  `mailto:` derived from the `url`'s domain. The other organisers have nowhere to
+  go.
+  `textLanguage` → the `LANGUAGE` parameter of each text property
+  (`SUMMARY;LANGUAGE=ca:…`); of `translations` only the primary text survives,
+  because `SUMMARY` is not repeatable.
+- **Consumers with a multilingual interface:** the resolution order is **the
+  language the reader asks for → `translations[language]` → the primary text**,
+  and that last step needs `textLanguage` to know what language what it is
+  showing is in. Absent = unknown: do not assume it from the feed or from
   `Accept-Language`.
-- **Importadores (`.ics` → OTE):** `ORGANIZER;CN="…"` → `organizers[0].name`. El
-  `mailto:` se descarta. **`RRULE`/`RDATE` → expandir**: un documento por
-  ocurrencia, todos con el mismo `partOf.id`; `EXDATE` → no emitir ese documento;
-  `RECURRENCE-ID` → el `id` de esa ocurrencia. La regla original, si la quieres
-  conservar, en `ics:rrule`.
-- **Exportadores a iCal:** `partOf` → `RELATED-TO;RELTYPE=PARENT:<id>`. **Nunca
-  reconstruyas un `RRULE`**: emites las ocurrencias que tienes.
+- **Importers (`.ics` → OTE):** `ORGANIZER;CN="…"` → `organizers[0].name`. The
+  `mailto:` is discarded. **`RRULE`/`RDATE` → expand**: one document per
+  occurrence, all with the same `partOf.id`; `EXDATE` → do not emit that
+  document; `RECURRENCE-ID` → that occurrence's `id`. The original rule, if you
+  want to keep it, in `ics:rrule`.
+- **iCal exporters:** `partOf` → `RELATED-TO;RELTYPE=PARENT:<id>`. **Never
+  reconstruct an `RRULE`**: you emit the occurrences you have.
 
 ## [0.2.0] — 2026-07-15
 
-Primera ampliación del núcleo. Los tres campos son **opcionales y
-retrocompatibles** (por eso MINOR, no MAJOR): un documento `0.1.0` válido, con
-solo cambiar `specVersion` a `"0.2.0"`, sigue siendo válido. Entraron los tres
-por la misma vía —la primera implementación real, el agregador de `.ics`
+The first extension of the core. All three fields are **optional and
+backwards-compatible** (hence MINOR, not MAJOR): a valid `0.1.0` document, by
+changing only `specVersion` to `"0.2.0"`, stays valid. All three got in by the
+same route — the first real implementation, the `.ics` aggregator
 ([`opentechevents-data`](https://github.com/OpenTechEvents/opentechevents-data)),
-los tenía delante en cada `VEVENT` y no había dónde ponerlos— no por diseño
-especulativo.
+had them in front of it in every `VEVENT` and there was nowhere to put them — not
+by speculative design.
 
 ### Added
 
-- **`tags`** (`string[]`) en el evento. Etiquetas temáticas de forma libre.
-  Mapea a `CATEGORIES` de iCal y a `keywords` de schema.org. Se mantiene libre a
-  propósito; un vocabulario controlado podría superponerse después sin cerrar el
-  campo. Graduó desde el estado «en discusión» de la v0.1.
-- **`location.geo`** (`{ lat, lon }`, grados decimales WGS-84) en el evento.
-  Mapea a `GEO` de iCal y a `Place.geo` de schema.org. Va **dentro de
-  `location`**, hermano de `venue`/`onlineUrl` (no cuelga de `venue`, que es una
-  cadena). No basta por sí solo para satisfacer `location`.
-- **`updatedAt`** (instante ISO 8601 con offset/Z, mismo `$defs/instant` que
-  `Feed.updatedAt`) en el evento. Instante en que **los datos del evento**
-  cambiaron por última vez — equivalente a `LAST-MODIFIED` de iCal, **no** a
-  `DTSTAMP`. Habilita sincronización incremental por evento
-  (`updatedAt > última_lectura`).
+- **`tags`** (`string[]`) on the event. Free-form topical tags. Maps to iCal's
+  `CATEGORIES` and schema.org's `keywords`. It is kept free on purpose; a
+  controlled vocabulary could be layered on later without closing the field. It
+  graduated from the "under discussion" state of v0.1.
+- **`location.geo`** (`{ lat, lon }`, WGS-84 decimal degrees) on the event. Maps
+  to iCal's `GEO` and schema.org's `Place.geo`. It goes **inside `location`**, a
+  sibling of `venue`/`onlineUrl` (it does not hang off `venue`, which is a
+  string). It is not enough on its own to satisfy `location`.
+- **`updatedAt`** (an ISO 8601 instant with an offset/Z, the same `$defs/instant`
+  as `Feed.updatedAt`) on the event. The instant at which **the event's data**
+  last changed — equivalent to iCal's `LAST-MODIFIED`, **not** to `DTSTAMP`. It
+  enables per-event incremental synchronisation (`updatedAt > last_read`).
 
-### Migration — cómo actualizar una herramienta
+### Migration — how to update a tool
 
-- **Consumidores:** los tres campos son opcionales; el código de v0.1 los ignora
-  sin romperse. Para aprovecharlos, leer `tags`, `location.geo` y `updatedAt`
-  cuando estén presentes; ausente significa *desconocido*, nunca un valor por
-  defecto.
-- **Validadores por paquete:** `npm install @opentechevents/schema@0.2.0`. El
-  paquete ahora exporta los schemas de `v0.2` y `specVersion === "0.2.0"`.
-- **Validadores por URL:** apuntar a
-  `https://opentechevents.org/schema/v0.2/{event,feed}.schema.json`. Las URLs de
-  `v0.1` siguen sirviéndose sin cambios.
-- **Productores / importadores (`.ics` → OTE):**
-  - `CATEGORIES` → `tags` (separar por coma, `trim`, dedupe).
-  - `GEO` → `location.geo` (parsear `"lat;lon"`, separador `;`, a `number`).
-    ⚠️ Es `location.geo`, **no** `location.venue.geo`: en OTE `venue` es una
-    cadena.
-  - `LAST-MODIFIED` → `updatedAt` (si falta, `DTSTAMP` como último recurso, pero
-    es ruidoso: marca generación, no edición).
-  - `CATEGORIES` no viaja por Google Calendar (no lo emite ni lo lee). Un
-    importador puede recuperar temáticas de *hashtags* (`#rust`) en la
-    `description`; es convención del importador, no del schema.
+- **Consumers:** all three fields are optional; v0.1 code ignores them without
+  breaking. To take advantage of them, read `tags`, `location.geo` and
+  `updatedAt` when present; absent means *unknown*, never a default value.
+- **Package-based validators:** `npm install @opentechevents/schema@0.2.0`. The
+  package now exports the `v0.2` schemas and `specVersion === "0.2.0"`.
+- **URL-based validators:** point at
+  `https://opentechevents.org/schema/v0.2/{event,feed}.schema.json`. The `v0.1`
+  URLs keep being served unchanged.
+- **Producers / importers (`.ics` → OTE):**
+  - `CATEGORIES` → `tags` (split on commas, `trim`, dedupe).
+  - `GEO` → `location.geo` (parse `"lat;lon"`, separator `;`, into `number`s).
+    ⚠️ It is `location.geo`, **not** `location.venue.geo`: in OTE `venue` is a
+    string.
+  - `LAST-MODIFIED` → `updatedAt` (if missing, `DTSTAMP` as a last resort, but it
+    is noisy: it marks generation, not editing).
+  - `CATEGORIES` does not travel through Google Calendar (it neither emits nor
+    reads it). An importer may recover topics from *hashtags* (`#rust`) in the
+    `description`; that is an importer convention, not a schema one.
 
 ## [0.1.0] — 2026-07
 
-Primera versión publicada. Núcleo mínimo para describir un evento de comunidad
-técnica y publicarlo en un feed reutilizable: `id`, `name`, `startDate`,
-`timezone` obligatorios (más `specVersion` y `license` en un documento suelto);
-`url`, `description`, `endDate`, `location` (`venue`/`onlineUrl`),
-`attendanceMode`, `languages`, `status`, `source` opcionales. Feed con
-`specVersion`, `title`, `license`, `updatedAt`, `events`. Congelada en
-[`spec/v0.1/`](spec/v0.1/).
+The first published version. A minimal core for describing a tech community event
+and publishing it in a reusable feed: `id`, `name`, `startDate`, `timezone`
+required (plus `specVersion` and `license` in a standalone document); `url`,
+`description`, `endDate`, `location` (`venue`/`onlineUrl`), `attendanceMode`,
+`languages`, `status`, `source` optional. A feed with `specVersion`, `title`,
+`license`, `updatedAt`, `events`. Frozen in [`spec/v0.1/`](spec/v0.1/).
 
 [0.3.0]: https://github.com/OpenTechEvents/opentechevents-spec/tree/main/spec/v0.3
 [0.2.0]: https://github.com/OpenTechEvents/opentechevents-spec/tree/main/spec/v0.2

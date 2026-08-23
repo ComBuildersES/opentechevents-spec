@@ -1,55 +1,55 @@
-# Ejemplos — OTE Spec v0.3
+# Examples — OTE Spec v0.3
 
-Todos **se validan en CI** contra [`../event.schema.json`](../event.schema.json) y [`../feed.schema.json`](../feed.schema.json). Si dejan de validar, el build falla. Cópialos con confianza.
+All of them **are validated in CI** against [`../event.schema.json`](../event.schema.json) and [`../feed.schema.json`](../feed.schema.json). If they stop validating, the build fails. Copy them with confidence.
 
-| Fichero | Qué ilustra |
+| File | What it illustrates |
 | --- | --- |
-| [`event-minimal.json`](event-minimal.json) | Lo mínimo que la spec exige. Nada más. |
-| [`event-from-ics.json`](event-from-ics.json) | Evento **importado de un `.ics`**: sin `url`, sin `image` —iCalendar casi nunca la trae—, con `source` y **sin `attendanceMode`** — porque iCalendar no sabe expresarlo, y callarse es más honesto que inventar. Muestra los campos que la v0.2 añadió desde iCal: `tags` (← `CATEGORIES`), `location.geo` (← `GEO`) y `updatedAt` (← `LAST-MODIFIED`), más el que añade la v0.3: **`organizers[].email`** (← `ORGANIZER;CN="…":mailto:…`), que es lo que permite volver a `.ics` sin perder el `ORGANIZER`. |
-| [`event-all-day.json`](event-all-day.json) | Evento de **varios días completos**: `startDate`/`endDate` como fechas, sin hora. |
-| [`event-meetup.json`](event-meetup.json) | Meetup híbrido, con `image` (**el mismo cartel en tres recortes, y `alt` solo en el primero** — las dos formas de entrada, cadena y objeto, en la misma lista), `offers` con `price: 0` —así se dice «gratis»— y una extensión (ver abajo). |
-| [`event-conference-cfp.json`](event-conference-cfp.json) | Conferencia con **tres tipos de entrada** (`offers`: uno agotado, y las plazas gratuitas de estudiantes agotadas **con `waitlistUrl`**) y **CFP abierto** (`cfp`). Lleva también `textLanguage` y una traducción dentro de una oferta. |
-| [`event-co-organized.json`](event-co-organized.json) | **Tres organizadores** —dos comunidades y una persona— con **`email` solo en el principal**, que es el único que sobrevive a iCal (y de rol, no de la persona), y un campo de **vocabulario externo con prefijo** (`combuilders:communityId`). |
-| [`event-online.json`](event-online.json) | Evento **solo online**: `location` con `onlineUrl` y sin sede física, `partOf` de una serie semanal, **`eligibility`** —está al alcance de cualquiera con conexión y aun así hay una puerta (`members-only`)— y **bilingüe**: `textLanguage: "ca"` con `translations.es` a tres niveles (evento, `eligibility` y **el `alt` de la imagen**), junto a un `languages: ["ca","es"]` que dice otra cosa. |
-| [`event-hackathon.json`](event-hackathon.json) | **Hackathon** continuo de fin de semana: cruza la medianoche y por eso **no** lleva `partOf` — es un evento, no dos sesiones. |
-| [`event-recurring.json`](event-recurring.json) | **Una ocurrencia** de un meetup mensual, con [`partOf`](../README.md#recurrencia-y-eventos-multi-parte-partof). La recurrencia **se expande al publicar**: un documento por edición, nunca una regla dentro del feed. |
-| [`feed.json`](feed.json) | Un **feed de agregador**: sus eventos heredan `specVersion` y `license`, pero **no** `organizers` — el agregador no organiza lo que publica, así que lo omite y cada evento declara el suyo. |
-| [`feed-community.json`](feed-community.json) | Un **feed de comunidad**: `organizers` y **`textLanguage`** van en el feed y los heredan sus eventos. El segundo evento declara `organizers` y **reemplaza** la lista heredada — por eso repite la comunidad del feed, **con su `email`**: el reemplazo es lo que garantiza que la comunidad invitada nunca herede la dirección de la anfitriona. |
-| [`feed-multipart.json`](feed-multipart.json) | Un **evento multi-parte**: un study jam en tres sesiones, en sábados no consecutivos, como **tres documentos** con el mismo `partOf` (`type: multipart`). No como un evento de quince días. |
-| [`invalid/`](invalid/) | Documentos que **deben ser rechazados**. El CI falla si el validador los acepta: un schema que solo acepta no es un schema. |
+| [`event-minimal.json`](event-minimal.json) | The minimum the spec requires. Nothing else. |
+| [`event-from-ics.json`](event-from-ics.json) | An event **imported from an `.ics`**: no `url`, no `image` — iCalendar almost never carries one — with a `source` and **no `attendanceMode`**, because iCalendar cannot express it, and staying silent is more honest than inventing. It shows the fields v0.2 added from iCal: `tags` (← `CATEGORIES`), `location.geo` (← `GEO`) and `updatedAt` (← `LAST-MODIFIED`), plus the one v0.3 adds: **`organizers[].email`** (← `ORGANIZER;CN="…":mailto:…`), which is what allows going back to `.ics` without losing the `ORGANIZER`. |
+| [`event-all-day.json`](event-all-day.json) | A **multi-day all-day** event: `startDate`/`endDate` as dates, with no time. |
+| [`event-meetup.json`](event-meetup.json) | A hybrid meetup, with `image` (**the same poster in three crops, and an `alt` only on the first** — both entry forms, string and object, in the same list), `offers` with `price: 0` — that is how you say "free" — and one extension (see below). |
+| [`event-conference-cfp.json`](event-conference-cfp.json) | A conference with **three ticket types** (`offers`: one sold out, and the free student places sold out **with a `waitlistUrl`**) and an **open CFP** (`cfp`). It also carries `textLanguage` and a translation inside an offer. |
+| [`event-co-organized.json`](event-co-organized.json) | **Three organisers** — two communities and a person — with an **`email` only on the main one**, which is the only one that survives into iCal (and a role address, not the person's), and one field of **prefixed external vocabulary** (`combuilders:communityId`). |
+| [`event-online.json`](event-online.json) | An **online-only** event: `location` with an `onlineUrl` and no physical venue, a `partOf` for a weekly series, **`eligibility`** — it is within reach of anyone with a connection and there is still a door (`members-only`) — and **bilingual**: `textLanguage: "ca"` with `translations.es` at three levels (the event, `eligibility` and **the image's `alt`**), alongside a `languages: ["ca","es"]` that says something else. |
+| [`event-hackathon.json`](event-hackathon.json) | A continuous weekend **hackathon**: it crosses midnight and therefore carries **no** `partOf` — it is one event, not two sessions. |
+| [`event-recurring.json`](event-recurring.json) | **One occurrence** of a monthly meetup, with [`partOf`](../README.md#recurrence-and-multi-part-events-partof). Recurrence **is expanded at publishing time**: one document per edition, never a rule inside the feed. |
+| [`feed.json`](feed.json) | An **aggregator feed**: its events inherit `specVersion` and `license`, but **not** `organizers` — the aggregator does not organise what it publishes, so it omits it and each event declares its own. |
+| [`feed-community.json`](feed-community.json) | A **community feed**: `organizers` and **`textLanguage`** live on the feed and its events inherit them. The second event declares `organizers` and **replaces** the inherited list — which is why it repeats the feed's community, **with its `email`**: replacement is what guarantees the guest community never inherits the host's address. |
+| [`feed-multipart.json`](feed-multipart.json) | A **multi-part event**: a study jam across three sessions on non-consecutive Saturdays, as **three documents** with the same `partOf` (`type: multipart`). Not as a fifteen-day event. |
+| [`invalid/`](invalid/) | Documents that **must be rejected**. CI fails if the validator accepts them: a schema that only accepts is not a schema. |
 
-## Campos en discusión (extensiones)
+## Fields under discussion (extensions)
 
-`event-meetup.json` y `event-recurring.json` usan campos que **NO forman parte de la v0.3**:
+`event-meetup.json` and `event-recurring.json` use fields that are **NOT part of v0.3**:
 
-| Campo | Estado |
+| Field | Status |
 | --- | --- |
-| `capacity` (aforo, en `event-meetup.json`) | 🗣️ En discusión — [issue #5](https://github.com/OpenTechEvents/opentechevents-spec/issues/5). Se quedó fuera de `offers` a propósito: es estado de la taquilla, no de la entrada. |
-| `ics:rrule` (en `event-recurring.json`) | 🔗 **Vocabulario externo**, con prefijo. La regla original del `.ics`, guardada para poder hacer round-trip. **Informativa**: las ocurrencias ya vienen expandidas, así que nadie tiene que evaluarla. |
+| `capacity` (venue capacity, in `event-meetup.json`) | 🗣️ Under discussion — [issue #5](https://github.com/OpenTechEvents/opentechevents-spec/issues/5). It was deliberately kept out of `offers`: it is box-office state, not ticket state. |
+| `ics:rrule` (in `event-recurring.json`) | 🔗 **External vocabulary**, prefixed. The original rule from the `.ics`, kept so it can be round-tripped. **Informative**: the occurrences already come expanded, so nobody has to evaluate it. |
 
-> `offers` y `cfp` **ya son normativos desde la v0.3**, y con otra forma de la que tenían aquí como propuesta: `offers` es una **lista** (varios tipos de entrada) sin `isFree` —lo gratis es `price: 0`— y sin `capacity`; `cfp` ya no lleva `timezone`, porque sus fechas límite son **instantes con offset**. Si los emitías con la forma antigua, migra: ver [`offers`](../README.md#offers-cuánto-cuesta-y-dónde-se-saca-la-entrada) y [`cfp`](../README.md#cfp-la-convocatoria-de-charlas--y-el-primer-campo-que-no-viaja-a-ninguna-parte).
+> `offers` and `cfp` **are already normative as of v0.3**, and in a different shape from the one they had here as a proposal: `offers` is a **list** (several ticket types) with no `isFree` — free is `price: 0` — and no `capacity`; `cfp` no longer carries a `timezone`, because its deadlines are **instants with an offset**. If you were emitting them in the old shape, migrate: see [`offers`](../README.md#offers-what-it-costs-and-where-you-get-the-ticket) and [`cfp`](../README.md#cfp-the-call-for-papers--and-the-first-field-that-travels-nowhere).
 >
-> `image` **también es normativo desde la v0.3**, y como lista (`image[]`, no una cadena). Entró por esta misma vía: lo emiten las cinco fuentes estudiadas y Google lo pide. Si lo emitías como cadena suelta, migra a lista.
+> `image` **is also normative as of v0.3**, and as a list (`image[]`, not a string). It got in by this very route: the five sources studied emit it and Google asks for it. If you were emitting it as a bare string, migrate to a list.
 >
-> `tags` **ya es normativo desde la v0.2** (mapea a `CATEGORIES` de iCal). Entró justo por esta vía: un campo que un consumidor real —el agregador— ya usaba. Ver el [CHANGELOG](../../../CHANGELOG.md).
+> `tags` **has been normative since v0.2** (it maps to iCal's `CATEGORIES`). It got in by exactly this route: a field a real consumer — the aggregator — already used. See the [CHANGELOG](../../../CHANGELOG.md).
 >
-> `community` (`{ uri, name }`) estuvo aquí hasta la v0.3 y **lo sustituye [`organizers`](../README.md#organizers-quién-organiza--y-las-tres-cosas-que-no-es)**, ya normativo. Si lo emitías, migra.
+> `community` (`{ uri, name }`) was here until v0.3 and **[`organizers`](../README.md#organizers-who-runs-it--and-the-three-things-it-is-not) replaces it**, now normative. If you were emitting it, migrate.
 
-### Dos tipos de extensión
+### Two kinds of extension
 
-Los de la tabla van **sin prefijo**: son **candidatos a núcleo**, campos genéricos que aspiran a ser de OTE. `combuilders:communityId`, en cambio, lleva **prefijo** porque su significado **lo define otro proyecto** y nunca será de OTE.
+The ones in the table carry **no prefix**: they are **core candidates**, generic fields aspiring to be OTE's. `combuilders:communityId`, by contrast, carries a **prefix** because its meaning **is defined by another project** and will never be OTE's.
 
-**OTE se compromete a no acuñar jamás un nombre de campo que contenga `:`**, así que un campo con prefijo no puede colisionar con uno del núcleo. Un campo sin prefijo sí: el día que OTE estandarice ese nombre, tu significado local desaparece bajo el normativo. Detalle en la [sección «Extensiones» del README](../README.md#extensiones).
+**OTE commits to never minting a field name containing a `:`**, so a prefixed field cannot collide with a core one. An unprefixed one can: the day OTE standardises that name, your local meaning disappears under the normative one. Detail in the [README's "Extensions" section](../README.md#extensions).
 
-**Y aun así esos documentos son válidos.** No es un descuido: **los schemas de OTE no prohíben campos adicionales**, a propósito. Si tu comunidad necesita `tags` hoy, los pones y tu feed sigue validando; un consumidor que no los entienda puede ignorarlos sin romperse.
+**And those documents are still valid.** That is not an oversight: **OTE's schemas do not forbid additional fields**, on purpose. If your community needs `tags` today, you put them in and your feed keeps validating; a consumer that does not understand them can ignore them without breaking.
 
-Esa es la vía por la que la spec debe crecer: **campos que alguien ya usa de verdad**, no campos que imaginamos que harán falta. Los nombres y las formas que ves aquí son **una propuesta**, no un compromiso — pueden cambiar al estandarizarse.
+That is the route by which the spec should grow: **fields somebody already really uses**, not fields we imagine will be needed. The names and shapes you see here are **a proposal**, not a commitment — they can change when they are standardised.
 
-👉 **Si los usas, dilo en el [issue #5](https://github.com/OpenTechEvents/opentechevents-spec/issues/5)**. El uso real es el argumento que hace avanzar un campo; una petición sin caso detrás, no.
+👉 **If you use them, say so in [issue #5](https://github.com/OpenTechEvents/opentechevents-spec/issues/5)**. Real usage is the argument that moves a field forward; a request with no case behind it is not.
 
-## Validar los tuyos
+## Validating your own
 
 ```bash
 npm install
-npm run validate -- mi-feed.json
+npm run validate -- my-feed.json
 ```

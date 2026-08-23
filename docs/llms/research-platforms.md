@@ -1,67 +1,67 @@
-# Hallazgos — Plataformas
+# Findings — Platforms
 
-Plataformas que **crean y gestionan** eventos o llamadas a ponencias (CFP). Ver criterio común en [../README.md](../README.md).
+Platforms that **create and manage** events or calls for papers (CFP). See the shared template in [../README.md](../README.md).
 
 ## Meetup
 
-| Aspecto | Información | Fuentes |
+| Aspect | Information | Sources |
 | --- | --- | --- |
-| **Soporte** | Meetup sirve para organizar eventos de grupos. Permite crear eventos sencillos y, para clientes Pro, gestionar llamadas a ponencias. | Artículo de ayuda de Meetup[help.meetup.com](https://help.meetup.com/hc/en-us/articles/39790436736525-Creating-an-event#:~:text=Title). |
-| **Campos necesarios (formulario)** | Al crear un evento desde la interfaz web se requieren: título (máx. 80 caracteres), fecha y hora de inicio, duración, descripción y ubicación (física u online). Para cuentas Pro se añade información de ponentes[help.meetup.com](https://help.meetup.com/hc/en-us/articles/39790436736525-Creating-an-event#:~:text=Title). | Documentación de Meetup[help.meetup.com](https://help.meetup.com/hc/en-us/articles/39790436736525-Creating-an-event#:~:text=Title). |
-| **Campos opcionales** | Imagen destacada, temas del grupo, anfitriones adicionales, cuotas de asistencia, recurrencia, lista de espera y preguntas a los asistentes[help.meetup.com](https://help.meetup.com/hc/en-us/articles/39790436736525-Creating-an-event#:~:text=Title). |  |
-| **API/formatos** | La API de Meetup usa GraphQL. La mutación `createEvent` requiere `groupUrlname`, `title`, `description`, `startDateTime`, `venueId`, `duration` y `publishStatus`[meetup.com](https://www.meetup.com/graphql/guide/#graphQl-guide#:~:text=mutation%28%24input%3A%20CreateEventInput%21%29%20,). Permite crear, editar, buscar y anunciar eventos[help.meetup.com](https://help.meetup.com/hc/en-us/articles/41455194927373-What-can-I-achieve-through-Meetup-s-API-and-what-are-its-limitations#:~:text=Meetup%E2%80%99s%20API%20allows%20Pro%20customers,and%20keep%20the%20platform%20secure). |  |
-| **Contribución** | Se realiza vía interfaz web o mediante la API GraphQL si se dispone de credenciales (sobre todo para clientes Pro). |  |
-| **Consumible estándar** | Meetup no ofrece un exportador estandarizado, pero la API devuelve objetos JSON a través de GraphQL. |  |
-| **Agregador** | No, es una plataforma de eventos propia. |  |
-| **URL relevantes** | Ayuda de Meetup — descripción de campos[help.meetup.com](https://help.meetup.com/hc/en-us/articles/39790436736525-Creating-an-event#:~:text=Title); [Documentación GraphQL](https://www.meetup.com/meetup_api/) — mutación de creación[meetup.com](https://www.meetup.com/graphql/guide/#graphQl-guide#:~:text=mutation%28%24input%3A%20CreateEventInput%21%29%20,). |  |
+| **What it supports** | Meetup is for organising group events. It allows creating simple events and, for Pro customers, managing calls for papers. | Meetup help article[help.meetup.com](https://help.meetup.com/hc/en-us/articles/39790436736525-Creating-an-event#:~:text=Title). |
+| **Required fields (form)** | Creating an event from the web interface requires: title (max. 80 characters), start date and time, duration, description and location (physical or online). Pro accounts add speaker information[help.meetup.com](https://help.meetup.com/hc/en-us/articles/39790436736525-Creating-an-event#:~:text=Title). | Meetup documentation[help.meetup.com](https://help.meetup.com/hc/en-us/articles/39790436736525-Creating-an-event#:~:text=Title). |
+| **Optional fields** | Featured image, group topics, additional hosts, attendance fees, recurrence, waiting list and questions for attendees[help.meetup.com](https://help.meetup.com/hc/en-us/articles/39790436736525-Creating-an-event#:~:text=Title). |  |
+| **API/formats** | Meetup's API uses GraphQL. The `createEvent` mutation requires `groupUrlname`, `title`, `description`, `startDateTime`, `venueId`, `duration` and `publishStatus`[meetup.com](https://www.meetup.com/graphql/guide/#graphQl-guide#:~:text=mutation%28%24input%3A%20CreateEventInput%21%29%20,). It allows creating, editing, searching and announcing events[help.meetup.com](https://help.meetup.com/hc/en-us/articles/41455194927373-What-can-I-achieve-through-Meetup-s-API-and-what-are-its-limitations#:~:text=Meetup%E2%80%99s%20API%20allows%20Pro%20customers,and%20keep%20the%20platform%20secure). |  |
+| **How you contribute** | Through the web interface, or through the GraphQL API if you have credentials (mostly for Pro customers). |  |
+| **Standard consumption** | Meetup offers no standardised exporter, but the API returns JSON objects through GraphQL. |  |
+| **Aggregator?** | No, it is an event platform of its own. |  |
+| **Relevant URLs** | Meetup help — field descriptions[help.meetup.com](https://help.meetup.com/hc/en-us/articles/39790436736525-Creating-an-event#:~:text=Title); [GraphQL documentation](https://www.meetup.com/meetup_api/) — creation mutation[meetup.com](https://www.meetup.com/graphql/guide/#graphQl-guide#:~:text=mutation%28%24input%3A%20CreateEventInput%21%29%20,). |  |
 
 ## Sessionize
 
-| Aspecto | Información | Fuentes |
+| Aspect | Information | Sources |
 | --- | --- | --- |
-| **Soporte** | Plataforma de gestión de ponencias y agenda para conferencias. Gestiona llamadas a ponentes (CFP), sesiones y ponentes. | Guía de Sessionize[sessionize.com](https://sessionize.com/playbook/adding-sessions-and-speakers#:~:text=Using%20a%20Call%20for%20Speakers,page). |
-| **Campos obligatorios** | En una llamada a ponentes se exigen por defecto: título de la sesión, descripción, nombre del ponente, correo electrónico, lema y biografía[sessionize.com](https://sessionize.com/playbook/fields-explained#:~:text=Some%20Submission%20fields%20are%20predefined,information%20would%20make%20little%20sense). Para añadir sesiones manualmente se requiere título de sesión, propietario y datos del ponente[sessionize.com](https://sessionize.com/playbook/adding-sessions-and-speakers#:~:text=Using%20a%20Call%20for%20Speakers,page). |  |
-| **Campos opcionales** | Los organizadores pueden añadir campos personalizados y marcarlos como obligatorios u opcionales[sessionize.com](https://sessionize.com/playbook/fields-explained#:~:text=Some%20Submission%20fields%20are%20predefined,information%20would%20make%20little%20sense). |  |
-| **API/formatos** | Sessionize ofrece un API de solo lectura que devuelve sesiones, ponentes y salas en JSON o XML; también se puede exportar a iCalendar. Los endpoints se generan desde la página del evento y no suelen requerir autenticación[sessionize.com](https://sessionize.com/playbook/api#:~:text=What%20formats%20are%20available%3F). |  |
-| **Contribución** | Las sesiones se aportan a través de formularios de CFP o manualmente. No hay API pública para crear eventos; la plataforma se centra en recolectar sesiones y ponentes. |  |
-| **Consumible estándar** | JSON, XML e iCalendar[sessionize.com](https://sessionize.com/playbook/api#:~:text=What%20formats%20are%20available%3F). |  |
-| **Agregador** | No, es una plataforma de gestión de conferencias. |  |
-| **URL relevantes** | Guía para añadir sesiones [sessionize.com](https://sessionize.com/playbook/adding-sessions-and-speakers#:~:text=Using%20a%20Call%20for%20Speakers,page); API de Sessionize [sessionize.com](https://sessionize.com/playbook/api#:~:text=What%20formats%20are%20available%3F). |  |
+| **What it supports** | A platform for managing talks and agendas for conferences. It handles calls for speakers (CFP), sessions and speakers. | Sessionize guide[sessionize.com](https://sessionize.com/playbook/adding-sessions-and-speakers#:~:text=Using%20a%20Call%20for%20Speakers,page). |
+| **Required fields** | A call for speakers requires, by default: session title, description, speaker name, email address, tagline and bio[sessionize.com](https://sessionize.com/playbook/fields-explained#:~:text=Some%20Submission%20fields%20are%20predefined,information%20would%20make%20little%20sense). Adding sessions manually requires the session title, the owner and the speaker's details[sessionize.com](https://sessionize.com/playbook/adding-sessions-and-speakers#:~:text=Using%20a%20Call%20for%20Speakers,page). |  |
+| **Optional fields** | Organisers can add custom fields and mark them as required or optional[sessionize.com](https://sessionize.com/playbook/fields-explained#:~:text=Some%20Submission%20fields%20are%20predefined,information%20would%20make%20little%20sense). |  |
+| **API/formats** | Sessionize offers a read-only API returning sessions, speakers and rooms in JSON or XML; it can also export to iCalendar. Endpoints are generated from the event's page and usually require no authentication[sessionize.com](https://sessionize.com/playbook/api#:~:text=What%20formats%20are%20available%3F). |  |
+| **How you contribute** | Sessions come in through CFP forms or are added by hand. There is no public API for creating events; the platform focuses on collecting sessions and speakers. |  |
+| **Standard consumption** | JSON, XML and iCalendar[sessionize.com](https://sessionize.com/playbook/api#:~:text=What%20formats%20are%20available%3F). |  |
+| **Aggregator?** | No, it is a conference management platform. |  |
+| **Relevant URLs** | Guide to adding sessions [sessionize.com](https://sessionize.com/playbook/adding-sessions-and-speakers#:~:text=Using%20a%20Call%20for%20Speakers,page); Sessionize API [sessionize.com](https://sessionize.com/playbook/api#:~:text=What%20formats%20are%20available%3F). |  |
 
 ## Luma
 
-| Aspecto | Información | Fuentes |
+| Aspect | Information | Sources |
 | --- | --- | --- |
-| **Soporte** | Plataforma orientada a eventos en línea e híbridos. Permite crear eventos, gestionar registros y comunicaciones. Ofrece API abierta. |  |
-| **Campos necesarios (formulario)** | El formulario de Luma solicita: título, fecha y hora (con zona horaria), tipo de evento (presencial, en línea o híbrido), imagen de portada, ubicación física, descripción del evento, tema/área, calendario asociado y visibilidad (público/privado)[help.luma.com](https://help.luma.com/p/creating-an-event#:~:text=Event%20Title%20Enter%20a%20clear%2C,guests%20see%20when%20browsing%20events). |  |
-| **Campos opcionales** | Configuración de preguntas para el registro, co‑anfitriones, precios y capacidad, lista de espera y correo de confirmación[help.luma.com](https://help.luma.com/p/creating-an-event#:~:text=Event%20Title%20Enter%20a%20clear%2C,guests%20see%20when%20browsing%20events). |  |
-| **API/formatos** | El endpoint `POST /v1/event/create` de la API de Luma exige `name`, `start_at` y `timezone` como campos obligatorios; el resto (fin, descripción en Markdown, URL de portada, capacidad máxima, dirección, enlace de reunión, etc.) son opcionales[docs.luma.com](https://docs.luma.com/reference/post_v1-event-create.md). La autenticación se realiza mediante cabecera `x-luma-api-key`[docs.luma.com](https://docs.luma.com/reference/post_v1-event-create.md). |  |
-| **Contribución** | Se pueden crear eventos vía interfaz web o mediante la API oficial. |  |
-| **Consumible estándar** | La API devuelve JSON; la plataforma también expone eventos en iCalendar y webhooks. |  |
-| **Agregador** | No. |  |
-| **URL relevantes** | Guía para crear eventos en Luma [help.luma.com](https://help.luma.com/p/creating-an-event#:~:text=Event%20Title%20Enter%20a%20clear%2C,guests%20see%20when%20browsing%20events); Especificación API [docs.luma.com](https://docs.luma.com/reference/post_v1-event-create.md). |  |
+| **What it supports** | A platform aimed at online and hybrid events. It allows creating events and managing registrations and communications. It offers an open API. |  |
+| **Required fields (form)** | Luma's form asks for: title, date and time (with time zone), event type (in person, online or hybrid), cover image, physical location, event description, topic/area, associated calendar and visibility (public/private)[help.luma.com](https://help.luma.com/p/creating-an-event#:~:text=Event%20Title%20Enter%20a%20clear%2C,guests%20see%20when%20browsing%20events). |  |
+| **Optional fields** | Registration question setup, co-hosts, pricing and capacity, waiting list and confirmation email[help.luma.com](https://help.luma.com/p/creating-an-event#:~:text=Event%20Title%20Enter%20a%20clear%2C,guests%20see%20when%20browsing%20events). |  |
+| **API/formats** | Luma's `POST /v1/event/create` endpoint requires `name`, `start_at` and `timezone`; everything else (end, Markdown description, cover URL, maximum capacity, address, meeting link, etc.) is optional[docs.luma.com](https://docs.luma.com/reference/post_v1-event-create.md). Authentication is via an `x-luma-api-key` header[docs.luma.com](https://docs.luma.com/reference/post_v1-event-create.md). |  |
+| **How you contribute** | Events can be created through the web interface or through the official API. |  |
+| **Standard consumption** | The API returns JSON; the platform also exposes events over iCalendar and webhooks. |  |
+| **Aggregator?** | No. |  |
+| **Relevant URLs** | Guide to creating events on Luma [help.luma.com](https://help.luma.com/p/creating-an-event#:~:text=Event%20Title%20Enter%20a%20clear%2C,guests%20see%20when%20browsing%20events); API specification [docs.luma.com](https://docs.luma.com/reference/post_v1-event-create.md). |  |
 
 ## joind.in
 
-| Aspecto | Información | Fuentes |
+| Aspect | Information | Sources |
 | --- | --- | --- |
-| **Soporte** | Plataforma comunitaria para eventos y charlas técnicas. Permite publicar eventos, charlas y recoger comentarios. |  |
-| **Campos necesarios (API)** | Para enviar un evento a través del API se requieren: `name`, `description`, `location`, `start_date`, `end_date`, `tz_continent` y `tz_place`[docs.joind.in](https://docs.joind.in/joindin-api/events.html#:~:text=the%20images%20associated%20with%20this,See%20also%20%202). |  |
-| **Campos opcionales** | `href` (URL del evento), `cfp_url`, `cfp_start_date`, `cfp_end_date` y `tags[]`[docs.joind.in](https://docs.joind.in/joindin-api/events.html#:~:text=You%20may%20also%20add%20any,all%20of%20these%20additional%20fields). |  |
-| **Formato de evento (respuesta)** | La API devuelve JSON con campos como `name`, `url_friendly_name`, fechas, `description`, `stub`, `href`, `attendee_count`, `event_comments_count`, `tracks_count`, `talks_count`, `icon` y varias URIs (comentarios, charlas, tracks, asistentes, etc.)[docs.joind.in](https://docs.joind.in/joindin-api/events.html#:~:text=the%20images%20associated%20with%20this,See%20also%20%202). En modo _verbose_ añade `latitude`, `longitude`, `tz_continent`, `tz_place`, `location`, `hashtag`, datos de CFP y `tags`[docs.joind.in](https://docs.joind.in/joindin-api/events.html#:~:text=the%20images%20associated%20with%20this,See%20also%20%202). |  |
-| **Contribución** | Se realiza mediante la API REST autenticada; los eventos enviados por usuarios no administradores quedan pendientes de aprobación[docs.joind.in](https://docs.joind.in/joindin-api/events.html#:~:text=the%20images%20associated%20with%20this,See%20also%20%202). |  |
-| **Consumible estándar** | JSON (con posibilidad de ampliar campos con `verbose=yes`). |  |
-| **Agregador** | No, pero es fuente de datos para otros. |  |
-| **URL relevantes** | [Documentación de la API (eventos)](https://docs.joind.in/joindin-api/events.html) [docs.joind.in](https://docs.joind.in/joindin-api/events.html#:~:text=the%20images%20associated%20with%20this,See%20also%20%202). |  |
+| **What it supports** | A community platform for technical events and talks. It allows publishing events and talks and collecting feedback. |  |
+| **Required fields (API)** | Submitting an event through the API requires: `name`, `description`, `location`, `start_date`, `end_date`, `tz_continent` and `tz_place`[docs.joind.in](https://docs.joind.in/joindin-api/events.html#:~:text=the%20images%20associated%20with%20this,See%20also%20%202). |  |
+| **Optional fields** | `href` (event URL), `cfp_url`, `cfp_start_date`, `cfp_end_date` and `tags[]`[docs.joind.in](https://docs.joind.in/joindin-api/events.html#:~:text=You%20may%20also%20add%20any,all%20of%20these%20additional%20fields). |  |
+| **Event format (response)** | The API returns JSON with fields such as `name`, `url_friendly_name`, dates, `description`, `stub`, `href`, `attendee_count`, `event_comments_count`, `tracks_count`, `talks_count`, `icon` and several URIs (comments, talks, tracks, attendees, etc.)[docs.joind.in](https://docs.joind.in/joindin-api/events.html#:~:text=the%20images%20associated%20with%20this,See%20also%20%202). In _verbose_ mode it adds `latitude`, `longitude`, `tz_continent`, `tz_place`, `location`, `hashtag`, CFP data and `tags`[docs.joind.in](https://docs.joind.in/joindin-api/events.html#:~:text=the%20images%20associated%20with%20this,See%20also%20%202). |  |
+| **How you contribute** | Through the authenticated REST API; events submitted by non-admin users stay pending approval[docs.joind.in](https://docs.joind.in/joindin-api/events.html#:~:text=the%20images%20associated%20with%20this,See%20also%20%202). |  |
+| **Standard consumption** | JSON (with the option of more fields via `verbose=yes`). |  |
+| **Aggregator?** | No, but it is a data source for others. |  |
+| **Relevant URLs** | [API documentation (events)](https://docs.joind.in/joindin-api/events.html) [docs.joind.in](https://docs.joind.in/joindin-api/events.html#:~:text=the%20images%20associated%20with%20this,See%20also%20%202). |  |
 
 ## Papercall.io
 
-| Aspecto | Información | Fuentes |
+| Aspect | Information | Sources |
 | --- | --- | --- |
-| **Soporte** | Plataforma dedicada a gestionar llamadas a ponencias (Call for Proposals). |  |
-| **Campos necesarios** | La guía de Papercall indica que al crear un CFP se deben elegir un nombre de evento, subir un logotipo e introducir los datos de la llamada (fechas de apertura y cierre). También ofrece una opción para anonimizar envíos y un campo para especificar si se cubren gastos de viaje[papercall.zendesk.com](https://papercall.zendesk.com/hc/en-us/articles/216407857-Creating-a-New-Call-for-Proposals#:~:text=Creating%20a%20New%20Call%20for,Proposals). |  |
-| **Campos opcionales** | Se pueden añadir detalles adicionales del evento y configurar la visibilidad; la documentación pública no ofrece un listado completo de campos. |  |
-| **Contribución** | Solo a través de la plataforma web; no hay API pública para crear eventos. |  |
-| **Consumible estándar** | Los eventos se consumen desde la web; no hay exportación oficial, aunque algunos servicios extraen datos con scraping. |  |
-| **Agregador** | No, pero es una fuente importante de CFP para varios agregadores. |  |
-| **URL relevantes** | [Artículo "Creating a New Call for Proposals"](https://papercall.zendesk.com/hc/en-us/articles/216407857-Creating-a-New-Call-for-Proposals) [papercall.zendesk.com](https://papercall.zendesk.com/hc/en-us/articles/216407857-Creating-a-New-Call-for-Proposals#:~:text=Creating%20a%20New%20Call%20for,Proposals). |  |
+| **What it supports** | A platform dedicated to managing calls for proposals. |  |
+| **Required fields** | Papercall's guide states that creating a CFP means choosing an event name, uploading a logo and entering the call's details (opening and closing dates). It also offers an option to anonymise submissions and a field for whether travel expenses are covered[papercall.zendesk.com](https://papercall.zendesk.com/hc/en-us/articles/216407857-Creating-a-New-Call-for-Proposals#:~:text=Creating%20a%20New%20Call%20for,Proposals). |  |
+| **Optional fields** | Additional event details can be added and visibility configured; the public documentation offers no complete field listing. |  |
+| **How you contribute** | Only through the web platform; there is no public API for creating events. |  |
+| **Standard consumption** | Events are consumed from the website; there is no official export, although some services extract data by scraping. |  |
+| **Aggregator?** | No, but it is an important CFP source for several aggregators. |  |
+| **Relevant URLs** | ["Creating a New Call for Proposals"](https://papercall.zendesk.com/hc/en-us/articles/216407857-Creating-a-New-Call-for-Proposals) [papercall.zendesk.com](https://papercall.zendesk.com/hc/en-us/articles/216407857-Creating-a-New-Call-for-Proposals#:~:text=Creating%20a%20New%20Call%20for,Proposals). |  |
