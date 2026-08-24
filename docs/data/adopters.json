@@ -3,8 +3,8 @@
   "adopters": [
     {
       "name": "Community Builders Community Events",
-      "url": "https://combuilderses.github.io/#events",
-      "feed": "https://combuilderses.github.io/events/feed.json",
+      "url": "https://communitybuilders.dev/#events",
+      "feed": "https://communitybuilders.dev/events/feed.json",
       "logo": "logos/community-builders.png",
       "directory": "101"
     }
