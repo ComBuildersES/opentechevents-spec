@@ -55,7 +55,7 @@
       "linkKind": "app"
     },
     {
-      "status": "proposed",
+      "status": "working",
       "audience": ["organizers", "developers"],
       "order": 5,
       "name": {
@@ -63,14 +63,15 @@
         "es": "Validador OTE"
       },
       "desc": {
-        "en": "A W3C-style validation page: check a feed or event by URL, file upload or pasted JSON, and get errors pointing at the exact place in the document, with a shareable result link. Given a site's URL it also follows the <link rel=\"alternate\"> discovery link to find the feed.",
-        "es": "Página de validación al estilo del W3C: comprueba un feed o evento por URL, subiendo un fichero o pegando el JSON, y obtén errores que señalan el punto exacto del documento, con enlace de resultado compartible. Si le das la URL de una web, sigue el <link rel=\"alternate\"> de descubrimiento para encontrar el feed."
+        "en": "A W3C-style validation page: check a feed or event by URL, file upload or pasted JSON, and get errors pointing at the exact place in the document. Given a site's URL it also follows the <link rel=\"alternate\"> discovery link to find the feed.",
+        "es": "Página de validación al estilo del W3C: comprueba un feed o evento por URL, subiendo un fichero o pegando el JSON, y obtén errores que señalan el punto exacto del documento. Si le das la URL de una web, sigue el <link rel=\"alternate\"> de descubrimiento para encontrar el feed."
       },
       "category": {
         "en": "Create & validate",
         "es": "Crear y validar"
       },
-      "url": "https://github.com/OpenTechEvents/opentechevents-spec/issues/29"
+      "url": "https://validator.opentechevents.org/",
+      "linkKind": "app"
     },
     {
       "status": "proposed",
