@@ -31,7 +31,11 @@ body:
     id: feed
     attributes:
       label: OTE feed URL
-      description: Public URL of your `events.json` feed.
+      description: >-
+        Public URL of your `events.json` feed. Serve it with
+        `Access-Control-Allow-Origin: *` so readers running in a browser can fetch it
+        too — [how and why](https://opentechevents.org/#serving). Not required: a feed
+        without it is valid and gets listed all the same.
       placeholder: https://pyalmeria.example/events.json
     validations:
       required: true

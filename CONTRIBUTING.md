@@ -107,7 +107,7 @@ Before submitting: `npm run validate`. **If the change does not come with an exa
 
 Three steps, explained in detail at [opentechevents.org](https://opentechevents.org#adopt):
 
-1. Publish a JSON file with your events at a URL you control.
+1. Publish a JSON file with your events at a URL you control — and serve it with `Access-Control-Allow-Origin: *` so browser-based readers can fetch it too: [how and why](https://opentechevents.org/#serving).
 2. Link it from your site's `<head>` so tools discover it on their own.
 3. **Register it** with the [form](https://opentechevents.org/register/) — which fills the issue in for you — or directly with the [adopter template](https://github.com/OpenTechEvents/opentechevents-spec/issues/new?template=adopter.yml), so we can validate it and list you on the website.
 

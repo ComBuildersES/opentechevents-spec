@@ -17,7 +17,7 @@ import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { join } from "node:path";
 import Ajv2020 from "ajv/dist/2020.js";
 import addFormats from "ajv-formats";
-import { annotationKeywords } from "../index.js";
+import { annotationKeywords, customFormats, customKeywords } from "../index.js";
 
 const SPEC = "spec/v0.3";
 const ADOPTERS = join("docs", "data", "adopters.json");
@@ -61,27 +61,47 @@ const ajv = new Ajv2020({ strict: true, strictRequired: false, allErrors: true }
 addFormats(ajv);
 // The schemas carry annotations strict mode would refuse to compile; they constrain nothing.
 for (const kw of annotationKeywords) ajv.addKeyword(kw);
+// Same setup as scripts/register-adopter.mjs: without the custom formats and keywords
+// (`ote-local-date-time`, `distinctTranslationLanguages`) strict mode refuses to compile
+// the schema at all, and the health check dies before fetching a single feed.
+for (const f of customFormats) ajv.addFormat(f.name, f.validate);
+for (const kw of customKeywords) ajv.addKeyword(kw);
 ajv.addSchema(JSON.parse(readFileSync(join(SPEC, "event.schema.json"), "utf8")));
 const validateFeed = ajv.compile(JSON.parse(readFileSync(join(SPEC, "feed.schema.json"), "utf8")));
+
+/* A feed nobody can read from a browser is still a valid, healthy feed — this is a
+   note, never a failure. `*` is what lets an arbitrary client read it; anything else
+   (absent, or a single reflected origin) means only some origins can. See
+   https://opentechevents.org/#serving */
+const ORIGIN = "https://opentechevents.org";
+
+function corsNote(res) {
+  const acao = res.headers.get("access-control-allow-origin");
+  if (acao === "*") return null;
+  return acao
+    ? `only reads from ${acao} (no \`Access-Control-Allow-Origin: *\`)`
+    : "no `Access-Control-Allow-Origin`";
+}
 
 async function checkFeed(url) {
   let res;
   try {
-    res = await fetch(url, { signal: AbortSignal.timeout(20000) });
+    res = await fetch(url, { headers: { Origin: ORIGIN }, signal: AbortSignal.timeout(20000) });
   } catch (err) {
-    return `fetch failed: ${err.message}`;
+    return { error: `fetch failed: ${err.message}` };
   }
-  if (!res.ok) return `HTTP ${res.status}`;
+  const cors = corsNote(res);
+  if (!res.ok) return { error: `HTTP ${res.status}`, cors };
   let doc;
   try {
     doc = await res.json();
   } catch {
-    return "response is not JSON";
+    return { error: "response is not JSON", cors };
   }
   if (!validateFeed(doc)) {
-    return "schema errors:\n" + ajv.errorsText(validateFeed.errors, { separator: "\n" });
+    return { error: "schema errors:\n" + ajv.errorsText(validateFeed.errors, { separator: "\n" }), cors };
   }
-  return null; // healthy
+  return { error: null, cors }; // healthy
 }
 
 /* ---------- main ---------- */
@@ -91,13 +111,19 @@ const state = existsSync(STATE) ? JSON.parse(readFileSync(STATE, "utf8")) : {};
 const today = new Date().toISOString().slice(0, 10);
 const next = {};
 let failures = 0;
+const noCors = [];
 
 for (const adopter of adopters) {
-  const error = await checkFeed(adopter.feed);
+  const { error, cors } = await checkFeed(adopter.feed);
   const prev = state[adopter.feed];
 
   if (!error) {
     console.log(`  ok    ${adopter.name} — ${adopter.feed}`);
+    // Only worth saying about a feed that otherwise works: a broken one has a bigger problem.
+    if (cors) {
+      noCors.push(adopter);
+      console.log(`        ${cors} — browser-based clients can't read this feed`);
+    }
     if (prev && prev.failures >= THRESHOLD) {
       // Recovered after having been reported: close the alert.
       const issues = await openIssues();
@@ -150,3 +176,10 @@ for (const adopter of adopters) {
 
 writeFileSync(STATE, JSON.stringify(next, null, 2) + "\n");
 console.log(`\n${adopters.length} feed(s), ${failures} failing.`);
+if (noCors.length) {
+  // Deliberately not an issue and not part of the failure count: these feeds are healthy.
+  console.log(
+    `${noCors.length} readable only from a server (no CORS): ${noCors.map((a) => a.name).join(", ")}` +
+      ` — https://opentechevents.org/#serving`
+  );
+}

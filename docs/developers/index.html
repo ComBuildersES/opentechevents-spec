@@ -98,6 +98,7 @@
 }</code></pre>
     </figure>
     <p class="dev-license" data-t="consume.license">One obligation: <strong>respect the license</strong>. Every feed (and optionally every event) declares one — <code>CC-BY-4.0</code> means attributing the community, and each entry tells you whom.</p>
+    <p data-t="consume.cors">Building in the browser? Everything this project serves (registry, schemas, aggregated feed) answers with <code>Access-Control-Allow-Origin: *</code>, and adopter feeds are <a href="/#serving">asked to do the same</a> — but it's a recommendation, not a validity rule, so expect the occasional feed you can only read from a server.</p>
     <p data-t="consume.discovery">Feeds in the wild announce themselves like RSS does — a <code>&lt;link rel="alternate" type="application/ote+json"&gt;</code> in the community's site — so your crawler can discover feeds that haven't registered yet.</p>
   </section>
 

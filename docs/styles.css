@@ -359,6 +359,19 @@ p > code, li > code {
 .steps > li > p { color: #9aa3b4; font-size: .96rem; max-width: 60em; }
 .steps .code-block { margin-top: 16px; border-color: #2e3547; }
 
+/* Serving guidance: a sub-block inside step 1, and the anchor (#serving) that
+   the register form and other tools deep-link to when a feed can't be read
+   from a browser. */
+.serving {
+  margin-top: 24px; padding: 20px 22px; border-radius: var(--radius);
+  background: #10131a; border: 1px solid #2e3547; scroll-margin-top: 90px;
+}
+.serving h4 { font-size: 1rem; margin-bottom: .5em; }
+.serving p { color: #9aa3b4; font-size: .92rem; max-width: 60em; }
+.serving .code-block { margin-top: 14px; }
+.serving .data-note { margin-top: 14px; }
+.serving:target { border-color: var(--accent); }
+
 .note {
   margin-top: 34px; padding: 18px 22px; border-radius: var(--radius);
   background: #1b2030; border: 1px solid #2e3547; font-size: .95rem; color: #9aa3b4;

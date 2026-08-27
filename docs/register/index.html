@@ -69,7 +69,7 @@
     <div class="field">
       <label for="reg-feed" data-t="feedLabel">OTE feed URL</label>
       <input id="reg-feed" name="feed" type="url" placeholder="https://yourcommunity.dev/events.json" required>
-      <p class="hint" data-t="feedHint">The public URL of your <code>events.json</code>. No feed yet? <a href="/#adopt">See how to publish one</a>.</p>
+      <p class="hint" data-t="feedHint">The public URL of your <code>events.json</code>. No feed yet? <a href="/#adopt">See how to publish one</a>. Serve it with <code>Access-Control-Allow-Origin: *</code> so browser-based readers can fetch it: <a href="/#serving">how and why</a>.</p>
       <p class="feed-status" id="reg-feed-status" hidden aria-live="polite"></p>
     </div>
 

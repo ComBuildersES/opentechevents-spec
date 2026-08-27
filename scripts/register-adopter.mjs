@@ -83,10 +83,19 @@ if (!fields.name || !fields.feed) {
   process.exit(0);
 }
 
+/* Whether a browser could read this feed. Checked here because this is the one moment
+   the publisher is listening: the report becomes a comment on their issue. It never
+   affects the verdict — a feed without CORS is valid, it just can't be read by
+   browser-based clients (readers, widgets, static directories). */
+const ORIGIN = "https://opentechevents.org";
+let cors = null;
+
 let doc;
 try {
-  const res = await fetch(fields.feed, { signal: AbortSignal.timeout(20000) });
+  const res = await fetch(fields.feed, { headers: { Origin: ORIGIN }, signal: AbortSignal.timeout(20000) });
   if (!res.ok) throw new Error(`the URL answered HTTP ${res.status}`);
+  const acao = res.headers.get("access-control-allow-origin");
+  if (acao !== "*") cors = acao ? `only allows reads from \`${acao}\`` : "sends no `Access-Control-Allow-Origin`";
   doc = await res.json();
 } catch (err) {
   report(false, [
@@ -147,4 +156,10 @@ report(true, [
   fields.directory ? `Linked to directory entry \`${fields.directory}\`.` : "No directory link.",
   "",
   "A pull request adding the community to the adopters registry follows; a maintainer will review and merge it.",
+  ...(cors
+    ? [
+        "",
+        `> ⚠️ **One thing worth fixing:** the server ${cors}, so clients that run in a browser — the [OTE Reader](https://reader.opentechevents.org/), embeddable widgets, static directories — can't fetch your feed. It doesn't block anything here (your feed is valid and server-side consumers read it fine), but adding \`Access-Control-Allow-Origin: *\` to the feed response takes one line of server config: [how and why](https://opentechevents.org/#serving).`,
+      ]
+    : []),
 ]);

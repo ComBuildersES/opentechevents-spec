@@ -155,7 +155,13 @@
     "lead": "Tres pasos. El primero es el único con trabajo real, y es un archivo de texto.",
     "s1": {
       "title": "Publica un feed OTE",
-      "body": "Crea un archivo JSON con tus eventos y alójalo donde ya publiques: tu web, GitHub Pages, un gist. ¿La vía más rápida? El <a href=\"https://github.com/OpenTechEvents/ote-template\">kit del organizador</a>: un repositorio listo para publicar en minutos, con feeds OTE, ICS y RSS ya montados. Y si tus eventos viven en un Google Calendar o en Meetup, te ayudamos a importarlos para generar el feed."
+      "body": "Crea un archivo JSON con tus eventos y alójalo donde ya publiques: tu web, GitHub Pages, un gist. ¿La vía más rápida? El <a href=\"https://github.com/OpenTechEvents/ote-template\">kit del organizador</a>: un repositorio listo para publicar en minutos, con feeds OTE, ICS y RSS ya montados. Y si tus eventos viven en un Google Calendar o en Meetup, te ayudamos a importarlos para generar el feed.",
+      "serving": {
+        "title": "Sírvelo para que también lo lean los navegadores",
+        "body": "Un feed sin acceso cross-origin sigue siendo válido, y quien lo consume desde un servidor lo lee sin problema — pero un lector en el navegador, un widget empotrable o un directorio estático no pueden ni descargarlo. Por eso un feed OTE público <strong>debería</strong> responder con <code>Access-Control-Allow-Origin: *</code>. Eso es lo que permite que cualquier herramienta OTE, presente o futura, consuma tu feed sin que tengas que enterarte antes.",
+        "caption": "Cabeceras de respuesta de <code>/events.json</code>",
+        "scope": "Esto va del archivo del feed, no de toda tu web: es una recomendación para el recurso público del feed, no un motivo para abrir tu sitio entero ni tu API. Y como el feed es público, nunca debe depender de cookies ni de credenciales — <code>Access-Control-Allow-Credentials</code> aquí ni hace falta ni se quiere (y además es incompatible con <code>*</code>)."
+      }
     },
     "s2": {
       "title": "Hazlo descubrible",

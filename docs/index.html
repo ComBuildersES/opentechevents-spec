@@ -392,6 +392,16 @@
   ]
 }</code></pre>
           </figure>
+          <div class="serving" id="serving">
+            <h4 data-i18n="adopt.s1.serving.title">Serve it so browsers can read it too</h4>
+            <p data-i18n="adopt.s1.serving.body">A feed without cross-origin access is still valid, and server-side consumers read it fine — but a browser-based reader, an embeddable widget or a static directory can't fetch it at all. So a public OTE feed <strong>should</strong> answer with <code>Access-Control-Allow-Origin: *</code>. That's what lets any present or future OTE tool consume your feed without you having to know about it first.</p>
+            <figure class="code-block code-block-sm">
+              <figcaption data-i18n="adopt.s1.serving.caption">Response headers for <code>/events.json</code></figcaption>
+              <pre><code><k>Access-Control-Allow-Origin</k>: <s>*</s>
+<k>Access-Control-Allow-Methods</k>: <s>GET, HEAD, OPTIONS</s></code></pre>
+            </figure>
+            <p class="data-note" data-i18n="adopt.s1.serving.scope">This is about the feed file, not your whole site: it's a recommendation for the public feed resource, not a reason to open up your website or your API. And because the feed is public, it must never depend on cookies or credentials — <code>Access-Control-Allow-Credentials</code> is neither needed nor wanted here (and is incompatible with <code>*</code> anyway).</p>
+          </div>
         </li>
         <li>
           <h3><span class="step-num">2</span> <span data-i18n="adopt.s2.title">Make it discoverable</span></h3>

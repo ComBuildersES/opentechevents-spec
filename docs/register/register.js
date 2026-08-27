@@ -59,7 +59,7 @@
       webLabel: "Website",
       webHint: "Optional. Filled in automatically when we find your community in a directory.",
       feedLabel: "OTE feed URL",
-      feedHint: "The public URL of your <code>events.json</code>. No feed yet? <a href=\"/#adopt\">See how to publish one</a>.",
+      feedHint: "The public URL of your <code>events.json</code>. No feed yet? <a href=\"/#adopt\">See how to publish one</a>. Serve it with <code>Access-Control-Allow-Origin: *</code> so browser-based readers can fetch it: <a href=\"/#serving\">how and why</a>.",
       formError: "Fill in the community name and the feed URL (a full URL, starting with https://).",
       submit: "Open the registration issue",
       note: "This opens a prefilled issue on GitHub for you to review before sending — nothing is submitted behind your back. You need a GitHub account.",
@@ -67,7 +67,7 @@
       feedChecking: "Checking the feed…",
       feedValid: "The feed parses and has the core OTE fields. Full validation runs when your issue is reviewed.",
       feedInvalid: "This doesn't look like a valid OTE feed: {errors}",
-      feedCors: "Couldn't verify the feed from the browser (the server doesn't allow cross-origin reads). No problem — it will be validated when your issue is reviewed.",
+      feedCors: "Couldn't verify the feed from the browser (the server doesn't allow cross-origin reads). It won't block your registration — it will be validated when your issue is reviewed — but browser-based readers won't be able to fetch it either: <a href=\"/#serving\">how to allow browser access</a>.",
       errHttp: "the URL answered HTTP {status}",
       errJson: "the URL doesn't return JSON",
       errNoEvents: "no `events` array — is this an OTE feed?",
@@ -94,7 +94,7 @@
       webLabel: "Web",
       webHint: "Opcional. Se rellena solo si encontramos tu comunidad en un directorio.",
       feedLabel: "URL del feed OTE",
-      feedHint: "La URL pública de tu <code>events.json</code>. ¿Aún no tienes feed? <a href=\"/#adopt\">Mira cómo publicarlo</a>.",
+      feedHint: "La URL pública de tu <code>events.json</code>. ¿Aún no tienes feed? <a href=\"/#adopt\">Mira cómo publicarlo</a>. Sírvelo con <code>Access-Control-Allow-Origin: *</code> para que también lo lean los lectores que corren en el navegador: <a href=\"/#serving\">cómo y por qué</a>.",
       formError: "Rellena el nombre de la comunidad y la URL del feed (una URL completa, empezando por https://).",
       submit: "Abrir el issue de registro",
       note: "Esto abre un issue prefillado en GitHub para que lo revises antes de enviarlo — no se manda nada a tus espaldas. Necesitas una cuenta de GitHub.",
@@ -102,7 +102,7 @@
       feedChecking: "Comprobando el feed…",
       feedValid: "El feed parsea y tiene los campos OTE básicos. La validación completa se hace al revisar tu issue.",
       feedInvalid: "Esto no parece un feed OTE válido: {errors}",
-      feedCors: "No se pudo verificar el feed desde el navegador (el servidor no permite lecturas cross-origin). No pasa nada: se validará al revisar tu issue.",
+      feedCors: "No se pudo verificar el feed desde el navegador (el servidor no permite lecturas cross-origin). No bloquea tu registro —se validará al revisar tu issue—, pero los lectores que funcionan en el navegador tampoco podrán descargarlo: <a href=\"/#serving\">cómo permitir el acceso desde el navegador</a>.",
       errHttp: "la URL responde HTTP {status}",
       errJson: "la URL no devuelve JSON",
       errNoEvents: "no hay array `events` — ¿es un feed OTE?",
@@ -316,7 +316,8 @@
       feedStatus.textContent = t.feedValid;
     } else if (f.status === "cors") {
       feedStatus.classList.add("feed-status-warn");
-      feedStatus.textContent = t.feedCors;
+      feedStatus.innerHTML = t.feedCors; // static copy with a link to the serving guidance
+
     } else {
       feedStatus.classList.add("feed-status-err");
       var errors = f.errors.map(function (e) {
