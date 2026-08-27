@@ -1,5 +1,5 @@
 {
-  "specVersion": "0.3.0",
+  "specVersion": "0.4.0",
   "languages": [
     "en",
     "es"
@@ -295,11 +295,11 @@
       "fields": [
         {
           "path": "specVersion",
-          "type": "const: \"0.3.0\"",
+          "type": "const: \"0.4.0\"",
           "required": true,
           "recommended": false,
           "examples": [
-            "0.3.0"
+            "0.4.0"
           ],
           "inheritsFrom": "feed.specVersion",
           "description": {
@@ -310,23 +310,24 @@
         },
         {
           "path": "id",
-          "type": "string (uri)",
+          "type": "string (iri)",
           "required": true,
           "recommended": false,
           "examples": [
             "https://pyalmeria.example/eventos/2026-06-async",
+            "https://eventos.wiki/events/2025/pycamp-españa",
             "https://calendar.example/ics/rust-madrid#a1b2c3d4-uid",
             "https://www.meetup.com/pyalmeria/events/123456789/"
           ],
           "description": {
-            "en": "Stable, globally unique identifier: an HTTP(S) URL under a domain the publisher controls — not necessarily one they own; a canonical page on a platform they use (Meetup, GitHub Pages, LinkedIn) works exactly as well, since what matters is that the URL is stable and nobody else can end up with that same one. Minted once, never rewritten — this is what lets consumers update an event instead of duplicating it.",
+            "en": "Stable, globally unique identifier: an HTTP(S) IRI under a domain the publisher controls — not necessarily one they own; a canonical page on a platform they use (Meetup, GitHub Pages, LinkedIn) works exactly as well, since what matters is that the address is stable and nobody else can end up with that same one. Non-ASCII characters are allowed exactly as published (`pycamp-españa` is not rewritten to `pycamp-espa%C3%B1a`). Minted once, never rewritten — this is what lets consumers update an event instead of duplicating it.",
             "es": "Identificador estable y único a nivel global: una URL HTTP(S) bajo un dominio que controla quien publica — no necesariamente uno propio; una página canónica en una plataforma que usa (Meetup, GitHub Pages, LinkedIn) sirve igual de bien, porque lo que importa es que la URL sea estable y nadie más pueda acabar con esa misma. Se acuña una vez y no se reescribe jamás: es lo que permite a un consumidor actualizar el evento en vez de duplicarlo."
           },
           "requiredIn": null
         },
         {
           "path": "url",
-          "type": "string (uri)",
+          "type": "string (iri)",
           "required": false,
           "recommended": true,
           "examples": [
@@ -385,21 +386,21 @@
             ]
           ],
           "description": {
-            "en": "Promotional images of the event: poster, cover, card. A list in preference order — the FIRST is the primary one, and often the only one a destination can use. The rest may be other crops or resolutions of that same image (Google asks for 1:1, 4:3 and 16:9) or different images altogether; a consumer that can show only one shows the first, and none may assume the list renders as a photo gallery. An entry is either a bare https URL to the image file itself — never to a page showing it — or an object that adds alt text.",
+            "en": "Promotional images of the event: poster, cover, card. A list in preference order — the FIRST is the primary one, and often the only one a destination can use. The rest may be other crops or resolutions of that same image (Google asks for 1:1, 4:3 and 16:9) or different images altogether; a consumer that can show only one shows the first, and none may assume the list renders as a photo gallery. An entry is either a bare HTTP(S) IRI to the image file itself — never to a page showing it — or an object that adds alt text.",
             "es": "Imágenes promocionales del evento: cartel, portada, tarjeta. Es una lista en orden de preferencia — la PRIMERA es la principal, y a menudo la única que un destino puede usar. Las demás pueden ser otros recortes o resoluciones de esa misma imagen (Google pide 1:1, 4:3 y 16:9) o imágenes distintas; quien solo pueda mostrar una, muestra la primera, y nadie debe dar por hecho que la lista se renderiza como galería de fotos. Cada entrada es o bien una URL https pelada al fichero de imagen —nunca a una página que la muestre— o bien un objeto que añade texto alternativo."
           },
           "requiredIn": null
         },
         {
           "path": "image[].url",
-          "type": "string (uri)",
+          "type": "string (iri)",
           "required": true,
           "recommended": false,
           "examples": [
             "https://rustmadrid.example/img/2026-06-16x9.png"
           ],
           "description": {
-            "en": "Absolute https URL of the image file itself, never of a page showing it. The same value the bare-string form carries.",
+            "en": "Absolute HTTP(S) IRI of the image file itself, never of a page showing it. The same value the bare-string form carries.",
             "es": "URL https absoluta del fichero de imagen, nunca de una página que la muestre. El mismo valor que lleva la forma de cadena pelada."
           },
           "requiredIn": "image[]"
@@ -499,7 +500,7 @@
         },
         {
           "path": "organizers[].url",
-          "type": "string (uri)",
+          "type": "string (iri)",
           "required": false,
           "recommended": false,
           "examples": [
@@ -749,7 +750,7 @@
         },
         {
           "path": "location.onlineUrl",
-          "type": "string (uri)",
+          "type": "string (iri)",
           "required": false,
           "recommended": true,
           "examples": [
@@ -859,7 +860,7 @@
         },
         {
           "path": "eligibility.url",
-          "type": "string (uri)",
+          "type": "string (iri)",
           "required": false,
           "recommended": false,
           "examples": [
@@ -1045,7 +1046,7 @@
         },
         {
           "path": "offers[].url",
-          "type": "string (uri)",
+          "type": "string (iri)",
           "required": false,
           "recommended": false,
           "examples": [
@@ -1074,7 +1075,7 @@
         },
         {
           "path": "offers[].waitlistUrl",
-          "type": "string (uri)",
+          "type": "string (iri)",
           "required": false,
           "recommended": false,
           "examples": [
@@ -1173,7 +1174,7 @@
         },
         {
           "path": "cfp.url",
-          "type": "string (uri)",
+          "type": "string (iri)",
           "required": true,
           "recommended": false,
           "examples": [
@@ -1284,7 +1285,7 @@
         },
         {
           "path": "partOf.id",
-          "type": "string (uri)",
+          "type": "string (iri)",
           "required": true,
           "recommended": false,
           "examples": [
@@ -1292,7 +1293,7 @@
             "https://pyalmeria.example/study-jams/2026-testing"
           ],
           "description": {
-            "en": "Stable identifier of the series or multi-part event. Same rules as the event's id: an HTTP(S) URL under a domain the publisher controls — not necessarily one they own, a platform page (Meetup, GitHub Pages, LinkedIn) works too — minted once. It does NOT have to resolve to an OTE document — it is what lets a consumer group occurrences.",
+            "en": "Stable identifier of the series or multi-part event. Same rules as the event's id: an HTTP(S) IRI under a domain the publisher controls — not necessarily one they own, a platform page (Meetup, GitHub Pages, LinkedIn) works too — minted once and not percent-encoded later into a second spelling. It does NOT have to resolve to an OTE document — it is what lets a consumer group occurrences.",
             "es": "Identificador estable de la serie o del evento multi-parte. Mismas reglas que el `id` del evento: una URL HTTP(S) bajo un dominio que controla quien publica — no necesariamente uno propio, una página de plataforma (Meetup, GitHub Pages, LinkedIn) también sirve — acuñada una vez. NO tiene por qué resolver a un documento OTE — es lo que permite a un consumidor agrupar las ocurrencias."
           },
           "requiredIn": "partOf"
@@ -1314,7 +1315,7 @@
         },
         {
           "path": "partOf.url",
-          "type": "string (uri)",
+          "type": "string (iri)",
           "required": false,
           "recommended": false,
           "examples": [
@@ -1426,7 +1427,7 @@
         },
         {
           "path": "source.url",
-          "type": "string (uri)",
+          "type": "string (iri)",
           "required": false,
           "recommended": false,
           "examples": [
@@ -1654,11 +1655,11 @@
       "fields": [
         {
           "path": "specVersion",
-          "type": "const: \"0.3.0\"",
+          "type": "const: \"0.4.0\"",
           "required": true,
           "recommended": false,
           "examples": [
-            "0.3.0"
+            "0.4.0"
           ],
           "description": {
             "en": "Version of OTE Spec this feed adheres to. Applies to every event in it.",
@@ -1697,7 +1698,7 @@
         },
         {
           "path": "url",
-          "type": "string (uri)",
+          "type": "string (iri)",
           "required": false,
           "recommended": true,
           "examples": [
@@ -1763,7 +1764,7 @@
         },
         {
           "path": "licenseUrl",
-          "type": "string (uri)",
+          "type": "string (iri)",
           "required": false,
           "recommended": false,
           "examples": [

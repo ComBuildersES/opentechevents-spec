@@ -22,7 +22,7 @@ import Ajv2020 from "ajv/dist/2020.js";
 import addFormats from "ajv-formats";
 import { annotationKeywords, customFormats, customKeywords } from "../index.js";
 
-const SPEC = "spec/v0.3";
+const SPEC = "spec/v0.4";
 const ADOPTERS = join("docs", "data", "adopters.json");
 const REPORT = process.env.REPORT_PATH || "adopter-report.md";
 
@@ -124,7 +124,7 @@ const validateFeed = ajv.compile(JSON.parse(readFileSync(join(SPEC, "feed.schema
 
 if (!validateFeed(doc)) {
   report(false, [
-    "### ❌ The feed does not validate against OTE Spec v0.3",
+    "### ❌ The feed does not validate against OTE Spec v0.4",
     "",
     "```",
     ajv.errorsText(validateFeed.errors, { separator: "\n" }),
@@ -150,7 +150,7 @@ else registry.adopters[existing] = { ...registry.adopters[existing], ...entry };
 writeFileSync(ADOPTERS, JSON.stringify(registry, null, 2) + "\n");
 
 report(true, [
-  "### ✅ Feed validates against OTE Spec v0.3",
+  "### ✅ Feed validates against OTE Spec v0.4",
   "",
   `**${fields.name}** — \`${fields.feed}\` (${doc.events.length} event${doc.events.length === 1 ? "" : "s"})`,
   fields.directory ? `Linked to directory entry \`${fields.directory}\`.` : "No directory link.",

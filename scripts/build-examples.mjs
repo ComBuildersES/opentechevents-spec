@@ -22,7 +22,7 @@
 import { readFileSync, writeFileSync, readdirSync, existsSync } from "node:fs";
 import { join } from "node:path";
 
-const VERSION = "v0.3";
+const VERSION = "v0.4";
 const BASE_LANG = "en";
 const REPO = "https://github.com/OpenTechEvents/opentechevents-spec/blob/main";
 const check = process.argv.includes("--check");

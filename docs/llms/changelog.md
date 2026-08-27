@@ -11,6 +11,22 @@ and under its own `$id` (`https://opentechevents.org/schema/vX.Y/…`). A docume
 which one it adheres to with `specVersion`, so **nothing breaks when a new
 version is published**: `0.1.0` documents keep validating against `spec/v0.1/`.
 
+## [0.4.0] — 2026-08-28
+
+Compatibility release for real-world web addresses. It **relaxes** validation:
+no valid `0.3.0` document becomes invalid, but tools must update because the
+schemas now use JSON Schema's `iri` format.
+
+### Changed
+
+- HTTP(S) URL fields now validate as IRIs instead of ASCII-only URIs, so
+  published addresses with non-ASCII slugs such as `pycamp-españa` are valid as
+  written. This applies to event and feed links, `id`, `partOf.id`, images,
+  organizer/source/offer/CFP URLs, and URL-form licenses.
+- `image[]` and `image[].url` now accept both `http://` and `https://` image
+  IRIs. They still must be absolute HTTP(S) links to the image file itself, and
+  the no-userinfo rule still applies.
+
 ## [0.3.0] — 2026-07-29
 
 Nine new fields and two new `status` values, all **optional and
@@ -720,5 +736,6 @@ required (plus `specVersion` and `license` in a standalone document); `url`,
 `license`, `updatedAt`, `events`. Frozen in [`spec/v0.1/`](spec/v0.1/).
 
 [0.3.0]: https://github.com/OpenTechEvents/opentechevents-spec/tree/main/spec/v0.3
+[0.4.0]: https://github.com/OpenTechEvents/opentechevents-spec/tree/main/spec/v0.4
 [0.2.0]: https://github.com/OpenTechEvents/opentechevents-spec/tree/main/spec/v0.2
 [0.1.0]: https://github.com/OpenTechEvents/opentechevents-spec/tree/main/spec/v0.1

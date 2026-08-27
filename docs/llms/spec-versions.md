@@ -1,12 +1,13 @@
 # Specification — OpenTechEvents (OTE Spec)
 
-> ✅ **The current specification is [`v0.3/`](v0.3/)** — executable schemas, normative prose and examples validated in CI. [`v0.1/`](v0.1/) and [`v0.2/`](v0.2/) are frozen. What changed: [CHANGELOG](../CHANGELOG.md).
+> ✅ **The current specification is [`v0.4/`](v0.4/)** — executable schemas, normative prose and examples validated in CI. [`v0.1/`](v0.1/), [`v0.2/`](v0.2/) and [`v0.3/`](v0.3/) are frozen. What changed: [CHANGELOG](../CHANGELOG.md).
 
 Each published version lives frozen in its own folder and under its own `$id`. A document declares which one it adheres to with `specVersion`, so **nothing breaks when a new version is published**.
 
 | Version | Status |
 | --- | --- |
-| [`v0.3/`](v0.3/README.md) | **Current.** Schemas, normative prose, recommended-field profiles and examples. |
+| [`v0.4/`](v0.4/README.md) | **Current.** Schemas, normative prose, recommended-field profiles and examples. |
+| [`v0.3/`](v0.3/README.md) | Frozen. |
 | [`v0.2/`](v0.2/README.md) | Frozen. |
 | [`v0.1/`](v0.1/README.md) | Frozen. |
 

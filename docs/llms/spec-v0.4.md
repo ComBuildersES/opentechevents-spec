@@ -1,4 +1,4 @@
-# OTE Spec v0.3.0
+# OTE Spec v0.4.0
 
 > 🚧 **Draft. Unstable.** `0.x` means it **can break without warning**. It is published so that real implementations exist (starting with the `.ics` importer) and so they break whatever is wrong. Discussion: [#5 (event)](https://github.com/OpenTechEvents/opentechevents-spec/issues/5) and [#6 (feed)](https://github.com/OpenTechEvents/opentechevents-spec/issues/6).
 
@@ -16,13 +16,13 @@ A minimal specification for describing tech community events and publishing them
 The `$id`s are the URLs the schemas are published under:
 
 ```text
-https://opentechevents.org/schema/v0.3/event.schema.json
-https://opentechevents.org/schema/v0.3/feed.schema.json
-https://opentechevents.org/schema/v0.3/event.recommended.schema.json
-https://opentechevents.org/schema/v0.3/feed.recommended.schema.json
+https://opentechevents.org/schema/v0.4/event.schema.json
+https://opentechevents.org/schema/v0.4/feed.schema.json
+https://opentechevents.org/schema/v0.4/event.recommended.schema.json
+https://opentechevents.org/schema/v0.4/feed.recommended.schema.json
 ```
 
-**Once published, a version is not touched.** `v0.1` and `v0.2` stay frozen in [`spec/v0.1/`](../v0.1/) and [`spec/v0.2/`](../v0.2/); future changes will go to `spec/v0.4/`. That is what lets a document say `specVersion: "0.3.0"` and lets a consumer know three years from now what to validate it against. What changed between versions lives in the [CHANGELOG](../../CHANGELOG.md).
+**Once published, a version is not touched.** `v0.1`, `v0.2` and `v0.3` stay frozen in [`spec/v0.1/`](../v0.1/), [`spec/v0.2/`](../v0.2/) and [`spec/v0.3/`](../v0.3/); future changes will go to `spec/v0.5/`. That is what lets a document say `specVersion: "0.4.0"` and lets a consumer know three years from now what to validate it against. What changed between versions lives in the [CHANGELOG](../../CHANGELOG.md).
 
 ## Consuming the schemas
 
@@ -62,8 +62,8 @@ if (validateEvent(event) && !checkEvent(event)) {
 **By URL** (for editors, third-party CI, or anyone not using npm):
 
 ```text
-https://opentechevents.org/schema/v0.3/event.schema.json
-https://opentechevents.org/schema/v0.3/feed.schema.json
+https://opentechevents.org/schema/v0.4/event.schema.json
+https://opentechevents.org/schema/v0.4/feed.schema.json
 ```
 
 ## Validating this repo
@@ -99,8 +99,8 @@ That is why there are **two schemas and two different questions**:
 The profiles are ordinary schemas, published under their own `$id` and distributed in the npm package. They reference the base ones by `$ref`, so the base ones have to be registered first:
 
 ```text
-https://opentechevents.org/schema/v0.3/event.recommended.schema.json
-https://opentechevents.org/schema/v0.3/feed.recommended.schema.json
+https://opentechevents.org/schema/v0.4/event.recommended.schema.json
+https://opentechevents.org/schema/v0.4/feed.recommended.schema.json
 ```
 
 ```bash
@@ -255,7 +255,7 @@ Only `id` is required. `name` and `url` save a consumer from having to resolve t
 - **`series`** — independent occurrences sharing an identity: June's meetup and July's. Each is announced, attended and cancelled separately.
 - **`multipart`** — parts of **a single event** spread across non-consecutive dates: a study jam of three sessions on non-consecutive Saturdays, with a single registration. The parts are not independent events even though each has its own date.
 
-What `multipart` does **not** fix is "a single registration": that is not a date. `offers` describes the price and registration **of each document**, not one registration shared across the parts — and v0.3 does not model that. Do not solve it by deforming the time field.
+What `multipart` does **not** fix is "a single registration": that is not a date. `offers` describes the price and registration **of each document**, not one registration shared across the parts — and v0.4 does not model that. Do not solve it by deforming the time field.
 
 ⚠️ **A multi-part event is NOT expressed with a `startDate` on the first part and an `endDate` on the last.** `startDate: "2026-03-07"` + `endDate: "2026-03-21"` asserts a continuous fifteen-day event — false in all three destinations, and in a subscriber's calendar it takes up two entire weeks. Three parts, three documents.
 
@@ -357,7 +357,7 @@ A **cancelled, postponed or moved event must stay in the feed**. Deleting it sil
 
 **`postponed` and `rescheduled` are not synonyms, and the difference lies in the document's own dates.** `postponed` keeps the **old dates** — do not invent a new one and do not delete `startDate` (it is required): the event still points at a day that no longer holds, and that is exactly what `postponed` is saying. When the new date is confirmed, `startDate`/`endDate` are **updated** and it becomes `rescheduled`. Because the `id` does not change, a consumer updates the event it already had instead of duplicating it.
 
-> v0.3 **does not model the previous date** (schema.org's `previousStartDate`). No real producer emits it today, and `updatedAt` already says something changed. If you need it, it is a candidate for the core by the usual route: a field with no prefix, in production, and it graduates if it survives.
+> v0.4 **does not model the previous date** (schema.org's `previousStartDate`). No real producer emits it today, and `updatedAt` already says something changed. If you need it, it is a candidate for the core by the usual route: a field with no prefix, in production, and it graduates if it survives.
 
 **`moved-online` should carry `location.onlineUrl` and `attendanceMode: "online"`.** Should, not must: the schema does not require it because the joining link is often not public yet (it arrives by email to whoever registered), and a spec that required it would force whoever imports either to invent it or to discard the event. If `location.venue` stays there as a trace of where it was going to be, that is fine: [`attendanceMode` wins](#location-and-attendancemode-are-not-redundant), and it says `online`.
 
@@ -411,7 +411,7 @@ Only `name` is required. `url`, `email` and `type` (`organization` by default, o
 Three confusions worth defusing before they happen:
 
 1. **`organizers` is not `source`.** Who runs the event vs. where the data came from. A PyAlmería event picked up from Meetup has `organizers: [PyAlmería]` and `source: { name: "Meetup" }`. They are orthogonal and often both appear.
-2. **`organizers` are not speakers.** Whoever gives the talk is not modelled in v0.3 (see "What v0.3 does not solve"). Putting a speaker in `organizers` corrupts the data for everyone who consumes it.
+2. **`organizers` are not speakers.** Whoever gives the talk is not modelled in v0.4 (see "What v0.4 does not solve"). Putting a speaker in `organizers` corrupts the data for everyone who consumes it.
 3. **`feed.organizers` is not `feed.title`/`feed.url`.** `title`/`url` name **whoever publishes** the feed; `organizers`, **whoever organises** the events. In a single-community feed they coincide. In an aggregator's feed they do **not**, and that is precisely where the field earns its place: without it, a consumer has no choice but to fall back on `feed.title` and attribute to the aggregator every event it aggregates.
 
 **Inheritance: replacement, not merging.** Like `license`, `feed.organizers` is the default for every event that does not declare its own. An event that **does** declare it **replaces the entire list**; it is not added to the inherited one. With merging there would be no way to *remove* an inherited organiser, and a guest event inside a community's feed would end up attributed to someone who did not organise it. The practical consequence: in a co-organised event within a community feed you have to **repeat** the feed's community alongside the guest one — see [`examples/feed-community.json`](examples/feed-community.json).
@@ -479,7 +479,7 @@ All three are **optional** and got in for the same reason: the `.ics` importer h
 
 ### `image`: the poster, its alt text, and why the list accepts two forms
 
-New in v0.3. Optional — though [recommended](#valid-is-not-the-same-as-useful-the-recommended-fields) — and **a list** whose entries point with `https` URLs **at the image file**, never at a page displaying it:
+New in v0.3. Optional — though [recommended](#valid-is-not-the-same-as-useful-the-recommended-fields) — and **a list** whose entries point with HTTP(S) IRIs **at the image file**, never at a page displaying it:
 
 ```json
 "image": [
@@ -839,7 +839,7 @@ This is what lets OTE **connect** with other specifications without **coupling**
 
 OTE does not know what `combuilders:communityId` means and does not need to. The prefix guarantees that the two specifications can evolve separately without treading on each other. See [`examples/event-co-organized.json`](examples/event-co-organized.json).
 
-## What v0.3 does not solve
+## What v0.4 does not solve
 
 Deduplication across sources, synchronisation, automatic publishing to platforms, modelling speakers/agenda/sponsors, and **the box office**: capacity, places left, discount codes and the single registration of a multi-part event. `offers` describes **the ticket**, not the state of the sale; `cfp` describes **the call**, not the review of proposals.
 
@@ -866,7 +866,7 @@ See [#6](https://github.com/OpenTechEvents/opentechevents-spec/issues/6). The th
 Today the spec assumes **a JSON file at a URL**. The alternative — or the complement — is to allow the feed **embedded in the page itself**, in the style of schema.org's JSON-LD:
 
 ```html
-<script type="application/ote+json">{ "specVersion": "0.3.0", "kind": "feed", … }</script>
+<script type="application/ote+json">{ "specVersion": "0.4.0", "kind": "feed", … }</script>
 ```
 
 - **In favour**: whoever uses a CMS or a site generator can paste a block into their template, but often **cannot publish a standalone file** or touch `/.well-known/`. It lowers the barrier to entry precisely for those with the fewest tools.

@@ -1,6 +1,6 @@
 {
   "name": "@opentechevents/schema",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "JSON Schemas for OTE Spec — an open specification for tech community events",
   "type": "module",
   "license": "MIT",
@@ -33,7 +33,11 @@
     "./v0.3/event.schema.json": "./spec/v0.3/event.schema.json",
     "./v0.3/feed.schema.json": "./spec/v0.3/feed.schema.json",
     "./v0.3/event.recommended.schema.json": "./spec/v0.3/event.recommended.schema.json",
-    "./v0.3/feed.recommended.schema.json": "./spec/v0.3/feed.recommended.schema.json"
+    "./v0.3/feed.recommended.schema.json": "./spec/v0.3/feed.recommended.schema.json",
+    "./v0.4/event.schema.json": "./spec/v0.4/event.schema.json",
+    "./v0.4/feed.schema.json": "./spec/v0.4/feed.schema.json",
+    "./v0.4/event.recommended.schema.json": "./spec/v0.4/event.recommended.schema.json",
+    "./v0.4/feed.recommended.schema.json": "./spec/v0.4/feed.recommended.schema.json"
   },
   "files": [
     "index.js",
@@ -44,7 +48,9 @@
     "spec/v0.2/*.json",
     "spec/v0.2/README.md",
     "spec/v0.3/*.json",
-    "spec/v0.3/README.md"
+    "spec/v0.3/README.md",
+    "spec/v0.4/*.json",
+    "spec/v0.4/README.md"
   ],
   "scripts": {
     "dev": "node scripts/serve.mjs",
@@ -52,7 +58,7 @@
     "build-reference": "node scripts/build-reference.mjs",
     "build-examples": "node scripts/build-examples.mjs",
     "build-llms": "node scripts/build-llms.mjs",
-    "publish-schemas": "mkdir -p docs/schema/v0.1 docs/schema/v0.2 docs/schema/v0.3 && cp spec/v0.1/*.schema.json docs/schema/v0.1/ && cp spec/v0.2/*.schema.json docs/schema/v0.2/ && cp spec/v0.3/*.schema.json docs/schema/v0.3/",
+    "publish-schemas": "mkdir -p docs/schema/v0.1 docs/schema/v0.2 docs/schema/v0.3 docs/schema/v0.4 && cp spec/v0.1/*.schema.json docs/schema/v0.1/ && cp spec/v0.2/*.schema.json docs/schema/v0.2/ && cp spec/v0.3/*.schema.json docs/schema/v0.3/ && cp spec/v0.4/*.schema.json docs/schema/v0.4/",
     "prepublishOnly": "npm run validate"
   },
   "devDependencies": {

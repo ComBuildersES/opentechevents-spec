@@ -89,6 +89,7 @@ Campos por tipo:
 | P031 | Rechazar duplicados de `languages` al comparar BCP 47 sin mayúsculas | Implementada (`bc63f0e`, `4535b4f`) |
 | P032 | Permitir feeds agregadores sin `feed.license` solo si cada evento declara la suya | Implementada (`43598bd`, `58f83c0`) |
 | P033 | Avisar cuando una traducción rellena un campo ausente en el texto principal | Implementada (`64ffd7e`, `9141383`) |
+| P034 | Permitir IRIs HTTP(S) y URLs `http://` en imágenes | Implementada (este commit) |
 
 *(actualizar esta tabla a mano al cerrar cada ciclo; sirve de índice rápido, el detalle vive en las entradas de abajo)*
 
@@ -2858,3 +2859,21 @@ Confirmado con hhkaos que, con esta justificación corregida, sigue mereciendo l
 - **Desviación deliberada de la PROPUESTA/REVISION aprobadas, documentada con evidencia:** la REVISION aprobó un keyword custom para `event.description`/`feed.description` además de los tres bloques declarativos. Al implementarlo, comprobé que ese keyword sería código muerto: `description` ya es obligatorio incondicional en ambos perfiles recomendados (desde antes de esta propuesta), así que cualquier evento/feed sin `description` YA produce el aviso genérico "missing recommended: description", con o sin traducción — el keyword nunca podría cambiar si algo se avisa, y `scripts/validate.mjs` (`missingRecommended()`) ya descarta el texto de cualquier keyword de objeto completo, quedándose solo con el nombre del campo (confirmado leyendo el código: `languagesCoveredByText`, el único precedente, ya funciona así). Revertido `index.js` y ambos perfiles recomendados a su estado antes de tocar esto — sin cambios en `index.js` ni en `feed.recommended.schema.json` en el commit final. No hizo falta registrar esto como una nueva DECISION porque no cambia el comportamiento aprobado (los 5 avisos siguen existiendo, solo se implementan de otra forma técnica) — pero queda documentado en D030 con el razonamiento completo, siguiendo la misma disciplina de transparencia que P015/P026.
 - **Aviso redundante aceptado, no corregido:** `offers[].name` produce dos líneas de aviso (`offers.0.name` y `offers.0`) por vivir el `if`/`then` dentro de `items` en vez de a nivel raíz (a diferencia de `partOf.name`/`eligibility.note`, que sí pudieron subir el `if`/`then` al nivel del `allOf`, igual que P028, y por eso no tienen esa redundancia). Probé la alternativa (`dependentRequired`) con un prototipo Ajv real: da una sola línea pero pierde la especificidad de `.name`. Peor cambio, se descarta.
 - **Notas:** Verificado con los tres casos exactos (`offers[].name`, `partOf.name`, `eligibility.note`, cada uno con traducción y primario ausente) contra el validador real. `npm run validate` limpio, repo completo. Ningún ejemplo real del corpus se vio afectado. Pendiente de que hhkaos revise el resultado.
+
+## [2026-08-28] HUMANO — DECISION #P034: Permitir IRIs HTTP(S) y URLs `http://` en imágenes
+
+- **Decisión:** APROBADA
+- **Quién:** hhkaos
+- **Alcance:** Resolver OpenTechEvents/opentechevents-spec#32 en una nueva versión `v0.4.0`, dejando `spec/v0.3/` congelada. Cambiar los campos URL-like de JSON Schema `format: "uri"` a `format: "iri"` para aceptar URLs reales publicadas con caracteres Unicode, manteniendo la restricción de esquema HTTP(S). Relajar `image[]` y `image[].url` de `https://` a `http://` o `https://`. Documentar que `id` y `partOf.id` son IRIs HTTP(S) estables y que no deben reescribirse a una grafía percent-encoded distinta.
+
+## [2026-08-28] CODEX — IMPLEMENTACION #P034
+
+- **Commit:** este commit
+- **Ficheros cambiados:**
+  - `spec/v0.4/` — nueva copia normativa de la especificación con `specVersion: "0.4.0"`, `$id` de schema bajo `/schema/v0.4/`, referencias internas v0.4, campos URL-like con `format: "iri"` y URLs de imagen HTTP(S).
+  - `spec/v0.4/examples/event-iri-url.json` — ejemplo válido nuevo con slug Unicode (`pycamp-españa`) e imagen `http://`, catalogado en inglés y español.
+  - `index.js`, `index.d.ts`, `package.json`, `package-lock.json` — versión npm `0.4.0`, exports de schemas v0.4 y soporte Ajv explícito para el formato `iri`.
+  - `scripts/*.mjs` — generación, validación, registro de adopters y scripts de mantenimiento apuntan a la versión vigente `spec/v0.4`, conservando validación histórica de `v0.1`–`v0.3`.
+  - `README.md`, `CONTRIBUTING.md`, `spec/README.md`, `docs/spec/`, `docs/developers/`, `docs/register/`, `docs/examples/` — documentación pública actualizada para señalar `v0.4` como versión vigente y `v0.1`–`v0.3` como congeladas.
+  - `docs/schema/v0.4/`, `docs/data/reference.json`, `docs/data/examples.json`, `docs/llms*` — artefactos generados regenerados desde los schemas y ejemplos v0.4.
+- **Notas:** Verificado con `npm run validate`: todas las versiones `v0.1`–`v0.4` validan, las copias publicadas de schemas están sincronizadas, la referencia, galería de ejemplos y artefactos llms están al día. El cambio es compatible hacia delante para documentos válidos `0.3.0`; exige actualización de herramientas porque algunos validadores JSON Schema no registran `format: "iri"` por defecto.

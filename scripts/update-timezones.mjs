@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Regenerates $defs.timezone's enum in spec/v0.3/event.schema.json from the official IANA tzdata
+ * Regenerates $defs.timezone's enum in spec/v0.4/event.schema.json from the official IANA tzdata
  * release — NOT from `Intl.supportedValuesOf('timeZone')`. That API's notion of "canonical" name
  * tracks whatever tzdata snapshot the running Node/ICU bundles, and two Node versions can disagree
  * on which of an old/new pair (e.g. Europe/Kiev vs Europe/Kyiv, renamed 2022) counts as canonical —
@@ -16,7 +16,7 @@ import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
-const SCHEMA_PATH = new URL("../spec/v0.3/event.schema.json", import.meta.url);
+const SCHEMA_PATH = new URL("../spec/v0.4/event.schema.json", import.meta.url);
 const RELEASE_URL = "https://data.iana.org/time-zones/tzdata-latest.tar.gz";
 // Zone/Link definitions live in these files; "factory" only defines the "Factory" placeholder
 // zone, a deliberate "no real timezone was given" sentinel, not a real geographic identifier.

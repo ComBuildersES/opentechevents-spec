@@ -20,7 +20,7 @@ import { readFileSync, writeFileSync, readdirSync, mkdirSync, existsSync, rmSync
 import { join, basename } from "node:path";
 
 const SITE = "https://opentechevents.org";
-const VERSION = "v0.3";
+const VERSION = "v0.4";
 const OUT_DIR = join("docs", "llms");
 const check = process.argv.includes("--check");
 
@@ -36,12 +36,12 @@ const SECTIONS = [
       { file: "README.md", as: "overview.md", lead: "What OTE is, who it is for, and how a community adopts it." },
       {
         file: join("spec", VERSION, "README.md"),
-        as: "spec-v0.3.md",
+        as: "spec-v0.4.md",
         lead: `The specification itself for ${VERSION}: every field, and the rules a validator cannot check — why an id must never change, why a cancelled event stays published.`,
       },
       {
         file: join("spec", VERSION, "reference.en.md"),
-        as: "reference-v0.3.md",
+        as: "reference-v0.4.md",
         lead: "Field reference table generated from the schemas: type, required or recommended, allowed values, examples.",
       },
     ],

@@ -3,13 +3,13 @@ import { createRequire } from "node:module";
 const require = createRequire(import.meta.url);
 
 /** The spec version these schemas describe. Matches the `specVersion` field of a document. */
-export const specVersion = "0.3.0";
+export const specVersion = "0.4.0";
 
 /** JSON Schema (draft 2020-12) of a single OTE event. */
-export const eventSchema = require("./spec/v0.3/event.schema.json");
+export const eventSchema = require("./spec/v0.4/event.schema.json");
 
 /** JSON Schema (draft 2020-12) of an OTE feed. */
-export const feedSchema = require("./spec/v0.3/feed.schema.json");
+export const feedSchema = require("./spec/v0.4/feed.schema.json");
 
 /**
  * Both schemas, in the order a validator needs them: the feed references the event by $id,
@@ -23,8 +23,8 @@ export const schemas = [eventSchema, feedSchema];
  * Report their failures as warnings; never reject a document for them. Both reference the base
  * schemas by $id, so register `schemas` first.
  */
-export const eventRecommendedSchema = require("./spec/v0.3/event.recommended.schema.json");
-export const feedRecommendedSchema = require("./spec/v0.3/feed.recommended.schema.json");
+export const eventRecommendedSchema = require("./spec/v0.4/event.recommended.schema.json");
+export const feedRecommendedSchema = require("./spec/v0.4/feed.recommended.schema.json");
 export const recommendedSchemas = [eventRecommendedSchema, feedRecommendedSchema];
 
 /**
@@ -131,6 +131,21 @@ function isOteLanguageTag(value) {
 }
 
 /**
+ * JSON Schema's `iri` format is the Unicode sibling of `uri`: the web address a person actually
+ * publishes may carry non-ASCII characters such as `ñ` or `á`. The schemas still pair it with
+ * an explicit `^https?://` pattern wherever OTE wants web URLs only.
+ */
+function isIri(value) {
+  if (typeof value !== "string" || /[\u0000-\u0020<>"]/.test(value)) return false;
+  try {
+    new URL(encodeURI(value));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
  * Formats the schemas use beyond what ajv-formats provides. Ajv's strict mode refuses to
  * compile a schema referencing an unregistered format, so register these before compiling —
  * the same requirement `annotationKeywords` already has, for the same reason:
@@ -138,6 +153,7 @@ function isOteLanguageTag(value) {
  *   for (const f of customFormats) ajv.addFormat(f.name, f.validate);
  */
 export const customFormats = [
+  { name: "iri", validate: isIri },
   { name: "ote-local-date-time", validate: isOteLocalDateTime },
   { name: "ote-language-tag", validate: isOteLanguageTag },
 ];

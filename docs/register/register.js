@@ -10,7 +10,7 @@
 
   var REPO = "OpenTechEvents/opentechevents-spec";
   var ISSUE_TEMPLATE = "adopter.yml";
-  var SCHEMA_BASE = "../schema/v0.3/"; // published copies — same origin, no CORS
+  var SCHEMA_BASE = "../schema/v0.4/"; // published copies — same origin, no CORS
   var REGISTRY = "../data/adopters.json"; // the same file the site's adopter list renders from
 
   /* ---------- linking sources (pluggable) ----------

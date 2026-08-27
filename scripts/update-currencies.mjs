@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Regenerates $defs.currency's enum in spec/v0.3/event.schema.json from the official ISO 4217
+ * Regenerates $defs.currency's enum in spec/v0.4/event.schema.json from the official ISO 4217
  * active-currency list, published by SIX Group (the ISO-designated maintenance agency) —
  * NOT from `Intl.supportedValuesOf('currency')`. That API bundles whatever CLDR/ICU snapshot
  * shipped with the running Node, which lags the real registry: it still accepts BGN (Bulgarian
@@ -13,7 +13,7 @@
  */
 import { readFileSync, writeFileSync } from "node:fs";
 
-const SCHEMA_PATH = new URL("../spec/v0.3/event.schema.json", import.meta.url);
+const SCHEMA_PATH = new URL("../spec/v0.4/event.schema.json", import.meta.url);
 const LIST_URL =
   "https://www.six-group.com/dam/download/financial-information/data-center/iso-currrency/lists/list-one.xml";
 

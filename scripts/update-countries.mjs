@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Regenerates $defs.country's enum in spec/v0.3/event.schema.json from the officially assigned
+ * Regenerates $defs.country's enum in spec/v0.4/event.schema.json from the officially assigned
  * ISO 3166-1 alpha-2 codes.
  *
  * The true authority — iso.org, the ISO Online Browsing Platform — returns 403 to automated
@@ -22,7 +22,7 @@
  */
 import { readFileSync, writeFileSync } from "node:fs";
 
-const SCHEMA_PATH = new URL("../spec/v0.3/event.schema.json", import.meta.url);
+const SCHEMA_PATH = new URL("../spec/v0.4/event.schema.json", import.meta.url);
 const BASELINE_PATH = new URL("./data/iso-3166-1-alpha-2.json", import.meta.url);
 const MIRROR_URL =
   "https://salsa.debian.org/iso-codes-team/iso-codes/-/raw/main/data/iso_3166-1.json";
