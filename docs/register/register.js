@@ -11,6 +11,7 @@
   var REPO = "OpenTechEvents/opentechevents-spec";
   var ISSUE_TEMPLATE = "adopter.yml";
   var SCHEMA_BASE = "../schema/v0.3/"; // published copies — same origin, no CORS
+  var REGISTRY = "../data/adopters.json"; // the same file the site's adopter list renders from
 
   /* ---------- linking sources (pluggable) ----------
      A source turns an external community directory into a flat list of
@@ -64,6 +65,7 @@
       submit: "Open the registration issue",
       note: "This opens a prefilled issue on GitHub for you to review before sending — nothing is submitted behind your back. You need a GitHub account.",
       matched: "Found in {source} — your registration will be linked to that entry ({id}).",
+      feedListed: "This feed is already registered as <strong>{name}</strong> — see the <a href=\"/#adopters\">adopters list</a>. You can send this anyway: registering the same feed again updates its entry (name, website, logo, directory link) instead of adding a second one.",
       feedChecking: "Checking the feed…",
       feedValid: "The feed parses and has the core OTE fields. Full validation runs when your issue is reviewed.",
       feedInvalid: "This doesn't look like a valid OTE feed: {errors}",
@@ -99,6 +101,7 @@
       submit: "Abrir el issue de registro",
       note: "Esto abre un issue prefillado en GitHub para que lo revises antes de enviarlo — no se manda nada a tus espaldas. Necesitas una cuenta de GitHub.",
       matched: "Encontrada en {source}: tu registro quedará vinculado a esa entrada ({id}).",
+      feedListed: "Este feed ya está registrado como <strong>{name}</strong> — míralo en la <a href=\"/#adopters\">lista de adoptantes</a>. Puedes enviarlo igualmente: registrar otra vez el mismo feed actualiza su entrada (nombre, web, logo, enlace al directorio) en vez de añadir una segunda.",
       feedChecking: "Comprobando el feed…",
       feedValid: "El feed parsea y tiene los campos OTE básicos. La validación completa se hace al revisar tu issue.",
       feedInvalid: "Esto no parece un feed OTE válido: {errors}",
@@ -117,6 +120,8 @@
     // Last feed check: url it ran against, status (checking|valid|invalid|cors)
     // and errors as {key, vars} pairs so a language switch can re-render them.
     feed: { url: "", status: "idle", errors: [] },
+    // The registry entry this feed URL already has, if any (see checkListed).
+    listed: null,
   };
 
   /* ---------- language (same logic as the rest of the site) ---------- */
@@ -147,6 +152,7 @@
       btn.setAttribute("aria-pressed", String(btn.dataset.lang === state.lang));
     });
     renderMatch(); // the "linked to directory" line is localised too
+    renderListed(); // …the "already registered" notice…
     renderFeedStatus(); // …and so is the feed-check result
   }
 
@@ -216,6 +222,67 @@
 
   nameInput.addEventListener("focus", loadSources, { once: true });
   nameInput.addEventListener("input", findMatch);
+
+  /* ---------- already registered? ----------
+     The registry is keyed by feed URL and register-adopter.mjs upserts on it, so a
+     second registration of the same feed updates the entry instead of duplicating
+     it. That makes this a notice, never a block: re-registering is how you correct
+     a name, a website or a logo. Comparison ignores what a URL can differ in
+     without pointing anywhere else (scheme, case in the host, a trailing slash);
+     anything beyond that is a different URL and we say nothing. */
+
+  var listedLine = document.getElementById("reg-feed-listed");
+  var adopters = null; // the registry, once fetched
+
+  function feedKey(url) {
+    var parsed;
+    try { parsed = new URL(url.trim()); } catch (e) { return ""; }
+    return parsed.host.toLowerCase() + parsed.pathname.replace(/\/$/, "") + parsed.search;
+  }
+
+  function loadAdopters() {
+    if (adopters) return Promise.resolve(adopters);
+    return fetch(REGISTRY)
+      .then(function (r) { return r.json(); })
+      .then(function (json) {
+        adopters = json.adopters || [];
+        return adopters;
+      })
+      .catch(function (err) {
+        // Same rule as the directories: an unreachable registry must not block anything.
+        console.warn("[OTE] adopter registry unavailable", err);
+        adopters = [];
+        return adopters;
+      });
+  }
+
+  function checkListed() {
+    var key = feedKey(feedInput.value);
+    if (!key) {
+      state.listed = null;
+      renderListed();
+      return;
+    }
+    loadAdopters().then(function (list) {
+      if (feedKey(feedInput.value) !== key) return; // the field changed while we fetched
+      var found = null;
+      for (var i = 0; i < list.length; i++) {
+        if (list[i].feed && feedKey(list[i].feed) === key) { found = list[i]; break; }
+      }
+      state.listed = found;
+      renderListed();
+    });
+  }
+
+  function renderListed() {
+    if (!state.listed) {
+      listedLine.hidden = true;
+      return;
+    }
+    listedLine.hidden = false;
+    listedLine.className = "feed-status feed-status-warn";
+    listedLine.innerHTML = UI[state.lang].feedListed.replace("{name}", state.listed.name);
+  }
 
   /* ---------- feed check (best-effort, in the browser) ----------
      Honest about its limits: this is a sanity check — the URL answers, it's JSON,
@@ -328,6 +395,7 @@
   }
 
   feedInput.addEventListener("change", checkFeed);
+  feedInput.addEventListener("change", checkListed);
 
   /* ---------- submit: prefilled issue via URL params ---------- */
 
