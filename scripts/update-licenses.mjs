@@ -1,13 +1,19 @@
 #!/usr/bin/env node
 /**
- * Regenerates $defs.license's SPDX enum in spec/v0.3/event.schema.json from the official SPDX
- * License List, published as machine-readable JSON at github.com/spdx/license-list-data — the
- * SPDX project's own repository (a Linux Foundation project), not a third-party mirror.
+ * Regenerates $defs.license's SPDX enum in the CURRENT spec version's event.schema.json from the
+ * official SPDX License List, published as machine-readable JSON at github.com/spdx/license-list-data
+ * — the SPDX project's own repository (a Linux Foundation project), not a third-party mirror.
+ *
+ * The target version is resolved from spec/ (highest vN.N directory) rather than hardcoded, so a
+ * version bump does not silently leave this script regenerating the previous, frozen spec. Override
+ * with `--spec v0.3` when a released version genuinely needs a correction.
  *
  * Fetches the latest tagged RELEASE, not the `main` branch: a git tag is an immutable snapshot,
  * so regenerating this later reproduces the same enum until a maintainer deliberately re-runs
  * this against a newer tag, the same reproducibility `update-timezones.mjs`/`update-currencies.mjs`
- * get from pinning to a dated release.
+ * get from pinning to a dated release. `--tag vX.Y.Z` re-runs against the exact release a schema
+ * was last generated from, which is what makes "regenerate and diff" a meaningful integrity check
+ * instead of an unrelated enum refresh.
  *
  * Deprecated license IDs ARE included: SPDX itself states a deprecated identifier remains valid,
  * merely discouraged for new use — same reasoning as a renamed IANA timezone (D002) or a
@@ -34,18 +40,43 @@
  *
  * Maintenance script, not part of `npm run validate` or CI: run by hand when SPDX cuts a new
  * License List release.
+ *
+ * Caveat: it rewrites the whole file through JSON.stringify, so the hand-collapsed one-line
+ * `"not": {"pattern": "..."}` blocks come back expanded across three lines. Semantically identical,
+ * but it buries the enum change in reflow noise — when running this purely as an integrity check,
+ * diff the output and then discard it rather than committing the reflow.
  */
-import { readFileSync, writeFileSync } from "node:fs";
+import { readdirSync, readFileSync, writeFileSync } from "node:fs";
 
-const SCHEMA_PATH = new URL("../spec/v0.3/event.schema.json", import.meta.url);
 const RELEASES_API = "https://api.github.com/repos/spdx/license-list-data/releases/latest";
 
-const releaseRes = await fetch(RELEASES_API, {
-  headers: { Accept: "application/vnd.github+json" },
-});
-if (!releaseRes.ok) throw new Error(`fetch ${RELEASES_API} failed: ${releaseRes.status}`);
-const release = await releaseRes.json();
-const tag = release.tag_name;
+function arg(name) {
+  const i = process.argv.indexOf(`--${name}`);
+  return i === -1 ? undefined : process.argv[i + 1];
+}
+
+const specDir = new URL("../spec/", import.meta.url);
+const specVersion =
+  arg("spec") ??
+  readdirSync(specDir)
+    .filter((n) => /^v\d+\.\d+$/.test(n))
+    .sort((a, b) => {
+      const [aM, aN] = a.slice(1).split(".").map(Number);
+      const [bM, bN] = b.slice(1).split(".").map(Number);
+      return aM - bM || aN - bN;
+    })
+    .at(-1);
+const SCHEMA_PATH = new URL(`${specVersion}/event.schema.json`, specDir);
+
+let tag = arg("tag");
+if (!tag) {
+  const releaseRes = await fetch(RELEASES_API, {
+    headers: { Accept: "application/vnd.github+json" },
+  });
+  if (!releaseRes.ok) throw new Error(`fetch ${RELEASES_API} failed: ${releaseRes.status}`);
+  const release = await releaseRes.json();
+  tag = release.tag_name;
+}
 
 const dataUrl = `https://raw.githubusercontent.com/spdx/license-list-data/${tag}/json/licenses.json`;
 const dataRes = await fetch(dataUrl);

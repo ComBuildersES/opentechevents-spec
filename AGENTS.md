@@ -10,6 +10,22 @@ Una auditoría previa (33 rondas, `P001`–`P033`, ver `RESUME-SCHEMA-AUDIT.md` 
 
 - Antes de actuar, lee [`CLAUDE.md`](CLAUDE.md) si todavía no lo has leído en esta sesión.
 - No uses la skill `ship` en este repo. Para commits y pushes, sigue el flujo manual del proyecto y revisa explícitamente qué ficheros se van a incluir.
+- Si vas a crear una versión nueva de la spec (`spec/vN.N/`), aplica la regla dura de abajo. Es independiente de la misión que tengas asignada.
+
+## Regla dura: nunca sustituyas la versión "en masa" al crear `spec/vN.N/`
+
+Al publicar 0.4.0 se hizo un reemplazo global de la cadena de versión sobre los schemas copiados de v0.3, y eso convirtió el identificador SPDX `copyleft-next-0.3.0` en `copyleft-next-0.4.0` — un id que no existe en la SPDX License List. Consecuencia: un feed con licencia real se habría reportado inválido y un id inventado habría validado.
+
+**Los schemas contienen valores que llevan números de versión ajenos a la spec.** Los enums generados (SPDX, ISO 4217, ISO 3166, tz, BCP 47) son datos de una autoridad externa: cualquier `0.3.0` dentro de un `enum` es un dato, no la versión de OTE. Un `sed`/replace global no sabe distinguirlos y nunca lo sabrá.
+
+Procedimiento obligatorio para bifurcar una versión:
+
+1. Copia `spec/vANTERIOR/` a `spec/vNUEVA/` y edita **solo** lo que es realmente la versión: `$id`, `specVersion` (`const` y `examples`), y los `$ref` entre schemas. Nada dentro de un `enum`, nunca.
+2. Regenera los enums con su script y **fijando el release** que ya declara el `$comment` correspondiente — p. ej. `node scripts/update-licenses.mjs --tag v3.28.0`. Fijar el tag es lo que convierte esto en una comprobación de integridad; sin `--tag` traes datos nuevos y el diff deja de significar nada.
+3. `diff spec/vANTERIOR/X.schema.json spec/vNUEVA/X.schema.json` para **los cuatro** schemas (`event`, `feed`, `event.recommended`, `feed.recommended`), y justifica línea a línea cada diferencia. Si una diferencia no está en tu lista de cambios intencionados, es un error de esta clase.
+4. Regenera lo derivado y valida: `npm run publish-schemas && npm run build-llms && npm run validate`. Las copias de `docs/schema/`, `docs/llms/` y `docs/llms-full.txt` arrastran el mismo error si no se rehacen.
+
+Los scripts `update-*.mjs` resuelven por sí solos la versión más alta de `spec/`, así que no hay que tocarlos en cada bump; usa `--spec vN.N` solo si necesitas corregir una versión ya congelada.
 
 ## Tu rol: implementador ciego
 

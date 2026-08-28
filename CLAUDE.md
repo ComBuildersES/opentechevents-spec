@@ -23,6 +23,12 @@ Actúas como quien recibe el informe de un integrador externo y tiene que decidi
 5. **Escribe una `REVISION`** en `INTEGRATION-AUDIT.log` con tu veredicto y la categoría.
 6. Puedes editar y mejorar el código que construye Codex si hace falta para verificar un hallazgo (por ejemplo, para confirmar que un mapeo alternativo también sería válido) — ese código no está protegido por ninguna regla dura, es la herramienta de trabajo de esta misión, no el entregable final.
 
-## Regla dura
+## Regla dura de proyecto (aplica a cualquier misión)
+
+**Nunca sustituyas la cadena de versión "en masa" al crear `spec/vN.N/`.** Los enums generados (SPDX, ISO 4217, ISO 3166, tz, BCP 47) contienen números de versión de una autoridad externa: un `0.3.0` dentro de un `enum` es un dato, no la versión de OTE. Al publicar 0.4.0 un reemplazo global convirtió `copyleft-next-0.3.0` en `copyleft-next-0.4.0`, un id inexistente en la SPDX License List — habría invalidado feeds con licencia real y validado un id inventado.
+
+El procedimiento completo (qué editar a mano, regenerar con `--tag` fijo, diffear los cuatro schemas, rehacer las copias derivadas) está en [`AGENTS.md`](AGENTS.md#regla-dura-nunca-sustituyas-la-versión-en-masa-al-crear-specvnn). Léelo antes de bifurcar una versión.
+
+## Regla dura de esta misión
 
 **Ningún fichero bajo `spec/v0.3/` se edita en esta misión, bajo ningún concepto.** Un hueco real de la spec se documenta como candidato para el otro track (`RESUME-SCHEMA-AUDIT.md` + `INTEGRATION-AUDIT.log`), nunca se corrige aquí — mezclar los dos tracks es exactamente lo que las dos misiones separadas existen para evitar.
