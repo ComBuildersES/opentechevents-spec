@@ -1,5 +1,5 @@
 {
-  "_comment": "INVÁLIDO a propósito: mismo caso que event-enddate-before-startdate.json, pero con fechas de día completo. Ver CHANGES.log #P003 / DECISIONS.md D004.",
+  "_comment": "INVÁLIDO a propósito: mismo caso que event-enddate-before-startdate.json, pero con fechas de día completo. Ver docs/history/CHANGES.log #P003 / DECISIONS.md D004.",
   "specVersion": "0.4.0",
   "id": "https://x.example/1",
   "name": "X",

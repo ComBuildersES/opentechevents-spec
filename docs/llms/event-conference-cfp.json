@@ -70,7 +70,7 @@
   "license": "CC-BY-4.0",
   "updatedAt": "2026-05-04T09:00:00Z",
 
-  "_comment_languages_translations": "languages declara \"es\" y \"en\" porque la conferencia se vive en los dos —tracks y networking en inglés—, pero antes de P019 el documento no traducía ni name ni description: el perfil recomendado no tenía forma de detectarlo, y quien solo lee inglés no encontraba ni una palabra que entendiera. Ver CHANGES.log #P019 / DECISIONS.md D019.",
+  "_comment_languages_translations": "languages declara \"es\" y \"en\" porque la conferencia se vive en los dos —tracks y networking en inglés—, pero antes de P019 el documento no traducía ni name ni description: el perfil recomendado no tenía forma de detectarlo, y quien solo lee inglés no encontraba ni una palabra que entendiera. Ver docs/history/CHANGES.log #P019 / DECISIONS.md D019.",
 
   "translations": {
     "en": {

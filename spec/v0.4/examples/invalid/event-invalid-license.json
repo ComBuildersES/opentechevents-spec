@@ -1,5 +1,5 @@
 {
-  "_comment": "INVÁLIDO a propósito: TOTALLY-MADE-UP-9.9 no es un identificador de la SPDX License List. license existe para que un consumidor compare los permisos contra una allowlist; un identificador inventado rompe justo esa promesa — ver CHANGES.log #P007 / DECISIONS.md D008.",
+  "_comment": "INVÁLIDO a propósito: TOTALLY-MADE-UP-9.9 no es un identificador de la SPDX License List. license existe para que un consumidor compare los permisos contra una allowlist; un identificador inventado rompe justo esa promesa — ver docs/history/CHANGES.log #P007 / DECISIONS.md D008.",
   "specVersion": "0.4.0",
   "id": "https://x.example/1",
   "name": "X",

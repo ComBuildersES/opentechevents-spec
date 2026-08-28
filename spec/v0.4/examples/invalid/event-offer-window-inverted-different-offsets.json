@@ -1,5 +1,5 @@
 {
-  "_comment": "INVÁLIDO a propósito: aunque la comparación de las cadenas sugiere lo contrario, con offsets distintos closesAt (2026-07-01T16:00 UTC) es anterior a opensAt (2026-07-02T04:00 UTC) — el motivo por el que esta regla compara instantes reales, no texto. Ver CHANGES.log #P008 / DECISIONS.md D009.",
+  "_comment": "INVÁLIDO a propósito: aunque la comparación de las cadenas sugiere lo contrario, con offsets distintos closesAt (2026-07-01T16:00 UTC) es anterior a opensAt (2026-07-02T04:00 UTC) — el motivo por el que esta regla compara instantes reales, no texto. Ver docs/history/CHANGES.log #P008 / DECISIONS.md D009.",
   "specVersion": "0.4.0",
   "id": "https://x.example/1",
   "name": "X",

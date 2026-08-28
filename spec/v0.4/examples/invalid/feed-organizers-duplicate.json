@@ -1,5 +1,5 @@
 {
-  "_comment": "INVÁLIDO a propósito: feed.organizers repite exactamente el mismo objeto. Misma regla que event.organizers. Ver CHANGES.log #P030 / DECISIONS.md D027.",
+  "_comment": "INVÁLIDO a propósito: feed.organizers repite exactamente el mismo objeto. Misma regla que event.organizers. Ver docs/history/CHANGES.log #P030 / DECISIONS.md D027.",
   "specVersion": "0.4.0",
   "title": "Feed con organizadores duplicados",
   "license": "CC0-1.0",

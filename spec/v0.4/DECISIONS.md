@@ -5,7 +5,7 @@ A record of the deliberate design choices behind OTE Spec, written so any of the
 This is not the same list as [Open questions](README.md#open-questions) in the main README: those are things the spec has **not** decided yet. Everything below **has** been decided — recorded here so the reasoning survives past the person who made the call.
 
 Two kinds of entries:
-- **Full entries** — decisions made during the schema.org audit (see root [`CHANGES.log`](../../CHANGES.log) for the full deliberation, including the evidence and the back-and-forth that led here). Written directly in English because that log is Spanish-only and audit-specific.
+- **Full entries** — decisions made during the schema.org audit (see root [`docs/history/CHANGES.log`](../../docs/history/CHANGES.log) for the full deliberation, including the evidence and the back-and-forth that led here). Written directly in English because that log is Spanish-only and audit-specific.
 - **Indexed decisions** — older decisions already argued at length in [`README.md`](README.md). Rather than duplicate that prose, each gets a short summary and a link to the full reasoning.
 
 ---
@@ -14,7 +14,7 @@ Two kinds of entries:
 
 ### D001 — Temporal fields must be calendar-valid, not just lexically shaped
 
-**Status:** Decided 2026-08-03. See `CHANGES.log` #P001 for the full trail (Codex's proposal, the evidence, the review).
+**Status:** Decided 2026-08-03. See `docs/history/CHANGES.log` #P001 for the full trail (Codex's proposal, the evidence, the review).
 
 **Context.** `event.schema.json`'s three shared temporal definitions (`$defs.date`, `$defs.dateTime`, `$defs.instant`) validated only the *lexical shape* of a value via regex — four digits, a dash, two digits, and so on — never whether the value was a value a calendar could actually produce. `"2026-99-99T99:99"` validated as a well-formed event `startDate`.
 
@@ -36,7 +36,7 @@ Two kinds of entries:
 
 ### D002 — `timezone` must be a real IANA identifier, error not warning
 
-**Status:** Decided 2026-08-03. See `CHANGES.log` #P002 (and the follow-up note about the data source, D003 territory but logged under P002) for the full trail.
+**Status:** Decided 2026-08-03. See `docs/history/CHANGES.log` #P002 (and the follow-up note about the data source, D003 territory but logged under P002) for the full trail.
 
 **Context.** `timezone` is a required field whose entire normative purpose is to "turn a wall-clock `startDate` into an unambiguous instant." It only validated the *shape* of the string (`Area/Location`, or literally `UTC`) via regex — `"Europe/Atlantida"` validated as a well-formed timezone despite not existing.
 
@@ -69,7 +69,7 @@ The corrected source is the **official IANA tzdata release** (`https://data.iana
 
 ### D004 — `dateTime` has no seconds, and `endDate` must not precede `startDate`
 
-**Status:** Decided 2026-08-03. See `CHANGES.log` #P003 for the full trail.
+**Status:** Decided 2026-08-03. See `docs/history/CHANGES.log` #P003 for the full trail.
 
 **Context.** Nothing checked the relationship between `startDate` and `endDate` — an event could end before it started and still validate (`{"startDate": "...T20:00:00", "endDate": "...T18:00:00", ...}`). While reviewing how to implement that check, a second, sharper problem showed up: `$defs.dateTime` allowed optional seconds independently on each field, and comparing the two strings directly — the natural way to check order without a timezone conversion (see D003) — breaks exactly there. `"2026-08-03T18:30:00" > "2026-08-03T18:30"` is `true` in plain string comparison, even though both denote the same nominal wall-clock minute. A naive `endDate >= startDate` string check would have flagged that pair as "inverted."
 
@@ -90,7 +90,7 @@ The corrected source is the **official IANA tzdata release** (`https://data.iana
 
 ### D005 — `offers[].currency` must be a real ISO 4217 code
 
-**Status:** Decided 2026-08-03. See `CHANGES.log` #P004 for the full trail, including a real methodology mistake made and caught while sourcing the enum — worth reading for that alone.
+**Status:** Decided 2026-08-03. See `docs/history/CHANGES.log` #P004 for the full trail, including a real methodology mistake made and caught while sourcing the enum — worth reading for that alone.
 
 **Context.** `currency` is described normatively as "ISO 4217 alpha-3 code, uppercase" and mapped 1:1 to `schema.org/Offer.priceCurrency`, but the schema only checked `^[A-Z]{3}$` — three uppercase letters, not a real currency. `{"price": 10, "currency": "ZZZ"}` validated. Same failure shape as D002 (`timezone`): a field whose entire job is to make a number interpretable and comparable can be satisfied with a value that does neither.
 
@@ -112,7 +112,7 @@ The corrected source is the **official IANA tzdata release** (`https://data.iana
 
 ### D006 — `location.address.country` must be a real, currently-assigned ISO 3166-1 code
 
-**Status:** Decided 2026-08-03. See `CHANGES.log` #P005 for the full trail — including a case where the official source could not be fetched by a script at all, and how that was resolved.
+**Status:** Decided 2026-08-03. See `docs/history/CHANGES.log` #P005 for the full trail — including a case where the official source could not be fetched by a script at all, and how that was resolved.
 
 **Context.** `country` is described normatively as "ISO 3166-1 alpha-2 code" and maps 1:1 to `schema.org/PostalAddress.addressCountry`, but the schema only checked `^[A-Z]{2}$`. `{"country": "ZZ"}` validated. Same failure shape as D002/D005: a field whose whole point is to let a consumer group events by country without depending on which language wrote the name can be satisfied with two letters that name nothing.
 
@@ -139,7 +139,7 @@ This is the structural fix for the mistake D005 (`currency`) almost shipped with
 
 ### D007 — `languageTag` validates the CORE of BCP 47 against the real IANA registry, not all of it
 
-**Status:** Decided 2026-08-03. See `CHANGES.log` #P006 for the full trail — including a scoping question hhkaos asked before agreeing to any implementation, which changed the shape of this decision, and a subtle error in the original evidence's own stated reasoning that this decision's implementation had to get right anyway.
+**Status:** Decided 2026-08-03. See `docs/history/CHANGES.log` #P006 for the full trail — including a scoping question hhkaos asked before agreeing to any implementation, which changed the shape of this decision, and a subtle error in the original evidence's own stated reasoning that this decision's implementation had to get right anyway.
 
 **Context.** `languageTag` (shared by `languages`, both `textLanguage` fields, and every `translations` key) is described as "a BCP 47 language tag" but only checked `^[A-Za-z]{2,3}(-[A-Za-z0-9]{2,8})*$` — a regex that manages to be wrong in **both directions** at once: it rejects real, valid BCP 47 tags (`x-example`, a private-use tag; `i-klingon`, a grandfathered tag), and it accepts strings that are not valid BCP 47 at all (`en-12345678`).
 
@@ -164,7 +164,7 @@ This is the structural fix for the mistake D005 (`currency`) almost shipped with
 
 ### D008 — `license` validates simple SPDX identifiers against the real SPDX License List
 
-**Status:** Decided 2026-08-03. See `CHANGES.log` #P007 — the cleanest cycle of this audit: the proposal already applied the sourcing lesson from D002/D005/D006 and the scoping lesson from D007 without needing either pointed out.
+**Status:** Decided 2026-08-03. See `docs/history/CHANGES.log` #P007 — the cleanest cycle of this audit: the proposal already applied the sourcing lesson from D002/D005/D006 and the scoping lesson from D007 without needing either pointed out.
 
 **Context.** `license` (shared by the event, `source.license`, and the feed) is described as "an SPDX identifier … or a URL", but `$defs.license` only checked `^([A-Za-z0-9.+-]+|https?://.+)$` — characters that could plausibly appear in an SPDX id, not an actual one. `{"license": "TOTALLY-MADE-UP-9.9"}` validated. Same failure shape as D002/D005/D006/D007: the field's whole reason for using an identifier instead of prose ("CC0-1.0" instead of "public domain, sort of") is that a consumer can check it against an allowlist — and an invented identifier defeats that while still passing.
 
@@ -176,7 +176,7 @@ This is deliberately a **warning, not a validity error** — added to `event.rec
 
 **On cross-feed license compatibility, considered and deliberately NOT addressed:** hhkaos also asked whether the spec should enforce or check compatibility between different events' licenses within one feed. Decision: no. Each event is an independently licensed work — `license` can be overridden per event specifically because not every community wants the same terms — so there is no single derivative work whose licenses must reconcile, unlike linking two differently-licensed software libraries into one binary. Whoever aggregates and wants to redistribute or merge a feed as a single unit is the one creating that combined work, and checking real license compatibility is a genuine legal judgment call (SPDX itself does not publish an official compatibility matrix even for software; for content licenses with NC/SA clauses it is more contested still) — not something a JSON Schema validator can or should adjudicate. A prose note in `README.md` states this explicitly instead: compatibility across a feed's events is the aggregator's responsibility, not a guarantee this spec makes.
 
-**Alternatives considered.** Codex's own proposal already worked through the same alternatives D002/D005/D006 close off (consumer-side allowlists, runtime/CLDR-style derived sources, live queries against a frozen version, excluding deprecated IDs against SPDX's own stated position) and D007's scope question (full license expression grammar vs. simple identifiers) — see the `PROPUESTA` and `REVISION` entries in `CHANGES.log` #P007 for the full reasoning; nothing here changed any of it.
+**Alternatives considered.** Codex's own proposal already worked through the same alternatives D002/D005/D006 close off (consumer-side allowlists, runtime/CLDR-style derived sources, live queries against a frozen version, excluding deprecated IDs against SPDX's own stated position) and D007's scope question (full license expression grammar vs. simple identifiers) — see the `PROPUESTA` and `REVISION` entries in `docs/history/CHANGES.log` #P007 for the full reasoning; nothing here changed any of it.
 
 **Compatibility impact.** Restrictive only for strings that matched the old shape-only pattern but were never real SPDX identifiers, or a malformed URL. `CC0-1.0`/`CC-BY-4.0`, used throughout the repo's real examples, are unaffected, as are deprecated-but-still-valid IDs. A license SPDX adds in the future needs a new OTE version to become valid — the same accepted cost as D002/D005/D006.
 
@@ -186,7 +186,7 @@ This is deliberately a **warning, not a validity error** — added to `event.rec
 
 ### D009 — `offers[]` and `cfp` windows (`opensAt`/`closesAt`) must not be inverted, and instants keep their own offset rather than being forced to UTC
 
-**Status:** Decided 2026-08-03. See `CHANGES.log` #P008 for the full trail, including a real counterexample proving why string comparison is unsafe here even though D004 made it safe for `startDate`/`endDate`.
+**Status:** Decided 2026-08-03. See `docs/history/CHANGES.log` #P008 for the full trail, including a real counterexample proving why string comparison is unsafe here even though D004 made it safe for `startDate`/`endDate`.
 
 **Context.** `offers[].opensAt`/`closesAt` and `cfp.opensAt`/`closesAt` each validated individually as `$defs.instant`, but nothing checked their relationship — a sale or a call for proposals could close before it opened and still validate. Same failure shape as D004's `endDate`/`startDate`, but a level down: two different structures (`$defs.offer`, `$defs.cfp`) sharing the same open/close pair, and — critically — instants, not wall-clock values.
 
@@ -210,13 +210,13 @@ This is deliberately a **warning, not a validity error** — added to `event.rec
 
 ### D010 — A `translations` map must not carry a key equal to `textLanguage`
 
-**Status:** Decided 2026-08-03. See `CHANGES.log` #P009.
+**Status:** Decided 2026-08-03. See `docs/history/CHANGES.log` #P009.
 
 **Context.** `translations` (shared by the event, and nested inside `eligibility`, `partOf`, each `offers[]`, each `image[]`, and separately the feed's own) is described as carrying "the same event's free text in other languages" and states explicitly: "Never a translation of the language the document is already in." But nothing checked that — a document could declare `textLanguage: "es"` and also have `translations: {"es": {...}}`, two different texts both claiming to be Spanish, with no way for a consumer to know which one is authoritative. Verified the evidence directly, including a second form: RFC 5646 §2.1.1 states language tags are compared case-insensitively, so `translations: {"ES": {...}}` names the exact same conflict and validated too, before this decision.
 
 **Decision.** A new `distinctTranslationLanguages` keyword (same `customKeywords` mechanism as `orderedDates`/`orderedInstants`) rejects any `translations` map — at any of the same nested locations already enumerated by the sibling rule that *requires* `textLanguage` wherever such a map exists — carrying a key equal to `textLanguage`, compared case-insensitively. Scope is deliberately literal: it catches the same tag written differently in case, not two different-but-related tags (a regional variant, a deprecated/preferred pair from D007's registry). Resolving linguistic equivalence between genuinely different tags is a materially larger question with no demonstrated need here — same scoping discipline as D007.
 
-**Alternatives considered.** Codex's own proposal already worked through the alternatives this decision would otherwise need to close (consumer-side precedence, recommended-tier warning instead of an error, case-sensitive comparison, canonicalizing IANA aliases/preferred values, prose-only, restricting to the top-level map only) — see `CHANGES.log` #P009's `PROPUESTA` for the full reasoning; independently verified each conclusion rather than accepting it on faith, including re-running the case-insensitivity check and re-scanning the entire example corpus for a conflict (found none, confirming the proposal's own compatibility claim).
+**Alternatives considered.** Codex's own proposal already worked through the alternatives this decision would otherwise need to close (consumer-side precedence, recommended-tier warning instead of an error, case-sensitive comparison, canonicalizing IANA aliases/preferred values, prose-only, restricting to the top-level map only) — see `docs/history/CHANGES.log` #P009's `PROPUESTA` for the full reasoning; independently verified each conclusion rather than accepting it on faith, including re-running the case-insensitivity check and re-scanning the entire example corpus for a conflict (found none, confirming the proposal's own compatibility claim).
 
 **Compatibility impact.** Restrictive only for a document whose `translations` map (at any of the covered locations) already contains a key equal to its own `textLanguage`. No real example in the repo does this — confirmed by scanning the whole corpus, not just trusting the claim.
 
@@ -226,7 +226,7 @@ This is deliberately a **warning, not a validity error** — added to `event.rec
 
 ### D011 — No two events in a feed may share an `id`, compared by exact string equality
 
-**Status:** Decided 2026-08-03. See `CHANGES.log` #P010.
+**Status:** Decided 2026-08-03. See `docs/history/CHANGES.log` #P010.
 
 **Context.** `id` is described as a "stable, globally unique identifier … minted once, never rewritten — this is what lets consumers update an event instead of duplicating it", but `feed.events` was a plain array with no constraint between its elements: two different event objects could carry the same `id` and both validate, leaving a consumer two incompatible states for one identity with no way to know which to keep. RFC 5545's `UID` (the iCalendar property `id` maps to) makes the same requirement explicit: a persistent, globally unique identifier a generator must ensure is unique, used to correlate an update with the `VEVENT` it modifies.
 
@@ -234,7 +234,7 @@ This is deliberately a **warning, not a validity error** — added to `event.rec
 
 **Why this is not the cross-source deduplication the spec already excludes.** `README.md`'s "what v0.3 does not solve" section explicitly leaves out deduplication *between sources* — two different feeds independently describing what might be the same real-world event, published under different `id`s each publisher minted themselves. That is a heuristic, judgment-laden problem (matching on name/date/venue similarity) this spec correctly declines to solve. This decision is a different, narrower thing: **one document, from one source, asserting the same self-controlled identifier twice.** There is no heuristic involved — the document contradicts its own declared identity, the same category of internal-consistency gap as D004's `endDate`/`startDate` or D010's `translations`, not a new foray into cross-source matching.
 
-**Alternatives considered.** Codex's own proposal already worked through the alternatives this decision would otherwise need to close (`uniqueItems` — compares whole objects, useless when the two events differ elsewhere; heuristic matching by name/date/url; URI normalization before comparing; restructuring `events` into an id-keyed object; prose-only or recommended-tier). See `CHANGES.log` #P010's `PROPUESTA` for the full reasoning; independently verified the evidence (a two-event feed sharing one `id` validates today) and re-scanned every real `feed*.json` example, confirming none already has this problem, rather than accepting the claim on faith.
+**Alternatives considered.** Codex's own proposal already worked through the alternatives this decision would otherwise need to close (`uniqueItems` — compares whole objects, useless when the two events differ elsewhere; heuristic matching by name/date/url; URI normalization before comparing; restructuring `events` into an id-keyed object; prose-only or recommended-tier). See `docs/history/CHANGES.log` #P010's `PROPUESTA` for the full reasoning; independently verified the evidence (a two-event feed sharing one `id` validates today) and re-scanned every real `feed*.json` example, confirming none already has this problem, rather than accepting the claim on faith.
 
 **Compatibility impact.** Restrictive only for a feed that already repeats an exact `id` across two of its events — not a real, distinct pair of events, so fixing it means correcting the data (one representation per identity, or genuinely distinct `id`s if they really are different events), not migrating a format. No real example in the repo is affected.
 
@@ -244,7 +244,7 @@ This is deliberately a **warning, not a validity error** — added to `event.rec
 
 ### D012 — An event's `partOf.id` must not equal its own `id`
 
-**Status:** Decided 2026-08-03. See `CHANGES.log` #P011 — a direct, same-day follow-on to D011, correctly distinguished from it by the proposal itself without needing that pointed out.
+**Status:** Decided 2026-08-03. See `docs/history/CHANGES.log` #P011 — a direct, same-day follow-on to D011, correctly distinguished from it by the proposal itself without needing that pointed out.
 
 **Context.** `partOf` is "a reference to the whole this occurrence belongs to" — the series or multi-part event a single document is one occurrence of, mapped to `schema.org/superEvent` and iCalendar `RELATED-TO;RELTYPE=PARENT`. Nothing stopped `partOf.id` from being exactly the event's own `id`: a document simultaneously claiming to be one occurrence AND the series containing it. Exporting that produces an `Event` whose `superEvent` is itself, and a `VEVENT` whose parent is itself — self-reference in every mapping this field promises.
 
@@ -252,7 +252,7 @@ This is deliberately a **warning, not a validity error** — added to `event.rec
 
 **Why this is not the same rule as D011, just applied differently.** D011 stops two DIFFERENT events in one feed from claiming the same `id`. This stops ONE event from claiming its `partOf` (the whole it belongs to) IS itself. The proposal explicitly considered and rejected a broader rule — forbidding `partOf.id` from matching *any other* event's `id` in the feed — because that would forbid a legitimate cross-reference: an occurrence correctly pointing at the real event that IS its series (which, if that series event is also published in the feed, will *of course* share its `id` with what the occurrence names in `partOf.id` — that is the relationship working as intended, not a duplicate). Only self-reference is incoherent by construction; referencing a different, real parent is exactly the feature this field exists for.
 
-**Alternatives considered.** Codex's own proposal already worked through the alternatives this decision would otherwise need to close (leave it to consumers, recommended-tier warning, normalized/resolved URI comparison, feed-only scope, forbidding cross-references to other events' ids, removing `partOf` entirely) — see `CHANGES.log` #P011's `PROPUESTA` for the full reasoning; independently verified the evidence and re-scanned the whole example corpus for this exact conflict, finding none, rather than accepting the claim on faith.
+**Alternatives considered.** Codex's own proposal already worked through the alternatives this decision would otherwise need to close (leave it to consumers, recommended-tier warning, normalized/resolved URI comparison, feed-only scope, forbidding cross-references to other events' ids, removing `partOf` entirely) — see `docs/history/CHANGES.log` #P011's `PROPUESTA` for the full reasoning; independently verified the evidence and re-scanned the whole example corpus for this exact conflict, finding none, rather than accepting the claim on faith.
 
 **Compatibility impact.** Restrictive only for an event that already declares itself its own parent — not a coherent series relationship, so fixing it means using the real series identifier or removing `partOf` if no such series exists. No real example in the repo is affected.
 
@@ -262,13 +262,13 @@ This is deliberately a **warning, not a validity error** — added to `event.rec
 
 ### D013 — All-day `endDate` is inclusive; iCalendar `DTEND` is not
 
-**Status:** Decided 2026-08-03. See `CHANGES.log` #P012 — unlike D001–D012, this closes a normative AMBIGUITY, not a validation gap: no document that validates today is wrong: the prose simply never said which of two reasonable readings was intended.
+**Status:** Decided 2026-08-03. See `docs/history/CHANGES.log` #P012 — unlike D001–D012, this closes a normative AMBIGUITY, not a validation gap: no document that validates today is wrong: the prose simply never said which of two reasonable readings was intended.
 
 **Context.** For an all-day event (`startDate`/`endDate` as bare dates, no time), nothing said whether `endDate` names the last day the event runs (inclusive) or the first day after it ends (exclusive). The repo's own example (`event-all-day.json`, `startDate: "2026-10-16"`, `endDate: "2026-10-17"`) is catalogued as *"A two-day conference"* — under an exclusive reading that pair would be a one-day event, so the corpus already assumed inclusive without saying so. Verified directly against the primary source rather than trusting the proposal's citation: fetched the full RFC 5545 text and confirmed, word for word, its own worked example in §3.6.1 — *"a multi-day event scheduled from June 28th, 2007 to July 8th, 2007 inclusively. Note that the 'DTEND' property is set to July 9th, 2007, since the 'DTEND' property specifies the non-inclusive end of the event."* Also independently confirmed Google's structured-data guidance for `Event.endDate` uses the real end date/time, never the day after — consistent with the inclusive reading the OTE corpus already assumed.
 
 **Decision.** All-day `endDate` is normatively **inclusive**: `startDate: "2026-10-16"` + `endDate: "2026-10-17"` is a two-day event. Exporting to iCalendar requires adding one day to produce `DTEND;VALUE=DATE`; importing a DATE-typed `DTEND` requires subtracting one day to recover OTE's inclusive `endDate`. This applies ONLY to the date-only (all-day) form — a date-TIME `endDate` is already an unambiguous instant, no inclusive/exclusive question applies to it.
 
-**Alternatives considered.** Codex's own proposal already worked through the alternatives this decision would otherwise need to close (adopt iCalendar's exclusive convention instead — rejected because it would silently turn the spec's own labeled two-day example into a one-day event and contradict Google/schema.org guidance; leave the convention to each exporter; add an `endDateInclusive` boolean or a separate `exclusiveEndDate` field — both rejected as unnecessary wire-format variability for a convention that can and should be singular; always omit `DTEND` for all-day events — rejected because RFC 5545 can then only infer one day, losing real multi-day duration; treat as a recommended-tier warning — rejected because today's documents are all valid, the gap is that the norm never fixed how to interpret and convert them). See `CHANGES.log` #P012's `PROPUESTA` for the full reasoning; independently re-verified the RFC 5545 and Google citations against the primary sources rather than accepting them on faith.
+**Alternatives considered.** Codex's own proposal already worked through the alternatives this decision would otherwise need to close (adopt iCalendar's exclusive convention instead — rejected because it would silently turn the spec's own labeled two-day example into a one-day event and contradict Google/schema.org guidance; leave the convention to each exporter; add an `endDateInclusive` boolean or a separate `exclusiveEndDate` field — both rejected as unnecessary wire-format variability for a convention that can and should be singular; always omit `DTEND` for all-day events — rejected because RFC 5545 can then only infer one day, losing real multi-day duration; treat as a recommended-tier warning — rejected because today's documents are all valid, the gap is that the norm never fixed how to interpret and convert them). See `docs/history/CHANGES.log` #P012's `PROPUESTA` for the full reasoning; independently re-verified the RFC 5545 and Google citations against the primary sources rather than accepting them on faith.
 
 **Compatibility impact.** None on validity or wire format — no document that validates today stops validating, and no JSON shape changes. This is normative clarification plus an explicit conversion table for the OTE↔iCalendar boundary. The real risk it closes: without this, two independently-built, individually reasonable exporters (one reading RFC 5545 literally, one following Google/schema.org convention) would silently produce different durations for the identical OTE document — worse than an outright rejection, because both readings look correct until compared.
 
@@ -278,7 +278,7 @@ This is deliberately a **warning, not a validity error** — added to `event.rec
 
 ### D014 — DST-ambiguous or nonexistent local times resolve per RFC 5545 §3.3.5
 
-**Status:** Decided 2026-08-03. See `CHANGES.log` #P013 — a same-day companion to D013 (P012's own entry), the second normative ambiguity this audit closed by verifying the primary source directly rather than a validation gap. Also the one entry in this log with a recorded correction: the first justification offered for why this matters was wrong, and hhkaos catching it produced the real one.
+**Status:** Decided 2026-08-03. See `docs/history/CHANGES.log` #P013 — a same-day companion to D013 (P012's own entry), the second normative ambiguity this audit closed by verifying the primary source directly rather than a validation gap. Also the one entry in this log with a recorded correction: the first justification offered for why this matters was wrong, and hhkaos catching it produced the real one.
 
 **Context.** `timezone` is described as turning a wall-clock `startDate` "into an unambiguous instant" — true except on the two nights a year a zone's DST rules change. When clocks fall back, one local hour is repeated and names two different instants; when they spring forward, one local hour never occurs at all. Nothing in `event.schema.json`/`README.md` said how to resolve either case, even though D001 (calendar-valid components) and D002 (real IANA identifier) both already pass a `startDate`/`timezone` pair that lands in one of these windows.
 
@@ -286,7 +286,7 @@ This is deliberately a **warning, not a validity error** — added to `event.rec
 
 **A correction worth keeping on record.** The first justification offered for why this matters cited `event-hackathon.json` (an overnight event, "crosses midnight") as evidence this wasn't purely hypothetical for OTE. hhkaos pushed back, correctly: crossing midnight (00:00) has nothing to do with crossing a DST transition (a specific 1–3 A.M. window, one night per year) — DST transitions are deliberately scheduled for low-traffic hours precisely to avoid colliding with real activity, so a human is essentially never going to author an event that lands in this window on purpose. The example was wrong and got dropped. The actual justification is narrower and different in kind: not "this happens," but "this could slip through unreviewed" — via a script generating a series of session dates that doesn't special-case that one night, or an imported `.ics` produced by a buggy tool. Given the fix costs nothing (prose adopting an existing standard's own answer, no schema or validation change), it is worth closing even though the triggering case is rare — cheap insurance against a real, if unlikely, gap, not a fix for a common problem.
 
-**Alternatives considered.** Codex's own proposal already worked through the alternatives this decision would otherwise need to close (reject ambiguous/nonexistent local times outright — would require validating against historical AND future tzdata transition rules, a materially larger and more fragile dependency than anything else in this spec, already the reasoning D003 avoided; require an explicit offset on `startDate`/`endDate` — reopens D003's wire format with no new evidence; add a `disambiguation` field — permanent bifurcation for a case a widely-implemented standard already resolves with one convention; delegate to each consumer's date library — different libraries use different policies, so the same input would stop having portable meaning; treat as a recommended-tier warning — this isn't editorial data quality, it's the normative interpretation needed to convert the value at all). See `CHANGES.log` #P013's `PROPUESTA` and `REVISION` for the full reasoning, including the corrected justification above.
+**Alternatives considered.** Codex's own proposal already worked through the alternatives this decision would otherwise need to close (reject ambiguous/nonexistent local times outright — would require validating against historical AND future tzdata transition rules, a materially larger and more fragile dependency than anything else in this spec, already the reasoning D003 avoided; require an explicit offset on `startDate`/`endDate` — reopens D003's wire format with no new evidence; add a `disambiguation` field — permanent bifurcation for a case a widely-implemented standard already resolves with one convention; delegate to each consumer's date library — different libraries use different policies, so the same input would stop having portable meaning; treat as a recommended-tier warning — this isn't editorial data quality, it's the normative interpretation needed to convert the value at all). See `docs/history/CHANGES.log` #P013's `PROPUESTA` and `REVISION` for the full reasoning, including the corrected justification above.
 
 **Compatibility impact.** None on validity or wire format — identical to D013 in kind. Both evidence documents (`2007-03-11T02:30` and `2007-11-04T01:30`, `America/New_York`) validate before and after this decision; what changes is only which instant a converter must resolve them to.
 
@@ -296,7 +296,7 @@ This is deliberately a **warning, not a validity error** — added to `event.rec
 
 ### D015 — No event's `updatedAt` may be later than the feed's own `updatedAt`
 
-**Status:** Decided 2026-08-03. See `CHANGES.log` #P014 — the strongest evidence in this whole audit: not a constructed example, a real defect already present in the repo's own canonical, CI-validated corpus.
+**Status:** Decided 2026-08-03. See `docs/history/CHANGES.log` #P014 — the strongest evidence in this whole audit: not a constructed example, a real defect already present in the repo's own canonical, CI-validated corpus.
 
 **Context.** `feed.updatedAt` is "when this feed was generated"; an event's `updatedAt` is "the instant the event's DATA last changed", equivalent to iCalendar `LAST-MODIFIED`. Nothing enforced that a feed's generation instant is at least as late as any revision it already contains — and `spec/v0.3/examples/feed-multipart.json` had exactly this bug: the feed claimed `updatedAt: "2026-02-20T09:00:00Z"` while containing an event revised `"2026-02-25T10:30:00Z"`, five days later, and validated cleanly with no warning. A feed cannot contain a revision that, by its own timestamps, did not exist yet when the feed was generated — this breaks the incremental-sync cursor `updatedAt` exists to provide (a consumer using the feed's own stamp as a checkpoint could conclude the feed is stale, or miss the very revision that's already there).
 
@@ -306,7 +306,7 @@ This is deliberately a **warning, not a validity error** — added to `event.rec
 
 **A real example needed fixing, unlike every prior decision in this log.** `feed-multipart.json`'s `updatedAt` was moved from `2026-02-20T09:00:00Z` to `2026-02-25T11:00:00Z` (after the latest event revision it contains) rather than rolling the event's timestamp back — confirmed with hhkaos that since the repo's example data is invented for illustration, there was no "real" chronology being overwritten either way; bumping the feed's stamp was chosen as the more natural repair (representing "the feed was regenerated shortly after that edit") over inventing an earlier, unaffirmed edit time for the event.
 
-**Alternatives considered.** Codex's own proposal already worked through the alternatives this decision would otherwise need to close (fix only the broken example without a rule — would hide the gap that let it happen and any producer could repeat it; recommended-tier warning — this is two incompatible claims within one document, not real-but-suboptimal data; require exact equality with the max — rejected per the one-directional reasoning above; compare serialized strings — rejected per RFC 3339 §5.1, same reasoning as D009; compare against wall-clock "now" — rejected, would make validity depend on when the document happens to be checked; redefine `feed.updatedAt` as unrelated to content — rejected, would gut the sync semantics `README.md` already attributes to it and break the direct Atom/iCalendar mapping). See `CHANGES.log` #P014's `PROPUESTA` and `REVISION` for the full reasoning, including independent verification of all four cited RFCs (5545, 7986, 4287, 3339) against their primary texts.
+**Alternatives considered.** Codex's own proposal already worked through the alternatives this decision would otherwise need to close (fix only the broken example without a rule — would hide the gap that let it happen and any producer could repeat it; recommended-tier warning — this is two incompatible claims within one document, not real-but-suboptimal data; require exact equality with the max — rejected per the one-directional reasoning above; compare serialized strings — rejected per RFC 3339 §5.1, same reasoning as D009; compare against wall-clock "now" — rejected, would make validity depend on when the document happens to be checked; redefine `feed.updatedAt` as unrelated to content — rejected, would gut the sync semantics `README.md` already attributes to it and break the direct Atom/iCalendar mapping). See `docs/history/CHANGES.log` #P014's `PROPUESTA` and `REVISION` for the full reasoning, including independent verification of all four cited RFCs (5545, 7986, 4287, 3339) against their primary texts.
 
 **Compatibility impact.** Restrictive only for a feed that already contains this exact contradiction — the repo's own corpus had exactly one instance, now fixed. No other example, and no event without `updatedAt`, is affected.
 
@@ -316,7 +316,7 @@ This is deliberately a **warning, not a validity error** — added to `event.rec
 
 ### D016 — `feed.textLanguage` inheritance is enforced against the effective language, computed at the feed root
 
-**Status:** Decided 2026-08-03. See `CHANGES.log` #P015.
+**Status:** Decided 2026-08-03. See `docs/history/CHANGES.log` #P015.
 
 **Context.** `feed.textLanguage` is documented, in both the schema and `README.md`, as the default every event inherits when it omits its own (`x-inheritsFrom: "feed.textLanguage"`) — "a monolingual publisher declares it once for the whole file and no event repeats it." But `$defs.event`, shared by both the standalone event document and every event embedded in a feed, carried a local `required: ["textLanguage"]` triggered by the presence of any `translations` map (the event's own, or one nested in `eligibility`, `partOf`, each `offers[]` or each `image[]`, per D010). JSON Schema evaluates a referenced subschema purely against its own instance location, with no visibility into the parent object — so this local `required` rejected any feed-embedded event that relied on the documented inheritance instead of repeating the field, contradicting the spec's own central ergonomy promise. Worse, the gap reached D010 itself: `distinctTranslationLanguages` (the keyword forbidding a translation key equal to the primary language) only ever compared against the event's OWN `textLanguage`, silently passing an event that inherited its language from the feed and then translated back into that same, heritable language — a defect masked by the `required` bug until the moment someone fixed only the first without the second.
 
@@ -336,7 +336,7 @@ This is deliberately a **warning, not a validity error** — added to `event.rec
 
 ### D017 — `description` must have real content to satisfy the recommended profile, but stays fully optional in the base schema
 
-**Status:** Decided 2026-08-03. See `CHANGES.log` #P017.
+**Status:** Decided 2026-08-03. See `docs/history/CHANGES.log` #P017.
 
 **Context.** `event.description` and `feed.description` are recommended fields — "description is what every destination shows" (`event.recommended.schema.json`) — but the base schema constrains them only to `{"type": "string"}`. An empty string satisfies both the base schema AND the recommended profile's `required` check, so a document carrying `description: ""` is reported as having no quality gap at all, even though a consumer has nothing to show — worse than omitting the field, which at least triggers the honest warning. The same field's own translated form, `translations.*.description`, already requires `minLength: 1` — an asymmetry with no justification once named.
 
@@ -360,13 +360,13 @@ This is deliberately a **warning, not a validity error** — added to `event.rec
 
 ### D018 — Every base-schema field using `minLength: 1` also requires a non-whitespace character
 
-**Status:** Decided 2026-08-03. See `CHANGES.log` #P018 — the deferred "19-field whitespace audit" D017 flagged.
+**Status:** Decided 2026-08-03. See `docs/history/CHANGES.log` #P018 — the deferred "19-field whitespace audit" D017 flagged.
 
 **Context.** D017 found that `minLength: 1` alone doesn't guarantee real content: it counts characters, so a whitespace-only string like `"   "` satisfies it exactly as well as it evades an empty-string check. D017 fixed this for `description` at the recommended-profile level only, because that field is optional. Auditing every OTHER field in the base schema that already uses `minLength: 1` — meaning the schema had ALREADY decided, before this audit, that the field means nothing when empty — found 21 of them, all still open to the same whitespace-only loophole: `event.name`, `tags[]` items, `translations.*.name`/`description` (and the five per-object equivalents: `offerTranslation.name`, `eligibilityTranslation.note`, `partOfTranslation.name`, `feedTranslation.title`, `feedTranslation.description`), `organizers[].name`, `partOf.name`, `location.venue`, every part of `address` (`street`, `locality`, `region`, `postalCode`), `eligibility.note`, `image[].alt` (and its translation), `offers[].name`, `source.name`, and `feed.title`. Confirmed against the real validator that `event.name: "   "` and `feed.title: "   "` both validate today, and that a single event carrying whitespace-only values in all of `organizers[].name`, every `location`/`address` part, `tags[]`, `eligibility.note`, `image[].alt`, `offers[].name` and `source.name` simultaneously also validates.
 
 **Decision.** Added `"pattern": "\\S"` (at least one non-whitespace character, anywhere in the string) alongside every one of these 21 existing `minLength: 1` declarations, in both `event.schema.json` and `feed.schema.json`. `event.description`/`feed.description` are deliberately excluded — D017 already decided those stay unconstrained at the base level because they are optional, and this decision does not reopen that: every field touched here already had the schema requiring `minLength: 1`, meaning "present but empty" was already invalid before this decision: this only closes the one input that slipped past a check the schema already intended to enforce.
 
-**Why this is not the same move D017 rejected for `description`.** D017's core distinction was optional-and-unconstrained vs. quality-bar-on-a-required-value. Every field in this decision is on the required side of that line already, in one of two ways: either the field itself is unconditionally required (`event.name`, `feed.title`), or the field lives inside an object/array item that is only present because the producer chose to include it, and — once included — some of its own fields were already mandatory or already load-bearing enough to carry `minLength: 1` (an `organizer` needs a `name`; a `translations` entry that translates `name` is pointless if that name is blank; an `image[]` entry's `alt` is accessibility text, not decoration). No field that was genuinely optional-with-no-floor gained a floor here — see CHANGES.log #P018's own REVISION for the explicit per-field check against this criterion.
+**Why this is not the same move D017 rejected for `description`.** D017's core distinction was optional-and-unconstrained vs. quality-bar-on-a-required-value. Every field in this decision is on the required side of that line already, in one of two ways: either the field itself is unconditionally required (`event.name`, `feed.title`), or the field lives inside an object/array item that is only present because the producer chose to include it, and — once included — some of its own fields were already mandatory or already load-bearing enough to carry `minLength: 1` (an `organizer` needs a `name`; a `translations` entry that translates `name` is pointless if that name is blank; an `image[]` entry's `alt` is accessibility text, not decoration). No field that was genuinely optional-with-no-floor gained a floor here — see docs/history/CHANGES.log #P018's own REVISION for the explicit per-field check against this criterion.
 
 **Why `pattern: "\\S"`, not a longer `minLength`.** Same reasoning as D017: raising `minLength` to reject "no real content" would also reject genuine short values that are exactly as valid as long ones — `"Go"`, `"C"`, `"AI"` as a tag or a name. `pattern: "\\S"` imposes no minimum length at all, only that the string isn't composed ENTIRELY of whitespace.
 
@@ -380,7 +380,7 @@ This is deliberately a **warning, not a validity error** — added to `event.rec
 
 ### D019 — Recommended profile warns when a spoken `languages` entry has no available text
 
-**Status:** Decided 2026-08-03. See `CHANGES.log` #P019 — the "`languages`-vs-available-text" idea D017/D018 deferred.
+**Status:** Decided 2026-08-03. See `docs/history/CHANGES.log` #P019 — the "`languages`-vs-available-text" idea D017/D018 deferred.
 
 **Context.** `languages` (what is SPOKEN at the event) and `textLanguage`/`translations` (what the event's own TEXT is written in) are deliberately independent questions — `$defs.event`'s own description of `languages` gives "a bilingual session described in Catalan only" as its canonical, valid example, and `README.md` elaborates on why conflating them would be wrong. That independence is correct at the validity level and this decision does not reopen it. But it leaves a real discoverability gap unaddressed: an event that lists two spoken languages while its text exists in only one leaves anyone who only reads the other with nothing to read. Confirmed against the real validator that this combination passes the recommended profile today with no warning, and — checking `scripts/validate.mjs`'s `asPublished()` — that a feed-embedded event which inherits its `textLanguage` from the feed couldn't benefit from such a warning anyway, since `asPublished()` only injected `organizers`, `license` and `specVersion` from the feed, not `textLanguage`.
 
@@ -404,7 +404,7 @@ This is deliberately a **warning, not a validity error** — added to `event.rec
 
 ### D020 — `id` and `partOf.id` must be an HTTP(S) URL, not any URI scheme
 
-**Status:** Decided 2026-08-03. See `CHANGES.log` #P020.
+**Status:** Decided 2026-08-03. See `docs/history/CHANGES.log` #P020.
 
 **Context.** `event.id`'s own description has always said "A URI under a domain the publisher controls", and `README.md` elaborates: minted once under a domain, never rewritten, because DNS already gives global uniqueness without a central registry. `partOf.id` explicitly carries the same rule. But the schema only ever checked `format: "uri"` plus a generic `pattern: "^[a-zA-Z][a-zA-Z0-9+.-]*:"` — any URI scheme with a colon. Confirmed against the real validator that `urn:uuid:...` and `mailto:...` both validate as `event.id` today, and `urn:uuid:...` validates as `partOf.id`. Neither has a domain, so neither can deliver the uniqueness guarantee the field's own prose promises — `mailto:` in particular doesn't even identify an event, it identifies a mailbox. `event.url`, ten lines above `id` in the same file, already uses `pattern: "^https?://"`; `id`/`partOf.id` were the only URL-shaped fields in the whole schema without it.
 
@@ -424,7 +424,7 @@ This is deliberately a **warning, not a validity error** — added to `event.rec
 
 ### D021 — `offers[].currency` requires `offers[].price` to be present
 
-**Status:** Decided 2026-08-03. See `CHANGES.log` #P022.
+**Status:** Decided 2026-08-03. See `docs/history/CHANGES.log` #P022.
 
 **Context.** `currency` only has meaning as the denomination of `price` — the field's own description says so, and it maps 1:1 onto schema.org `Offer.priceCurrency`, which only means anything alongside `Offer.price`. The schema already enforced the forward direction (`price` above 0 requires `currency`, D009), but nothing enforced the reverse: an offer could carry `currency` with no `price` at all. Confirmed against the real validator that `{"url": "...", "currency": "EUR"}` — no `price` key whatsoever — validates today, producing an Offer whose `priceCurrency` qualifies nothing.
 
@@ -442,7 +442,7 @@ This is deliberately a **warning, not a validity error** — added to `event.rec
 
 ### D022 — Event/feed top-level translations must carry at least one recognized OTE field
 
-**Status:** Decided 2026-08-04. See `CHANGES.log` #P024.
+**Status:** Decided 2026-08-04. See `docs/history/CHANGES.log` #P024.
 
 **Context.** An external reviewer's report (not Codex) raised 17 hypotheses about possible schema gaps; hhkaos asked to verify each against the actual repo before acting on any. Most were already resolved by prior decisions, one (rejecting unknown properties via `additionalProperties: false`) directly contradicted the already-documented extension policy (`README.md`, "Dos tipos de extensión") and was excluded before ever reaching Codex, two were modeling proposals with no real producer need, and one didn't apply. Six were confirmed as real gaps and queued for future rounds; Codex picked this one first.
 
@@ -466,7 +466,7 @@ This is deliberately a **warning, not a validity error** — added to `event.rec
 
 ### D023 — A `translations` map must not carry two keys naming the same language in different case
 
-**Status:** Decided 2026-08-04. See `CHANGES.log` #P026 — one of the six gaps confirmed in the external report P024/D022 triaged.
+**Status:** Decided 2026-08-04. See `docs/history/CHANGES.log` #P026 — one of the six gaps confirmed in the external report P024/D022 triaged.
 
 **Context.** D010 already rejects a `translations` key equal to `textLanguage`, comparing case-insensitively per RFC 5646 §2.1.1 (`ES` and `es` name the same language as the primary text). But nothing checked the same equivalence BETWEEN two keys of the same map: `translations: {"en-US": {...}, "EN-us": {...}}` validated, even though both keys name the identical BCP 47 tag once case-folded. Confirmed against the real validator across all four places a translations map can live (an event's own, a nested one inside `offers[]`, a feed's own, and — the case that needed its own check, since P015/D016 requires judging against the EFFECTIVE language — an embedded event inheriting `textLanguage` from its feed). `$defs.translations`' own description already states the intended invariant: "one entry per language, and no way to publish two Spanish versions that contradict each other" — two case-variant keys are exactly that unintended way.
 
@@ -486,7 +486,7 @@ This is deliberately a **warning, not a validity error** — added to `event.rec
 
 ### D024 — `tags` and `languages` must not carry exact duplicate entries
 
-**Status:** Decided 2026-08-04. See `CHANGES.log` #P027 — the last of the six gaps confirmed in the external report P024/D022 triaged.
+**Status:** Decided 2026-08-04. See `docs/history/CHANGES.log` #P027 — the last of the six gaps confirmed in the external report P024/D022 triaged.
 
 **Context.** Neither `tags` nor `languages` declared `uniqueItems`, so `tags: ["rust", "rust"]` and `languages: ["es", "es"]` both validated — an exact repeat that adds no information (the same iCal `CATEGORIES`/schema.org `keywords` entry, or the same spoken language, asserted twice). Confirmed against the real validator, confirmed the repo's own corpus has no such case, and confirmed a full recommended-complete document carrying both duplicates produces no warning either — the problem was invisible at every level, not just the base schema.
 
@@ -504,7 +504,7 @@ This is deliberately a **warning, not a validity error** — added to `event.rec
 
 ### D025 — Recommended-tier warning when `attendanceMode` lacks its matching `location` detail
 
-**Status:** Decided 2026-08-04. See `CHANGES.log` #P028 — the deferred idea raised by hhkaos while approving D024, given its own proposal and evidence as agreed there.
+**Status:** Decided 2026-08-04. See `docs/history/CHANGES.log` #P028 — the deferred idea raised by hhkaos while approving D024, given its own proposal and evidence as agreed there.
 
 **Context.** `location` and `attendanceMode` are deliberately independent fields (see the indexed decision below): `location` states observable fact, `attendanceMode` states organiser intent, and if they disagree `attendanceMode` wins. But the recommended profile only checked that both fields existed, not that `location` carried the one detail the declared mode actually needs: `online` without `location.onlineUrl` cannot produce a schema.org `VirtualLocation.url`; `in-person` without `location.venue` cannot produce a `Place.name`; `hybrid` without both loses one half of a `MixedEventAttendanceMode`. Confirmed against the real validator: all three incomplete combinations passed the recommended-complete profile with zero warnings; a `hybrid` event with both fields present correctly produced none. The repo's own corpus has no example with this gap.
 
@@ -522,7 +522,7 @@ This is deliberately a **warning, not a validity error** — added to `event.rec
 
 ### D026 — HTTP(S) URL fields must not carry embedded userinfo credentials
 
-**Status:** Decided 2026-08-04. See `CHANGES.log` #P029 — a gap P025 identified and deliberately left unproposed for its own round ("URLs con credenciales embebidas requieren una política de seguridad/privacidad todavía no escrita").
+**Status:** Decided 2026-08-04. See `docs/history/CHANGES.log` #P029 — a gap P025 identified and deliberately left unproposed for its own round ("URLs con credenciales embebidas requieren una política de seguridad/privacidad todavía no escrita").
 
 **Context.** Every HTTP(S) URL field in OTE (`id`, `url`, `location.onlineUrl`, `organizers[].url`, `partOf.id`, `partOf.url`, `eligibility.url`, `offers[].url`, `offers[].waitlistUrl`, `cfp.url`, `source.url`, `license` as URL, `feed.url`, `feed.licenseUrl`, and both forms of `image`) validated only `format: "uri"` plus a scheme pattern (`^https?://`, or `^https://` for images), so `https://user:pass@example.org/...` validated everywhere. These fields are documented as public discovery links (`event.schema.json:125-129` for `event.url`, `location.onlineUrl` as "URL to attend online", `feed.url` as "Canonical URL of the community... publishing the feed"), not as authenticated channels — a value that also carries credentials contradicts what the field claims to represent, and a feed publishing it leaks a secret to anyone who reads it. Confirmed against the real validator (both a standalone event and a feed, each carrying a `user:pass@` URL, validated clean) and confirmed the repo's own corpus has zero examples of this pattern.
 
@@ -540,7 +540,7 @@ This is deliberately a **warning, not a validity error** — added to `event.rec
 
 ### D027 — `organizers` must not carry exact duplicate entries
 
-**Status:** Decided 2026-08-04. See `CHANGES.log` #P030 — the same exact-duplicate closure D024 gave `tags`/`languages`, applied to `organizers`, which was out of D024's scope, not left out on purpose.
+**Status:** Decided 2026-08-04. See `docs/history/CHANGES.log` #P030 — the same exact-duplicate closure D024 gave `tags`/`languages`, applied to `organizers`, which was out of D024's scope, not left out on purpose.
 
 **Context.** `$defs.organizers` (shared by `event.organizers` and, via a remote `$ref`, `feed.organizers`) declared `array`, `minItems: 1`, but no `uniqueItems`, so the exact same organizer object repeated twice validated cleanly in both a standalone event and a feed. `organizers` is documented as a list specifically because co-organisation is real (`README.md:397-409`), not to allow repeating one entry — a byte-identical repeat adds no information, it only forces every schema.org/Atom/iCal exporter to deduplicate before attributing or displaying organizers. Confirmed against the real validator (both an event and a feed carrying `[{"name":"Example Org","url":"https://example.org"}, {"name":"Example Org","url":"https://example.org"}]` validated clean) and confirmed the repo's own corpus has no such case.
 
@@ -558,7 +558,7 @@ This is deliberately a **warning, not a validity error** — added to `event.rec
 
 ### D028 — `languages` must not repeat the same BCP 47 tag under different case
 
-**Status:** Decided 2026-08-04. See `CHANGES.log` #P031. Scope agreed in conversation between hhkaos and Claude Code before Codex wrote the formal proposal — not free-form exploration this round.
+**Status:** Decided 2026-08-04. See `docs/history/CHANGES.log` #P031. Scope agreed in conversation between hhkaos and Claude Code before Codex wrote the formal proposal — not free-form exploration this round.
 
 **Context.** `languages` and `translations` keys share the same underlying type, `$defs.languageTag`, but were compared inconsistently: D010 and D023 already established that two BCP 47 tags are compared case-insensitively per RFC 5646 §2.1.1 (`translations` keys against `textLanguage`, and against each other within one map), but `languages`' own `uniqueItems: true` (P027/D024) compares by exact string equality, so `["es","ES"]` validated cleanly — the same spoken language asserted twice under a JSON-distinct pair of strings. Confirmed against the real validator.
 
@@ -580,7 +580,7 @@ This is deliberately a **warning, not a validity error** — added to `event.rec
 
 ### D029 — `feed.license` may be omitted only if every event then declares its own
 
-**Status:** Decided 2026-08-04. See `CHANGES.log` #P032. Design agreed in conversation between hhkaos and Claude Code before Codex wrote the formal proposal — the design was fixed in advance, Codex's job was to verify and formalize it, not to explore freely.
+**Status:** Decided 2026-08-04. See `docs/history/CHANGES.log` #P032. Design agreed in conversation between hhkaos and Claude Code before Codex wrote the formal proposal — the design was fixed in advance, Codex's job was to verify and formalize it, not to explore freely.
 
 **Context.** `feed.license` was unconditionally required, unlike `organizers`/`textLanguage`, which an aggregator feed may already omit so each event states its own (D016). An aggregator whose events carry genuinely different licenses had no way to publish without inventing a single "feed license" that misdescribes the collection — `README.md` already told an aggregator building on this feed to check each event's own license, but the schema never let a PRODUCER avoid asserting one false shared license in the first place. Confirmed against the real validator that a license-free aggregator with every event correctly licensed is rejected today (`data must have required property 'license'`).
 
@@ -596,13 +596,13 @@ This is deliberately a **warning, not a validity error** — added to `event.rec
 
 **Compatibility impact.** Purely additive: every feed valid before this decision still has `feed.license`, so the new conditional never activates for it and behaves exactly as before. The new condition only ever applies to the previously-impossible case (a feed without `license`), where it substitutes for the guarantee the root `required` used to provide. Confirmed the repo's own corpus is unaffected.
 
-**Revisit if:** a real need emerges to also warn (not just require) when an aggregator's events end up with genuinely incompatible licenses once combined — that is the cross-feed compatibility question `DECISIONS.md`'s existing note (`CHANGES.log` #P007 area) already declined to adjudicate, and reopening it is a materially larger question than this decision's narrow "never unknown" guarantee.
+**Revisit if:** a real need emerges to also warn (not just require) when an aggregator's events end up with genuinely incompatible licenses once combined — that is the cross-feed compatibility question `DECISIONS.md`'s existing note (`docs/history/CHANGES.log` #P007 area) already declined to adjudicate, and reopening it is a materially larger question than this decision's narrow "never unknown" guarantee.
 
 ---
 
 ### D030 — Recommended-tier warning when a translation exists for a field the primary text omits
 
-**Status:** Decided 2026-08-04. See `CHANGES.log` #P033 — the last of the six gaps confirmed in the external report P024/D022 triaged. D022 itself deliberately separated this hypothesis out rather than folding it in.
+**Status:** Decided 2026-08-04. See `docs/history/CHANGES.log` #P033 — the last of the six gaps confirmed in the external report P024/D022 triaged. D022 itself deliberately separated this hypothesis out rather than folding it in.
 
 **Context.** D022 required a `translations` entry to recognize at least one OTE field, but never checked whether the field a translation provides also exists in the primary text. `translations.<lang>.description` (or `.name` on `offers[]`/`partOf`, `.note` on `eligibility`) can exist while the corresponding primary field is entirely absent — for fields the primary object requires unconditionally (`event.name`, `feed.title`) this cannot happen by construction, but `event.description`/`feed.description`/`offers[].name`/`partOf.name`/`eligibility.note` (outside `restricted`) are all optional, so the gap is real there. Confirmed against the real validator across all five locations. D022 flagged this explicitly as a separate question with its own trade-offs, not a corollary: a producer may legitimately want a translated field the primary text omits for brevity, so this is a quality signal, not an incoherence.
 
@@ -617,6 +617,24 @@ This is deliberately a **warning, not a validity error** — added to `event.rec
 **Compatibility impact.** None at validity. At the recommended level, restrictive only for documents that already have a translation for `offers[].name`/`partOf.name`/`eligibility.note` with the primary absent — confirmed the repo's own corpus has none.
 
 **Revisit if:** `scripts/validate.mjs`'s `missingRecommended()` ever grows a way to surface a keyword's own message text instead of a bare field path — at that point, revisit whether `event.description`/`feed.description` deserve the more specific message the removed keyword would have given, now that it could actually reach a human.
+
+---
+
+### D031 — `feed.textLanguage` without `feed.organizers` warns only when an event can inherit it
+
+**Status:** Decided 2026-08-28. This was implemented directly against `v0.4` after the Codex/Claude `docs/history/CHANGES.log` workflow was retired as an active process and moved to `docs/history/`.
+
+**Context.** D016 added a recommended warning for `feed.textLanguage` when `feed.organizers` is absent, because that combination usually means "aggregator feed" and a feed-level language can be inherited by events that may not share it. The warning was too broad. `feed.textLanguage` also labels the feed's own `title` and `description`, and `feed.translations` requires it; an aggregator whose every event declares its own `textLanguage` uses the feed-level value only for its own prose. In that shape inheritance is inert, so the warning pushes the producer to remove the only field that says what language the feed itself is written in.
+
+**Decision.** Narrow the recommended-profile condition in `feed.recommended.schema.json`: it warns only when `feed.organizers` is absent, `feed.textLanguage` is present, and `events[]` contains at least one event that omits its own `textLanguage`. Plain JSON Schema is enough (`if` + `contains` over `events[]`); no custom keyword is needed.
+
+**Why this keeps D016's risk while removing the false positive.** If any embedded event lacks `textLanguage`, the feed-level value can still be inherited and can still misattribute that event's language, so the warning remains. If every event declares its own value, no event reads the feed default; the feed-level value only describes the feed's own text, where it is correct and sometimes required by `feed.translations`.
+
+**Alternatives considered.** (1) Add a separate `defaultTextLanguage` field for inheritance, leaving `textLanguage` only for the feed's own prose: rejected as a wire-format change for a distinction D016 deliberately handled without adding a field. (2) Remove the warning entirely: rejected, because D016's original risk remains real whenever an event can inherit the feed value. (3) Keep the broad warning and document the false positive: rejected, because the `feed.translations` case leaves a valid, useful document permanently warned with no corrective action.
+
+**Compatibility impact.** Recommended-profile relaxation only. No document changes validity. Some valid feeds that used to warn no longer do; no feed starts warning because of this decision.
+
+**Revisit if:** a future version separates feed prose language from inherited event language in the wire format, or introduces an explicit aggregator marker that can replace the current disciplined-omission signal.
 
 ---
 
@@ -640,7 +658,7 @@ Already argued in full in `README.md`; summarized here for discoverability.
 
 ## How to use this document
 
-Adding a new full entry does **not** require going through the Codex/Claude audit workflow in `CHANGES.log` — that workflow is for the schema.org audit specifically. Any decision worth recording here should:
+Adding a new full entry does **not** require going through the Codex/Claude audit workflow in `docs/history/CHANGES.log` — that workflow is for the schema.org audit specifically. Any decision worth recording here should:
 1. State the decision and the context that produced it.
 2. List the alternatives that were seriously considered, and why each lost.
 3. End with a **Revisit if** line — the condition under which re-opening the decision would be legitimate, not just a matter of taste.

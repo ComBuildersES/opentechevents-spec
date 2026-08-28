@@ -16,13 +16,29 @@
       ]
     },
     {
-      "description": "textLanguage SHOULD only be set when the feed also names its own organizers — the same field that already tells an aggregator to leave organizers out because its events are not all its own. Without organizers, textLanguage risks handing every event a single language none of them may actually share. Not a validity error: it is not this field's job to decide who is or is not an aggregator, only to flag the one combination most likely to mis-attribute a language. See CHANGES.log #P015 / DECISIONS.md D016.",
+      "description": "textLanguage SHOULD only be set without feed organizers when at least one event can inherit it by omitting its own textLanguage. Without organizers, the feed looks like an aggregator; if any event then omits textLanguage, the feed-level value risks attributing a language that event did not state. If every event declares its own textLanguage, the feed-level value only labels the feed's own title and description, so this warning stays silent. Not a validity error: it flags only the combination where inheritance can actually mis-attribute a language. See DECISIONS.md D016 and D031.",
       "if": {
         "type": "object",
+        "required": [
+          "events"
+        ],
         "not": {
           "required": [
             "organizers"
           ]
+        },
+        "properties": {
+          "events": {
+            "type": "array",
+            "contains": {
+              "type": "object",
+              "not": {
+                "required": [
+                  "textLanguage"
+                ]
+              }
+            }
+          }
         }
       },
       "then": {
@@ -35,7 +51,7 @@
       }
     },
     {
-      "description": "description is only useful if it says something: feed.schema.json deliberately leaves it unconstrained beyond being a string, but a feed that carries an empty or whitespace-only description looks complete to this profile's own required check while giving a consumer nothing to show — worse than omitting it, which at least triggers this same warning honestly. CHANGES.log #P017.",
+      "description": "description is only useful if it says something: feed.schema.json deliberately leaves it unconstrained beyond being a string, but a feed that carries an empty or whitespace-only description looks complete to this profile's own required check while giving a consumer nothing to show — worse than omitting it, which at least triggers this same warning honestly. docs/history/CHANGES.log #P017.",
       "type": "object",
       "properties": {
         "description": {

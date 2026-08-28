@@ -1,5 +1,5 @@
 {
-  "_comment": "INVÁLIDO a propósito: el evento hereda textLanguage del feed y sus translations tienen dos claves equivalentes tras normalizar (en-US y EN-us) — el mismo fallo que en un documento suelto, pero contra el idioma efectivo heredado. Ver CHANGES.log #P026 / DECISIONS.md D023.",
+  "_comment": "INVÁLIDO a propósito: el evento hereda textLanguage del feed y sus translations tienen dos claves equivalentes tras normalizar (en-US y EN-us) — el mismo fallo que en un documento suelto, pero contra el idioma efectivo heredado. Ver docs/history/CHANGES.log #P026 / DECISIONS.md D023.",
   "specVersion": "0.4.0",
   "title": "Feed base",
   "textLanguage": "es",

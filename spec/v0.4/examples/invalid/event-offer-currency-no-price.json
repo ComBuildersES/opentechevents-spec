@@ -1,5 +1,5 @@
 {
-  "_comment": "INVÁLIDO a propósito: offers[0].currency sin offers[0].price — una moneda sin importe que calificar, huérfana en el mapeo a schema.org Offer.priceCurrency. Ver CHANGES.log #P022 / DECISIONS.md D021.",
+  "_comment": "INVÁLIDO a propósito: offers[0].currency sin offers[0].price — una moneda sin importe que calificar, huérfana en el mapeo a schema.org Offer.priceCurrency. Ver docs/history/CHANGES.log #P022 / DECISIONS.md D021.",
   "specVersion": "0.4.0",
   "id": "https://x.example/1",
   "name": "X",

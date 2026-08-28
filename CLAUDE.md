@@ -4,7 +4,7 @@
 
 OTE Spec es una especificación abierta para describir y publicar eventos de comunidades técnicas, pensada para ser compatible con RSS, iCalendar y schema.org `Event`. La versión vigente es [`spec/v0.3/`](spec/v0.3/README.md).
 
-Una auditoría previa (33 rondas, `P001`–`P033`) ya revisó el schema buscando fallos de validación e inconsistencias internas — ver `RESUME-SCHEMA-AUDIT.md` si necesitas ese histórico, pero no es tu misión ahora. **Codex** actúa en esta misión como un integrador externo real (ver [`AGENTS.md`](AGENTS.md)) en dos papeles: quien importa un `.ics`/Meetup/RSS real hacia OTE, y quien exporta OTE hacia schema.org/iCalendar/RSS-Atom — leyendo solo la spec publicada, sin `CHANGES.log` ni `DECISIONS.md`, sin el porqué detrás de cada decisión — y documenta cada punto donde tuvo que adivinar en **`INTEGRATION-AUDIT.log`**, formato `HALLAZGO`.
+Una auditoría previa (33 rondas, `P001`–`P033`) ya revisó el schema buscando fallos de validación e inconsistencias internas — ver `RESUME-SCHEMA-AUDIT.md` si necesitas ese histórico, pero no es tu misión ahora. **Codex** actúa en esta misión como un integrador externo real (ver [`AGENTS.md`](AGENTS.md)) en dos papeles: quien importa un `.ics`/Meetup/RSS real hacia OTE, y quien exporta OTE hacia schema.org/iCalendar/RSS-Atom — leyendo solo la spec publicada, sin `docs/history/CHANGES.log` ni `DECISIONS.md`, sin el porqué detrás de cada decisión — y documenta cada punto donde tuvo que adivinar en **`INTEGRATION-AUDIT.log`**, formato `HALLAZGO`.
 
 ## Tu rol: revisor de fricción de integración
 

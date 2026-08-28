@@ -1,5 +1,5 @@
 {
-  "_comment": "INVÁLIDO a propósito: hour 25 does not exist on any clock. dateTime is wall-clock without an offset by design (DECISIONS.md D003), which is exactly why it needs its own calendar-aware check (`ote-local-date-time`, see CHANGES.log #P001 / DECISIONS.md D001) instead of a standard RFC 3339 format.",
+  "_comment": "INVÁLIDO a propósito: hour 25 does not exist on any clock. dateTime is wall-clock without an offset by design (DECISIONS.md D003), which is exactly why it needs its own calendar-aware check (`ote-local-date-time`, see docs/history/CHANGES.log #P001 / DECISIONS.md D001) instead of a standard RFC 3339 format.",
   "specVersion": "0.4.0",
   "id": "https://x.example/1",
   "name": "X",

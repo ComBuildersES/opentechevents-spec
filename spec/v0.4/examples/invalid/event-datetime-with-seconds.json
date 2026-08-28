@@ -1,5 +1,5 @@
 {
-  "_comment": "INVÁLIDO a propósito: dateTime no admite segundos — es la hora que aparece en un cartel, nunca un instante técnico. Ver CHANGES.log #P003 / DECISIONS.md D004.",
+  "_comment": "INVÁLIDO a propósito: dateTime no admite segundos — es la hora que aparece en un cartel, nunca un instante técnico. Ver docs/history/CHANGES.log #P003 / DECISIONS.md D004.",
   "specVersion": "0.4.0",
   "id": "https://x.example/1",
   "name": "X",

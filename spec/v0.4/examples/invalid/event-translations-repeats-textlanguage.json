@@ -1,5 +1,5 @@
 {
-  "_comment": "INVÁLIDO a propósito: translations.es repite textLanguage: \"es\" — dos versiones bajo la misma etiqueta que podrían contradecirse. Ver CHANGES.log #P009 / DECISIONS.md D010.",
+  "_comment": "INVÁLIDO a propósito: translations.es repite textLanguage: \"es\" — dos versiones bajo la misma etiqueta que podrían contradecirse. Ver docs/history/CHANGES.log #P009 / DECISIONS.md D010.",
   "specVersion": "0.4.0",
   "id": "https://x.example/1",
   "name": "Texto principal",

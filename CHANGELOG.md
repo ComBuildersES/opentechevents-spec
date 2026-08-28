@@ -26,6 +26,11 @@ schemas now use JSON Schema's `iri` format.
 - `image[]` and `image[].url` now accept both `http://` and `https://` image
   IRIs. They still must be absolute HTTP(S) links to the image file itself, and
   the no-userinfo rule still applies.
+- The feed recommended-profile warning for `feed.textLanguage` without
+  `feed.organizers` now fires only when at least one embedded event omits its own
+  `textLanguage` and can actually inherit the feed value. Aggregators whose
+  events all declare their own language can keep `feed.textLanguage` for the
+  feed's own `title`/`description` without a false-positive warning.
 
 ## [0.3.0] — 2026-07-29
 

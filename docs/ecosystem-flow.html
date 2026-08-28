@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OTE Spec — Casos de uso en el ecosistema</title>
+<meta name="description" content="Diagramas del ecosistema OTE: overview y journeys por tipo de organizador y consumidor. Publica una vez, descubierto en todas partes.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔀</text></svg>">
+<style>
+  :root {
+    --ink: #10131a; --ink-soft: #4a5265; --ink-faint: #6f7787;
+    --bg: #ffffff; --bg-alt: #f6f7f9; --line: #e3e6ea; --accent: #2b5bd7;
+    --card: #ffffff;
+    --shadow: 0 1px 3px rgba(16,19,26,.08), 0 8px 24px rgba(16,19,26,.06);
+    --ote: #b8ecd0; --ote-line: #2f9e6e;
+    --std: #d6e9f5; --std-line: #4a90c2;
+    --tool: #e5defb; --tool-line: #7c5cd6;
+    --dest: #fde6c9; --dest-line: #e39a3d;
+    --person: #dbe4ff; --person-line: #3b5bdb;
+    --app: #eef1f6; --app-line: #8a93a3;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, Helvetica, Arial, sans-serif;
+    --wrap: 1180px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ink: #eef1f6; --ink-soft: #b6becb; --ink-faint: #8a93a3;
+      --bg: #0e1117; --bg-alt: #161b22; --line: #2a313c;
+      --accent: #6f92f0; --card: #161b22;
+      --shadow: 0 1px 3px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.35);
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: var(--sans); color: var(--ink); background: var(--bg); line-height: 1.6; -webkit-font-smoothing: antialiased; }
+  .wrap { max-width: var(--wrap); margin: 0 auto; padding: 0 24px; }
+  header.top { padding: 40px 0 8px; }
+  h1 { font-size: clamp(1.7rem, 3.6vw, 2.5rem); letter-spacing: -.02em; margin: 0 0 .3em; }
+  .lede { color: var(--ink-soft); font-size: 1.1rem; max-width: 64ch; margin: 0 0 1.4em; }
+
+  .tabs { display: flex; gap: 6px; flex-wrap: wrap; margin: 10px 0 4px; }
+  .tab {
+    font: inherit; font-size: .9rem; font-weight: 600; cursor: pointer;
+    border: 1px solid var(--line); background: var(--card); color: var(--ink-soft);
+    padding: 8px 14px; border-radius: 999px; transition: all .15s;
+  }
+  .tab:hover { border-color: var(--accent); color: var(--ink); }
+  .tab[aria-selected="true"] { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+  .caption { color: var(--ink-soft); font-size: .98rem; margin: 14px 2px 12px; min-height: 1.4em; }
+
+  .toolbar { display: flex; gap: 10px; flex-wrap: wrap; margin: 4px 0 16px; }
+  .toolbar button {
+    font: inherit; font-size: .88rem; font-weight: 600; cursor: pointer;
+    border: 1px solid var(--line); background: var(--card); color: var(--ink);
+    padding: 7px 14px; border-radius: 8px; transition: border-color .15s, transform .05s;
+  }
+  .toolbar button:hover { border-color: var(--accent); }
+  .toolbar button:active { transform: translateY(1px); }
+
+  .stage {
+    background: var(--bg-alt); border: 1px solid var(--line); border-radius: 16px;
+    padding: 24px; box-shadow: var(--shadow); overflow-x: auto;
+    display: flex; justify-content: center; min-height: 260px;
+  }
+  .stage svg { max-width: 100%; height: auto; }
+
+  .legend { display: flex; gap: 18px; flex-wrap: wrap; margin: 22px 2px 8px; font-size: .9rem; color: var(--ink-soft); }
+  .legend span { display: inline-flex; align-items: center; gap: 8px; }
+  .swatch { width: 16px; height: 16px; border-radius: 4px; border: 1px solid rgba(0,0,0,.15); }
+
+  footer { color: var(--ink-faint); font-size: .85rem; padding: 24px 0 48px; margin-top: 40px; border-top: 1px solid var(--line); }
+  a { color: var(--accent); }
+  code { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: .85em; }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <h1>Casos de uso de la OTE Spec</h1>
+    <p class="lede">Publica una vez → descubierto en todas partes. Cada pestaña es el recorrido de una persona concreta: organizadores que publican y consumidores que descubren.</p>
+    <div class="tabs" id="tabs" role="tablist"></div>
+  </div>
+</header>
+
+<main class="wrap">
+  <p class="caption" id="caption"></p>
+  <div class="toolbar">
+    <button id="btn-theme">🌓 Tema</button>
+    <button id="btn-svg">⬇︎ SVG</button>
+    <button id="btn-png">⬇︎ PNG</button>
+  </div>
+
+  <div class="stage" id="stage"></div>
+
+  <div class="legend">
+    <span><span class="swatch" style="background:var(--ote);border-color:var(--ote-line)"></span> OTE nativo</span>
+    <span><span class="swatch" style="background:var(--std);border-color:var(--std-line)"></span> Estándares existentes (ICS · RSS · schema.org)</span>
+    <span><span class="swatch" style="background:var(--tool);border-color:var(--tool-line)"></span> Agregadores / conectores</span>
+    <span><span class="swatch" style="background:var(--dest);border-color:var(--dest-line)"></span> Destinos de difusión</span>
+    <span><span class="swatch" style="background:var(--app);border-color:var(--app-line)"></span> Apps / directorios</span>
+    <span><span class="swatch" style="background:var(--person);border-color:var(--person-line)"></span> Personas</span>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    Fuentes Mermaid editables en <code>docs/ecosystem-flow.html</code> (bloques <code>&lt;script type="text/x-mermaid"&gt;</code>) ·
+    <a href="index.html">← Volver al sitio</a>
+  </div>
+</footer>
+
+<!-- ============ FUENTES MERMAID ============ -->
+
+<script type="text/x-mermaid" id="src-overview">
+flowchart TB
+  subgraph PUBLISH["① PUBLICAR — describe una vez"]
+    direction LR
+    ORG(["👤 Organizador"])
+    SRC1["Web de conferencia<br/>🟢 OTE"]
+    SRC2["Página de comunidad<br/>🟢 OTE"]
+    SRC3["Directorio de eventos<br/>🟢 OTE"]
+    ORG --> SRC1 & SRC2 & SRC3
+  end
+
+  STD["Estándares existentes<br/>ICS · RSS · schema.org"]
+
+  subgraph AGG["② AGREGAR & TRANSFORMAR — ecosistema de herramientas"]
+    direction LR
+    A1[("Agregador A")]
+    A2[("Agregador B")]
+    CONN{{"Conectores<br/>import · export · transform"}}
+    A1 -.-> CONN
+    A2 -.-> CONN
+  end
+
+  subgraph OUT["auto-publica → muchos destinos"]
+    direction LR
+    D1["Meetup"]
+    D2["LinkedIn"]
+    D3["Eventbrite"]
+    D4["RSS / iCalendar"]
+  end
+
+  subgraph CONSUME["③ CONSUMIR — hecho por devs independientes"]
+    direction LR
+    APP1["Directorio web"]
+    APP2["App móvil"]
+    APP3["Widget embebible"]
+    ATT(["👤 Asistente"])
+    APP1 & APP2 & APP3 --> ATT
+  end
+
+  SRC1 & SRC2 & SRC3 -->|feed OTE| AGG
+  STD <-.->|import / export| AGG
+  AGG ==>|OUTBOUND| OUT
+  AGG -->|INBOUND| CONSUME
+
+  class SRC1,SRC2,SRC3 ote
+  class STD std
+  class A1,A2,CONN tool
+  class D1,D2,D3,D4 dest
+  class ORG,ATT person
+  class APP1,APP2,APP3 app
+</script>
+
+<script type="text/x-mermaid" id="src-a">
+flowchart LR
+  ORG(["👤 Community organizer"]) --> DESC["Describe el evento 1×<br/>formato OTE"]
+  DESC --> FEED[("Feed OTE<br/>en su web / directorio")]
+  FEED --> OUT{{"Herramientas outbound"}}
+  OUT --> M["Meetup"]
+  OUT --> L["LinkedIn"]
+  OUT --> R["RSS"]
+  OUT --> C["iCalendar"]
+
+  class DESC,FEED ote
+  class OUT tool
+  class M,L,R,C dest
+  class ORG person
+</script>
+
+<script type="text/x-mermaid" id="src-b">
+flowchart LR
+  ORG(["👤 Community organizer"]) --> ICS["Calendario ICS<br/>que ya usa"]
+  ICS -->|conecta una vez| AGG[("Agregador OTE")]
+  AGG -->|convierte ICS → OTE| FEED[("Feed OTE")]
+  FEED --> DIR["Directorios y apps<br/>del ecosistema"]
+
+  class ICS std
+  class AGG tool
+  class FEED ote
+  class DIR app
+  class ORG person
+</script>
+
+<script type="text/x-mermaid" id="src-c">
+flowchart LR
+  ORG(["👤 Conference organizer"]) --> WEB["Su web +<br/>OTE (JSON-LD / feed)"]
+  WEB -->|alta| D1["Directorio A"]
+  WEB -->|alta| D2["Directorio B"]
+  WEB -->|alta| D3["Agregador de comunidad"]
+  D1 & D2 & D3 --> DISC(["👤 Asistentes<br/>la descubren"])
+
+  class WEB ote
+  class D1,D2,D3 dest
+  class ORG,DISC person
+</script>
+
+<script type="text/x-mermaid" id="src-de">
+flowchart LR
+  subgraph FEEDS["Feeds OTE del ecosistema"]
+    direction TB
+    F1[("Feed A")]
+    F2[("Feed B")]
+  end
+  FEEDS --> DEV(["👤 Developer"])
+  DEV --> APP["App / widget /<br/>directorio"]
+  APP --> ATT(["👤 Asistente"])
+  FEEDS -.->|export iCal / RSS| CAL["📅 Su calendario<br/>(iCal / RSS)"]
+  CAL --> ATT
+
+  class F1,F2 ote
+  class APP app
+  class CAL std
+  class DEV,ATT person
+</script>
+
+<script type="module">
+  import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+
+  const STYLES = [
+    "classDef ote fill:#b8ecd0,stroke:#2f9e6e,color:#0f3d2c;",
+    "classDef std fill:#d6e9f5,stroke:#4a90c2,color:#123a55;",
+    "classDef tool fill:#e5defb,stroke:#7c5cd6,color:#2e1d5b;",
+    "classDef dest fill:#fde6c9,stroke:#e39a3d,color:#5a3a10;",
+    "classDef person fill:#dbe4ff,stroke:#3b5bdb,color:#1a2e73;",
+    "classDef app fill:#eef1f6,stroke:#8a93a3,color:#2a313c;",
+  ].join("\n");
+
+  const TABS = [
+    { id: "overview", label: "Overview", cap: "Mapa completo del ecosistema: publica una vez → descubierto en todas partes. Los estándares existentes (ICS/RSS/schema.org) actúan como puente en ambos sentidos." },
+    { id: "a", label: "A · Organizer nativo", cap: "El community organizer describe el evento una vez en OTE y las herramientas outbound lo sindican automáticamente a muchos destinos." },
+    { id: "b", label: "B · Trae tu ICS", cap: "¿Ya tienes un calendario ICS? Conéctalo una vez a un agregador; él lo convierte a OTE. Sin reescribir nada." },
+    { id: "c", label: "C · Conference org", cap: "El organizador de la conferencia añade OTE a su web y se da de alta en varios directorios: pasa a ser encontrable en todas partes." },
+    { id: "de", label: "D+E · Consumidores", cap: "Los devs construyen apps, widgets y directorios sobre feeds OTE; los asistentes se suscriben desde su propio calendario." },
+  ];
+
+  let active = "overview";
+
+  const dark = () => document.documentElement.dataset.theme
+    ? document.documentElement.dataset.theme === "dark"
+    : matchMedia("(prefers-color-scheme: dark)").matches;
+
+  const src = (id) => document.getElementById("src-" + id).textContent.trim() + "\n" + STYLES;
+
+  async function render() {
+    const stage = document.getElementById("stage");
+    const id = "mmd-" + active + "-" + (dark() ? "d" : "l");
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: dark() ? "dark" : "default",
+      flowchart: { curve: "basis", htmlLabels: true },
+      securityLevel: "loose",
+    });
+    try {
+      const { svg } = await mermaid.render(id, src(active));
+      stage.innerHTML = svg;
+    } catch (e) {
+      stage.innerHTML = '<p style="color:#c0392b">Error al renderizar: ' + e.message + "</p>";
+    }
+  }
+
+  // build tabs
+  const tabsEl = document.getElementById("tabs");
+  const captionEl = document.getElementById("caption");
+  TABS.forEach((t) => {
+    const b = document.createElement("button");
+    b.className = "tab";
+    b.textContent = t.label;
+    b.setAttribute("role", "tab");
+    b.setAttribute("aria-selected", String(t.id === active));
+    b.onclick = () => select(t.id);
+    b.dataset.id = t.id;
+    tabsEl.appendChild(b);
+  });
+
+  function select(id) {
+    active = id;
+    document.querySelectorAll(".tab").forEach((b) =>
+      b.setAttribute("aria-selected", String(b.dataset.id === id)));
+    captionEl.textContent = TABS.find((t) => t.id === id).cap;
+    render();
+  }
+
+  document.getElementById("btn-theme").onclick = () => {
+    document.documentElement.dataset.theme = dark() ? "light" : "dark";
+    render();
+  };
+
+  // downloads
+  const svgEl = () => document.querySelector("#stage svg");
+  const download = (blob, name) => {
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = name;
+    a.click();
+    URL.revokeObjectURL(a.href);
+  };
+  document.getElementById("btn-svg").onclick = () => {
+    const svg = svgEl(); if (!svg) return;
+    download(new Blob([new XMLSerializer().serializeToString(svg)], { type: "image/svg+xml" }), "ote-" + active + ".svg");
+  };
+  document.getElementById("btn-png").onclick = () => {
+    const svg = svgEl(); if (!svg) return;
+    const xml = new XMLSerializer().serializeToString(svg);
+    const img = new Image();
+    img.onload = () => {
+      const scale = 2, box = svg.getBoundingClientRect();
+      const c = document.createElement("canvas");
+      c.width = box.width * scale; c.height = box.height * scale;
+      const ctx = c.getContext("2d");
+      ctx.fillStyle = getComputedStyle(document.body).backgroundColor;
+      ctx.fillRect(0, 0, c.width, c.height);
+      ctx.scale(scale, scale);
+      ctx.drawImage(img, 0, 0, box.width, box.height);
+      c.toBlob((b) => download(b, "ote-" + active + ".png"), "image/png");
+    };
+    img.src = "data:image/svg+xml;base64," + btoa(unescape(encodeURIComponent(xml)));
+  };
+
+  select(active);
+</script>
+</body>
+</html>

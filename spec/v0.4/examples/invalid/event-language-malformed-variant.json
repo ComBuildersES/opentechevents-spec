@@ -1,5 +1,5 @@
 {
-  "_comment": "INVÁLIDO a propósito: \"12345678\" tiene la forma de un variant (5-8 alfanuméricos), pero no está registrado como ninguno en el IANA Language Subtag Registry — no basta con la forma, hace falta que el subtag exista de verdad. Ver CHANGES.log #P006 / DECISIONS.md D007.",
+  "_comment": "INVÁLIDO a propósito: \"12345678\" tiene la forma de un variant (5-8 alfanuméricos), pero no está registrado como ninguno en el IANA Language Subtag Registry — no basta con la forma, hace falta que el subtag exista de verdad. Ver docs/history/CHANGES.log #P006 / DECISIONS.md D007.",
   "specVersion": "0.4.0",
   "id": "https://x.example/1",
   "name": "X",

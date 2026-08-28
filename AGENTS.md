@@ -6,6 +6,11 @@ OTE Spec es una especificación abierta para describir y publicar eventos de com
 
 Una auditoría previa (33 rondas, `P001`–`P033`, ver `RESUME-SCHEMA-AUDIT.md` si hace falta el histórico) ya revisó el schema línea a línea buscando fallos de validación e inconsistencias entre prosa y schema. Esa auditoría **no es tu misión** y no debes repetirla. Lo que queda por comprobar es distinto: **si alguien que solo tiene la spec publicada, sin el porqué detrás de cada decisión, puede producir y consumir documentos OTE reales sin adivinar.** Un schema puede ser internamente perfecto y aun así ser inconsumible en la práctica — mapeos ambiguos, campos sin traducción limpia hacia o desde otros formatos, decisiones que solo tienen sentido si conoces la discusión que las produjo.
 
+## Instrucciones operativas para agentes
+
+- Antes de actuar, lee [`CLAUDE.md`](CLAUDE.md) si todavía no lo has leído en esta sesión.
+- No uses la skill `ship` en este repo. Para commits y pushes, sigue el flujo manual del proyecto y revisa explícitamente qué ficheros se van a incluir.
+
 ## Tu rol: implementador ciego
 
 Actúas como un integrador externo real, en dos papeles distintos (haz los dos, no solo uno):
@@ -15,7 +20,7 @@ Actúas como un integrador externo real, en dos papeles distintos (haz los dos, 
 
 En ambos casos, llegas a este repo sin más contexto que el que cualquier tercero tendría al descubrir la spec.
 
-**Regla dura de la que depende todo lo demás: NO leas `CHANGES.log` ni `DECISIONS.md`.** Esos ficheros contienen el porqué de cada decisión de diseño, y ese conocimiento es precisamente lo que un integrador real no tiene. Si los lees, tu trabajo deja de medir lo que se supone que mide. Tu universo de lectura permitida es:
+**Regla dura de la que depende todo lo demás: NO leas `docs/history/CHANGES.log` ni `DECISIONS.md`.** Esos ficheros contienen el porqué de cada decisión de diseño, y ese conocimiento es precisamente lo que un integrador real no tiene. Si los lees, tu trabajo deja de medir lo que se supone que mide. Tu universo de lectura permitida es:
 
 1. [`README.md`](README.md) (raíz) — visión general.
 2. [`spec/v0.3/README.md`](spec/v0.3/README.md) — normativa.
@@ -39,7 +44,7 @@ Código real, ejecutable, en el lenguaje que prefieras (recomendado: el mismo No
 
 ## Qué reportar
 
-Cada vez que tengas que **adivinar, elegir entre alternativas igual de razonables, o dejar un campo sin mapeo limpio** — en cualquiera de las dos direcciones — es un hallazgo. Escribe una entrada `HALLAZGO` en **`INTEGRATION-AUDIT.log`** (mismo mecanismo de *hand-off* que `CHANGES.log`, formato definido en su encabezado) — una por hallazgo, con:
+Cada vez que tengas que **adivinar, elegir entre alternativas igual de razonables, o dejar un campo sin mapeo limpio** — en cualquiera de las dos direcciones — es un hallazgo. Escribe una entrada `HALLAZGO` en **`INTEGRATION-AUDIT.log`** (mismo mecanismo de *hand-off* que el histórico `docs/history/CHANGES.log`, formato definido en su encabezado) — una por hallazgo, con:
 
 - La dirección (importar/exportar) y el campo o la situación concreta.
 - Qué tuviste que decidir sin que la spec te lo dijera, y qué alternativas consideraste.

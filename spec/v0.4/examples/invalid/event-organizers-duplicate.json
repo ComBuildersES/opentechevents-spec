@@ -1,5 +1,5 @@
 {
-  "_comment": "INVÁLIDO a propósito: organizers repite exactamente el mismo objeto — no añade información, es el mismo organizador afirmado dos veces. Ver CHANGES.log #P030 / DECISIONS.md D027.",
+  "_comment": "INVÁLIDO a propósito: organizers repite exactamente el mismo objeto — no añade información, es el mismo organizador afirmado dos veces. Ver docs/history/CHANGES.log #P030 / DECISIONS.md D027.",
   "specVersion": "0.4.0",
   "id": "https://example.org/events/duplicate-organizers",
   "name": "Duplicate organizers",

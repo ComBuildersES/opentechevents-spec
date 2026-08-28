@@ -1,5 +1,5 @@
 {
-  "_comment": "INVÁLIDO a propósito: \"x-example\" es una etiqueta de uso privado válida en BCP 47, pero deliberadamente fuera del alcance de esta spec — no hay caso de uso real para uso privado, grandfathered ni extensiones al declarar el idioma del texto de un evento. Ver CHANGES.log #P006 / DECISIONS.md D007.",
+  "_comment": "INVÁLIDO a propósito: \"x-example\" es una etiqueta de uso privado válida en BCP 47, pero deliberadamente fuera del alcance de esta spec — no hay caso de uso real para uso privado, grandfathered ni extensiones al declarar el idioma del texto de un evento. Ver docs/history/CHANGES.log #P006 / DECISIONS.md D007.",
   "specVersion": "0.4.0",
   "id": "https://x.example/1",
   "name": "X",

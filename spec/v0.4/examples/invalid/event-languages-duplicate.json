@@ -1,5 +1,5 @@
 {
-  "_comment": "INVÁLIDO a propósito: languages repite exactamente el mismo idioma. Ver CHANGES.log #P027.",
+  "_comment": "INVÁLIDO a propósito: languages repite exactamente el mismo idioma. Ver docs/history/CHANGES.log #P027.",
   "specVersion": "0.4.0",
   "id": "https://example.org/events/duplicate-languages",
   "name": "Duplicate languages",

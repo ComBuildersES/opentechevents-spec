@@ -1,5 +1,5 @@
 {
-  "_comment": "INVÁLIDO a propósito: location.onlineUrl lleva credenciales embebidas (user:pass@) en la autoridad. Misma regla que event.url: un enlace público no es el sitio para publicar un secreto. Ver CHANGES.log #P029 / DECISIONS.md D026.",
+  "_comment": "INVÁLIDO a propósito: location.onlineUrl lleva credenciales embebidas (user:pass@) en la autoridad. Misma regla que event.url: un enlace público no es el sitio para publicar un secreto. Ver docs/history/CHANGES.log #P029 / DECISIONS.md D026.",
   "specVersion": "0.4.0",
   "id": "https://example.org/events/location-onlineurl-userinfo",
   "name": "Evento con credenciales en location.onlineUrl",

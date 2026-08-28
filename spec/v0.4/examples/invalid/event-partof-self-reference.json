@@ -1,5 +1,5 @@
 {
-  "_comment": "INVÁLIDO a propósito: partOf.id es igual al id del propio evento — una ocurrencia no puede ser el conjunto al que pertenece. Ver CHANGES.log #P011 / DECISIONS.md D012.",
+  "_comment": "INVÁLIDO a propósito: partOf.id es igual al id del propio evento — una ocurrencia no puede ser el conjunto al que pertenece. Ver docs/history/CHANGES.log #P011 / DECISIONS.md D012.",
   "specVersion": "0.4.0",
   "id": "https://x.example/events/self",
   "name": "X",

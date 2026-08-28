@@ -1,5 +1,5 @@
 {
-  "_comment": "INVÁLIDO a propósito: ZZ no es un código ISO 3166-1 oficialmente asignado. country existe para agrupar por país sin depender de la grafía del nombre; un código inventado rompe esa promesa — ver CHANGES.log #P005 / DECISIONS.md D006.",
+  "_comment": "INVÁLIDO a propósito: ZZ no es un código ISO 3166-1 oficialmente asignado. country existe para agrupar por país sin depender de la grafía del nombre; un código inventado rompe esa promesa — ver docs/history/CHANGES.log #P005 / DECISIONS.md D006.",
   "specVersion": "0.4.0",
   "id": "https://x.example/1",
   "name": "X",

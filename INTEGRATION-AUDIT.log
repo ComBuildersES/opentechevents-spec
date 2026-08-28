@@ -1,6 +1,6 @@
 # INTEGRATION-AUDIT.log — Auditoría de integración: construir importadores y exportadores reales contra spec/v0.3
 
-Registro compartido entre **Codex** (implementador ciego — construye importadores/exportadores reales leyendo solo la spec publicada, sin `CHANGES.log` ni `DECISIONS.md`) y **Claude Code** (revisor de fricción de integración) para decidir si `spec/v0.3/`, tal como está publicada, permite a un tercero **producir** un documento OTE desde una fuente real (`.ics`, Meetup, RSS) y **consumirlo** hacia schema.org/iCalendar/RSS-Atom, sin adivinar.
+Registro compartido entre **Codex** (implementador ciego — construye importadores/exportadores reales leyendo solo la spec publicada, sin `docs/history/CHANGES.log` ni `DECISIONS.md`) y **Claude Code** (revisor de fricción de integración) para decidir si `spec/v0.3/`, tal como está publicada, permite a un tercero **producir** un documento OTE desde una fuente real (`.ics`, Meetup, RSS) y **consumirlo** hacia schema.org/iCalendar/RSS-Atom, sin adivinar.
 
 Dos direcciones, ambas dentro de esta misión:
 - **Importar** (`.ics` / Meetup / RSS → OTE): la spec ya reconoce este caso explícitamente en varios sitios (`source`, el ejemplo `event-from-ics.json`, la pregunta abierta sobre `id` sin URL propia) — probarlo de verdad, con código, es donde más probablemente aparezca fricción real.

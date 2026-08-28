@@ -1,5 +1,5 @@
 {
-  "_comment": "INVÁLIDO a propósito: mismo caso que event-translations-repeats-textlanguage.json, pero solo difiere en mayúsculas (\"ES\" vs \"es\") — RFC 5646 §2.1.1 dice que las etiquetas de idioma no distinguen mayúsculas, así que sigue siendo el mismo idioma. Ver CHANGES.log #P009 / DECISIONS.md D010.",
+  "_comment": "INVÁLIDO a propósito: mismo caso que event-translations-repeats-textlanguage.json, pero solo difiere en mayúsculas (\"ES\" vs \"es\") — RFC 5646 §2.1.1 dice que las etiquetas de idioma no distinguen mayúsculas, así que sigue siendo el mismo idioma. Ver docs/history/CHANGES.log #P009 / DECISIONS.md D010.",
   "specVersion": "0.4.0",
   "id": "https://x.example/1",
   "name": "Texto principal",

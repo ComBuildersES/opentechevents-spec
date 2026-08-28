@@ -1,5 +1,5 @@
 {
-  "_comment": "INVÁLIDO a propósito: translations.en no tiene ni name ni description, solo un campo desconocido — minProperties:1 lo acepta, pero no traduce nada de OTE. Ver CHANGES.log #P024 / DECISIONS.md D022.",
+  "_comment": "INVÁLIDO a propósito: translations.en no tiene ni name ni description, solo un campo desconocido — minProperties:1 lo acepta, pero no traduce nada de OTE. Ver docs/history/CHANGES.log #P024 / DECISIONS.md D022.",
   "specVersion": "0.4.0",
   "id": "https://example.org/events/unknown-only-translation",
   "name": "Unknown-only translation",

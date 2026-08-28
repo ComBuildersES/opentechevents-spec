@@ -5,7 +5,7 @@
  *
  * Scope is deliberately the CORE of BCP 47 (RFC 5646): `language`, `script`, `region` and
  * `variant` subtags only. `extlang`, `grandfathered`/`redundant` tags and extension singletons
- * are out of scope on purpose — see CHANGES.log #P006 and DECISIONS.md D007 for why: they have
+ * are out of scope on purpose — see docs/history/CHANGES.log #P006 and DECISIONS.md D007 for why: they have
  * no real use case for "what language is this event's text in", and grandfathered tags in
  * particular are relics RFC 5646 itself deprecates in favor of the modern subtag form.
  *

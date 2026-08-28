@@ -1,5 +1,5 @@
 {
-  "_comment": "INVÁLIDO a propósito: el feed dice haberse generado el 20 de febrero, pero contiene un evento modificado el 25 — cinco días después. Un feed no puede incluir una revisión que, según sus propios sellos, todavía no existía cuando se generó. Ver CHANGES.log #P014 / DECISIONS.md D015.",
+  "_comment": "INVÁLIDO a propósito: el feed dice haberse generado el 20 de febrero, pero contiene un evento modificado el 25 — cinco días después. Un feed no puede incluir una revisión que, según sus propios sellos, todavía no existía cuando se generó. Ver docs/history/CHANGES.log #P014 / DECISIONS.md D015.",
   "specVersion": "0.4.0",
   "title": "Feed imposible",
   "license": "CC0-1.0",

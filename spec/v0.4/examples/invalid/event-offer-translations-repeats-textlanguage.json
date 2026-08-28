@@ -1,5 +1,5 @@
 {
-  "_comment": "INVÁLIDO a propósito: offers[0].translations.es repite el textLanguage del documento (\"es\") — mismo fallo que event-translations-repeats-textlanguage.json, en un mapa anidado. Ver CHANGES.log #P009 / DECISIONS.md D010.",
+  "_comment": "INVÁLIDO a propósito: offers[0].translations.es repite el textLanguage del documento (\"es\") — mismo fallo que event-translations-repeats-textlanguage.json, en un mapa anidado. Ver docs/history/CHANGES.log #P009 / DECISIONS.md D010.",
   "specVersion": "0.4.0",
   "id": "https://x.example/1",
   "name": "X",

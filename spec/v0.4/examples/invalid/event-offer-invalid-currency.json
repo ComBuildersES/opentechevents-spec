@@ -1,5 +1,5 @@
 {
-  "_comment": "INVÁLIDO a propósito: ZZZ no es un código ISO 4217 real. currency existe para que el precio se pueda interpretar y comparar; un código inventado rompe justo esa promesa — ver CHANGES.log #P004 / DECISIONS.md D005.",
+  "_comment": "INVÁLIDO a propósito: ZZZ no es un código ISO 4217 real. currency existe para que el precio se pueda interpretar y comparar; un código inventado rompe justo esa promesa — ver docs/history/CHANGES.log #P004 / DECISIONS.md D005.",
   "specVersion": "0.4.0",
   "id": "https://x.example/1",
   "name": "X",

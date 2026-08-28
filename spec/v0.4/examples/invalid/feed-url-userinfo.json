@@ -1,5 +1,5 @@
 {
-  "_comment": "INVÁLIDO a propósito: url del feed lleva credenciales embebidas (user:pass@) en la autoridad. Misma regla que event.url. Ver CHANGES.log #P029 / DECISIONS.md D026.",
+  "_comment": "INVÁLIDO a propósito: url del feed lleva credenciales embebidas (user:pass@) en la autoridad. Misma regla que event.url. Ver docs/history/CHANGES.log #P029 / DECISIONS.md D026.",
   "specVersion": "0.4.0",
   "title": "Feed con credenciales en url",
   "url": "https://user:pass@example.org/community",

@@ -1,5 +1,5 @@
 {
-  "_comment": "INVÁLIDO a propósito: name es solo espacios — minLength:1 lo acepta, pero no es un nombre. Ver CHANGES.log #P018 / DECISIONS.md D018.",
+  "_comment": "INVÁLIDO a propósito: name es solo espacios — minLength:1 lo acepta, pero no es un nombre. Ver docs/history/CHANGES.log #P018 / DECISIONS.md D018.",
   "specVersion": "0.4.0",
   "id": "https://example.org/events/blank-name",
   "name": "   ",
