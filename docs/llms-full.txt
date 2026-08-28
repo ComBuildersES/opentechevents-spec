@@ -5882,6 +5882,24 @@ Source: docs/data/tools.json — The tools listed on the site: validators, gener
     },
     {
       "status": "proposed",
+      "audience": ["organizers", "developers"],
+      "order": 35,
+      "name": {
+        "en": "MCP server for OTE",
+        "es": "Servidor MCP para OTE"
+      },
+      "desc": {
+        "en": "An MCP (Model Context Protocol) server any compatible agent (Claude, ChatGPT, Codex...) can install from its own marketplace: draft an event from a plain-language description, validate it deterministically against the same schemas the CLI and editor use, and answer guidance questions about adopting the spec — grounded in the published prose, not the model's memory.",
+        "es": "Servidor MCP (Model Context Protocol) que cualquier agente compatible (Claude, ChatGPT, Codex...) puede instalar desde su propio marketplace: redacta un evento a partir de una descripción en lenguaje natural, lo valida de forma determinista contra los mismos esquemas que usan el CLI y el editor, y responde preguntas de guía sobre cómo adoptar la spec — basándose en la prosa publicada, no en la memoria del modelo."
+      },
+      "category": {
+        "en": "Create & validate",
+        "es": "Crear y validar"
+      },
+      "url": "https://github.com/OpenTechEvents/opentechevents-spec/issues/40"
+    },
+    {
+      "status": "proposed",
       "audience": ["organizers"],
       "order": 20,
       "name": {
@@ -5987,6 +6005,24 @@ Source: docs/data/tools.json — The tools listed on the site: validators, gener
         "es": "Transformar"
       },
       "url": "https://github.com/OpenTechEvents/opentechevents-spec/issues/11"
+    },
+    {
+      "status": "proposed",
+      "audience": ["organizers", "developers"],
+      "order": 25,
+      "name": {
+        "en": "Hosted conversion service",
+        "es": "Servicio de conversión alojado"
+      },
+      "desc": {
+        "en": "Point it at your OTE feed URL and get back live, cached .ics, RSS/Atom and schema.org JSON-LD at their own derived URLs — for organisers and directories who don't want to run and maintain their own exporter.",
+        "es": "Le das la URL de tu feed OTE y te devuelve, en vivo y cacheado, .ics, RSS/Atom y JSON-LD schema.org en sus propias URLs derivadas — para organizadores y directorios que no quieren mantener su propio exportador."
+      },
+      "category": {
+        "en": "Transform",
+        "es": "Transformar"
+      },
+      "url": "https://github.com/OpenTechEvents/opentechevents-spec/issues/37"
     },
     {
       "status": "proposed",
