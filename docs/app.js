@@ -87,6 +87,14 @@
 
   /* ---------- renderers ---------- */
 
+  /* `license` is an SPDX identifier or a URL. The identifier is the label; a URL has no
+     short form that says anything true about the terms, so it says only that it is custom
+     and links nowhere — the tooltip carries the URL. */
+  function licenseLabel(license) {
+    if (!/^https?:/i.test(license)) return license;
+    return get(state.dict, 'adopters.licenseCustom') || 'Custom licence';
+  }
+
   function renderEntries(items, containerId, emptyId) {
     var container = document.getElementById(containerId);
     var empty = document.getElementById(emptyId);
@@ -145,6 +153,20 @@
         var title = get(state.dict, 'adopters.specVersionBadge');
         if (title) badge.title = title.replace('{version}', item.specVersion);
         metas.appendChild(badge);
+      }
+      // What may be done with the data, which is the other half of "can I consume this
+      // feed". A feed whose events carry different licences says so instead of picking
+      // one: an aggregator has to check every event, and the badge must not imply
+      // otherwise. Inheritance is already resolved in feed-health.json.
+      if (item.licenses && item.licenses.length) {
+        var mixed = item.licenses.length > 1;
+        var label = mixed
+          ? (get(state.dict, 'adopters.licenseMixed') || '{count} licences').replace('{count}', item.licenses.length)
+          : licenseLabel(item.licenses[0]);
+        var lic = el('span', 'entry-meta entry-badge entry-badge-license', label);
+        var licTitle = get(state.dict, mixed ? 'adopters.licenseMixedTitle' : 'adopters.licenseBadge');
+        if (licTitle) lic.title = licTitle.replace('{licenses}', item.licenses.join(', '));
+        metas.appendChild(lic);
       }
       if (metas.childNodes.length) body.appendChild(metas);
       card.appendChild(body);
@@ -280,7 +302,8 @@
     var health = (state.data.health && state.data.health.feeds) || [];
     return (adopters || []).map(function (adopter) {
       var entry = health.find(function (f) { return f.feed === adopter.feed; });
-      return entry && entry.specVersion ? Object.assign({}, adopter, { specVersion: entry.specVersion }) : adopter;
+      if (!entry) return adopter;
+      return Object.assign({}, adopter, { specVersion: entry.specVersion, licenses: entry.licenses });
     });
   }
 

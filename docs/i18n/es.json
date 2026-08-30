@@ -184,8 +184,12 @@
   },
   "adopters": {
     "title": "Quién publica en OTE",
-    "lead": "Comunidades y eventos que ya exponen sus datos en este formato.",
+    "lead": "Comunidades, conferencias, directorios que exponen los datos de sus eventos en este formato.",
     "specVersionBadge": "Publica OTE {version}. Todas las versiones publicadas siguen soportadas — cada feed se valida contra la que declara.",
+    "licenseBadge": "Licencia de los datos: {licenses}. Es lo que permite reutilizar el feed, no la licencia del evento.",
+    "licenseMixed": "{count} licencias",
+    "licenseMixedTitle": "Sus eventos no comparten licencia: {licenses}. Quien agregue el feed entero tiene que mirar la de cada evento, no solo la del feed.",
+    "licenseCustom": "Licencia propia",
     "empty": "La spec acaba de nacer, así que esta lista todavía es corta. Sé de los primeros: quien llega pronto decide en qué se convierte el estándar.",
     "emptyCta": "Ser de los primeros",
     "machine": "Esta lista es datos, no HTML: pinta <a href=\"/data/adopters.json\"><code>adopters.json</code></a>, un registro machine-readable sobre el que puedes construir. Mira la <a href=\"/developers/\">documentación para desarrolladores</a>."

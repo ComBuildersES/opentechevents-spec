@@ -166,13 +166,25 @@ async function attempt(url) {
 
   // Older than the support window: reachable, and that is all we claim. Judging it
   // against rules we no longer support would report a failure nobody agreed to fix.
-  if (!supported.has(version)) return ok({ cors, version });
+  if (!supported.has(version)) return ok({ cors, version, licenses: licensesIn(doc) });
 
   const { ajv, validate } = validatorFor(version);
   if (!validate(doc)) {
     return hard("schema errors:\n" + ajv.errorsText(validate.errors, { separator: "\n" }), { cors, version });
   }
-  return ok({ cors, version });
+  return ok({ cors, version, licenses: licensesIn(doc) });
+}
+
+/* Every licence a consumer would actually end up with, inheritance resolved. An event
+   that declares its own replaces the feed's, and an aggregator may omit `feed.license`
+   entirely as long as every event carries one — so reporting `feed.license` alone would
+   be wrong precisely for the mixed feeds where the answer matters most. See the spec's
+   "license and source" section. */
+function licensesIn(doc) {
+  const events = Array.isArray(doc.events) ? doc.events : [];
+  const effective = events.map((e) => (e && typeof e.license === "string" ? e.license : doc.license));
+  const all = (effective.length ? effective : [doc.license]).filter((l) => typeof l === "string");
+  return [...new Set(all)].sort();
 }
 
 async function checkFeed(url) {
@@ -202,7 +214,7 @@ const state = existsSync(STATE) ? JSON.parse(readFileSync(STATE, "utf8")) : {};
 const previous = existsSync(PUBLIC_STATE) ? JSON.parse(readFileSync(PUBLIC_STATE, "utf8")) : {};
 // A feed that times out tells us nothing about its version: keep the last one we saw
 // rather than blanking it, so the public status stays useful through an outage.
-const lastKnown = new Map((previous.feeds || []).map((f) => [f.feed, f.specVersion]));
+const lastKnown = new Map((previous.feeds || []).map((f) => [f.feed, { specVersion: f.specVersion, licenses: f.licenses }]));
 const today = new Date().toISOString().slice(0, 10);
 const next = {};
 const status = [];
@@ -210,10 +222,11 @@ let failing = 0;
 const noCors = [];
 
 for (const adopter of adopters) {
-  const { error, kind, cors, version } = await checkFeed(adopter.feed);
+  const { error, kind, cors, version, licenses } = await checkFeed(adopter.feed);
   const prev = state[adopter.feed];
+  const last = lastKnown.get(adopter.feed) || {};
   const stale = version && !supported.has(version);
-  const seen = version || lastKnown.get(adopter.feed) || null;
+  const seen = version || last.specVersion || null;
 
   status.push({
     name: adopter.name,
@@ -224,6 +237,9 @@ for (const adopter of adopters) {
     // Old but still checkable against its own schemas: information for consumers,
     // never a health failure. See the support window at the top of this file.
     supported: seen ? supported.has(seen) : null,
+    // Inheritance resolved, so a feed whose events carry different licences reports all
+    // of them: whoever aggregates has to look at each event, not only at feed.license.
+    licenses: licenses && licenses.length ? licenses : last.licenses || null,
     cors: error ? null : cors === null,
     failureKind: kind,
     failingSince: error ? (prev ? prev.since : today) : null,
@@ -318,7 +334,7 @@ writeFileSync(
   JSON.stringify(
     {
       _comment:
-        "Health of the registered adopter feeds, refreshed daily by scripts/check-feeds.mjs. Feeds are validated against the spec version they declare; `supported` false means older than the supported window, which is information, not a failure. `specVersion` is the last version seen, kept through an outage. `updated` is when this status last changed.",
+        "Health of the registered adopter feeds, refreshed daily by scripts/check-feeds.mjs. Feeds are validated against the spec version they declare; `supported` false means older than the supported window, which is information, not a failure. `specVersion` and `licenses` are the last values seen, kept through an outage; `licenses` lists every licence a consumer ends up with, feed-level inheritance already resolved. `updated` is when this status last changed.",
       updated: unchanged && previous.updated ? previous.updated : today,
       latestSpecVersion: LATEST,
       feeds: status,
