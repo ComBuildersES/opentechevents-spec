@@ -10,7 +10,16 @@
 
   var REPO = "OpenTechEvents/opentechevents-spec";
   var ISSUE_TEMPLATE = "adopter.yml";
-  var SCHEMA_BASE = "../schema/v0.4/"; // published copies — same origin, no CORS
+  /* Published schema copies — same origin, no CORS. The required-field lists are read
+     from the version the feed itself declares: checking a valid 0.3 feed against 0.4's
+     lists would report a problem its publisher has no reason to consider one. Unknown
+     or absent version falls back to the newest. */
+  var SCHEMA_VERSIONS = ["0.1.0", "0.2.0", "0.3.0", "0.4.0"];
+  var LATEST_SCHEMA = SCHEMA_VERSIONS[SCHEMA_VERSIONS.length - 1];
+  function schemaBase(version) {
+    var known = SCHEMA_VERSIONS.indexOf(version) !== -1 ? version : LATEST_SCHEMA;
+    return "../schema/v" + known.split(".").slice(0, 2).join(".") + "/";
+  }
   var REGISTRY = "../data/adopters.json"; // the same file the site's adopter list renders from
 
   /* ---------- linking sources (pluggable) ----------
@@ -296,20 +305,22 @@
   var feedStatus = document.getElementById("reg-feed-status");
   var requiredFields = null; // { feed: [...], event: [...] } from the published schemas
 
-  function loadRequired() {
-    if (requiredFields) return Promise.resolve(requiredFields);
+  function loadRequired(version) {
+    var base = schemaBase(version);
+    if (requiredFields && requiredFields.base === base) return Promise.resolve(requiredFields);
     return Promise.all([
-      fetch(SCHEMA_BASE + "feed.schema.json").then(function (r) { return r.json(); }),
-      fetch(SCHEMA_BASE + "event.schema.json").then(function (r) { return r.json(); }),
+      fetch(base + "feed.schema.json").then(function (r) { return r.json(); }),
+      fetch(base + "event.schema.json").then(function (r) { return r.json(); }),
     ]).then(function (schemas) {
       requiredFields = {
+        base: base,
         feed: schemas[0].required || [],
         event: (schemas[1].$defs && schemas[1].$defs.event && schemas[1].$defs.event.required) || [],
       };
       return requiredFields;
     }).catch(function () {
       // Schemas unreachable (offline dev?): degrade to the structural checks only.
-      requiredFields = { feed: [], event: [] };
+      requiredFields = { base: base, feed: [], event: [] };
       return requiredFields;
     });
   }
@@ -355,12 +366,14 @@
       renderFeedStatus();
     };
 
-    Promise.all([fetch(url), loadRequired()]).then(function (results) {
-      var res = results[0], req = results[1];
+    fetch(url).then(function (res) {
       if (!res.ok) return done("invalid", [{ key: "errHttp", vars: { status: String(res.status) } }]);
       return res.json().then(function (doc) {
-        var errors = structuralErrors(doc, req);
-        done(errors.length ? "invalid" : "valid", errors);
+        // The feed's own version decides which required-field lists it is measured by.
+        return loadRequired(doc.specVersion).then(function (req) {
+          var errors = structuralErrors(doc, req);
+          done(errors.length ? "invalid" : "valid", errors);
+        });
       }, function () {
         done("invalid", [{ key: "errJson", vars: {} }]);
       });
