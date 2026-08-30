@@ -13,6 +13,11 @@ body:
         Tip: the [registration form](https://opentechevents.org/register/) prefills
         this issue for you — including the directory link, if your community is
         listed in one.
+
+        Want to check the feed first? Paste its URL into the
+        [online validator](https://validator.opentechevents.org/). If the check here
+        fails, the comment links your feed there; fix it on your server and comment
+        `/revalidate` on this issue to run the check again.
   - type: input
     id: community
     attributes:

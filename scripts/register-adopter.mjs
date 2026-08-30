@@ -10,8 +10,14 @@
  * Outputs (to $GITHUB_OUTPUT when set, stdout otherwise):
  *   valid=true|false   whether the feed validated
  *   name=<community>   for commit message / PR title
+ *   spec=v0.4          the spec version this run measured against, for the PR body
+ *   validator=<url>    the feed's permalink in the online validator, for the PR body
  * A human-readable report is written to $REPORT_PATH (default: adopter-report.md)
- * — that file becomes the comment on the issue, valid or not.
+ * — that file becomes the comment on the issue, valid or not. It opens with a hidden
+ * marker so the workflow can edit one sticky comment instead of stacking a new one on
+ * every re-run, and every report carries the online validator link for this feed plus
+ * the `/revalidate` command: the usual fix happens on the publisher's server, where
+ * editing the issue changes nothing and there is otherwise no way to ask for a retry.
  *
  * An invalid feed is a normal outcome, not a job failure: the script only exits
  * non-zero when it cannot do its work (missing fields, unreadable adopters.json).
@@ -23,8 +29,23 @@ import addFormats from "ajv-formats";
 import { annotationKeywords, customFormats, customKeywords } from "../index.js";
 
 const SPEC = "spec/v0.4";
+const SPEC_VERSION = SPEC.split("/").pop(); // "v0.4" — the version every message quotes
 const ADOPTERS = join("docs", "data", "adopters.json");
 const REPORT = process.env.REPORT_PATH || "adopter-report.md";
+
+/* The sticky comment's identity: the workflow finds its previous comment by this
+   prefix and patches it. Changing it orphans the comments already posted. */
+const MARKER = "<!-- ote-adopter-check -->";
+
+/* The same verdict this script produces, in a page the publisher can re-run themselves
+   while they fix things — with human-readable messages instead of ajv's error text. */
+const VALIDATOR = "https://validator.opentechevents.org/";
+const validatorLink = (feed) => `${VALIDATOR}?doc=${encodeURIComponent(feed)}`;
+
+/* Closing line of every report. The feed lives on the publisher's server, so a fix
+   leaves the issue untouched: without a command there is nothing to re-trigger on. */
+const RETRY =
+  "Fixed your feed? Comment `/revalidate` on this issue and the check runs again — no edit needed.";
 
 /* ---------- issue-form parsing ----------
    Issue forms render as "### <label>\n\n<value>" blocks; empty optional fields
@@ -58,7 +79,7 @@ function setOutput(key, value) {
 }
 
 function report(valid, lines) {
-  writeFileSync(REPORT, lines.join("\n") + "\n");
+  writeFileSync(REPORT, [MARKER, "", ...lines].join("\n") + "\n");
   setOutput("valid", String(valid));
   console.log(readFileSync(REPORT, "utf8"));
 }
@@ -73,6 +94,7 @@ if (!body) {
 
 const fields = parseIssue(body);
 setOutput("name", fields.name || "");
+setOutput("spec", SPEC_VERSION);
 
 if (!fields.name || !fields.feed) {
   report(false, [
@@ -82,6 +104,8 @@ if (!fields.name || !fields.feed) {
   ]);
   process.exit(0);
 }
+
+setOutput("validator", validatorLink(fields.feed));
 
 /* Whether a browser could read this feed. Checked here because this is the one moment
    the publisher is listening: the report becomes a comment on their issue. It never
@@ -103,7 +127,11 @@ try {
     "",
     `Fetching \`${fields.feed}\` failed: ${err.message}`,
     "",
-    "Fix the URL (edit the issue) and the check will run again.",
+    `👉 **[Open your feed in the OTE validator](${validatorLink(fields.feed)})** to see what a client gets when it asks for that URL.`,
+    "",
+    "If the URL itself is wrong, edit the issue. If the server is what needs fixing, fix it there — nothing in this issue has to change.",
+    "",
+    RETRY,
   ]);
   process.exit(0);
 }
@@ -124,13 +152,19 @@ const validateFeed = ajv.compile(JSON.parse(readFileSync(join(SPEC, "feed.schema
 
 if (!validateFeed(doc)) {
   report(false, [
-    "### ❌ The feed does not validate against OTE Spec v0.4",
+    `### ❌ The feed does not validate against OTE Spec ${SPEC_VERSION}`,
+    "",
+    `👉 **[Open your feed in the OTE validator](${validatorLink(fields.feed)})** — same verdict as here, with each problem explained in plain language and pointed at the field that caused it. The [field reference](https://opentechevents.org/spec/) documents every field.`,
+    "",
+    "<details><summary>Raw validator output</summary>",
     "",
     "```",
     ajv.errorsText(validateFeed.errors, { separator: "\n" }),
     "```",
     "",
-    "Fix the feed and edit the issue (any edit re-runs the check). The [field reference](https://opentechevents.org/spec/) documents every field.",
+    "</details>",
+    "",
+    RETRY,
   ]);
   process.exit(0);
 }
@@ -150,12 +184,14 @@ else registry.adopters[existing] = { ...registry.adopters[existing], ...entry };
 writeFileSync(ADOPTERS, JSON.stringify(registry, null, 2) + "\n");
 
 report(true, [
-  "### ✅ Feed validates against OTE Spec v0.4",
+  `### ✅ Feed validates against OTE Spec ${SPEC_VERSION}`,
   "",
   `**${fields.name}** — \`${fields.feed}\` (${doc.events.length} event${doc.events.length === 1 ? "" : "s"})`,
   fields.directory ? `Linked to directory entry \`${fields.directory}\`.` : "No directory link.",
   "",
   "A pull request adding the community to the adopters registry follows; a maintainer will review and merge it.",
+  "",
+  `Keep this link to re-check the feed whenever you change it: [validator.opentechevents.org](${validatorLink(fields.feed)}).`,
   ...(cors
     ? [
         "",

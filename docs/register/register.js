@@ -68,6 +68,7 @@
       feedListed: "This feed is already registered as <strong>{name}</strong> — see the <a href=\"/#adopters\">adopters list</a>. You can send this anyway: registering the same feed again updates its entry (name, website, logo, directory link) instead of adding a second one.",
       feedChecking: "Checking the feed…",
       feedValid: "The feed parses and has the core OTE fields. Full validation runs when your issue is reviewed.",
+      feedFullCheck: "Run the full check now in the <a href=\"{url}\" target=\"_blank\" rel=\"noopener\">OTE validator</a>.",
       feedInvalid: "This doesn't look like a valid OTE feed: {errors}",
       feedCors: "Couldn't verify the feed from the browser (the server doesn't allow cross-origin reads). It won't block your registration — it will be validated when your issue is reviewed — but browser-based readers won't be able to fetch it either: <a href=\"/#serving\">how to allow browser access</a>.",
       errHttp: "the URL answered HTTP {status}",
@@ -104,6 +105,7 @@
       feedListed: "Este feed ya está registrado como <strong>{name}</strong> — míralo en la <a href=\"/#adopters\">lista de adoptantes</a>. Puedes enviarlo igualmente: registrar otra vez el mismo feed actualiza su entrada (nombre, web, logo, enlace al directorio) en vez de añadir una segunda.",
       feedChecking: "Comprobando el feed…",
       feedValid: "El feed parsea y tiene los campos OTE básicos. La validación completa se hace al revisar tu issue.",
+      feedFullCheck: "Haz ya la comprobación completa en el <a href=\"{url}\" target=\"_blank\" rel=\"noopener\">validador OTE</a>.",
       feedInvalid: "Esto no parece un feed OTE válido: {errors}",
       feedCors: "No se pudo verificar el feed desde el navegador (el servidor no permite lecturas cross-origin). No bloquea tu registro —se validará al revisar tu issue—, pero los lectores que funcionan en el navegador tampoco podrán descargarlo: <a href=\"/#serving\">cómo permitir el acceso desde el navegador</a>.",
       errHttp: "la URL responde HTTP {status}",
@@ -367,6 +369,20 @@
     });
   }
 
+  /* The check above is deliberately shallow (and blind whenever CORS says no). The
+     validator is the same verdict the adopter workflow will reach, so every outcome
+     but "checking" offers it — reached through its own server, so CORS can't stop it. */
+  function fullCheckLine(url) {
+    return UI[state.lang].feedFullCheck.replace(
+      "{url}",
+      "https://validator.opentechevents.org/?doc=" + encodeURIComponent(url)
+    );
+  }
+
+  function escapeHtml(text) {
+    return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+
   function renderFeedStatus() {
     var t = UI[state.lang];
     var f = state.feed;
@@ -380,17 +396,21 @@
       feedStatus.textContent = t.feedChecking;
     } else if (f.status === "valid") {
       feedStatus.classList.add("feed-status-ok");
-      feedStatus.textContent = t.feedValid;
+      feedStatus.innerHTML = escapeHtml(t.feedValid) + " " + fullCheckLine(f.url);
     } else if (f.status === "cors") {
       feedStatus.classList.add("feed-status-warn");
-      feedStatus.innerHTML = t.feedCors; // static copy with a link to the serving guidance
-
+      // Static copy with a link to the serving guidance, plus the one check a
+      // browser-blocked feed can still get.
+      feedStatus.innerHTML = t.feedCors + " " + fullCheckLine(f.url);
     } else {
       feedStatus.classList.add("feed-status-err");
       var errors = f.errors.map(function (e) {
         return t[e.key].replace(/\{(\w+)\}/g, function (m, k) { return e.vars[k] || m; });
       });
-      feedStatus.textContent = t.feedInvalid.replace("{errors}", errors.join("; ") + ".");
+      feedStatus.innerHTML =
+        escapeHtml(t.feedInvalid.replace("{errors}", errors.join("; ") + ".")) +
+        " " +
+        fullCheckLine(f.url);
     }
   }
 

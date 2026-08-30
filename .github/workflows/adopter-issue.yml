@@ -7,11 +7,20 @@
 # PR simply updates. Note: PRs opened with GITHUB_TOKEN don't trigger other
 # workflows, so `Validate spec` won't run on them — the validation here is the
 # same code, run before the PR even exists.
+#
+# Commenting `/revalidate` re-runs it too, and that is the path that matters most:
+# an invalid feed is fixed on the publisher's own server, which leaves the issue
+# body untouched, so "edit the issue to retry" asks them to fake a change to
+# something that was never wrong. The report always links the feed's permalink in
+# https://validator.opentechevents.org so they can iterate there and come back here
+# only when it passes — at which point the same run opens the registration PR.
 name: Adopter registration
 
 on:
   issues:
     types: [opened, edited]
+  issue_comment:
+    types: [created]
 
 permissions:
   contents: write
@@ -22,14 +31,41 @@ jobs:
   register:
     # Match on the form's own section heading, not only on the label: labels can
     # be missing (deleted, or the template's label not yet created in the repo).
+    #
+    # On issue_comment the bar is higher: the comment must be a `/revalidate` on an
+    # issue (not a PR), from the person who opened it or from someone with write
+    # access — a drive-by comment must not be able to push branches and open PRs.
+    # The Bot check is belt and braces: events made with GITHUB_TOKEN don't start
+    # new runs, so the sticky comment (which quotes the command) can't self-trigger.
     if: >-
-      contains(github.event.issue.labels.*.name, 'adopter') ||
-      contains(github.event.issue.body, '### OTE feed URL')
+      (contains(github.event.issue.labels.*.name, 'adopter') ||
+       contains(github.event.issue.body, '### OTE feed URL')) &&
+      (github.event_name != 'issue_comment' ||
+       (!github.event.issue.pull_request &&
+        github.event.comment.user.type != 'Bot' &&
+        contains(github.event.comment.body, '/revalidate') &&
+        (github.event.comment.user.login == github.event.issue.user.login ||
+         contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.comment.author_association))))
     runs-on: ubuntu-latest
     concurrency:
       group: adopter-issue-${{ github.event.issue.number }}
       cancel-in-progress: true
+    env:
+      GH_TOKEN: ${{ github.token }}
+      NUMBER: ${{ github.event.issue.number }}
+      # Must match MARKER in scripts/register-adopter.mjs — it is how the sticky
+      # comment is found again.
+      MARKER: "<!-- ote-adopter-check -->"
     steps:
+      # Editing a comment in place sends no notification, so the reaction is the
+      # only sign the command was picked up. 👀 now, verdict at the end.
+      - name: Acknowledge the /revalidate command
+        if: github.event_name == 'issue_comment'
+        run: |
+          gh api --method POST --silent \
+            "repos/${GITHUB_REPOSITORY}/issues/comments/${{ github.event.comment.id }}/reactions" \
+            -f content=eyes
+
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
@@ -44,17 +80,31 @@ jobs:
           REPORT_PATH: ${{ runner.temp }}/adopter-report.md
         run: node scripts/register-adopter.mjs
 
-      - name: Report back on the issue
+      # One sticky comment per issue, found by the marker the report opens with:
+      # `/revalidate` can be used many times, and a thread of near-identical reports
+      # buries the current verdict.
+      - name: Upsert the check comment
         env:
-          GH_TOKEN: ${{ github.token }}
-        run: gh issue comment "${{ github.event.issue.number }}" --body-file "${{ runner.temp }}/adopter-report.md"
+          REPORT: ${{ runner.temp }}/adopter-report.md
+        run: |
+          set -euo pipefail
+          COMMENT_ID=$(gh api "repos/${GITHUB_REPOSITORY}/issues/${NUMBER}/comments" --paginate \
+            --jq "[.[] | select(.body | startswith(\"${MARKER}\"))][0].id // empty" \
+            | head -n 1)
+          if [ -n "$COMMENT_ID" ]; then
+            gh api --method PATCH --silent \
+              "repos/${GITHUB_REPOSITORY}/issues/comments/${COMMENT_ID}" -F "body=@${REPORT}"
+          else
+            gh api --method POST --silent \
+              "repos/${GITHUB_REPOSITORY}/issues/${NUMBER}/comments" -F "body=@${REPORT}"
+          fi
 
       - name: Open or update the registration PR
         if: steps.register.outputs.valid == 'true'
         env:
-          GH_TOKEN: ${{ github.token }}
-          NUMBER: ${{ github.event.issue.number }}
           NAME: ${{ steps.register.outputs.name }}
+          SPEC: ${{ steps.register.outputs.spec }}
+          VALIDATOR: ${{ steps.register.outputs.validator }}
         run: |
           if git diff --quiet docs/data/adopters.json; then
             echo "Registry already up to date — nothing to PR."
@@ -73,7 +123,21 @@ jobs:
             gh pr create \
               --head "$BRANCH" \
               --title "Register adopter: ${NAME}" \
-              --body "Adds **${NAME}** to the adopters registry. Feed validated against OTE Spec v0.2 by the [adopter registration workflow](../actions/workflows/adopter-issue.yml).
+              --body "Adds **${NAME}** to the adopters registry. Feed validated against OTE Spec ${SPEC} by the [adopter registration workflow](../actions/workflows/adopter-issue.yml) — [re-check it yourself](${VALIDATOR}).
 
           Closes #${NUMBER}."
           fi
+
+      # Closing half of the 👀 above: on a command the publisher gets a second
+      # reaction telling them how it went without opening the issue.
+      - name: Report the verdict back on the command
+        if: always() && github.event_name == 'issue_comment'
+        run: |
+          if [ "${{ steps.register.outputs.valid }}" = "true" ]; then
+            CONTENT=rocket
+          else
+            CONTENT=confused
+          fi
+          gh api --method POST --silent \
+            "repos/${GITHUB_REPOSITORY}/issues/comments/${{ github.event.comment.id }}/reactions" \
+            -f content="$CONTENT"
