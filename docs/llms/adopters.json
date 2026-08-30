@@ -13,6 +13,13 @@
       "url": "https://eventos.wiki",
       "feed": "https://eventos.wiki/events.json",
       "logo": "https://eventos.wiki/icon.png"
+    },
+    {
+      "name": "CoruñaJUG",
+      "url": "https://corunajug.org/",
+      "feed": "https://corunajug.org/feed.json",
+      "logo": "https://corunajug.org/img/corunajug-logo.png",
+      "directory": "combuilders:114"
     }
   ]
 }
