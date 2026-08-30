@@ -4,16 +4,34 @@
 # and the public status the site serves (docs/data/feed-health.json). Both are
 # written to only when something actually changes, so a healthy registry produces
 # no daily commit.
+#
+# It also runs on a push that edits the registry: the site reads the version and
+# licence badges out of docs/data/feed-health.json, joined by feed URL, so a newly
+# registered adopter renders without badges until this check has seen it once.
+# Waiting for the next cron would leave that gap open for up to a day. The push
+# trigger cannot loop — this workflow only ever writes the two feed-health files,
+# never docs/data/adopters.json.
 name: Check adopter feeds
 
 on:
   schedule:
     - cron: "23 6 * * *"
+  push:
+    branches: [main]
+    paths:
+      - "docs/data/adopters.json"
   workflow_dispatch:
 
 permissions:
   contents: write
   issues: write
+
+# The failure window and the health issues are shared state; two runs writing them
+# at once would race on the push. Queue instead of cancelling: a cancelled run would
+# drop a tick from the window it is supposed to be measuring.
+concurrency:
+  group: check-feeds
+  cancel-in-progress: false
 
 jobs:
   check:
