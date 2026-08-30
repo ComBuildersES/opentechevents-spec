@@ -126,15 +126,27 @@
       }
       body.appendChild(nameEl);
       if (item.desc) body.appendChild(el('p', 'entry-desc', t(item.desc)));
+
+      var metas = el('div', 'entry-metas');
       if (item.kind) {
-        body.appendChild(el('span', 'entry-meta', t(item.kind)));
+        metas.appendChild(el('span', 'entry-meta', t(item.kind)));
       } else if (item.feed) {
         var preview = el('a', 'entry-meta entry-preview', 'Preview feed →');
         preview.href = 'https://tools.opentechevents.org/preview?feed=' + encodeURIComponent(item.feed);
         preview.target = '_blank';
         preview.rel = 'noopener';
-        body.appendChild(preview);
+        metas.appendChild(preview);
       }
+      // Which version of the spec this feed speaks, from the daily health check. It
+      // says what a consumer needs before subscribing and nothing about being behind:
+      // every published version stays supported, so this is never a mark of shame.
+      if (item.specVersion) {
+        var badge = el('span', 'entry-meta entry-badge', 'OTE ' + item.specVersion.replace(/\.0$/, ''));
+        var title = get(state.dict, 'adopters.specVersionBadge');
+        if (title) badge.title = title.replace('{version}', item.specVersion);
+        metas.appendChild(badge);
+      }
+      if (metas.childNodes.length) body.appendChild(metas);
       card.appendChild(body);
 
       container.appendChild(card);
@@ -260,9 +272,21 @@
     });
   }
 
+  /* adopters.json is a hand-curated registry edited by PR; the spec version each feed
+     declares is measured daily by scripts/check-feeds.mjs. They are joined here, by feed
+     URL, rather than written back into the registry — a bot editing adopters.json would
+     collide with the registration PRs that are its only intended author. */
+  function withSpecVersion(adopters) {
+    var health = (state.data.health && state.data.health.feeds) || [];
+    return (adopters || []).map(function (adopter) {
+      var entry = health.find(function (f) { return f.feed === adopter.feed; });
+      return entry && entry.specVersion ? Object.assign({}, adopter, { specVersion: entry.specVersion }) : adopter;
+    });
+  }
+
   function renderAll() {
     applyDict();
-    renderEntries((state.data.adopters || {}).adopters, 'adopters-list', 'adopters-empty');
+    renderEntries(withSpecVersion((state.data.adopters || {}).adopters), 'adopters-list', 'adopters-empty');
     renderEntries((state.data.consumers || {}).consumers, 'consumers-list', 'consumers-empty');
     renderSupporters((state.data.supporters || {}).supporters);
     renderTestimonials((state.data.consumers || {}).testimonials);
@@ -478,10 +502,13 @@
     loadJson('data/adopters.json'),
     loadJson('data/consumers.json'),
     loadJson('data/tools.json'),
-    loadJson('data/supporters.json')
+    loadJson('data/supporters.json'),
+    // Health is a nice-to-have overlay on the registry: if it is missing or stale the
+    // cards still render, just without version badges.
+    loadJson('data/feed-health.json').catch(function () { return null; })
   ]).then(function (results) {
     state.dict = results[0];
-    state.data = { adopters: results[1], consumers: results[2], tools: results[3], supporters: results[4] };
+    state.data = { adopters: results[1], consumers: results[2], tools: results[3], supporters: results[4], health: results[5] };
     renderAll();
   }).catch(function (err) {
     console.error('[OTE] failed to load site data', err);

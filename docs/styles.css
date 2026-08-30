@@ -397,6 +397,13 @@ p > code, li > code {
 .entry-name-link::after { content: ""; position: absolute; inset: 0; }
 .entry-desc { font-size: .86rem; color: var(--ink-faint); margin: 2px 0 0; }
 .entry-meta { font: 500 .72rem/1 var(--mono); color: var(--accent); margin-top: 6px; display: block; }
+/* Meta line of a card: the feed preview link and, for adopters, the spec version badge. */
+.entry-metas { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.entry-metas .entry-meta { margin-top: 6px; }
+.entry-badge {
+  color: var(--ink-soft); background: var(--bg-alt);
+  border: 1px solid var(--line); border-radius: 999px; padding: 3px 8px;
+}
 .entry-preview { position: relative; z-index: 1; text-decoration: none; }
 .entry-preview:hover { text-decoration: underline; }
 

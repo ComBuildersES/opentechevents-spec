@@ -185,6 +185,7 @@
   "adopters": {
     "title": "Who publishes in OTE",
     "lead": "Communities and events already exposing their data in this format.",
+    "specVersionBadge": "Publishes OTE {version}. Every published version stays supported — feeds are validated against the one they declare.",
     "empty": "The spec is brand new, so this list is still short. Be one of the first — early adopters get a say in what the standard becomes.",
     "emptyCta": "Be the first",
     "machine": "This list is data, not markup: it renders <a href=\"/data/adopters.json\"><code>adopters.json</code></a>, a machine-readable registry you can build on. See the <a href=\"/developers/\">developer docs</a>."
