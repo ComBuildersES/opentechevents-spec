@@ -1,12 +1,1 @@
-{
-  "https://communitybuilders.dev/events/feed.json": {
-    "failures": 3,
-    "since": "2026-08-28",
-    "lastError": "schema errors:"
-  },
-  "https://eventos.wiki/events.json": {
-    "failures": 4,
-    "since": "2026-08-27",
-    "lastError": "fetch failed: The operation was aborted due to timeout"
-  }
-}
+{}
