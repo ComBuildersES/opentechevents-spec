@@ -1,0 +1,31 @@
+{
+  "_comment": "Health of the registered adopter feeds, refreshed daily by scripts/check-feeds.mjs. Feeds are validated against the spec version they declare; `supported` false means older than the supported window, which is information, not a failure. `specVersion` is the last version seen, kept through an outage. `updated` is when this status last changed.",
+  "updated": "2026-08-30",
+  "latestSpecVersion": "0.4.0",
+  "feeds": [
+    {
+      "name": "Community Builders Community Events",
+      "url": "https://communitybuilders.dev/#events",
+      "feed": "https://communitybuilders.dev/events/feed.json",
+      "status": "ok",
+      "specVersion": "0.3.0",
+      "supported": true,
+      "cors": true,
+      "failureKind": null,
+      "failingSince": null,
+      "error": null
+    },
+    {
+      "name": "eventos.wiki",
+      "url": "https://eventos.wiki",
+      "feed": "https://eventos.wiki/events.json",
+      "status": "ok",
+      "specVersion": "0.4.0",
+      "supported": true,
+      "cors": true,
+      "failureKind": null,
+      "failingSince": null,
+      "error": null
+    }
+  ]
+}
