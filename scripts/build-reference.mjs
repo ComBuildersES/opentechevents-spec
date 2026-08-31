@@ -17,7 +17,7 @@ import { readFileSync, writeFileSync, readdirSync, existsSync } from "node:fs";
 import { join } from "node:path";
 import { constraintsOf, fieldsOf, loadSchemas, recommendedOf } from "./schema-model.mjs";
 
-const VERSION = "v0.4";
+const VERSION = "v0.5";
 const BASE_LANG = "en"; // the schema's own `description` fields
 const check = process.argv.includes("--check");
 
@@ -102,7 +102,8 @@ const ruleKey = (schemaName, owner, index) => `${schemaName}${owner ? `.${owner}
 
 /** The model both renderers consume. One source, many outputs. */
 const model = {
-  specVersion: "0.4.0",
+  // Read from the schema itself — never a hand-kept copy that drifts on a version fork.
+  specVersion: event.$defs.event.properties.specVersion.const,
   languages: Object.keys(locales),
   schemas: [
     { name: "event", schema: event },

@@ -11,6 +11,67 @@ and under its own `$id` (`https://opentechevents.org/schema/vX.Y/…`). A docume
 which one it adheres to with `specVersion`, so **nothing breaks when a new
 version is published**: `0.1.0` documents keep validating against `spec/v0.1/`.
 
+## [0.5.0] — 2026-09-01
+
+**BREAKING** (deliberately — the spec is `0.x` and says it can break without
+warning). Six new fields, and one model that reshapes how multi-part events
+carry a price.
+
+### Added
+
+- **`speakers`** (`array`, min. 1) on the event — who gives the talk(s), a list
+  of `{ name, url?, sameAs?, type? }`, modelled on `organizers`. `url` is one
+  canonical page; `sameAs` is the list of other profile URLs, mapping to
+  schema.org `Person.sameAs` (HTTP(S) only — not a DID or handle). Not
+  recommended-tier.
+- **`recordings`** (`array`, min. 1) on the event — published recordings, linked
+  after the event (same `id`, new `updatedAt`). A bare HTTP(S) IRI or
+  `{ url, title?, translations? }`, the `image[]` string-or-object pattern. Not
+  recommended-tier.
+- **`contributing`** (`string`) on the **event and the feed** — a URL for
+  reporting or proposing a data fix, inherited feed→event like `license`.
+  Accepts an HTTP(S) IRI **or a `mailto:` role address** — the first field in the
+  spec to accept a non-HTTP scheme. See DECISIONS.md D033.
+- **`feed.alternates`** (`array`, min. 1) — where the same collection is
+  published in other formats (`{ mediaType, url }`), the JSON form of an HTML
+  `<link rel="alternate">`, for feeds with no HTML page. **Informational**: no
+  sync guarantee.
+- **`partOf.offers`** — the shared admission of a multi-part event, written
+  identically on every part (reuses `$defs/offers`).
+- **`offers[].scope`** (`enum`: `admission` | `add-on`) — what an offer means
+  relative to `partOf.offers`. An `add-on` offer requires `partOf.offers` in the
+  same document.
+
+### Changed / breaking
+
+- **Multi-part event pricing (P037 / DECISIONS.md D032).** A part that omits its
+  own `offers`, in a document that carries `partOf.offers`, is now **covered by
+  the set admission** — the one place an absent `offers` list means something
+  other than "unknown". The "a consumer that ignores `partOf` still sees correct
+  events" guarantee is **relaxed for pricing**: a consumer that needs the price
+  of a multi-part event MUST also read `partOf.offers`. Ignoring it yields
+  *incomplete* pricing, never *wrong* pricing.
+- **New feed-root validator error `sharedOffersConsistent`**: the parts of one
+  multi-part set (same `partOf.id`) that carry `partOf.offers` must carry the
+  same block, compared by value.
+- **Unprefixed-extension collision.** `speakers`, `recordings`, `contributing`,
+  `alternates`, `partOf.offers` and `offers[].scope` now have a normative
+  meaning. A producer already shipping any of those exact keys as an unprefixed
+  extension with a *different* shape must adjust — this is why `0.5.0` is a MAJOR
+  bump within `0.x`.
+
+### Migration from 0.4.0
+
+1. Change `specVersion` to `"0.5.0"` and validate against `spec/v0.5/`.
+2. If you used none of the six new key names, nothing else changes — the fields
+   are additive and the pricing rule only fires on `partOf.offers`, which no
+   `0.4.0` document contains.
+3. If you shipped `partOf.offers` / `offers[].scope` / `speakers` / `recordings`
+   / `contributing` / `alternates` as an unprefixed extension, check your shape
+   against the v0.5 `$defs`; adopt it, or move to a prefixed name.
+4. Tier-specific coverage, per-day passes, bundles and coupons are still out of
+   scope — see DECISIONS.md D032 ("Model B").
+
 ## [0.4.0] — 2026-08-28
 
 Compatibility release for real-world web addresses. It **relaxes** validation:

@@ -85,10 +85,11 @@ A change to the spec is **not just editing a `.md`**. The current version has fo
 
 | Piece | File |
 | --- | --- |
-| The executable schema | `spec/v0.4/event.schema.json` / `feed.schema.json` |
-| The normative prose (what a validator cannot check) | `spec/v0.4/README.md` |
-| The examples, including those that **must fail** | `spec/v0.4/examples/` and `examples/invalid/` |
+| The executable schema | `spec/v0.5/event.schema.json` / `feed.schema.json` |
+| The normative prose (what a validator cannot check) | `spec/v0.5/README.md` |
+| The examples, including those that **must fail** | `spec/v0.5/examples/` and `examples/invalid/` |
 | The example's entry in the website gallery (EN + translations) | `spec/<version>/examples/catalog/` → `npm run build-examples` |
+| The Spanish reference translation for any new field | `spec/<version>/i18n/es.json` → `npm run build-reference -- --check` |
 | The published copies (the `$id`s must resolve) | `docs/schema/` → `npm run publish-schemas` |
 
 Before submitting: `npm run validate`. **If the change does not come with an example demonstrating it, it is not finished** — and if it relaxes a rule, remove the example in `invalid/` that must no longer fail.
@@ -96,6 +97,8 @@ Before submitting: `npm run validate`. **If the change does not come with an exa
 **A new field is declared where it belongs.** The order in which the schema declares its `properties` is the canonical field order: the generated reference and the editor's autocompletion inherit it, and the examples must follow it (`npm run validate` fails otherwise). It is explained, with its blocks and the reasoning, in ["Field order"](spec/v0.4/README.md#field-order-is-not-normative-but-there-is-one). Putting it at the end "because it's new" is the one thing that does not work.
 
 **Adding a field does not require changing the schema.** The schemas do not forbid additional fields: if your community needs `tags` or `cfp` today, you add them and your document stays valid. The spec grows with **fields somebody already really uses**, not with fields we imagine will be needed. Bring the real usage and we'll talk about standardising it.
+
+**The candidates already being watched** are on the [suggested extensions page](https://opentechevents.org/extensions/), backed by `docs/data/suggested-extensions.json`. Each has a recommended shape to copy and an adoption count that `npm run scan-extensions` writes from the registered adopter feeds — **the count is never hand-edited**. To propose a new candidate, add an entry (everything except `observedAdoption`) in a PR. A field moves from `gathering-evidence` to `proposed-for` only via a normal spec-change PR, and to `graduated` only when it ships in a version. The maintainer owns the file; CI owns the number.
 
 ### Versioning
 

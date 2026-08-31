@@ -1,5 +1,5 @@
 {
-  "specVersion": "0.4.0",
+  "specVersion": "0.5.0",
   "languages": [
     "en",
     "es"
@@ -48,13 +48,31 @@
           }
         },
         {
-          "kind": "prose",
+          "kind": "conditional",
+          "when": {
+            "field": "offers",
+            "present": true
+          },
+          "field": "partOf",
           "note": {
-            "en": "startDate and endDate must be of the same form: two all-day dates, or two local date-times.",
+            "en": "An offer with scope 'add-on' is an additional charge on top of the set's shared admission — meaningless, and uncomputable, without that admission present. So if any offer has scope 'add-on', the document must carry partOf, and partOf must carry offers (the shared admission). partOf.id is never resolved for pricing — the admission has to be in the same document. New in v0.5; see DECISIONS.md.",
             "es": "startDate y endDate tienen que ser de la misma forma: dos fechas de día completo, o dos fechas-hora locales."
           },
           "owner": "",
           "key": "event#3",
+          "text": {
+            "en": "With `offers`, `partOf` is required.",
+            "es": "Con `offers`, `partOf` es obligatorio."
+          }
+        },
+        {
+          "kind": "prose",
+          "note": {
+            "en": "startDate and endDate must be of the same form: two all-day dates, or two local date-times.",
+            "es": "Un mapa de traducciones es inservible si no se sabe en qué idioma está el texto principal: quien lo consume no puede saber qué entrada lo duplica ni a qué está cayendo por defecto. Así que CUALQUIER mapa de traducciones del documento —el del propio evento o uno dentro de image, offers, eligibility o partOf— exige textLanguage. Es el único sitio de esta spec donde un campo depende de que otro esté presente, y vale a cualquier profundidad porque el idioma principal es una propiedad del documento entero, no de cada objeto. Un documento suelto no tiene feed del que heredar, así que siempre debe llevar el suyo; dentro de un feed, la misma exigencia se aplica contra el idioma efectivo (propio o heredado) — ver feed.schema.json."
+          },
+          "owner": "",
+          "key": "event#4",
           "text": {
             "en": "",
             "es": ""
@@ -64,10 +82,10 @@
           "kind": "prose",
           "note": {
             "en": "A map of translations is unusable without knowing which language the primary text is in: a consumer cannot tell which entry duplicates it, nor what it is falling back to. So ANY translations map in the document — the event's own, or one inside image, offers, eligibility or partOf — requires textLanguage. It is the one place where a field of this spec depends on another being present, and it holds at every depth because the primary language is a property of the whole document, not of each object. A standalone document has no feed to inherit textLanguage from, so it must always carry its own; inside a feed, the same requirement is enforced against the effective (possibly inherited) language — see feed.schema.json.",
-            "es": "Un mapa de traducciones es inservible si no se sabe en qué idioma está el texto principal: quien lo consume no puede saber qué entrada lo duplica ni a qué está cayendo por defecto. Así que CUALQUIER mapa de traducciones del documento —el del propio evento o uno dentro de image, offers, eligibility o partOf— exige textLanguage. Es el único sitio de esta spec donde un campo depende de que otro esté presente, y vale a cualquier profundidad porque el idioma principal es una propiedad del documento entero, no de cada objeto. Un documento suelto no tiene feed del que heredar, así que siempre debe llevar el suyo; dentro de un feed, la misma exigencia se aplica contra el idioma efectivo (propio o heredado) — ver feed.schema.json."
+            "es": "Una oferta con `scope: \"add-on\"` es un cargo adicional sobre la entrada compartida del conjunto — sin sentido, e incalculable, si esa entrada no está presente. Así que si alguna oferta lleva `scope: \"add-on\"`, el documento tiene que llevar `partOf`, y `partOf` tiene que llevar `offers`. El `partOf.id` nunca se resuelve para el precio: la entrada tiene que estar en el mismo documento."
           },
           "owner": "",
-          "key": "event#4",
+          "key": "event#5",
           "text": {
             "en": "",
             "es": ""
@@ -242,6 +260,89 @@
         {
           "kind": "anyOfRequired",
           "fields": [
+            "price",
+            "url"
+          ],
+          "note": {
+            "en": "An offer must carry a price or a link — ideally both. One with neither says nothing that omitting the whole list does not already say, the same rule location follows with venue and onlineUrl.",
+            "es": "Una oferta tiene que llevar un precio o un enlace —lo ideal es los dos—. Una que no lleva ninguno no dice nada que no dijera ya omitir la lista entera; es la misma regla que sigue location con venue y onlineUrl."
+          },
+          "owner": "partOf.offers[]",
+          "key": "event.partOf.offers[]#0",
+          "text": {
+            "en": "Requires at least one of: `price`, `url`.",
+            "es": "Requiere al menos uno de: `price`, `url`."
+          }
+        },
+        {
+          "kind": "dependent",
+          "when": {
+            "field": "currency",
+            "present": true
+          },
+          "fields": [
+            "price"
+          ],
+          "owner": "partOf.offers[]",
+          "key": "event.partOf.offers[]#1",
+          "text": {
+            "en": "With `currency`, `price` is required.",
+            "es": "Con `currency`, `price` es obligatorio."
+          }
+        },
+        {
+          "kind": "prose",
+          "note": {
+            "en": "closesAt must not be earlier than opensAt.",
+            "es": "closesAt no puede ser anterior a opensAt."
+          },
+          "owner": "partOf.offers[]",
+          "key": "event.partOf.offers[]#2",
+          "text": {
+            "en": "",
+            "es": ""
+          }
+        },
+        {
+          "kind": "conditionalNot",
+          "when": {
+            "field": "waitlistUrl",
+            "present": true
+          },
+          "field": "availability",
+          "value": "in-stock",
+          "note": {
+            "en": "A waitlist for something you can still buy is not a waitlist: the queue only makes sense once the offer is gone. Availability may still be ABSENT — a publisher who knows there is a queue and does not track the ticket state should not be forced to assert sold-out to mention it. Only the incoherent combination is rejected, never the incomplete one.",
+            "es": "Una lista de espera para algo que todavía puedes comprar no es una lista de espera: la cola solo tiene sentido cuando la oferta se ha agotado. La disponibilidad puede seguir estando AUSENTE: quien sabe que hay cola y no controla el estado de las entradas no debería verse obligado a afirmar que están agotadas para poder mencionarla. Solo se rechaza la combinación incoherente, nunca la incompleta."
+          },
+          "owner": "partOf.offers[]",
+          "key": "event.partOf.offers[]#3",
+          "text": {
+            "en": "With `waitlistUrl`, `availability` must not be `\"in-stock\"`.",
+            "es": "Con `waitlistUrl`, `availability` no puede ser `\"in-stock\"`."
+          }
+        },
+        {
+          "kind": "conditional",
+          "when": {
+            "field": "price",
+            "above": 0
+          },
+          "field": "currency",
+          "note": {
+            "en": "A non-zero amount without a currency is not a price: 45 is a different thing in EUR, USD and MXN, and a consumer that has to guess will guess its own.",
+            "es": "Una cantidad distinta de cero sin moneda no es un precio: 45 es otra cosa en EUR, en USD y en MXN, y quien tenga que adivinarlo adivinará la suya."
+          },
+          "owner": "partOf.offers[]",
+          "key": "event.partOf.offers[]#4",
+          "text": {
+            "en": "When `price` is above 0, `currency` is required.",
+            "es": "Cuando `price` es mayor que 0, `currency` es obligatorio."
+          }
+        },
+        {
+          "kind": "anyOfRequired",
+          "fields": [
             "name",
             "url"
           ],
@@ -254,6 +355,22 @@
           "text": {
             "en": "Requires at least one of: `name`, `url`.",
             "es": "Requiere al menos uno de: `name`, `url`."
+          }
+        },
+        {
+          "kind": "dependent",
+          "when": {
+            "field": "translations",
+            "present": true
+          },
+          "fields": [
+            "title"
+          ],
+          "owner": "recordings[]",
+          "key": "event.recordings[]#0",
+          "text": {
+            "en": "With `translations`, `title` is required.",
+            "es": "Con `translations`, `title` es obligatorio."
           }
         },
         {
@@ -295,11 +412,11 @@
       "fields": [
         {
           "path": "specVersion",
-          "type": "const: \"0.4.0\"",
+          "type": "const: \"0.5.0\"",
           "required": true,
           "recommended": false,
           "examples": [
-            "0.4.0"
+            "0.5.0"
           ],
           "inheritsFrom": "feed.specVersion",
           "description": {
@@ -541,6 +658,100 @@
           "description": {
             "en": "Organisation or person. A translator has to pick a schema.org @type either way, and Organization is the tolerant choice.",
             "es": "Organización o persona. Al traducir hay que elegir un `@type` de schema.org sí o sí, y `Organization` es la opción tolerante."
+          },
+          "requiredIn": null
+        },
+        {
+          "path": "speakers",
+          "type": "object[]",
+          "required": false,
+          "recommended": false,
+          "examples": [
+            [
+              {
+                "name": "Ada Lovelace",
+                "url": "https://ada.example",
+                "sameAs": [
+                  "https://fosstodon.org/@ada",
+                  "https://www.linkedin.com/in/ada-lovelace"
+                ]
+              }
+            ],
+            [
+              {
+                "name": "Grace Hopper"
+              },
+              {
+                "type": "organization",
+                "name": "The Rust Survey Team"
+              }
+            ]
+          ],
+          "description": {
+            "en": "Who gives the talk(s) — NOT who runs the event (that is organizers) and NOT where the data came from (source). New in v0.5. A list in display / preference order: the first is the one that survives to a single-value destination, the same rule organizers and image state. Co-talks and panels are the norm. Kept as small as organizers: a name, and where to find them. One document is one occurrence, so in a multi-part conference the speakers of a given talk live on that talk's document, not on the parent. Only exact repeats are rejected; distinct entries are never deduplicated by inferred identity. Not translated: a speaker's name is a proper noun.",
+            "es": "Quién da la charla o charlas — NO quién organiza el evento (eso es `organizers`) NI de dónde salieron los datos (`source`). Nuevo en la v0.5. Una lista en orden de presentación / preferencia: la primera es la que sobrevive a un destino de valor único, la misma regla que `organizers` e `image`. Las co-charlas y las mesas redondas son lo normal. Igual de pequeña que `organizers`: un nombre y dónde encontrarle. Un documento es una ocurrencia, así que en una conferencia multi-parte los ponentes de una charla viven en el documento de esa charla, no en el padre. Solo se rechazan repeticiones exactas; nunca se deduplican entradas distintas por identidad inferida. No se traduce: el nombre de un ponente es un nombre propio."
+          },
+          "requiredIn": null
+        },
+        {
+          "path": "speakers[].name",
+          "type": "string",
+          "required": true,
+          "recommended": false,
+          "examples": [
+            "Ada Lovelace",
+            "Grace Hopper"
+          ],
+          "description": {
+            "en": "Display name of the speaker. A proper noun: never translated.",
+            "es": "Nombre del ponente. Un nombre propio: nunca se traduce."
+          },
+          "requiredIn": "speakers[]"
+        },
+        {
+          "path": "speakers[].url",
+          "type": "string (iri)",
+          "required": false,
+          "recommended": false,
+          "examples": [
+            "https://ada.example"
+          ],
+          "description": {
+            "en": "The speaker's canonical page — their own site, or their main profile. One URL. Same rules as organizers[].url. Other profiles go in sameAs.",
+            "es": "La página canónica del ponente: su propio sitio, o su perfil principal. Un solo URL. Mismas reglas que `organizers[].url`. Los demás perfiles van en `sameAs`."
+          },
+          "requiredIn": null
+        },
+        {
+          "path": "speakers[].sameAs",
+          "type": "string[]",
+          "required": false,
+          "recommended": false,
+          "examples": [
+            [
+              "https://fosstodon.org/@ada",
+              "https://www.linkedin.com/in/ada-lovelace"
+            ]
+          ],
+          "description": {
+            "en": "Other profile pages for this SAME person — Mastodon, LinkedIn, GitHub, a personal site distinct from url. A list; order not significant; only exact repeats rejected. Maps to schema.org Person.sameAs. HTTP(S) only: not a DID or handle. Google's Event rich-result docs do not document a nested performer.sameAs — the value is generic schema.org consumers and OTE directories.",
+            "es": "Otras páginas de perfil de la MISMA persona — Mastodon, LinkedIn, GitHub, un sitio personal distinto de `url`. Una lista; el orden no es significativo; solo se rechazan repeticiones exactas. Mapea a `Person.sameAs` de schema.org. Solo HTTP(S): no un DID ni un handle. Los documentos de rich result de Google para `Event` no documentan un `performer.sameAs` anidado — su valor está en consumidores de schema.org genéricos y en directorios OTE."
+          },
+          "requiredIn": null
+        },
+        {
+          "path": "speakers[].type",
+          "type": "enum: person | organization",
+          "required": false,
+          "recommended": false,
+          "examples": [
+            "person",
+            "organization"
+          ],
+          "default": "person",
+          "description": {
+            "en": "Person or organisation. A translator picks a schema.org @type either way, and Person is the tolerant choice for a speaker.",
+            "es": "Persona u organización. Al traducir hay que elegir un `@type` de schema.org sí o sí, y `Person` es la opción tolerante para un ponente."
           },
           "requiredIn": null
         },
@@ -999,6 +1210,21 @@
           "requiredIn": null
         },
         {
+          "path": "offers[].scope",
+          "type": "enum: admission | add-on",
+          "required": false,
+          "recommended": false,
+          "examples": [
+            "admission",
+            "add-on"
+          ],
+          "description": {
+            "en": "New in v0.5. What this offer means relative to the set's shared admission (partOf.offers). Only meaningful when the document has partOf. 'admission' (what an absent scope is read as): a complete way to attend this part — sold standalone, or a restatement of the set admission. 'add-on': an ADDITIONAL charge on top of the set admission — total is a priced partOf.offers entry plus this entry's price when both carry a number, otherwise 'an additional charge, total unknown' (URL-only offers stay valid). An 'add-on' offer requires partOf AND partOf.offers to be present in the same document — see the document's constraints. 'admission' covers ALL admission tiers; 'this add-on only applies to the Pro tier' is out of scope for v0.5.",
+            "es": "Nuevo en la v0.5. Qué significa esta oferta respecto a la entrada compartida del conjunto (`partOf.offers`). Solo tiene sentido si el documento tiene `partOf`. `admission` (lo que se lee cuando falta `scope`): una forma completa de asistir a esta parte — vendida por separado, o una repetición de la entrada del conjunto. `add-on`: un cargo ADICIONAL sobre la entrada del conjunto — el total es una entrada de `partOf.offers` con precio más el precio de esta cuando ambas llevan un número, si no «un cargo adicional, total desconocido» (las ofertas solo-URL siguen siendo válidas). Una oferta `add-on` exige que `partOf` y `partOf.offers` estén en el mismo documento — ver las restricciones del documento. `admission` cubre TODOS los tramos de entrada; «este add-on solo aplica al tramo Pro» queda fuera de alcance en la v0.5."
+          },
+          "requiredIn": null
+        },
+        {
           "path": "offers[].name",
           "type": "string",
           "required": false,
@@ -1278,8 +1504,8 @@
             }
           ],
           "description": {
-            "en": "The series or multi-part event this document is one occurrence of. A REFERENCE, never a recurrence rule: OTE does not generate dates: whoever publishes expands the recurrence into one document per occurrence, each with its own id, dates and status. A consumer that ignores this field still sees complete, correct events.",
-            "es": "La serie o el evento multi-parte del que este documento es UNA ocurrencia. Es una REFERENCIA, nunca una regla de recurrencia: OTE no genera fechas — quien publica expande la recurrencia en un documento por ocurrencia, cada uno con su `id`, sus fechas y su `status`. Un consumidor que ignore este campo sigue viendo eventos completos y correctos."
+            "en": "The series or multi-part event this document is one occurrence of. A REFERENCE, never a recurrence rule: OTE does not generate dates: whoever publishes expands the recurrence into one document per occurrence, each with its own id, dates and status. A consumer that ignores this field still sees complete, correct events — EXCEPT for pricing (new in v0.5): a consumer that needs the price of a multi-part event MUST also read partOf.offers. Ignoring it yields INCOMPLETE pricing (a missing price), never WRONG pricing.",
+            "es": "La serie o el evento multi-parte del que este documento es UNA ocurrencia. Es una REFERENCIA, nunca una regla de recurrencia: OTE no genera fechas — quien publica expande la recurrencia en un documento por ocurrencia, cada uno con su `id`, sus fechas y su `status`. Un consumidor que ignore este campo sigue viendo eventos completos y correctos — SALVO para el precio (nuevo en la v0.5): un consumidor que necesite el precio de un evento multi-parte TIENE que leer también `partOf.offers`. Ignorarlo da un precio INCOMPLETO (falta un precio), nunca un precio EQUIVOCADO."
           },
           "requiredIn": null
         },
@@ -1374,6 +1600,199 @@
             "es": "El nombre de la serie o del evento multi-parte, en este idioma."
           },
           "requiredIn": "partOf.translations.*"
+        },
+        {
+          "path": "partOf.offers",
+          "type": "object[]",
+          "required": false,
+          "recommended": false,
+          "examples": [
+            [
+              {
+                "name": "Early bird",
+                "price": 180,
+                "currency": "EUR",
+                "url": "https://trgcon.example/tickets",
+                "closesAt": "2026-09-01T23:59:59+02:00"
+              },
+              {
+                "name": "General",
+                "price": 240,
+                "currency": "EUR",
+                "url": "https://trgcon.example/tickets"
+              }
+            ]
+          ],
+          "description": {
+            "en": "New in v0.5. The SHARED admission of a multi-part event — the price of attending the whole set — written identically on every part that carries it, so a consumer holding a single part document can price it without resolving the parent. Same shape as event.offers ($defs/offers). A part that omits its own offers, in a document that carries partOf.offers, is COVERED by this admission — the one place an absent offers list means something other than unknown. Across the parts of one set (same partOf.id) these blocks must be equal by value — see feed.schema.json's sharedOffersConsistent. Tier-specific coverage, per-day passes, bundles and coupons are out of scope for v0.5 (see DECISIONS.md).",
+            "es": "Nuevo en la v0.5. La entrada COMPARTIDA de un evento multi-parte — el precio de asistir al conjunto entero — escrita igual en cada parte que la lleva, para que un consumidor que solo tiene el documento de una parte pueda ponerle precio sin resolver el padre. Misma forma que `event.offers`. Una parte que omite su propio `offers`, en un documento que lleva `partOf.offers`, está CUBIERTA por esta entrada — el único sitio donde un `offers` ausente significa algo distinto de «desconocido». Entre las partes de un mismo conjunto (mismo `partOf.id`) estos bloques deben ser iguales por valor — ver `sharedOffersConsistent` en `feed.schema.json`. Cobertura por tramo, abonos por día, bundles y cupones quedan fuera de alcance en la v0.5 (ver DECISIONS.md)."
+          },
+          "requiredIn": null
+        },
+        {
+          "path": "partOf.offers[].scope",
+          "type": "enum: admission | add-on",
+          "required": false,
+          "recommended": false,
+          "examples": [
+            "admission",
+            "add-on"
+          ],
+          "description": {
+            "en": "New in v0.5. What this offer means relative to the set's shared admission (partOf.offers). Only meaningful when the document has partOf. 'admission' (what an absent scope is read as): a complete way to attend this part — sold standalone, or a restatement of the set admission. 'add-on': an ADDITIONAL charge on top of the set admission — total is a priced partOf.offers entry plus this entry's price when both carry a number, otherwise 'an additional charge, total unknown' (URL-only offers stay valid). An 'add-on' offer requires partOf AND partOf.offers to be present in the same document — see the document's constraints. 'admission' covers ALL admission tiers; 'this add-on only applies to the Pro tier' is out of scope for v0.5.",
+            "es": "Nuevo en la v0.5. Qué significa esta oferta respecto a la entrada compartida del conjunto (`partOf.offers`). Solo tiene sentido si el documento tiene `partOf`. `admission` (lo que se lee cuando falta `scope`): una forma completa de asistir a esta parte — vendida por separado, o una repetición de la entrada del conjunto. `add-on`: un cargo ADICIONAL sobre la entrada del conjunto — el total es una entrada de `partOf.offers` con precio más el precio de esta cuando ambas llevan un número, si no «un cargo adicional, total desconocido» (las ofertas solo-URL siguen siendo válidas). Una oferta `add-on` exige que `partOf` y `partOf.offers` estén en el mismo documento — ver las restricciones del documento. `admission` cubre TODOS los tramos de entrada; «este add-on solo aplica al tramo Pro» queda fuera de alcance en la v0.5."
+          },
+          "requiredIn": null
+        },
+        {
+          "path": "partOf.offers[].name",
+          "type": "string",
+          "required": false,
+          "recommended": false,
+          "examples": [
+            "General admission",
+            "Estudiantes"
+          ],
+          "description": {
+            "en": "What this ticket is called (\"General admission\", \"Estudiantes\"). Worth writing when there is more than one offer, noise when there is only one.",
+            "es": "Cómo se llama esta entrada («General admission», «Estudiantes»). Merece la pena escribirlo cuando hay más de una oferta; es ruido cuando solo hay una."
+          },
+          "requiredIn": null
+        },
+        {
+          "path": "partOf.offers[].price",
+          "type": "number",
+          "required": false,
+          "recommended": false,
+          "examples": [
+            0,
+            45,
+            12.5
+          ],
+          "description": {
+            "en": "Amount per attendee, in `currency`. 0 means free — and it is the ONLY way to say free: an absent offers list means the price is unknown. A number, never text: no currency symbol, no thousands separator, no range and no \"desde\", because the whole reason to publish a price as data is that someone can filter and compare on it. A price that cannot be written as one number is several offers.",
+            "es": "Importe por asistente, en `currency`. 0 significa gratis — y es la ÚNICA forma de decirlo: una lista `offers` ausente significa que el precio se desconoce. Es un número, nunca texto: sin símbolo de moneda, sin separador de miles, sin rangos ni «desde», porque la razón de publicar un precio como dato es que alguien pueda filtrar y comparar con él. Un precio que no se puede escribir con un número son varias ofertas."
+          },
+          "requiredIn": null
+        },
+        {
+          "path": "partOf.offers[].currency",
+          "type": "enum: AED | AFN | ALL | AMD | AOA | ARS | AUD | AWG | AZN | BAM | BBD | BDT | BHD | BIF | BMD | BND | BOB | BOV | BRL | BSD | BTN | BWP | BYN | BZD | CAD | CDF | CHE | CHF | CHW | CLF | CLP | CNY | COP | COU | CRC | CUP | CVE | CZK | DJF | DKK | DOP | DZD | EGP | ERN | ETB | EUR | FJD | FKP | GBP | GEL | GHS | GIP | GMD | GNF | GTQ | GYD | HKD | HNL | HTG | HUF | IDR | ILS | INR | IQD | IRR | ISK | JMD | JOD | JPY | KES | KGS | KHR | KMF | KPW | KRW | KWD | KYD | KZT | LAK | LBP | LKR | LRD | LSL | LYD | MAD | MDL | MGA | MKD | MMK | MNT | MOP | MRU | MUR | MVR | MWK | MXN | MXV | MYR | MZN | NAD | NGN | NIO | NOK | NPR | NZD | OMR | PAB | PEN | PGK | PHP | PKR | PLN | PYG | QAR | RON | RSD | RUB | RWF | SAR | SBD | SCR | SDG | SEK | SGD | SHP | SLE | SOS | SRD | SSP | STN | SVC | SYP | SZL | THB | TJS | TMT | TND | TOP | TRY | TTD | TWD | TZS | UAH | UGX | USD | USN | UYI | UYU | UYW | UZS | VED | VES | VND | VUV | WST | XAD | XAF | XAG | XAU | XBA | XBB | XBC | XBD | XCD | XCG | XDR | XOF | XPD | XPF | XPT | XSU | XTS | XUA | XXX | YER | ZAR | ZMW | ZWG",
+          "required": false,
+          "recommended": false,
+          "examples": [
+            "EUR",
+            "USD"
+          ],
+          "description": {
+            "en": "A real ISO 4217 alpha-3 code (EUR, USD, MXN), never an invented one. Only meaningful alongside `price` — it names what price is denominated in, and nothing else — so it requires `price` to be present at all, whatever its value. Required whenever `price` is above 0, and pointless at 0: free is free in every currency, and emitting one there is how Luma ends up publishing a currency for a meetup that costs nothing.",
+            "es": "Un código ISO 4217 alfa-3 real (`EUR`, `USD`, `MXN`), nunca uno inventado. Solo tiene sentido junto a `price` —nombra en qué está denominado, nada más—, así que exige que `price` esté presente, sea cual sea su valor. Obligatorio siempre que `price` sea mayor que 0, e innecesario cuando es 0: lo gratis es gratis en cualquier moneda, y emitirla ahí es como Luma acaba publicando una divisa para un meetup que no cuesta nada."
+          },
+          "requiredIn": null
+        },
+        {
+          "path": "partOf.offers[].url",
+          "type": "string (iri)",
+          "required": false,
+          "recommended": false,
+          "examples": [
+            "https://devfest-levante.example/2026/entradas"
+          ],
+          "description": {
+            "en": "Where to buy the ticket or register for this particular offer. Distinct from the event's own url: that page describes the event, this one is where money or a seat changes hands. Omit it when registration happens on the event page itself.",
+            "es": "Dónde se compra la entrada o se hace el registro de ESTA oferta. Distinta de la `url` del evento: esa página lo describe, esta es donde cambia de manos el dinero o la plaza. Se omite cuando el registro ocurre en la propia página del evento."
+          },
+          "requiredIn": null
+        },
+        {
+          "path": "partOf.offers[].availability",
+          "type": "enum: in-stock | sold-out",
+          "required": false,
+          "recommended": false,
+          "examples": [
+            "in-stock",
+            "sold-out"
+          ],
+          "description": {
+            "en": "Whether this offer can still be taken. Absent never means available — a stale feed that keeps claiming in-stock is worse than one that says nothing. Only the two states an attendee can act on are modelled.",
+            "es": "Si esta oferta se puede coger todavía. Su ausencia nunca significa disponible — un feed desactualizado que sigue afirmando `in-stock` es peor que uno que no dice nada. Solo se modelan los dos estados sobre los que quien asiste puede actuar."
+          },
+          "requiredIn": null
+        },
+        {
+          "path": "partOf.offers[].waitlistUrl",
+          "type": "string (iri)",
+          "required": false,
+          "recommended": false,
+          "examples": [
+            "https://devfest-levante.example/2026/lista-espera"
+          ],
+          "description": {
+            "en": "Where to join the queue for this offer once it is gone. It exists so \"gone, nothing to do\" and \"gone, but you can queue\" stop being the same document — the third thing an attendee can act on, and the reason it is a URL and not a third availability value: every consumer that already exists keeps reading sold-out, which is TRUE, instead of meeting an enum value it cannot interpret. Distinct from url, where the ticket is bought: nothing is bought in a queue.",
+            "es": "Dónde apuntarse a la cola de esta oferta una vez agotada. Existe para que «agotado y nada que hacer» y «agotado, pero puedes hacer cola» dejen de ser el mismo documento — es la tercera cosa sobre la que quien asiste puede actuar, y la razón de que sea una URL y no un tercer valor de `availability`: así todo consumidor que ya existe sigue leyendo `sold-out`, que es VERDAD, en vez de encontrarse un valor de enum que no sabe interpretar. Distinta de `url`, donde se compra la entrada: en una cola no se compra nada."
+          },
+          "requiredIn": null
+        },
+        {
+          "path": "partOf.offers[].opensAt",
+          "type": "string (date-time)",
+          "required": false,
+          "recommended": false,
+          "examples": [
+            "2026-05-01T10:00:00+02:00"
+          ],
+          "description": {
+            "en": "When this offer goes on sale. An INSTANT, with offset or Z — unlike the event's own dates, which are wall clock: a sale opening is a moment a button starts working, not an hour on a poster.",
+            "es": "Cuándo sale a la venta esta oferta. Es un INSTANTE, con offset o `Z`, a diferencia de las fechas del evento, que son de reloj de pared: una venta que se abre es el momento en que un botón empieza a funcionar, no una hora en un cartel."
+          },
+          "requiredIn": null
+        },
+        {
+          "path": "partOf.offers[].closesAt",
+          "type": "string (date-time)",
+          "required": false,
+          "recommended": false,
+          "examples": [
+            "2026-07-31T23:59:59+02:00"
+          ],
+          "description": {
+            "en": "When this offer stops being available. An INSTANT, with offset or Z, for the same reason as opensAt — and because \"23:59\" without an offset is the classic deadline bug.",
+            "es": "Cuándo deja de estar disponible esta oferta. Es un INSTANTE, con offset o `Z`, por lo mismo que `opensAt` — y porque un «23:59» sin offset es el bug clásico de las fechas límite."
+          },
+          "requiredIn": null
+        },
+        {
+          "path": "partOf.offers[].translations",
+          "type": "object",
+          "required": false,
+          "recommended": false,
+          "examples": [
+            {
+              "en": {
+                "name": "Students"
+              }
+            }
+          ],
+          "description": {
+            "en": "This offer's name in other languages. Local to the offer it belongs to — never a positional mirror of the offers list. Requires the document's textLanguage, like every other translations map.",
+            "es": "El `name` de esta oferta en otros idiomas. Local a la oferta a la que pertenece — nunca un espejo posicional de la lista de ofertas. Exige el `textLanguage` del documento, como cualquier otro mapa de traducciones."
+          },
+          "requiredIn": null
+        },
+        {
+          "path": "partOf.offers[].translations.*.name",
+          "type": "string",
+          "required": true,
+          "recommended": false,
+          "examples": [
+            "Students",
+            "Estudiantes"
+          ],
+          "description": {
+            "en": "This ticket's name in this language.",
+            "es": "El nombre de esta entrada, en este idioma."
+          },
+          "requiredIn": "partOf.offers[].translations.*"
         },
         {
           "path": "license",
@@ -1482,6 +1901,106 @@
           "requiredIn": null
         },
         {
+          "path": "recordings",
+          "type": "(string | object)[]",
+          "required": false,
+          "recommended": false,
+          "examples": [
+            [
+              "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+            ],
+            [
+              "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+              {
+                "url": "https://tube.rustmadrid.example/w/abc123",
+                "title": "Q&A"
+              }
+            ]
+          ],
+          "description": {
+            "en": "New in v0.5. Published recordings of the event, linked after it happened. NOT image (the poster) and NOT location.onlineUrl (the live link, which stops meaning the same thing once the event is over). A list — a talk may be on more than one platform, or split into parts. An entry is a bare HTTP(S) IRI or an object that adds a title. Adding it does not change the id — it updates the same record, with a new updatedAt.",
+            "es": "Nuevo en la v0.5. Grabaciones publicadas del evento, enlazadas después de que ocurriera. NO es `image` (el cartel) NI `location.onlineUrl` (el enlace de directo, que deja de significar lo mismo una vez terminado el evento). Una lista — una charla puede estar en varias plataformas, o partida en trozos. Una entrada es un IRI HTTP(S) pelado o un objeto que añade un título. Añadirla no cambia el `id`: actualiza el mismo registro, con un `updatedAt` nuevo. NO recomendado: la mayoría de eventos no tiene grabación, uno en directo aún no la tiene, y la spec no tiene un predicado «está en el pasado»."
+          },
+          "requiredIn": null
+        },
+        {
+          "path": "recordings[].url",
+          "type": "string (iri)",
+          "required": true,
+          "recommended": false,
+          "examples": [
+            "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+          ],
+          "description": {
+            "en": "Absolute HTTP(S) IRI where the recording can be watched. A watch page (YouTube, PeerTube) is fine here — unlike image, this need not be the media file itself.",
+            "es": "IRI HTTP(S) absoluto donde se puede ver la grabación. Una página de visionado (YouTube, PeerTube) vale aquí — a diferencia de `image`, no tiene por qué ser el fichero de medios."
+          },
+          "requiredIn": "recordings[]"
+        },
+        {
+          "path": "recordings[].title",
+          "type": "string",
+          "required": false,
+          "recommended": false,
+          "examples": [
+            "Q&A",
+            "Full session"
+          ],
+          "description": {
+            "en": "What this recording is, when the list has more than one ('Q&A', 'Full session', 'Lightning talks'). Noise when there is only one. Free text, in the document's textLanguage, translated by this entry's own translations map — like image[].alt.",
+            "es": "Qué es esta grabación, cuando la lista tiene más de una («Preguntas y respuestas», «Sesión completa»). Ruido cuando solo hay una. Texto libre, en el `textLanguage` del documento, traducido por el mapa `translations` de la propia entrada — como `image[].alt`."
+          },
+          "requiredIn": null
+        },
+        {
+          "path": "recordings[].translations",
+          "type": "object",
+          "required": false,
+          "recommended": false,
+          "examples": [
+            {
+              "es": {
+                "title": "Preguntas y respuestas"
+              }
+            }
+          ],
+          "description": {
+            "en": "This recording's title in other languages. Local to the entry, never a positional mirror. Requires the document's textLanguage, like every other translations map.",
+            "es": "El título de esta grabación en otros idiomas. Local a la entrada, nunca un espejo posicional. Exige el `textLanguage` del documento, como cualquier otro mapa de traducciones."
+          },
+          "requiredIn": null
+        },
+        {
+          "path": "recordings[].translations.*.title",
+          "type": "string",
+          "required": true,
+          "recommended": false,
+          "examples": [
+            "Preguntas y respuestas"
+          ],
+          "description": {
+            "en": "This recording's title in this language.",
+            "es": "La versión de este título en este idioma."
+          },
+          "requiredIn": "recordings[].translations.*"
+        },
+        {
+          "path": "contributing",
+          "type": "string",
+          "required": false,
+          "recommended": false,
+          "examples": [
+            "https://github.com/pyalmeria/eventos/issues/new",
+            "mailto:corrections@rustmadrid.example"
+          ],
+          "inheritsFrom": "feed.contributing",
+          "description": {
+            "en": "New in v0.5. Where to report or propose a fix to a wrong datum in THIS record — a broken link, a stale date, a mis-mapped field. Inherited from feed.contributing unless declared here; a declared value replaces the inherited one, like license. It exists because the publisher who most needs it — an aggregator — must leave organizers out, and source points at where the data came from, not at the aggregator's own copy. Like cfp it travels to no destination format; its value is inside the OTE ecosystem (a reading tool's 'suggest a correction' link). NOT recommended: an .ics importer never has it, and a warning would push a small community to open an issue tracker it does not want.",
+            "es": "Nuevo en la v0.5. Dónde reportar o proponer una corrección de un dato erróneo de ESTE registro — un enlace roto, una fecha desactualizada, un campo mal mapeado. Se hereda de `feed.contributing` salvo que se declare aquí; un valor declarado reemplaza al heredado, como `license`. Existe porque quien más lo necesita —un agregador— tiene que omitir `organizers`, y `source` apunta a de dónde vinieron los datos, no a la copia del agregador. Como `cfp`, no viaja a ningún formato de destino; su valor está dentro del ecosistema OTE (el botón «sugerir una corrección» de un lector). NO recomendado: quien importa un `.ics` nunca lo tiene, y un aviso empujaría a una comunidad pequeña a abrir un issue tracker que no quiere."
+          },
+          "requiredIn": null
+        },
+        {
           "path": "translations",
           "type": "object",
           "required": false,
@@ -1586,6 +2105,19 @@
           }
         },
         {
+          "kind": "prose",
+          "note": {
+            "en": "every part of a multi-part set (same partOf.id) that carries partOf.offers must carry the same block.",
+            "es": "Misma regla que en un evento: un mapa de traducciones es inservible si no se sabe en qué idioma está el texto principal. Un feed que traduce su título tiene que decir en qué idioma está ese título."
+          },
+          "owner": "",
+          "key": "feed#4",
+          "text": {
+            "en": "",
+            "es": ""
+          }
+        },
+        {
           "kind": "conditional",
           "when": {
             "field": "translations",
@@ -1594,10 +2126,10 @@
           "field": "textLanguage",
           "note": {
             "en": "Same rule as an event: a map of translations is unusable without knowing which language the primary text is in. A feed that translates its title must say what language that title is in.",
-            "es": "Misma regla que en un evento: un mapa de traducciones es inservible si no se sabe en qué idioma está el texto principal. Un feed que traduce su título tiene que decir en qué idioma está ese título."
+            "es": "license es el único valor por defecto que esta spec nunca deja perderse por omisión: un agregador PUEDE omitir feed.license precisamente porque sus eventos llevan licencias distintas, pero solo si cada evento declara entonces la suya propia — el mismo patrón de omisión disciplinada que organizers/textLanguage ya usan para un agregador, aplicado a una garantía deliberadamente más estricta que la de atribución o idioma, porque redistribuir datos bajo una licencia desconocida es un riesgo legal real, no solo un hueco editorial. docs/history/CHANGES.log #P032 / DECISIONS.md D029."
           },
           "owner": "",
-          "key": "feed#4",
+          "key": "feed#5",
           "text": {
             "en": "With `translations`, `textLanguage` is required.",
             "es": "Con `translations`, `textLanguage` es obligatorio."
@@ -1607,10 +2139,10 @@
           "kind": "prose",
           "note": {
             "en": "license is the one default this spec never lets go missing by omission: an aggregator MAY leave feed.license out precisely because its events carry different licenses, but only if every event then declares its own — the same disciplined-omission pattern organizers/textLanguage already use for an aggregator, applied to a guarantee that is deliberately stricter than attribution or language, because redistributing data under an unknown license is a real legal risk, not just an editorial gap. docs/history/CHANGES.log #P032 / DECISIONS.md D029.",
-            "es": "license es el único valor por defecto que esta spec nunca deja perderse por omisión: un agregador PUEDE omitir feed.license precisamente porque sus eventos llevan licencias distintas, pero solo si cada evento declara entonces la suya propia — el mismo patrón de omisión disciplinada que organizers/textLanguage ya usan para un agregador, aplicado a una garantía deliberadamente más estricta que la de atribución o idioma, porque redistribuir datos bajo una licencia desconocida es un riesgo legal real, no solo un hueco editorial. docs/history/CHANGES.log #P032 / DECISIONS.md D029."
+            "es": "Cada parte de un conjunto multi-parte (mismo `partOf.id`) que lleve `partOf.offers` tiene que llevar el mismo bloque, comparado por valor: si dos partes discreparan, un consumidor pondría precios distintos a la misma entrada según qué parte leyera. Las partes que omiten `partOf.offers` están permitidas."
           },
           "owner": "",
-          "key": "feed#5",
+          "key": "feed#6",
           "text": {
             "en": "",
             "es": ""
@@ -1655,11 +2187,11 @@
       "fields": [
         {
           "path": "specVersion",
-          "type": "const: \"0.4.0\"",
+          "type": "const: \"0.5.0\"",
           "required": true,
           "recommended": false,
           "examples": [
-            "0.4.0"
+            "0.5.0"
           ],
           "description": {
             "en": "Version of OTE Spec this feed adheres to. Applies to every event in it.",
@@ -1836,6 +2368,76 @@
             "es": "La descripción del feed, en este idioma."
           },
           "requiredIn": null
+        },
+        {
+          "path": "alternates",
+          "type": "object[]",
+          "required": false,
+          "recommended": false,
+          "examples": [
+            [
+              {
+                "mediaType": "application/rss+xml",
+                "url": "https://pyalmeria.example/events.rss"
+              },
+              {
+                "mediaType": "text/calendar",
+                "url": "https://pyalmeria.example/events.ics"
+              }
+            ]
+          ],
+          "description": {
+            "en": "New in v0.5. Where this same collection is published in other formats — RSS, iCalendar, schema.org JSON-LD. The JSON form of an HTML <link rel=\"alternate\"> / the Link: rel=\"alternate\" HTTP header, for feeds with no HTML page in front of them. INFORMATIONAL: OTE does not guarantee the linked resources are generated from this feed or kept in sync with it — a consumer MUST NOT assume exact sync, completeness or derivation; a producer SHOULD generate them from the same source, or otherwise intend them to describe the same collection.",
+            "es": "Nuevo en la v0.5. Dónde está publicada esta misma colección de eventos en otros formatos — RSS, iCalendar, JSON-LD de schema.org. La forma en JSON de un `<link rel=\"alternate\">` de HTML / la cabecera HTTP `Link: rel=\"alternate\"`, para feeds que no tienen una página HTML delante. INFORMATIVO: OTE no garantiza que los recursos enlazados se generen a partir de este feed ni que estén sincronizados con él — un consumidor NO debe asumir sincronización exacta, integridad ni derivación; quien publica DEBERÍA generarlos de la misma fuente, o al menos con la intención de que describan la misma colección."
+          },
+          "requiredIn": null
+        },
+        {
+          "path": "alternates[].mediaType",
+          "type": "string",
+          "required": true,
+          "recommended": false,
+          "examples": [
+            "application/rss+xml",
+            "application/atom+xml",
+            "application/feed+json",
+            "text/calendar",
+            "application/ld+json"
+          ],
+          "description": {
+            "en": "IANA media type of the alternate representation. A loose shape check, not a closed list — new feed formats appear.",
+            "es": "Tipo de medio IANA de la representación alternativa. Una comprobación de forma laxa, no una lista cerrada — aparecen formatos de feed nuevos. Un token en minúsculas, sin parámetros."
+          },
+          "requiredIn": "alternates[]"
+        },
+        {
+          "path": "alternates[].url",
+          "type": "string (iri)",
+          "required": true,
+          "recommended": false,
+          "examples": [
+            "https://pyalmeria.example/events.rss"
+          ],
+          "description": {
+            "en": "Absolute HTTP(S) IRI of the alternate representation. No embedded credentials.",
+            "es": "IRI HTTP(S) absoluto de la representación alternativa. Sin credenciales embebidas."
+          },
+          "requiredIn": "alternates[]"
+        },
+        {
+          "path": "contributing",
+          "type": "string",
+          "required": false,
+          "recommended": false,
+          "examples": [
+            "https://github.com/pyalmeria/eventos/issues/new"
+          ],
+          "description": {
+            "en": "New in v0.5. URL for reporting or proposing a data change in this feed's records — the default every event inherits when it omits its own (default-value inheritance, like license: a declared scalar replaces the inherited one). It exists because an aggregator must leave organizers out, and source points upstream, not at the aggregator's copy. Accepts an HTTP(S) IRI or a mailto: role address; see event.contributing and DECISIONS.md.",
+            "es": "Nuevo en la v0.5. URL para reportar o proponer una corrección de un dato erróneo en los registros de este feed — el valor por defecto que hereda todo evento que no declare el suyo (herencia de valor por defecto, como `license`: un escalar declarado reemplaza al heredado). Existe porque un agregador tiene que omitir `organizers`, y `source` apunta aguas arriba, no a la copia del agregador. Acepta un IRI HTTP(S) o una dirección `mailto:` de rol; ver `event.contributing` y DECISIONS.md."
+          },
+          "requiredIn": null,
+          "inheritedBy": "event.contributing"
         },
         {
           "path": "events",

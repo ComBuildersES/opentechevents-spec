@@ -1,0 +1,86 @@
+{
+  "_comment": "Candidate fields that are not (yet) in the OTE core. Each entry has a RECOMMENDED SHAPE so early adopters converge, and an observedAdoption count written by scripts/scan-extensions.mjs (never by hand) from the registered adopter feeds. A field graduates to the core through a normal proposal once its graduationQuestion is answered — see CONTRIBUTING.md. The public page renders from this file: https://opentechevents.org/extensions/",
+  "generatedNote": "observedAdoption is machine-written. Everything else is maintained by hand.",
+  "extensions": [
+    {
+      "name": "sponsors",
+      "scope": "event",
+      "purpose": "Who sponsors the event, as a list — distinct from organizers (who runs it) and speakers (who is on stage).",
+      "shape": "array of { name, url?, tier? } — same 'a name and where to find them' discipline as organizers",
+      "status": "gathering-evidence",
+      "statusVersion": null,
+      "graduationQuestion": "Do ≥3 producers emit it, and with what shape (flat list vs. tiered)?",
+      "observedAdoption": { "feeds": 0, "asOf": null }
+    },
+    {
+      "name": "capacity",
+      "scope": "event",
+      "purpose": "Maximum number of attendees. Not 'seats left' — that is ticketing state a nightly file cannot hold.",
+      "shape": "integer, ≥ 0",
+      "status": "gathering-evidence",
+      "statusVersion": null,
+      "graduationQuestion": "Do ≥3 producers emit a stable capacity (not a live seats-left counter)?",
+      "observedAdoption": { "feeds": 0, "asOf": null }
+    },
+    {
+      "name": "level",
+      "scope": "event",
+      "purpose": "Who the event is pitched at — 'is it for me?', the axis eligibility does NOT cover (that is 'will they let me in?').",
+      "shape": "enum: beginner | intermediate | advanced",
+      "status": "gathering-evidence",
+      "statusVersion": null,
+      "graduationQuestion": "Do real conferences emit a filterable level, or only free-text audience prose?",
+      "observedAdoption": { "feeds": 0, "asOf": null }
+    },
+    {
+      "name": "speakers[].affiliation",
+      "scope": "event",
+      "purpose": "The speaker's organisation, as ONE display name.",
+      "shape": "string — a proper noun, written once, not translated (like organizers[].name / a locality's spelling)",
+      "status": "gathering-evidence",
+      "statusVersion": null,
+      "graduationQuestion": "Do ≥3 producers emit it? Lowest cost of the speakers enrichment set — no translation — so likely first to graduate.",
+      "observedAdoption": { "feeds": 0, "asOf": null }
+    },
+    {
+      "name": "speakers[].jobTitle",
+      "scope": "event",
+      "purpose": "The speaker's role, e.g. 'Principal Engineer'.",
+      "shape": "string — free text, in the document's textLanguage; graduation needs a local translations map (D010/D023/D030)",
+      "status": "gathering-evidence",
+      "statusVersion": null,
+      "graduationQuestion": "Do ≥3 producers emit it, AND is it worth the translations-map cost?",
+      "observedAdoption": { "feeds": 0, "asOf": null }
+    },
+    {
+      "name": "speakers[].bio",
+      "scope": "event",
+      "purpose": "A short paragraph about the speaker.",
+      "shape": "string — free text prose, in the document's textLanguage; same translation cost as jobTitle, larger",
+      "status": "gathering-evidence",
+      "statusVersion": null,
+      "graduationQuestion": "Do ≥3 producers emit it structured, rather than only on the speaker's own page?",
+      "observedAdoption": { "feeds": 0, "asOf": null }
+    },
+    {
+      "name": "speakers[].image",
+      "scope": "event",
+      "purpose": "A photo of the speaker.",
+      "shape": "SAME shape as event image[] — a string or { url, alt, translations }. Its translations map is NOT core-validated as an extension.",
+      "status": "gathering-evidence",
+      "statusVersion": null,
+      "graduationQuestion": "Do ≥3 producers emit it, AND is it worth reopening the image[].alt accessibility apparatus nested inside speakers[]?",
+      "observedAdoption": { "feeds": 0, "asOf": null }
+    },
+    {
+      "name": "sameAs",
+      "scope": "event",
+      "purpose": "URLs the publisher asserts describe the SAME event — the organiser's canonical page, another OTE id — for cross-aggregator deduplication. A publisher ASSERTION, not a consumer heuristic.",
+      "shape": "array of HTTP(S) IRIs, uniqueItems, no userinfo — maps to schema.org Event.sameAs. Distinct from id (per-publisher stable identifier) and source.url (provenance).",
+      "status": "gathering-evidence",
+      "statusVersion": null,
+      "graduationQuestion": "Do ≥2 aggregators emit it pointing at a shared canonical URL? And does the 'deduplication across sources' non-goal need revisiting, or does 'publisher hint ≠ heuristic' hold?",
+      "observedAdoption": { "feeds": 0, "asOf": null }
+    }
+  ]
+}

@@ -20,7 +20,7 @@ import { readFileSync, writeFileSync, readdirSync, mkdirSync, existsSync, rmSync
 import { join, basename } from "node:path";
 
 const SITE = "https://opentechevents.org";
-const VERSION = "v0.4";
+const VERSION = "v0.5";
 const OUT_DIR = join("docs", "llms");
 const check = process.argv.includes("--check");
 
@@ -41,7 +41,7 @@ const SECTIONS = [
       },
       {
         file: join("spec", VERSION, "reference.en.md"),
-        as: "reference-v0.4.md",
+        as: `reference-${VERSION}.md`,
         lead: "Field reference table generated from the schemas: type, required or recommended, allowed values, examples.",
       },
     ],

@@ -1,7 +1,7 @@
 # OpenTechEvents (OTE Spec) — full corpus
 
 Generated from the repository. Source of truth: https://github.com/OpenTechEvents/opentechevents-spec
-Spec version: v0.4. The spec is a draft (0.x) and fields can still change.
+Spec version: v0.5. The spec is a draft (0.x) and fields can still change.
 
 Each section below is a verbatim file from the repo, in the order a reader new to OTE should
 meet them. Answer from these files and say which one you used; if something is not here, say so
@@ -220,10 +220,10 @@ Two licences, both permissive. The detail and the reasoning are in [LICENSE](LIC
 
 ## spec-v0.4.md
 
-Source: spec/v0.4/README.md — The specification itself for v0.4: every field, and the rules a validator cannot check — why an id must never change, why a cancelled event stays published.
+Source: spec/v0.5/README.md — The specification itself for v0.5: every field, and the rules a validator cannot check — why an id must never change, why a cancelled event stays published.
 
 ```markdown
-# OTE Spec v0.4.0
+# OTE Spec v0.5.0
 
 > 🚧 **Draft. Unstable.** `0.x` means it **can break without warning**. It is published so that real implementations exist (starting with the `.ics` importer) and so they break whatever is wrong. Discussion: [#5 (event)](https://github.com/OpenTechEvents/opentechevents-spec/issues/5) and [#6 (feed)](https://github.com/OpenTechEvents/opentechevents-spec/issues/6).
 
@@ -241,13 +241,15 @@ A minimal specification for describing tech community events and publishing them
 The `$id`s are the URLs the schemas are published under:
 
 ```text
-https://opentechevents.org/schema/v0.4/event.schema.json
-https://opentechevents.org/schema/v0.4/feed.schema.json
-https://opentechevents.org/schema/v0.4/event.recommended.schema.json
-https://opentechevents.org/schema/v0.4/feed.recommended.schema.json
+https://opentechevents.org/schema/v0.5/event.schema.json
+https://opentechevents.org/schema/v0.5/feed.schema.json
+https://opentechevents.org/schema/v0.5/event.recommended.schema.json
+https://opentechevents.org/schema/v0.5/feed.recommended.schema.json
 ```
 
-**Once published, a version is not touched.** `v0.1`, `v0.2` and `v0.3` stay frozen in [`spec/v0.1/`](../v0.1/), [`spec/v0.2/`](../v0.2/) and [`spec/v0.3/`](../v0.3/); future changes will go to `spec/v0.5/`. That is what lets a document say `specVersion: "0.4.0"` and lets a consumer know three years from now what to validate it against. What changed between versions lives in the [CHANGELOG](../../CHANGELOG.md).
+**Once published, a version is not touched.** `v0.1`–`v0.4` stay frozen in [`spec/v0.1/`](../v0.1/), [`spec/v0.2/`](../v0.2/), [`spec/v0.3/`](../v0.3/) and [`spec/v0.4/`](../v0.4/); future changes will go to `spec/v0.6/`. That is what lets a document say `specVersion: "0.5.0"` and lets a consumer know three years from now what to validate it against. What changed between versions lives in the [CHANGELOG](../../CHANGELOG.md).
+
+**v0.5 is a deliberately BREAKING release** (`0.x` — "it can break without warning"). It adds six fields (`speakers`, `recordings`, `contributing`, `feed.alternates`, `partOf.offers`, `offers[].scope`) and reshapes how a multi-part event carries a price. If your `0.4.0` documents used none of those key names, changing `specVersion` to `"0.5.0"` is all it takes. See the [CHANGELOG](../../CHANGELOG.md) migration note and [DECISIONS.md D032](DECISIONS.md#d032--multi-part-event-pricing-partofoffers--offersscope-a-deliberate-050-breaking-change).
 
 ## Consuming the schemas
 
@@ -287,8 +289,8 @@ if (validateEvent(event) && !checkEvent(event)) {
 **By URL** (for editors, third-party CI, or anyone not using npm):
 
 ```text
-https://opentechevents.org/schema/v0.4/event.schema.json
-https://opentechevents.org/schema/v0.4/feed.schema.json
+https://opentechevents.org/schema/v0.5/event.schema.json
+https://opentechevents.org/schema/v0.5/feed.schema.json
 ```
 
 ## Validating this repo
@@ -324,8 +326,8 @@ That is why there are **two schemas and two different questions**:
 The profiles are ordinary schemas, published under their own `$id` and distributed in the npm package. They reference the base ones by `$ref`, so the base ones have to be registered first:
 
 ```text
-https://opentechevents.org/schema/v0.4/event.recommended.schema.json
-https://opentechevents.org/schema/v0.4/feed.recommended.schema.json
+https://opentechevents.org/schema/v0.5/event.recommended.schema.json
+https://opentechevents.org/schema/v0.5/feed.recommended.schema.json
 ```
 
 ```bash
@@ -397,16 +399,18 @@ The list **may grow** in future versions: recommending something costs nobody th
 JSON has no order: a document with its keys shuffled is **exactly as valid**, and no consumer should depend on how they are arranged. Even so, the spec declares the fields in a specific order, and the schema, the examples and the [generated reference](reference.en.md) all respect it:
 
 ```text
-specVersion                                    ← which version it validates against
-id, url, name, description, image, organizers  ← what it is and who runs it
-startDate, endDate, timezone                   ← when
-attendanceMode, location, eligibility          ← can I attend?
-tags, languages, textLanguage                  ← am I interested, and what language is it written in?
-offers, cfp                                    ← what does it cost, and can I take part?
-status, partOf                                 ← what has happened to it, and what it is part of
-license, source, updatedAt                     ← data about the data
-translations                                   ← everything above, in another language
+specVersion                                              ← which version it validates against
+id, url, name, description, image, organizers, speakers  ← what it is, who runs it, who is on stage
+startDate, endDate, timezone                             ← when
+attendanceMode, location, eligibility                    ← can I attend?
+tags, languages, textLanguage                            ← am I interested, and what language is it written in?
+offers, cfp                                              ← what does it cost, and can I take part?
+status, partOf                                           ← what has happened to it, and what it is part of
+license, source, updatedAt, recordings, contributing     ← data about the data
+translations                                             ← everything above, in another language
 ```
+
+`speakers` sits next to `organizers` (both answer "who is behind this"); `recordings` and `contributing` sit with the plumbing (both are added or matter after the event is announced). Inside `offers`, `scope` comes first; inside `partOf`, `offers` comes last.
 
 It reads the way it is filled in: first what is needed to **announce** the event, at the end the plumbing that only matters to whoever consumes it. `eligibility` goes with `attendanceMode` and `location` — and not next to `offers`, where it would also fit — because all three answer **the same question**: whether the event is within your reach and whether they will let you in. Price comes afterwards, and only matters if the answer was yes. `textLanguage` sits next to `languages` so the [difference between the two](#textlanguage-and-translations-what-language-this-is-written-in) is visible on the same screen, and `translations` goes **last**, after even the plumbing: it is a bulky block repeating fields already declared above, and putting it in the middle would bury the twenty lines every consumer actually reads. It is not alphabetical, which would separate `startDate` from `endDate` and `id` from `url`; nor by requiredness, which would change with every version that recommends a new field.
 
@@ -480,9 +484,48 @@ Only `id` is required. `name` and `url` save a consumer from having to resolve t
 - **`series`** — independent occurrences sharing an identity: June's meetup and July's. Each is announced, attended and cancelled separately.
 - **`multipart`** — parts of **a single event** spread across non-consecutive dates: a study jam of three sessions on non-consecutive Saturdays, with a single registration. The parts are not independent events even though each has its own date.
 
-What `multipart` does **not** fix is "a single registration": that is not a date. `offers` describes the price and registration **of each document**, not one registration shared across the parts — and v0.4 does not model that. Do not solve it by deforming the time field.
+`multipart` says nothing about time that `series` doesn't; what it changes is **who owns the price** — see "Multi-part event pricing" below. Do not solve pricing by deforming the time field.
 
 ⚠️ **A multi-part event is NOT expressed with a `startDate` on the first part and an `endDate` on the last.** `startDate: "2026-03-07"` + `endDate: "2026-03-21"` asserts a continuous fifteen-day event — false in all three destinations, and in a subscriber's calendar it takes up two entire weeks. Three parts, three documents.
+
+#### Multi-part event pricing: `partOf.offers` and `offers[].scope`
+
+New in v0.5, and **a deliberate breaking change** — see [DECISIONS.md D032](DECISIONS.md#d032--multi-part-event-pricing-partofoffers--offersscope-a-deliberate-050-breaking-change) for why `0.x` makes that acceptable.
+
+A conference modelled as `multipart` — each talk its own document, all sharing one `partOf.id` — normally has **one admission price for the whole thing**, and often a **separate fee per workshop on top**. v0.4 could express neither.
+
+**`partOf.offers` is the shared admission.** An `offers` list (same shape as `event.offers`) inside the `partOf` object — the price of attending the whole set, written **identically on every part** that carries it, so a consumer holding a single part document can price it without resolving the parent (`partOf.id` is **never** followed for pricing):
+
+```json
+"partOf": {
+  "id": "https://trgcon.example/2026",
+  "name": "TRG Conf 2026",
+  "type": "multipart",
+  "offers": [
+    { "name": "Early bird", "price": 180, "currency": "EUR", "url": "https://trgcon.example/tickets", "closesAt": "2026-09-01T23:59:59+02:00" },
+    { "name": "General",    "price": 240, "currency": "EUR", "url": "https://trgcon.example/tickets" }
+  ]
+}
+```
+
+**`offers[].scope` says what a part's own offer means relative to that admission** — two values, only meaningful when the document has `partOf`:
+
+| `scope` | Meaning | Total to attend this part |
+| --- | --- | --- |
+| `admission` *(what an absent `scope` is read as)* | A complete way to attend this part — sold standalone, or a restatement of the set admission | this offer's `price` |
+| `add-on` | An **additional** charge on top of the set admission | a priced `partOf.offers` entry **+** this offer's `price` when both carry a number; otherwise **"an additional charge, total unknown"** |
+
+An `add-on` offer **requires `partOf` and `partOf.offers` in the same document** — the schema rejects an add-on with nothing to add to. URL-only offers (a `url` with no `price`, which v0.4 already allows) stay valid: the consumer knows *there is an extra charge and where to pay it*, just not the total.
+
+**One meaning changes:** in a document that carries `partOf.offers`, a part that **omits its own `offers`** is **covered by the admission** — its cost is `partOf.offers`, not "unknown". This is the single place in the spec where an absent `offers` list means something other than unknown, and it fires only on `partOf.offers`, which no `0.4.0` document contains.
+
+**Sibling parts must agree.** For every group of events sharing a `partOf.id`, the `partOf.offers` blocks that are present must be **equal by value** — a feed-root validator error (`sharedOffersConsistent`), the same discipline as [D011](DECISIONS.md#d011). Parts that omit `partOf.offers` are allowed.
+
+**`partOf` is no longer *entirely* safely ignorable.** It stays ignorable for grouping and identity; a consumer that needs the **price** of a multi-part event MUST also read `partOf.offers`. Ignoring it yields **incomplete** pricing (a missing price), never **wrong** pricing — the spec's "incomplete is acceptable, false is not" principle.
+
+**Out of scope for v0.5** — still ticketing, the same call the spec makes for discount codes: tier-specific coverage ("this workshop is only for Full tickets"), per-day passes, "pick 3 of 5" bundles, reverse bundles, group rates, coupons. The documented next step ("Model B" — stable offer `id`s + `offers[].dependsOn`) is not proposed; it graduates on a real producer.
+
+**Translation:** `partOf.offers` → the `superEvent` (`EventSeries`/`Event`)'s `offers`; part `offers` → the part `Event`'s `offers`. **Google follows neither `superEvent` nor `subEvent`**, so a per-talk rich result shows no price — an inherent loss no model here fixes. iCal / RSS carry price only as text, as `offers` already does.
 
 **Translation into the three formats, including the loss:**
 
@@ -582,7 +625,7 @@ A **cancelled, postponed or moved event must stay in the feed**. Deleting it sil
 
 **`postponed` and `rescheduled` are not synonyms, and the difference lies in the document's own dates.** `postponed` keeps the **old dates** — do not invent a new one and do not delete `startDate` (it is required): the event still points at a day that no longer holds, and that is exactly what `postponed` is saying. When the new date is confirmed, `startDate`/`endDate` are **updated** and it becomes `rescheduled`. Because the `id` does not change, a consumer updates the event it already had instead of duplicating it.
 
-> v0.4 **does not model the previous date** (schema.org's `previousStartDate`). No real producer emits it today, and `updatedAt` already says something changed. If you need it, it is a candidate for the core by the usual route: a field with no prefix, in production, and it graduates if it survives.
+> v0.5 **does not model the previous date** (schema.org's `previousStartDate`). No real producer emits it today, and `updatedAt` already says something changed. If you need it, it is a candidate for the core by the usual route: a field with no prefix, in production, and it graduates if it survives.
 
 **`moved-online` should carry `location.onlineUrl` and `attendanceMode: "online"`.** Should, not must: the schema does not require it because the joining link is often not public yet (it arrives by email to whoever registered), and a spec that required it would force whoever imports either to invent it or to discard the event. If `location.venue` stays there as a trace of where it was going to be, that is fine: [`attendanceMode` wins](#location-and-attendancemode-are-not-redundant), and it says `online`.
 
@@ -636,7 +679,7 @@ Only `name` is required. `url`, `email` and `type` (`organization` by default, o
 Three confusions worth defusing before they happen:
 
 1. **`organizers` is not `source`.** Who runs the event vs. where the data came from. A PyAlmería event picked up from Meetup has `organizers: [PyAlmería]` and `source: { name: "Meetup" }`. They are orthogonal and often both appear.
-2. **`organizers` are not speakers.** Whoever gives the talk is not modelled in v0.4 (see "What v0.4 does not solve"). Putting a speaker in `organizers` corrupts the data for everyone who consumes it.
+2. **`organizers` are not speakers.** Whoever gives the talk goes in [`speakers`](#speakers-who-gives-the-talk) (new in v0.5), never here. Putting a speaker in `organizers` corrupts the data for everyone who consumes it.
 3. **`feed.organizers` is not `feed.title`/`feed.url`.** `title`/`url` name **whoever publishes** the feed; `organizers`, **whoever organises** the events. In a single-community feed they coincide. In an aggregator's feed they do **not**, and that is precisely where the field earns its place: without it, a consumer has no choice but to fall back on `feed.title` and attribute to the aggregator every event it aggregates.
 
 **Inheritance: replacement, not merging.** Like `license`, `feed.organizers` is the default for every event that does not declare its own. An event that **does** declare it **replaces the entire list**; it is not added to the inherited one. With merging there would be no way to *remove* an inherited organiser, and a guest event inside a community's feed would end up attributed to someone who did not organise it. The practical consequence: in a co-organised event within a community feed you have to **repeat** the feed's community alongside the guest one — see [`examples/feed-community.json`](examples/feed-community.json).
@@ -690,6 +733,63 @@ The feared risk — inheriting somebody else's email — **would only exist if t
 **Why there is no `id` or `communityId`.** An identifier linking the organiser to a community directory, in the style of `combuilders:my-community`, was considered. It is rejected in v0.3 for three reasons: it demands **prefix governance** (who assigns `combuilders`, who resolves collisions) that this project does not have and that would couple OTE to another one; it contradicts the spec's own `id` rule (*a URI under a domain you control*, which needs no central registry because DNS already guarantees uniqueness); and above all **there is no real consumer yet** — the directory does not exist as a specification. Putting it in now would be exactly the speculative design the Extensions section forbids.
 
 You do not have to wait for anyone to use it: it is a prefixed extension field (see below), it works today, and if it survives real use it graduates into the core in whatever shape that use dictates.
+
+### `speakers`: who gives the talk
+
+New in v0.5. Optional, **a list**, and only `name` is required:
+
+```json
+"speakers": [
+  { "name": "Ada Lovelace", "url": "https://ada.example",
+    "sameAs": ["https://fosstodon.org/@ada", "https://www.linkedin.com/in/ada-lovelace"] },
+  { "name": "Grace Hopper" },
+  { "type": "organization", "name": "The anyio team" }
+]
+```
+
+**It is not `organizers`, and it is not `source`.** Whoever gives the talk did not organise the event, and is not where the data came from. Putting a speaker in `organizers` — the one thing v0.4 explicitly warned against with no alternative — corrupts the data for everyone downstream.
+
+**A list, because a panel is the norm.** Co-talks, panels, fireside chats. Order is display / preference order: the first is the one that survives to a single-value destination, the same rule `organizers` and `image` follow. Exact duplicates are rejected; two entries are never merged by inferred identity.
+
+**`url` is one canonical page; `sameAs` is the rest.** `url` is the speaker's own site or main profile — one value, so a single-value destination has something unambiguous. `sameAs` is the list of their other profiles (Mastodon, LinkedIn, GitHub), mapping 1:1 to schema.org `Person.sameAs`. Both are **HTTP(S) only**: a Bluesky DID or a Fediverse handle is an identifier, not a Web page — publish the public profile URL instead. `speakers[].name` is a proper noun and is never translated.
+
+**Kept as small as `organizers`.** No `bio`, no photo, no affiliation, no `jobTitle`, no identifier — the same "describe who they are and where to find them, not their full profile" discipline. Those are documented as a [suggested extension](#extensions) so producers converge on one shape; `affiliation` and more may graduate later on real adoption.
+
+**Not [recommended](#valid-is-not-the-same-as-useful-the-recommended-fields).** An `.ics` importer never has speaker data, and most events in a community feed are meetups whose speaker is often the organiser anyway — a warning would fire on the majority for no gain.
+
+**Translation to the three destinations, including the loss:**
+
+| Destination | Mapping | Loss |
+| --- | --- | --- |
+| **schema.org** | `performer` (array): `@type` `Person`/`Organization` from `type`, `name` → `name`, `url` → `url`, `sameAs` → `Person.sameAs` | None in the model. Google reads `performer`/`name`/`url` for the Event rich result; it does **not** document a nested `performer.sameAs`, so the extra profiles reach generic schema.org consumers and OTE directories, not a Google rich result. |
+| **iCal** | RFC 5545 core has no speaker term — the normative fallback is `X-OTE-SPEAKER:Ada Lovelace` (repeatable) or a line in `DESCRIPTION`. As an *optional advanced export*, enhanced iCalendar ([RFC 9073](https://www.rfc-editor.org/rfc/rfc9073), *Updates: 5545*) MAY emit one `PARTICIPANT` per speaker: `PARTICIPANT-TYPE:SPEAKER` and `UID` are required by §7.1 (the exporter mints the `UID` from `speakers[].url`, else `<event id>` + a slug of `name`), `SUMMARY` carries `name`, `URL` carries `url`. `ATTENDEE` stays forbidden — it means a participant/invitee, not a speaker. | Total for a core-5545 client, and harmless. An RFC 9073-aware client gets the speakers, at the cost of a minted `UID` the OTE model does not carry. |
+| **RSS / Atom** | Nothing native → the item body ("Speakers: …") | Total, harmless. |
+
+### `recordings`: the video, after the event
+
+New in v0.5. Optional, **a list**. An entry is a bare HTTP(S) IRI or an object that adds a title:
+
+```json
+"recordings": [
+  "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+  { "url": "https://tube.rustmadrid.example/w/abc123", "title": "Q&A",
+    "translations": { "en": { "title": "Q&A" } } }
+]
+```
+
+**It is not `image` and not `location.onlineUrl`.** `image` is the poster; `location.onlineUrl` is the **live** connection link, which stops meaning the same thing once the event is over. `recordings` is the published video, linked **after** the event happened — the document already exists with its stable `id`, only `updatedAt` changes.
+
+**Two entry forms, like `image`.** A bare IRI for the common case; an object when the list has more than one recording and a `title` tells them apart ("Full session", "Q&A"). The `title` is free text in the document's `textLanguage`, translated by the entry's own `translations` map — the same shape as `image[].alt`, and it requires `textLanguage` like every other translations map.
+
+**Not [recommended](#valid-is-not-the-same-as-useful-the-recommended-fields).** Most events have no recording, a live one has none yet, and the spec has no "is in the past" predicate to make the warning conditional on.
+
+**Translation to the three destinations, including the loss:**
+
+| Destination | Mapping | Loss |
+| --- | --- | --- |
+| **schema.org** | `recordedIn` (array of `VideoObject { url, name? }`) — *"The CreativeWork that captured all or part of this Event"* | Structural, and it does **not** reach Google — Google reads no video property for `Event`. A generic schema.org consumer that follows `recordedIn` gets it. |
+| **iCal** | No term (RFC 7986 has no recording property; `URL` is the event page). Degrade to `X-OTE-RECORDING` or a `DESCRIPTION` line | Total; harmless. |
+| **RSS / Atom** | A watch page is **not** a direct media URL — map it to `<media:player url>` (Media RSS) or an item/body link, **not** `<media:content url>` and not `<enclosure>` | Structural. |
 
 ### `tags`, `location.geo`, `updatedAt`: what v0.2 adds
 
@@ -1018,12 +1118,13 @@ Required: `specVersion`, `title`, `updatedAt`, `events`.
 
 **`textLanguage` is inherited too** — one line in the feed and no event repeats it — and **`translations` is never inherited**: a feed's `title` is not an event's `name`, so `feed.translations` translates the feed and each event carries its own. [Detail above](#textlanguage-and-translations-what-language-this-is-written-in). And, like `organizers`, an **aggregator** feed whose events do not share a language must not make events inherit a single `feed.textLanguage`: that would attribute to every event a language that may not be its own. The recommended profile warns (without invalidating) only when that risk can actually happen: `organizers` is absent, `feed.textLanguage` is present, and at least one event omits its own `textLanguage`. If every event declares its own language, the feed-level value labels only the feed's own `title`/`description`, so it stays useful and warning-free. Detail in [DECISIONS.md, D016](DECISIONS.md#d016--feedtextlanguage-inheritance-is-enforced-against-the-effective-language-computed-at-the-feed-root) and [D031](DECISIONS.md#d031--feedtextlanguage-without-feedorganizers-warns-only-when-an-event-can-inherit-it).
 
-**Summary of what is inherited**, because these are four fields with three different behaviours:
+**Summary of what is inherited**, because these are five fields with three different behaviours:
 
 | Feed field | How it reaches the event |
 | --- | --- |
 | `specVersion`, `license` | **Default.** The event that declares it wins; standalone, declaring it is mandatory. |
 | `textLanguage` | **Default.** Same as `license`. |
+| `contributing` | **Default.** Same as `license` — a declared scalar replaces the inherited one. |
 | `organizers` | **Default by REPLACEMENT**: the event's list substitutes the whole thing, it is not merged. |
 | `translations` | **Not inherited.** It translates the feed's text, and nothing else. |
 
@@ -1031,9 +1132,27 @@ That is why the event schema has two layers: `$defs/event` (the common part) and
 
 The feed is an **interchange format, not an API**: no pagination, no filtering, no authentication, no federation.
 
+### `contributing`: where to report or fix a wrong datum
+
+New in v0.5. Optional, **a single URL**, on the feed and on the event, inherited feed → event like `license`:
+
+```json
+"contributing": "https://github.com/pyalmeria/eventos/issues/new"
+```
+
+**Why it exists.** A feed reader or aggregator wants a "report an error / suggest a correction" link per event. `organizers[].email` does not fit — a correction channel is not the organiser's inbox — and an **aggregator must leave `organizers` out** ([D016](DECISIONS.md#d016)), so the publisher who most needs the field has none. `source.url` points at *where the data came from*; a mapping bug the aggregator introduced is not fixed upstream. The real producer is the OTE editor's `?repo=` deep links.
+
+**It accepts an HTTP(S) IRI OR a `mailto:` URI** — the latter because directories like [dev.events](https://dev.events/about) point contributors at a `hello@` address, and for a feed with no issue tracker an email is often the only channel. The `mailto:` form is **stricter than RFC 6068**: exactly one bare role address, no `?` headers, no second recipient, no fragment. It is the first field of the spec to accept a non-HTTP scheme — see [DECISIONS.md D033](DECISIONS.md#d033--contributing-accepts-a-mailto-uri--the-first-non-http-scheme-in-the-spec).
+
+**Its own spam discipline** (not just a cross-reference to `organizers[].email`, because `contributing` is inherited and so exposed on every event): a **role/public address only** (`hello@`, `corrections@`), never a personal mailbox; a tool **MUST NOT** populate it from a source that is not itself publicly published; a consumer **MUST** use it only for corrections to this record.
+
+**Not [recommended](#valid-is-not-the-same-as-useful-the-recommended-fields).** An `.ics` importer never has it, and a warning would push a small community to open an issue tracker it does not want. Like `cfp`, it **travels to no destination format** — its value is entirely inside the OTE ecosystem.
+
 ## Extensions
 
-The schemas **do not forbid additional fields**. If your community needs `sponsors` or `capacity` today, put them in: your document is still valid. It is the route by which the spec should grow — **fields somebody already really uses**, not fields we imagine will be needed. That is how `tags` got into v0.2, and how `organizers`, `image`, `offers` and `cfp` got into v0.3.
+The schemas **do not forbid additional fields**. If your community needs `sponsors` or `capacity` today, put them in: your document is still valid. It is the route by which the spec should grow — **fields somebody already really uses**, not fields we imagine will be needed. That is how `tags` got into v0.2, `organizers`/`image`/`offers`/`cfp` into v0.3, and `speakers`/`recordings` into v0.5.
+
+The candidates that are being watched — with a recommended shape to copy and a measured adoption count — live on the **[suggested extensions page](https://opentechevents.org/extensions/)** (`docs/data/suggested-extensions.json` in the repo): `sponsors`, `capacity`, `level`, the `speakers` enrichment block (`affiliation`, `jobTitle`, `bio`, `image`), and `event.sameAs` (an aggregator's "this is the same event as" hint). Using one and finding it useful is the evidence that graduates it.
 
 When a field is standardised, it will be given a normative meaning. Until then, a consumer can ignore them safely.
 
@@ -1064,9 +1183,11 @@ This is what lets OTE **connect** with other specifications without **coupling**
 
 OTE does not know what `combuilders:communityId` means and does not need to. The prefix guarantees that the two specifications can evolve separately without treading on each other. See [`examples/event-co-organized.json`](examples/event-co-organized.json).
 
-## What v0.4 does not solve
+## What v0.5 does not solve
 
-Deduplication across sources, synchronisation, automatic publishing to platforms, modelling speakers/agenda/sponsors, and **the box office**: capacity, places left, discount codes and the single registration of a multi-part event. `offers` describes **the ticket**, not the state of the sale; `cfp` describes **the call**, not the review of proposals.
+Deduplication across sources, synchronisation, automatic publishing to platforms, modelling agenda/sponsors, and most of **the box office**: capacity, places left, discount codes, tier-specific coverage and per-day passes. `offers` describes **the ticket**, not the state of the sale; `cfp` describes **the call**, not the review of proposals.
+
+(v0.5 *does* now model **the shared admission of a multi-part event** — see [Multi-part event pricing](#multi-part-event-pricing-partofoffers-and-offersscope) — and **who gives the talk** — see [`speakers`](#speakers-who-gives-the-talk).)
 
 It does not solve **a locality's spellings** either: `location.address.locality` and `region` are written once, in the spelling most recognisable to the event's audience — "València" or "Valencia", not both. Everything else is translated, and [where it lives](#local-translations-the-text-living-inside-an-object).
 
@@ -1086,12 +1207,29 @@ See [#6](https://github.com/OpenTechEvents/opentechevents-spec/issues/6). The th
 
 > 📌 **A relevant fact about `/.well-known/`**: the [IANA registry](https://www.iana.org/assignments/well-known-uris/well-known-uris.xhtml) **has no entry for feeds at all** — not RSS, not Atom, not JSON Feed. Its registration procedure is *"Specification Required"*, and **OTE has a specification**, so `ote-feed` could be **formally registered** (even with provisional status) instead of squatting a path. It would in fact be the registry's first feed well-known.
 
+#### `feed.alternates`: the same collection, in other formats
+
+New in v0.5. Optional, a feed-level list of `{ mediaType, url }`:
+
+```json
+"alternates": [
+  { "mediaType": "application/rss+xml", "url": "https://pyalmeria.example/events.rss" },
+  { "mediaType": "text/calendar",       "url": "https://pyalmeria.example/events.ics" }
+]
+```
+
+`<link rel="alternate">` in the `<head>` already lets a page point at its RSS/iCal versions — but it needs an HTML page. `alternates` is the **same thing expressed in JSON**, for a feed served as a bare endpoint, or a client that consumes the JSON and will not parse HTML. It maps outward to `<link rel="alternate" type="…" href="…">` and the `Link: …; rel="alternate"` HTTP header; an importer going the other way populates it from exactly those.
+
+**It is informational.** OTE does **not** guarantee the linked RSS/iCal is generated from this feed or kept in sync with it: a consumer **MUST NOT** assume exact sync, completeness or derivation. The producer duty is a **SHOULD**: generate them from the same source, or otherwise intend them to describe the same collection.
+
+`mediaType` is a bare, lowercase media-type token — no parameters. Two entries MAY share a `mediaType` (RSS mirrors); they SHOULD then be equivalent choices, not different feeds that would need a label — there is deliberately no `title` (a client renders "RSS" / "iCalendar" in the reader's language from the media type, the "an enum is multilingual for free" reasoning). Not recommended: a feed with an HTML page already has `<link rel="alternate">` and does not need this.
+
 ### Serialisation: only a file, or embedded metadata too?
 
 Today the spec assumes **a JSON file at a URL**. The alternative — or the complement — is to allow the feed **embedded in the page itself**, in the style of schema.org's JSON-LD:
 
 ```html
-<script type="application/ote+json">{ "specVersion": "0.4.0", "kind": "feed", … }</script>
+<script type="application/ote+json">{ "specVersion": "0.5.0", "kind": "feed", … }</script>
 ```
 
 - **In favour**: whoever uses a CMS or a site generator can paste a block into their template, but often **cannot publish a standalone file** or touch `/.well-known/`. It lowers the barrier to entry precisely for those with the fewest tools.
@@ -1108,12 +1246,12 @@ Still to be decided. If accepted, it would be an **equivalent serialisation** of
 - **`license` required on a standalone event**: is it too high a barrier to entry for somebody who just wants to publish their meetup?
 ```
 
-## reference-v0.4.md
+## reference-v0.5.md
 
-Source: spec/v0.4/reference.en.md — Field reference table generated from the schemas: type, required or recommended, allowed values, examples.
+Source: spec/v0.5/reference.en.md — Field reference table generated from the schemas: type, required or recommended, allowed values, examples.
 
 ```markdown
-# Field reference — OTE Spec 0.4.0
+# Field reference — OTE Spec 0.5.0
 
 > 🤖 Generated from the schemas — do not edit by hand. Run `npm run build-reference`.
 >
@@ -1131,7 +1269,7 @@ A single tech community event. See https://opentechevents.org for the normative 
 
 | Field | Type | Level | Default | Description | Examples |
 | --- | --- | :---: | :---: | --- | --- |
-| `specVersion` | const: "0.4.0" | **required** | the feed's `specVersion` | Version of OTE Spec this document adheres to. | `"0.4.0"` |
+| `specVersion` | const: "0.5.0" | **required** | the feed's `specVersion` | Version of OTE Spec this document adheres to. | `"0.5.0"` |
 | `id` | string (iri) | **required** | | Stable, globally unique identifier: an HTTP(S) IRI under a domain the publisher controls — not necessarily one they own; a canonical page on a platform they use (Meetup, GitHub Pages, LinkedIn) works exactly as well, since what matters is that the address is stable and nobody else can end up with that same one. Non-ASCII characters are allowed exactly as published (`pycamp-españa` is not rewritten to `pycamp-espa%C3%B1a`). Minted once, never rewritten — this is what lets consumers update an event instead of duplicating it. | `"https://pyalmeria.example/eventos/2026-06-async"`<br>`"https://eventos.wiki/events/2025/pycamp-españa"`<br>`"https://calendar.example/ics/rust-madrid#a1b2c3d4-uid"`<br>`"https://www.meetup.com/pyalmeria/events/123456789/"` |
 | `url` | string (iri) | _recommended_ | | Canonical URL where the event is described today. May change over time; id may not. | `"https://pyalmeria.example/eventos/2026-06-async"` |
 | `name` | string | **required** | | Display name of the event. | `"PyAlmería — Introducción a async/await"` |
@@ -1146,6 +1284,11 @@ A single tech community event. See https://opentechevents.org for the normative 
 | `organizers[].url` | string (iri) | optional | | Where this organiser lives on the web — their own site, or their profile on the platform they publish from. | `"https://pyalmeria.example"`<br>`"https://www.meetup.com/pyalmeria/"` |
 | `organizers[].email` | string (email) | optional | | Address for enquiries about the event. A ROLE address (info@, hola@) rather than someone's personal mailbox: a feed is open and crawlable, and what goes in it cannot be unpublished. Optional and deliberately NOT recommended. It exists because without it there is no valid iCal ORGANIZER to emit (a CAL-ADDRESS is in practice a mailto:) and no RSS 2.0 <author>, which requires an email. Written bare, without the mailto: prefix — the exporter adds it. Never populate it from a source that is not itself publicly published. | `"hola@pyalmeria.example"`<br>`"info@gdgmadrid.example"` |
 | `organizers[].type` | enum: organization \| person | optional | `"organization"` | Organisation or person. A translator has to pick a schema.org @type either way, and Organization is the tolerant choice. | `"organization"`<br>`"person"` |
+| `speakers` | object[] | optional | | Who gives the talk(s) — NOT who runs the event (that is organizers) and NOT where the data came from (source). New in v0.5. A list in display / preference order: the first is the one that survives to a single-value destination, the same rule organizers and image state. Co-talks and panels are the norm. Kept as small as organizers: a name, and where to find them. One document is one occurrence, so in a multi-part conference the speakers of a given talk live on that talk's document, not on the parent. Only exact repeats are rejected; distinct entries are never deduplicated by inferred identity. Not translated: a speaker's name is a proper noun. | `[{"name":"Ada Lovelace","url":"https://ada.example","sameAs":["https://fosstodon.org/@ada","https://www.linkedin.com/in/ada-lovelace"]}]`<br>`[{"name":"Grace Hopper"},{"type":"organization","name":"The Rust Survey Team"}]` |
+| `speakers[].name` | string | **required** within `speakers[]` | | Display name of the speaker. A proper noun: never translated. | `"Ada Lovelace"`<br>`"Grace Hopper"` |
+| `speakers[].url` | string (iri) | optional | | The speaker's canonical page — their own site, or their main profile. One URL. Same rules as organizers[].url. Other profiles go in sameAs. | `"https://ada.example"` |
+| `speakers[].sameAs` | string[] | optional | | Other profile pages for this SAME person — Mastodon, LinkedIn, GitHub, a personal site distinct from url. A list; order not significant; only exact repeats rejected. Maps to schema.org Person.sameAs. HTTP(S) only: not a DID or handle. Google's Event rich-result docs do not document a nested performer.sameAs — the value is generic schema.org consumers and OTE directories. | `["https://fosstodon.org/@ada","https://www.linkedin.com/in/ada-lovelace"]` |
+| `speakers[].type` | enum: person \| organization | optional | `"person"` | Person or organisation. A translator picks a schema.org @type either way, and Person is the tolerant choice for a speaker. | `"person"`<br>`"organization"` |
 | `startDate` | string | **required** | | Wall-clock start: a date (2026-10-15) for all-day events, or a local date-time (2026-10-15T09:00), never with seconds. Never carries a UTC offset — timezone does that. Which of the two forms you pick is not this field's decision alone: it has to match endDate's, and endDate (if present) must not be earlier — see the document's constraints. | `"2026-06-11T18:30"`<br>`"2026-10-15"` |
 | `endDate` | string | _recommended_ | | Wall-clock end, in the SAME form as startDate (both dates, or both date-times) and never earlier than it. If absent, the event is assumed to end on the day it starts. For an all-day event (date form, no time), endDate is INCLUSIVE — it names the last day the event runs, not the day after. Converting to iCalendar needs +1 day for DTEND;VALUE=DATE (RFC 5545 defines it as the non-inclusive end); importing needs -1 day back. Both rules belong to the document, not to this field — see the document's constraints. | `"2026-06-11T20:00"`<br>`"2026-10-16"` |
 | `timezone` | enum: Africa/Abidjan \| Africa/Accra \| Africa/Addis_Ababa \| Africa/Algiers \| Africa/Asmara \| Africa/Asmera \| Africa/Bamako \| Africa/Bangui \| Africa/Banjul \| Africa/Bissau \| Africa/Blantyre \| Africa/Brazzaville \| Africa/Bujumbura \| Africa/Cairo \| Africa/Casablanca \| Africa/Ceuta \| Africa/Conakry \| Africa/Dakar \| Africa/Dar_es_Salaam \| Africa/Djibouti \| Africa/Douala \| Africa/El_Aaiun \| Africa/Freetown \| Africa/Gaborone \| Africa/Harare \| Africa/Johannesburg \| Africa/Juba \| Africa/Kampala \| Africa/Khartoum \| Africa/Kigali \| Africa/Kinshasa \| Africa/Lagos \| Africa/Libreville \| Africa/Lome \| Africa/Luanda \| Africa/Lubumbashi \| Africa/Lusaka \| Africa/Malabo \| Africa/Maputo \| Africa/Maseru \| Africa/Mbabane \| Africa/Mogadishu \| Africa/Monrovia \| Africa/Nairobi \| Africa/Ndjamena \| Africa/Niamey \| Africa/Nouakchott \| Africa/Ouagadougou \| Africa/Porto-Novo \| Africa/Sao_Tome \| Africa/Timbuktu \| Africa/Tripoli \| Africa/Tunis \| Africa/Windhoek \| America/Adak \| America/Anchorage \| America/Anguilla \| America/Antigua \| America/Araguaina \| America/Argentina/Buenos_Aires \| America/Argentina/Catamarca \| America/Argentina/ComodRivadavia \| America/Argentina/Cordoba \| America/Argentina/Jujuy \| America/Argentina/La_Rioja \| America/Argentina/Mendoza \| America/Argentina/Rio_Gallegos \| America/Argentina/Salta \| America/Argentina/San_Juan \| America/Argentina/San_Luis \| America/Argentina/Tucuman \| America/Argentina/Ushuaia \| America/Aruba \| America/Asuncion \| America/Atikokan \| America/Atka \| America/Bahia \| America/Bahia_Banderas \| America/Barbados \| America/Belem \| America/Belize \| America/Blanc-Sablon \| America/Boa_Vista \| America/Bogota \| America/Boise \| America/Buenos_Aires \| America/Cambridge_Bay \| America/Campo_Grande \| America/Cancun \| America/Caracas \| America/Catamarca \| America/Cayenne \| America/Cayman \| America/Chicago \| America/Chihuahua \| America/Ciudad_Juarez \| America/Coral_Harbour \| America/Cordoba \| America/Costa_Rica \| America/Coyhaique \| America/Creston \| America/Cuiaba \| America/Curacao \| America/Danmarkshavn \| America/Dawson \| America/Dawson_Creek \| America/Denver \| America/Detroit \| America/Dominica \| America/Edmonton \| America/Eirunepe \| America/El_Salvador \| America/Ensenada \| America/Fort_Nelson \| America/Fort_Wayne \| America/Fortaleza \| America/Glace_Bay \| America/Godthab \| America/Goose_Bay \| America/Grand_Turk \| America/Grenada \| America/Guadeloupe \| America/Guatemala \| America/Guayaquil \| America/Guyana \| America/Halifax \| America/Havana \| America/Hermosillo \| America/Indiana/Indianapolis \| America/Indiana/Knox \| America/Indiana/Marengo \| America/Indiana/Petersburg \| America/Indiana/Tell_City \| America/Indiana/Vevay \| America/Indiana/Vincennes \| America/Indiana/Winamac \| America/Indianapolis \| America/Inuvik \| America/Iqaluit \| America/Jamaica \| America/Jujuy \| America/Juneau \| America/Kentucky/Louisville \| America/Kentucky/Monticello \| America/Knox_IN \| America/Kralendijk \| America/La_Paz \| America/Lima \| America/Los_Angeles \| America/Louisville \| America/Lower_Princes \| America/Maceio \| America/Managua \| America/Manaus \| America/Marigot \| America/Martinique \| America/Matamoros \| America/Mazatlan \| America/Mendoza \| America/Menominee \| America/Merida \| America/Metlakatla \| America/Mexico_City \| America/Miquelon \| America/Moncton \| America/Monterrey \| America/Montevideo \| America/Montreal \| America/Montserrat \| America/Nassau \| America/New_York \| America/Nipigon \| America/Nome \| America/Noronha \| America/North_Dakota/Beulah \| America/North_Dakota/Center \| America/North_Dakota/New_Salem \| America/Nuuk \| America/Ojinaga \| America/Panama \| America/Pangnirtung \| America/Paramaribo \| America/Phoenix \| America/Port_of_Spain \| America/Port-au-Prince \| America/Porto_Acre \| America/Porto_Velho \| America/Puerto_Rico \| America/Punta_Arenas \| America/Rainy_River \| America/Rankin_Inlet \| America/Recife \| America/Regina \| America/Resolute \| America/Rio_Branco \| America/Rosario \| America/Santa_Isabel \| America/Santarem \| America/Santiago \| America/Santo_Domingo \| America/Sao_Paulo \| America/Scoresbysund \| America/Shiprock \| America/Sitka \| America/St_Barthelemy \| America/St_Johns \| America/St_Kitts \| America/St_Lucia \| America/St_Thomas \| America/St_Vincent \| America/Swift_Current \| America/Tegucigalpa \| America/Thule \| America/Thunder_Bay \| America/Tijuana \| America/Toronto \| America/Tortola \| America/Vancouver \| America/Virgin \| America/Whitehorse \| America/Winnipeg \| America/Yakutat \| America/Yellowknife \| Antarctica/Casey \| Antarctica/Davis \| Antarctica/DumontDUrville \| Antarctica/Macquarie \| Antarctica/Mawson \| Antarctica/McMurdo \| Antarctica/Palmer \| Antarctica/Rothera \| Antarctica/South_Pole \| Antarctica/Syowa \| Antarctica/Troll \| Antarctica/Vostok \| Arctic/Longyearbyen \| Asia/Aden \| Asia/Almaty \| Asia/Amman \| Asia/Anadyr \| Asia/Aqtau \| Asia/Aqtobe \| Asia/Ashgabat \| Asia/Ashkhabad \| Asia/Atyrau \| Asia/Baghdad \| Asia/Bahrain \| Asia/Baku \| Asia/Bangkok \| Asia/Barnaul \| Asia/Beirut \| Asia/Bishkek \| Asia/Brunei \| Asia/Calcutta \| Asia/Chita \| Asia/Choibalsan \| Asia/Chongqing \| Asia/Chungking \| Asia/Colombo \| Asia/Dacca \| Asia/Damascus \| Asia/Dhaka \| Asia/Dili \| Asia/Dubai \| Asia/Dushanbe \| Asia/Famagusta \| Asia/Gaza \| Asia/Harbin \| Asia/Hebron \| Asia/Ho_Chi_Minh \| Asia/Hong_Kong \| Asia/Hovd \| Asia/Irkutsk \| Asia/Istanbul \| Asia/Jakarta \| Asia/Jayapura \| Asia/Jerusalem \| Asia/Kabul \| Asia/Kamchatka \| Asia/Karachi \| Asia/Kashgar \| Asia/Kathmandu \| Asia/Katmandu \| Asia/Khandyga \| Asia/Kolkata \| Asia/Krasnoyarsk \| Asia/Kuala_Lumpur \| Asia/Kuching \| Asia/Kuwait \| Asia/Macao \| Asia/Macau \| Asia/Magadan \| Asia/Makassar \| Asia/Manila \| Asia/Muscat \| Asia/Nicosia \| Asia/Novokuznetsk \| Asia/Novosibirsk \| Asia/Omsk \| Asia/Oral \| Asia/Phnom_Penh \| Asia/Pontianak \| Asia/Pyongyang \| Asia/Qatar \| Asia/Qostanay \| Asia/Qyzylorda \| Asia/Rangoon \| Asia/Riyadh \| Asia/Saigon \| Asia/Sakhalin \| Asia/Samarkand \| Asia/Seoul \| Asia/Shanghai \| Asia/Singapore \| Asia/Srednekolymsk \| Asia/Taipei \| Asia/Tashkent \| Asia/Tbilisi \| Asia/Tehran \| Asia/Tel_Aviv \| Asia/Thimbu \| Asia/Thimphu \| Asia/Tokyo \| Asia/Tomsk \| Asia/Ujung_Pandang \| Asia/Ulaanbaatar \| Asia/Ulan_Bator \| Asia/Urumqi \| Asia/Ust-Nera \| Asia/Vientiane \| Asia/Vladivostok \| Asia/Yakutsk \| Asia/Yangon \| Asia/Yekaterinburg \| Asia/Yerevan \| Atlantic/Azores \| Atlantic/Bermuda \| Atlantic/Canary \| Atlantic/Cape_Verde \| Atlantic/Faeroe \| Atlantic/Faroe \| Atlantic/Jan_Mayen \| Atlantic/Madeira \| Atlantic/Reykjavik \| Atlantic/South_Georgia \| Atlantic/St_Helena \| Atlantic/Stanley \| Australia/ACT \| Australia/Adelaide \| Australia/Brisbane \| Australia/Broken_Hill \| Australia/Canberra \| Australia/Currie \| Australia/Darwin \| Australia/Eucla \| Australia/Hobart \| Australia/LHI \| Australia/Lindeman \| Australia/Lord_Howe \| Australia/Melbourne \| Australia/North \| Australia/NSW \| Australia/Perth \| Australia/Queensland \| Australia/South \| Australia/Sydney \| Australia/Tasmania \| Australia/Victoria \| Australia/West \| Australia/Yancowinna \| Brazil/Acre \| Brazil/DeNoronha \| Brazil/East \| Brazil/West \| Canada/Atlantic \| Canada/Central \| Canada/Eastern \| Canada/Mountain \| Canada/Newfoundland \| Canada/Pacific \| Canada/Saskatchewan \| Canada/Yukon \| CET \| Chile/Continental \| Chile/EasterIsland \| CST6CDT \| Cuba \| EET \| Egypt \| Eire \| EST \| EST5EDT \| Etc/GMT \| Etc/GMT-0 \| Etc/GMT-1 \| Etc/GMT-10 \| Etc/GMT-11 \| Etc/GMT-12 \| Etc/GMT-13 \| Etc/GMT-14 \| Etc/GMT-2 \| Etc/GMT-3 \| Etc/GMT-4 \| Etc/GMT-5 \| Etc/GMT-6 \| Etc/GMT-7 \| Etc/GMT-8 \| Etc/GMT-9 \| Etc/GMT+0 \| Etc/GMT+1 \| Etc/GMT+10 \| Etc/GMT+11 \| Etc/GMT+12 \| Etc/GMT+2 \| Etc/GMT+3 \| Etc/GMT+4 \| Etc/GMT+5 \| Etc/GMT+6 \| Etc/GMT+7 \| Etc/GMT+8 \| Etc/GMT+9 \| Etc/GMT0 \| Etc/Greenwich \| Etc/UCT \| Etc/Universal \| Etc/UTC \| Etc/Zulu \| Europe/Amsterdam \| Europe/Andorra \| Europe/Astrakhan \| Europe/Athens \| Europe/Belfast \| Europe/Belgrade \| Europe/Berlin \| Europe/Bratislava \| Europe/Brussels \| Europe/Bucharest \| Europe/Budapest \| Europe/Busingen \| Europe/Chisinau \| Europe/Copenhagen \| Europe/Dublin \| Europe/Gibraltar \| Europe/Guernsey \| Europe/Helsinki \| Europe/Isle_of_Man \| Europe/Istanbul \| Europe/Jersey \| Europe/Kaliningrad \| Europe/Kiev \| Europe/Kirov \| Europe/Kyiv \| Europe/Lisbon \| Europe/Ljubljana \| Europe/London \| Europe/Luxembourg \| Europe/Madrid \| Europe/Malta \| Europe/Mariehamn \| Europe/Minsk \| Europe/Monaco \| Europe/Moscow \| Europe/Nicosia \| Europe/Oslo \| Europe/Paris \| Europe/Podgorica \| Europe/Prague \| Europe/Riga \| Europe/Rome \| Europe/Samara \| Europe/San_Marino \| Europe/Sarajevo \| Europe/Saratov \| Europe/Simferopol \| Europe/Skopje \| Europe/Sofia \| Europe/Stockholm \| Europe/Tallinn \| Europe/Tirane \| Europe/Tiraspol \| Europe/Ulyanovsk \| Europe/Uzhgorod \| Europe/Vaduz \| Europe/Vatican \| Europe/Vienna \| Europe/Vilnius \| Europe/Volgograd \| Europe/Warsaw \| Europe/Zagreb \| Europe/Zaporozhye \| Europe/Zurich \| GB \| GB-Eire \| GMT \| GMT-0 \| GMT+0 \| GMT0 \| Greenwich \| Hongkong \| HST \| Iceland \| Indian/Antananarivo \| Indian/Chagos \| Indian/Christmas \| Indian/Cocos \| Indian/Comoro \| Indian/Kerguelen \| Indian/Mahe \| Indian/Maldives \| Indian/Mauritius \| Indian/Mayotte \| Indian/Reunion \| Iran \| Israel \| Jamaica \| Japan \| Kwajalein \| Libya \| MET \| Mexico/BajaNorte \| Mexico/BajaSur \| Mexico/General \| MST \| MST7MDT \| Navajo \| NZ \| NZ-CHAT \| Pacific/Apia \| Pacific/Auckland \| Pacific/Bougainville \| Pacific/Chatham \| Pacific/Chuuk \| Pacific/Easter \| Pacific/Efate \| Pacific/Enderbury \| Pacific/Fakaofo \| Pacific/Fiji \| Pacific/Funafuti \| Pacific/Galapagos \| Pacific/Gambier \| Pacific/Guadalcanal \| Pacific/Guam \| Pacific/Honolulu \| Pacific/Johnston \| Pacific/Kanton \| Pacific/Kiritimati \| Pacific/Kosrae \| Pacific/Kwajalein \| Pacific/Majuro \| Pacific/Marquesas \| Pacific/Midway \| Pacific/Nauru \| Pacific/Niue \| Pacific/Norfolk \| Pacific/Noumea \| Pacific/Pago_Pago \| Pacific/Palau \| Pacific/Pitcairn \| Pacific/Pohnpei \| Pacific/Ponape \| Pacific/Port_Moresby \| Pacific/Rarotonga \| Pacific/Saipan \| Pacific/Samoa \| Pacific/Tahiti \| Pacific/Tarawa \| Pacific/Tongatapu \| Pacific/Truk \| Pacific/Wake \| Pacific/Wallis \| Pacific/Yap \| Poland \| Portugal \| PRC \| PST8PDT \| ROC \| ROK \| Singapore \| Turkey \| UCT \| Universal \| US/Alaska \| US/Aleutian \| US/Arizona \| US/Central \| US/East-Indiana \| US/Eastern \| US/Hawaii \| US/Indiana-Starke \| US/Michigan \| US/Mountain \| US/Pacific \| US/Samoa \| UTC \| W-SU \| WET \| Zulu | **required** | | A real IANA timezone identifier (e.g. Europe/Madrid) — canonical name or historical alias, never an invented or malformed one. Turns a wall-clock startDate into an unambiguous instant. For all-day events it contextualises the date — it does not shift it. On the two nights a year local time is ambiguous (a repeated hour) or impossible (a skipped hour) because of a DST transition, resolve exactly as RFC 5545 §3.3.5 does: a repeated local time means its FIRST occurrence; a skipped local time is read using the UTC offset that was in effect BEFORE the transition. | `"Europe/Madrid"`<br>`"America/Bogota"`<br>`"UTC"` |
@@ -1172,6 +1315,7 @@ A single tech community event. See https://opentechevents.org for the normative 
 | `languages` | string[] | _recommended_ | | Languages SPOKEN at the event, as BCP 47 tags, e.g. ["es","en"]. Not the language this document is written in — that is textLanguage, and the two disagree all the time: a bilingual session described in Catalan only. | `["es"]`<br>`["es","en"]` |
 | `textLanguage` | string (ote-language-tag) | optional | the feed's `textLanguage` | Language THIS DOCUMENT's free text is written in — name, description, and any other prose in it. One BCP 47 tag, not a list: a text is written in one language. A different question from languages, which says what is spoken at the event. Absent defaults to the enclosing feed's textLanguage; in a standalone document, with no feed to inherit from, absent means unknown, never English. | `"es"`<br>`"ca"`<br>`"en"` |
 | `offers` | object[] | optional | | What it costs to attend, and where to register. A list: tiered pricing (early bird, student, patron) is one entry each, and a free event is a single entry with price 0. Absent means UNKNOWN, never free — saying free is what price 0 is for. | `[{"price":0,"url":"https://rustmadrid.example/meetups/2026-06#registro"}]`<br>`[{"name":"Early bird","price":35,"currency":"EUR","url":"https://devfest-levante.example/2026/entradas","availability":"sold-out","closesAt":"2026-07-31T23:59:59+02:00"},{"name":"General","price":45,"currency":"EUR","url":"https://devfest-levante.example/2026/entradas","availability":"in-stock"}]` |
+| `offers[].scope` | enum: admission \| add-on | optional | | New in v0.5. What this offer means relative to the set's shared admission (partOf.offers). Only meaningful when the document has partOf. 'admission' (what an absent scope is read as): a complete way to attend this part — sold standalone, or a restatement of the set admission. 'add-on': an ADDITIONAL charge on top of the set admission — total is a priced partOf.offers entry plus this entry's price when both carry a number, otherwise 'an additional charge, total unknown' (URL-only offers stay valid). An 'add-on' offer requires partOf AND partOf.offers to be present in the same document — see the document's constraints. 'admission' covers ALL admission tiers; 'this add-on only applies to the Pro tier' is out of scope for v0.5. | `"admission"`<br>`"add-on"` |
 | `offers[].name` | string | _recommended_ | | What this ticket is called ("General admission", "Estudiantes"). Worth writing when there is more than one offer, noise when there is only one. | `"General admission"`<br>`"Estudiantes"` |
 | `offers[].price` | number | optional | | Amount per attendee, in `currency`. 0 means free — and it is the ONLY way to say free: an absent offers list means the price is unknown. A number, never text: no currency symbol, no thousands separator, no range and no "desde", because the whole reason to publish a price as data is that someone can filter and compare on it. A price that cannot be written as one number is several offers. | `0`<br>`45`<br>`12.5` |
 | `offers[].currency` | enum: AED \| AFN \| ALL \| AMD \| AOA \| ARS \| AUD \| AWG \| AZN \| BAM \| BBD \| BDT \| BHD \| BIF \| BMD \| BND \| BOB \| BOV \| BRL \| BSD \| BTN \| BWP \| BYN \| BZD \| CAD \| CDF \| CHE \| CHF \| CHW \| CLF \| CLP \| CNY \| COP \| COU \| CRC \| CUP \| CVE \| CZK \| DJF \| DKK \| DOP \| DZD \| EGP \| ERN \| ETB \| EUR \| FJD \| FKP \| GBP \| GEL \| GHS \| GIP \| GMD \| GNF \| GTQ \| GYD \| HKD \| HNL \| HTG \| HUF \| IDR \| ILS \| INR \| IQD \| IRR \| ISK \| JMD \| JOD \| JPY \| KES \| KGS \| KHR \| KMF \| KPW \| KRW \| KWD \| KYD \| KZT \| LAK \| LBP \| LKR \| LRD \| LSL \| LYD \| MAD \| MDL \| MGA \| MKD \| MMK \| MNT \| MOP \| MRU \| MUR \| MVR \| MWK \| MXN \| MXV \| MYR \| MZN \| NAD \| NGN \| NIO \| NOK \| NPR \| NZD \| OMR \| PAB \| PEN \| PGK \| PHP \| PKR \| PLN \| PYG \| QAR \| RON \| RSD \| RUB \| RWF \| SAR \| SBD \| SCR \| SDG \| SEK \| SGD \| SHP \| SLE \| SOS \| SRD \| SSP \| STN \| SVC \| SYP \| SZL \| THB \| TJS \| TMT \| TND \| TOP \| TRY \| TTD \| TWD \| TZS \| UAH \| UGX \| USD \| USN \| UYI \| UYU \| UYW \| UZS \| VED \| VES \| VND \| VUV \| WST \| XAD \| XAF \| XAG \| XAU \| XBA \| XBB \| XBC \| XBD \| XCD \| XCG \| XDR \| XOF \| XPD \| XPF \| XPT \| XSU \| XTS \| XUA \| XXX \| YER \| ZAR \| ZMW \| ZWG | optional | | A real ISO 4217 alpha-3 code (EUR, USD, MXN), never an invented one. Only meaningful alongside `price` — it names what price is denominated in, and nothing else — so it requires `price` to be present at all, whatever its value. Required whenever `price` is above 0, and pointless at 0: free is free in every currency, and emitting one there is how Luma ends up publishing a currency for a meetup that costs nothing. | `"EUR"`<br>`"USD"` |
@@ -1189,13 +1333,25 @@ A single tech community event. See https://opentechevents.org for the normative 
 | `cfp.coversTravel` | boolean | optional | | Whether the event covers a selected speaker's travel. Absent never means false. It is here and "call for sponsors" is not because this is what a speaker filters on before deciding whether they can afford to submit. | `true` |
 | `cfp.coversAccommodation` | boolean | optional | | Whether the event covers a selected speaker's accommodation. Same rule as coversTravel: absent means unknown. | `true` |
 | `status` | enum: scheduled \| tentative \| cancelled \| postponed \| rescheduled \| moved-online | optional | `"scheduled"` | What happened to the event, not to the data. An event that is cancelled, postponed or moved online MUST stay published: removing it leaves a dead event in subscribers' calendars. tentative means announced but not confirmed (iCal STATUS:TENTATIVE) — it exists so an importer never has to upgrade an unconfirmed event to scheduled. | `"scheduled"`<br>`"cancelled"`<br>`"moved-online"` |
-| `partOf` | object | optional | | The series or multi-part event this document is one occurrence of. A REFERENCE, never a recurrence rule: OTE does not generate dates: whoever publishes expands the recurrence into one document per occurrence, each with its own id, dates and status. A consumer that ignores this field still sees complete, correct events. | `{"id":"https://rustmadrid.example/meetups","name":"Rust Madrid — meetup mensual","url":"https://rustmadrid.example/meetups"}`<br>`{"type":"multipart","id":"https://pyalmeria.example/study-jams/2026-testing","name":"Study Jam de testing en Python (3 sesiones)"}` |
+| `partOf` | object | optional | | The series or multi-part event this document is one occurrence of. A REFERENCE, never a recurrence rule: OTE does not generate dates: whoever publishes expands the recurrence into one document per occurrence, each with its own id, dates and status. A consumer that ignores this field still sees complete, correct events — EXCEPT for pricing (new in v0.5): a consumer that needs the price of a multi-part event MUST also read partOf.offers. Ignoring it yields INCOMPLETE pricing (a missing price), never WRONG pricing. | `{"id":"https://rustmadrid.example/meetups","name":"Rust Madrid — meetup mensual","url":"https://rustmadrid.example/meetups"}`<br>`{"type":"multipart","id":"https://pyalmeria.example/study-jams/2026-testing","name":"Study Jam de testing en Python (3 sesiones)"}` |
 | `partOf.id` | string (iri) | **required** within `partOf` | | Stable identifier of the series or multi-part event. Same rules as the event's id: an HTTP(S) IRI under a domain the publisher controls — not necessarily one they own, a platform page (Meetup, GitHub Pages, LinkedIn) works too — minted once and not percent-encoded later into a second spelling. It does NOT have to resolve to an OTE document — it is what lets a consumer group occurrences. | `"https://rustmadrid.example/meetups"`<br>`"https://pyalmeria.example/study-jams/2026-testing"` |
 | `partOf.name` | string | _recommended_ | | Display name of the series or multi-part event, so a consumer can group occurrences without resolving the id. | `"Rust Madrid — meetup mensual"`<br>`"Study Jam de testing en Python (3 sesiones)"` |
 | `partOf.url` | string (iri) | optional | | Page describing the series or the multi-part event as a whole. | `"https://rustmadrid.example/meetups"` |
 | `partOf.type` | enum: series \| multipart | optional | `"series"` | series: independent occurrences that share an identity (a monthly meetup). multipart: parts of ONE event held on non-consecutive dates (a three-session study jam on non-consecutive Saturdays, one registration). series is the tolerant choice, and the choice changes the translation: a series becomes schema.org EventSeries, a multi-part event becomes an Event whose parts are its subEvent. | `"series"`<br>`"multipart"` |
 | `partOf.translations` | object | optional | | The series' display name in other languages. Its id stays untranslated — an identifier with two spellings is two series. | `{"es":{"name":"Sesión semanal de programación"}}` |
 | `partOf.translations.*.name` | string | **required** within `partOf.translations.*` | | The series' or multi-part event's name in this language. | `"Sesión semanal de programación"` |
+| `partOf.offers` | object[] | optional | | New in v0.5. The SHARED admission of a multi-part event — the price of attending the whole set — written identically on every part that carries it, so a consumer holding a single part document can price it without resolving the parent. Same shape as event.offers ($defs/offers). A part that omits its own offers, in a document that carries partOf.offers, is COVERED by this admission — the one place an absent offers list means something other than unknown. Across the parts of one set (same partOf.id) these blocks must be equal by value — see feed.schema.json's sharedOffersConsistent. Tier-specific coverage, per-day passes, bundles and coupons are out of scope for v0.5 (see DECISIONS.md). | `[{"name":"Early bird","price":180,"currency":"EUR","url":"https://trgcon.example/tickets","closesAt":"2026-09-01T23:59:59+02:00"},{"name":"General","price":240,"currency":"EUR","url":"https://trgcon.example/tickets"}]` |
+| `partOf.offers[].scope` | enum: admission \| add-on | optional | | New in v0.5. What this offer means relative to the set's shared admission (partOf.offers). Only meaningful when the document has partOf. 'admission' (what an absent scope is read as): a complete way to attend this part — sold standalone, or a restatement of the set admission. 'add-on': an ADDITIONAL charge on top of the set admission — total is a priced partOf.offers entry plus this entry's price when both carry a number, otherwise 'an additional charge, total unknown' (URL-only offers stay valid). An 'add-on' offer requires partOf AND partOf.offers to be present in the same document — see the document's constraints. 'admission' covers ALL admission tiers; 'this add-on only applies to the Pro tier' is out of scope for v0.5. | `"admission"`<br>`"add-on"` |
+| `partOf.offers[].name` | string | optional | | What this ticket is called ("General admission", "Estudiantes"). Worth writing when there is more than one offer, noise when there is only one. | `"General admission"`<br>`"Estudiantes"` |
+| `partOf.offers[].price` | number | optional | | Amount per attendee, in `currency`. 0 means free — and it is the ONLY way to say free: an absent offers list means the price is unknown. A number, never text: no currency symbol, no thousands separator, no range and no "desde", because the whole reason to publish a price as data is that someone can filter and compare on it. A price that cannot be written as one number is several offers. | `0`<br>`45`<br>`12.5` |
+| `partOf.offers[].currency` | enum: AED \| AFN \| ALL \| AMD \| AOA \| ARS \| AUD \| AWG \| AZN \| BAM \| BBD \| BDT \| BHD \| BIF \| BMD \| BND \| BOB \| BOV \| BRL \| BSD \| BTN \| BWP \| BYN \| BZD \| CAD \| CDF \| CHE \| CHF \| CHW \| CLF \| CLP \| CNY \| COP \| COU \| CRC \| CUP \| CVE \| CZK \| DJF \| DKK \| DOP \| DZD \| EGP \| ERN \| ETB \| EUR \| FJD \| FKP \| GBP \| GEL \| GHS \| GIP \| GMD \| GNF \| GTQ \| GYD \| HKD \| HNL \| HTG \| HUF \| IDR \| ILS \| INR \| IQD \| IRR \| ISK \| JMD \| JOD \| JPY \| KES \| KGS \| KHR \| KMF \| KPW \| KRW \| KWD \| KYD \| KZT \| LAK \| LBP \| LKR \| LRD \| LSL \| LYD \| MAD \| MDL \| MGA \| MKD \| MMK \| MNT \| MOP \| MRU \| MUR \| MVR \| MWK \| MXN \| MXV \| MYR \| MZN \| NAD \| NGN \| NIO \| NOK \| NPR \| NZD \| OMR \| PAB \| PEN \| PGK \| PHP \| PKR \| PLN \| PYG \| QAR \| RON \| RSD \| RUB \| RWF \| SAR \| SBD \| SCR \| SDG \| SEK \| SGD \| SHP \| SLE \| SOS \| SRD \| SSP \| STN \| SVC \| SYP \| SZL \| THB \| TJS \| TMT \| TND \| TOP \| TRY \| TTD \| TWD \| TZS \| UAH \| UGX \| USD \| USN \| UYI \| UYU \| UYW \| UZS \| VED \| VES \| VND \| VUV \| WST \| XAD \| XAF \| XAG \| XAU \| XBA \| XBB \| XBC \| XBD \| XCD \| XCG \| XDR \| XOF \| XPD \| XPF \| XPT \| XSU \| XTS \| XUA \| XXX \| YER \| ZAR \| ZMW \| ZWG | optional | | A real ISO 4217 alpha-3 code (EUR, USD, MXN), never an invented one. Only meaningful alongside `price` — it names what price is denominated in, and nothing else — so it requires `price` to be present at all, whatever its value. Required whenever `price` is above 0, and pointless at 0: free is free in every currency, and emitting one there is how Luma ends up publishing a currency for a meetup that costs nothing. | `"EUR"`<br>`"USD"` |
+| `partOf.offers[].url` | string (iri) | optional | | Where to buy the ticket or register for this particular offer. Distinct from the event's own url: that page describes the event, this one is where money or a seat changes hands. Omit it when registration happens on the event page itself. | `"https://devfest-levante.example/2026/entradas"` |
+| `partOf.offers[].availability` | enum: in-stock \| sold-out | optional | | Whether this offer can still be taken. Absent never means available — a stale feed that keeps claiming in-stock is worse than one that says nothing. Only the two states an attendee can act on are modelled. | `"in-stock"`<br>`"sold-out"` |
+| `partOf.offers[].waitlistUrl` | string (iri) | optional | | Where to join the queue for this offer once it is gone. It exists so "gone, nothing to do" and "gone, but you can queue" stop being the same document — the third thing an attendee can act on, and the reason it is a URL and not a third availability value: every consumer that already exists keeps reading sold-out, which is TRUE, instead of meeting an enum value it cannot interpret. Distinct from url, where the ticket is bought: nothing is bought in a queue. | `"https://devfest-levante.example/2026/lista-espera"` |
+| `partOf.offers[].opensAt` | string (date-time) | optional | | When this offer goes on sale. An INSTANT, with offset or Z — unlike the event's own dates, which are wall clock: a sale opening is a moment a button starts working, not an hour on a poster. | `"2026-05-01T10:00:00+02:00"` |
+| `partOf.offers[].closesAt` | string (date-time) | optional | | When this offer stops being available. An INSTANT, with offset or Z, for the same reason as opensAt — and because "23:59" without an offset is the classic deadline bug. | `"2026-07-31T23:59:59+02:00"` |
+| `partOf.offers[].translations` | object | optional | | This offer's name in other languages. Local to the offer it belongs to — never a positional mirror of the offers list. Requires the document's textLanguage, like every other translations map. | `{"en":{"name":"Students"}}` |
+| `partOf.offers[].translations.*.name` | string | **required** within `partOf.offers[].translations.*` | | This ticket's name in this language. | `"Students"`<br>`"Estudiantes"` |
 | `license` | string | **required** | the feed's `license` | License of THIS DATA, not of the event. SPDX identifier (CC0-1.0, CC-BY-4.0…, full list at https://spdx.org/licenses/) or a URL. | `"CC-BY-4.0"`<br>`"CC0-1.0"` |
 | `source` | object | optional | | Provenance. Required when the event was imported or aggregated from elsewhere; omitted when the organiser describes their own event — they are the source. | `{"name":"Rust Madrid","url":"https://calendar.example/ics/rust-madrid","license":"CC-BY-4.0","retrievedAt":"2026-06-01T05:00:00Z"}` |
 | `source.name` | string | optional | | Name of the origin (e.g. "Rust Madrid", "Meetup"), as a person would read it. Write it whenever the origin has a name of its own: a consumer showing where the data came from can derive a label from `url` (its host), but a derived label is a guess. | `"Rust Madrid"`<br>`"Meetup"` |
@@ -1203,6 +1359,12 @@ A single tech community event. See https://opentechevents.org for the normative 
 | `source.license` | string | optional | | License under which the ORIGIN publishes the data. Constrains what may be republished: declaring a license does not grant rights the origin never gave. | `"CC-BY-4.0"` |
 | `source.retrievedAt` | string (date-time) | optional | | When the data was fetched. | `"2026-06-01T05:00:00Z"` |
 | `updatedAt` | string (date-time) | _recommended_ | | Instant the event's DATA last changed — equivalent to iCal LAST-MODIFIED, not DTSTAMP (which marks generation and changes on every export). Lets a consumer sync incrementally: fetch only what changed since its last read. Absent means unknown, not 'never changed'. | `"2026-06-10T18:00:00Z"` |
+| `recordings` | (string \| object)[] | optional | | New in v0.5. Published recordings of the event, linked after it happened. NOT image (the poster) and NOT location.onlineUrl (the live link, which stops meaning the same thing once the event is over). A list — a talk may be on more than one platform, or split into parts. An entry is a bare HTTP(S) IRI or an object that adds a title. Adding it does not change the id — it updates the same record, with a new updatedAt. | `["https://www.youtube.com/watch?v=dQw4w9WgXcQ"]`<br>`["https://www.youtube.com/watch?v=dQw4w9WgXcQ",{"url":"https://tube.rustmadrid.example/w/abc123","title":"Q&A"}]` |
+| `recordings[].url` | string (iri) | **required** within `recordings[]` | | Absolute HTTP(S) IRI where the recording can be watched. A watch page (YouTube, PeerTube) is fine here — unlike image, this need not be the media file itself. | `"https://www.youtube.com/watch?v=dQw4w9WgXcQ"` |
+| `recordings[].title` | string | optional | | What this recording is, when the list has more than one ('Q&A', 'Full session', 'Lightning talks'). Noise when there is only one. Free text, in the document's textLanguage, translated by this entry's own translations map — like image[].alt. | `"Q&A"`<br>`"Full session"` |
+| `recordings[].translations` | object | optional | | This recording's title in other languages. Local to the entry, never a positional mirror. Requires the document's textLanguage, like every other translations map. | `{"es":{"title":"Preguntas y respuestas"}}` |
+| `recordings[].translations.*.title` | string | **required** within `recordings[].translations.*` | | This recording's title in this language. | `"Preguntas y respuestas"` |
+| `contributing` | string | optional | the feed's `contributing` | New in v0.5. Where to report or propose a fix to a wrong datum in THIS record — a broken link, a stale date, a mis-mapped field. Inherited from feed.contributing unless declared here; a declared value replaces the inherited one, like license. It exists because the publisher who most needs it — an aggregator — must leave organizers out, and source points at where the data came from, not at the aggregator's own copy. Like cfp it travels to no destination format; its value is inside the OTE ecosystem (a reading tool's 'suggest a correction' link). NOT recommended: an .ics importer never has it, and a warning would push a small community to open an issue tracker it does not want. | `"https://github.com/pyalmeria/eventos/issues/new"`<br>`"mailto:corrections@rustmadrid.example"` |
 | `translations` | object | optional | | The same event's free text in other languages, keyed by BCP 47 tag. The document keeps ONE primary text in its own fields — declared by textLanguage — and this carries the versions of it. Additive on purpose: name and description stay strings, so every existing consumer keeps working and a monolingual publisher writes nothing at all. Never a translation of the language the document is already in. Requires textLanguage — and so does any other translations map in the document, at any depth; see the document's constraints. | `{"es":{"name":"Sesión semanal de programación — Rust Girona","description":"Cada semana nos juntamos en línea para picar Rust un rato."}}` |
 | `translations.*.name` | string | optional | | The event's name in this language. | `"Sesión semanal de programación — Rust Girona"` |
 | `translations.*.description` | string | optional | | The event's description in this language. Plain text or Markdown, like the field it translates. | `"Cada semana nos juntamos en línea para picar Rust un rato."` |
@@ -1214,6 +1376,7 @@ Rules the schema enforces on whole objects, which no single field's level can ex
 - **the document** — endDate must not be earlier than startDate.
 - **the document** — a translations map must not repeat textLanguage's own language, or any of its own keys, twice.
 - **the document** — partOf.id must not equal the event's own id.
+- **the document** — With `offers`, `partOf` is required. An offer with scope 'add-on' is an additional charge on top of the set's shared admission — meaningless, and uncomputable, without that admission present. So if any offer has scope 'add-on', the document must carry partOf, and partOf must carry offers (the shared admission). partOf.id is never resolved for pricing — the admission has to be in the same document. New in v0.5; see DECISIONS.md.
 - **the document** — startDate and endDate must be of the same form: two all-day dates, or two local date-times.
 - **the document** — A map of translations is unusable without knowing which language the primary text is in: a consumer cannot tell which entry duplicates it, nor what it is falling back to. So ANY translations map in the document — the event's own, or one inside image, offers, eligibility or partOf — requires textLanguage. It is the one place where a field of this spec depends on another being present, and it holds at every depth because the primary language is a property of the whole document, not of each object. A standalone document has no feed to inherit textLanguage from, so it must always carry its own; inside a feed, the same requirement is enforced against the effective (possibly inherited) language — see feed.schema.json.
 - **`image[]`** — With `translations`, `alt` is required.
@@ -1227,7 +1390,13 @@ Rules the schema enforces on whole objects, which no single field's level can ex
 - **`offers[]`** — With `waitlistUrl`, `availability` must not be `"in-stock"`. A waitlist for something you can still buy is not a waitlist: the queue only makes sense once the offer is gone. Availability may still be ABSENT — a publisher who knows there is a queue and does not track the ticket state should not be forced to assert sold-out to mention it. Only the incoherent combination is rejected, never the incomplete one.
 - **`offers[]`** — When `price` is above 0, `currency` is required. A non-zero amount without a currency is not a price: 45 is a different thing in EUR, USD and MXN, and a consumer that has to guess will guess its own.
 - **`cfp`** — closesAt must not be earlier than opensAt.
+- **`partOf.offers[]`** — Requires at least one of: `price`, `url`. An offer must carry a price or a link — ideally both. One with neither says nothing that omitting the whole list does not already say, the same rule location follows with venue and onlineUrl.
+- **`partOf.offers[]`** — With `currency`, `price` is required.
+- **`partOf.offers[]`** — closesAt must not be earlier than opensAt.
+- **`partOf.offers[]`** — With `waitlistUrl`, `availability` must not be `"in-stock"`. A waitlist for something you can still buy is not a waitlist: the queue only makes sense once the offer is gone. Availability may still be ABSENT — a publisher who knows there is a queue and does not track the ticket state should not be forced to assert sold-out to mention it. Only the incoherent combination is rejected, never the incomplete one.
+- **`partOf.offers[]`** — When `price` is above 0, `currency` is required. A non-zero amount without a currency is not a price: 45 is a different thing in EUR, USD and MXN, and a consumer that has to guess will guess its own.
 - **`source`** — Requires at least one of: `name`, `url`. Provenance has to point somewhere: a name a person can read, a URL a machine can follow, ideally both. Either alone is enough, and demanding the name would be worse than accepting the URL — an importer of an `.ics` always knows the address it fetched and often has no publisher name to read (iCalendar's X-WR-CALNAME is optional), so the requirement would be met by inventing one. A fabricated origin is worse than an origin given only as a link. Same rule as offers with price and url, and location with venue and onlineUrl.
+- **`recordings[]`** — With `translations`, `title` is required.
 - **`translations.*`** — Requires at least one of: `name`, `description`. A translation entry is only a translation if it translates something OTE recognizes. Extension fields may still ride alongside name/description — this only forbids an entry whose entire content is unrecognized, which minProperties alone cannot catch.
 - **`translations.*`** — Must carry at least one property.
 
@@ -1237,7 +1406,7 @@ A collection of OTE events published at a stable URL. An exchange format, not an
 
 | Field | Type | Level | Default | Description | Examples |
 | --- | --- | :---: | :---: | --- | --- |
-| `specVersion` | const: "0.4.0" | **required** | → every event that omits it | Version of OTE Spec this feed adheres to. Applies to every event in it. | `"0.4.0"` |
+| `specVersion` | const: "0.5.0" | **required** | → every event that omits it | Version of OTE Spec this feed adheres to. Applies to every event in it. | `"0.5.0"` |
 | `title` | string | **required** | | Human-readable name of the feed. | `"Eventos de PyAlmería"` |
 | `description` | string | _recommended_ | | Short description of the feed. | `"Meetups mensuales de Python en Almería."` |
 | `url` | string (iri) | _recommended_ | | Canonical URL of the community, directory or organisation publishing the feed. | `"https://pyalmeria.example"` |
@@ -1249,6 +1418,10 @@ A collection of OTE events published at a stable URL. An exchange format, not an
 | `translations` | object | optional | | This feed's own title and description in other languages. Its EVENTS are not translated here: each one carries its own translations, and unlike license or textLanguage this field is never inherited — a feed's title is not an event's name. Requires textLanguage, like an event's translations do — see the document's constraints. | `{"en":{"title":"Rust Girona events","description":"Weekly online Rust coding sessions, in Catalan and Spanish."}}` |
 | `translations.*.title` | string | optional | | The feed's title in this language. | `"Rust Girona events"` |
 | `translations.*.description` | string | optional | | The feed's description in this language. | `"Weekly online Rust coding sessions, in Catalan and Spanish."` |
+| `alternates` | object[] | optional | | New in v0.5. Where this same collection is published in other formats — RSS, iCalendar, schema.org JSON-LD. The JSON form of an HTML <link rel="alternate"> / the Link: rel="alternate" HTTP header, for feeds with no HTML page in front of them. INFORMATIONAL: OTE does not guarantee the linked resources are generated from this feed or kept in sync with it — a consumer MUST NOT assume exact sync, completeness or derivation; a producer SHOULD generate them from the same source, or otherwise intend them to describe the same collection. | `[{"mediaType":"application/rss+xml","url":"https://pyalmeria.example/events.rss"},{"mediaType":"text/calendar","url":"https://pyalmeria.example/events.ics"}]` |
+| `alternates[].mediaType` | string | **required** within `alternates[]` | | IANA media type of the alternate representation. A loose shape check, not a closed list — new feed formats appear. | `"application/rss+xml"`<br>`"application/atom+xml"`<br>`"application/feed+json"`<br>`"text/calendar"`<br>`"application/ld+json"` |
+| `alternates[].url` | string (iri) | **required** within `alternates[]` | | Absolute HTTP(S) IRI of the alternate representation. No embedded credentials. | `"https://pyalmeria.example/events.rss"` |
+| `contributing` | string | optional | → every event that omits it | New in v0.5. URL for reporting or proposing a data change in this feed's records — the default every event inherits when it omits its own (default-value inheritance, like license: a declared scalar replaces the inherited one). It exists because an aggregator must leave organizers out, and source points upstream, not at the aggregator's copy. Accepts an HTTP(S) IRI or a mailto: role address; see event.contributing and DECISIONS.md. | `"https://github.com/pyalmeria/eventos/issues/new"` |
 | `events` | object[] | **required** | | Events in this feed. Each one inherits the feed's specVersion and license unless it declares its own. No two may share an id — see the document's constraints. | — |
 
 ### Constraints
@@ -1259,6 +1432,7 @@ Rules the schema enforces on whole objects, which no single field's level can ex
 - **the document** — events must not repeat the same id.
 - **the document** — no event may be updated after the feed itself was generated.
 - **the document** — every event's translations must have an effective textLanguage (own or inherited from the feed) and must not repeat it.
+- **the document** — every part of a multi-part set (same partOf.id) that carries partOf.offers must carry the same block.
 - **the document** — With `translations`, `textLanguage` is required. Same rule as an event: a map of translations is unusable without knowing which language the primary text is in. A feed that translates its title must say what language that title is in.
 - **the document** — license is the one default this spec never lets go missing by omission: an aggregator MAY leave feed.license out precisely because its events carry different licenses, but only if every event then declares its own — the same disciplined-omission pattern organizers/textLanguage already use for an aggregator, applied to a guarantee that is deliberately stricter than attribution or language, because redistributing data under an unknown license is a real legal risk, not just an editorial gap. docs/history/CHANGES.log #P032 / DECISIONS.md D029.
 - **`translations.*`** — Requires at least one of: `title`, `description`. Same rule as an event's own translation: extension fields may still ride alongside title/description, but an entry whose entire content is unrecognized is not a translation.
@@ -1305,12 +1479,12 @@ SECTION: Schemas
 
 ## event.schema.json
 
-Source: spec/v0.4/event.schema.json — JSON Schema for a single event — the normative source for validity.
+Source: spec/v0.5/event.schema.json — JSON Schema for a single event — the normative source for validity.
 
 ```json
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://opentechevents.org/schema/v0.4/event.schema.json",
+  "$id": "https://opentechevents.org/schema/v0.5/event.schema.json",
   "title": "OTE Event",
   "description": "A single tech community event. See https://opentechevents.org for the normative prose.",
   "allOf": [
@@ -1392,6 +1566,46 @@ Source: spec/v0.4/event.schema.json — JSON Schema for a single event — the n
                 "type": "array"
               }
             }
+          },
+          {
+            "required": [
+              "recordings"
+            ],
+            "properties": {
+              "recordings": {
+                "contains": {
+                  "required": [
+                    "translations"
+                  ],
+                  "type": "object"
+                },
+                "type": "array"
+              }
+            }
+          },
+          {
+            "required": [
+              "partOf"
+            ],
+            "properties": {
+              "partOf": {
+                "type": "object",
+                "required": [
+                  "offers"
+                ],
+                "properties": {
+                  "offers": {
+                    "type": "array",
+                    "contains": {
+                      "type": "object",
+                      "required": [
+                        "translations"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
           }
         ]
       },
@@ -1416,9 +1630,9 @@ Source: spec/v0.4/event.schema.json — JSON Schema for a single event — the n
         "specVersion": {
           "description": "Version of OTE Spec this document adheres to.",
           "x-inheritsFrom": "feed.specVersion",
-          "const": "0.4.0",
+          "const": "0.5.0",
           "examples": [
-            "0.4.0"
+            "0.5.0"
           ]
         },
         "id": {
@@ -1497,6 +1711,31 @@ Source: spec/v0.4/event.schema.json — JSON Schema for a single event — the n
                 "type": "person",
                 "name": "Ada Lovelace",
                 "url": "https://ada.example"
+              }
+            ]
+          ]
+        },
+        "speakers": {
+          "description": "Who gives the talk(s) — NOT who runs the event (that is organizers) and NOT where the data came from (source). New in v0.5. A list in display / preference order: the first is the one that survives to a single-value destination, the same rule organizers and image state. Co-talks and panels are the norm. Kept as small as organizers: a name, and where to find them. One document is one occurrence, so in a multi-part conference the speakers of a given talk live on that talk's document, not on the parent. Only exact repeats are rejected; distinct entries are never deduplicated by inferred identity. Not translated: a speaker's name is a proper noun.",
+          "$ref": "#/$defs/speakers",
+          "examples": [
+            [
+              {
+                "name": "Ada Lovelace",
+                "url": "https://ada.example",
+                "sameAs": [
+                  "https://fosstodon.org/@ada",
+                  "https://www.linkedin.com/in/ada-lovelace"
+                ]
+              }
+            ],
+            [
+              {
+                "name": "Grace Hopper"
+              },
+              {
+                "type": "organization",
+                "name": "The Rust Survey Team"
               }
             ]
           ]
@@ -2292,7 +2531,7 @@ Source: spec/v0.4/event.schema.json — JSON Schema for a single event — the n
           ]
         },
         "partOf": {
-          "description": "The series or multi-part event this document is one occurrence of. A REFERENCE, never a recurrence rule: OTE does not generate dates: whoever publishes expands the recurrence into one document per occurrence, each with its own id, dates and status. A consumer that ignores this field still sees complete, correct events.",
+          "description": "The series or multi-part event this document is one occurrence of. A REFERENCE, never a recurrence rule: OTE does not generate dates: whoever publishes expands the recurrence into one document per occurrence, each with its own id, dates and status. A consumer that ignores this field still sees complete, correct events — EXCEPT for pricing (new in v0.5): a consumer that needs the price of a multi-part event MUST also read partOf.offers. Ignoring it yields INCOMPLETE pricing (a missing price), never WRONG pricing.",
           "$ref": "#/$defs/partOf",
           "examples": [
             {
@@ -2333,6 +2572,31 @@ Source: spec/v0.4/event.schema.json — JSON Schema for a single event — the n
           "$ref": "#/$defs/instant",
           "examples": [
             "2026-06-10T18:00:00Z"
+          ]
+        },
+        "recordings": {
+          "description": "New in v0.5. Published recordings of the event, linked after it happened. NOT image (the poster) and NOT location.onlineUrl (the live link, which stops meaning the same thing once the event is over). A list — a talk may be on more than one platform, or split into parts. An entry is a bare HTTP(S) IRI or an object that adds a title. Adding it does not change the id — it updates the same record, with a new updatedAt.",
+          "$ref": "#/$defs/recordings",
+          "examples": [
+            [
+              "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+            ],
+            [
+              "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+              {
+                "url": "https://tube.rustmadrid.example/w/abc123",
+                "title": "Q&A"
+              }
+            ]
+          ]
+        },
+        "contributing": {
+          "description": "New in v0.5. Where to report or propose a fix to a wrong datum in THIS record — a broken link, a stale date, a mis-mapped field. Inherited from feed.contributing unless declared here; a declared value replaces the inherited one, like license. It exists because the publisher who most needs it — an aggregator — must leave organizers out, and source points at where the data came from, not at the aggregator's own copy. Like cfp it travels to no destination format; its value is inside the OTE ecosystem (a reading tool's 'suggest a correction' link). NOT recommended: an .ics importer never has it, and a warning would push a small community to open an issue tracker it does not want.",
+          "$ref": "#/$defs/contributing",
+          "x-inheritsFrom": "feed.contributing",
+          "examples": [
+            "https://github.com/pyalmeria/eventos/issues/new",
+            "mailto:corrections@rustmadrid.example"
           ]
         },
         "translations": {
@@ -2378,6 +2642,45 @@ Source: spec/v0.4/event.schema.json — JSON Schema for a single event — the n
               "type": "object"
             }
           ]
+        },
+        {
+          "description": "An offer with scope 'add-on' is an additional charge on top of the set's shared admission — meaningless, and uncomputable, without that admission present. So if any offer has scope 'add-on', the document must carry partOf, and partOf must carry offers (the shared admission). partOf.id is never resolved for pricing — the admission has to be in the same document. New in v0.5; see DECISIONS.md.",
+          "if": {
+            "type": "object",
+            "required": [
+              "offers"
+            ],
+            "properties": {
+              "offers": {
+                "type": "array",
+                "contains": {
+                  "type": "object",
+                  "required": [
+                    "scope"
+                  ],
+                  "properties": {
+                    "scope": {
+                      "const": "add-on"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "then": {
+            "type": "object",
+            "required": [
+              "partOf"
+            ],
+            "properties": {
+              "partOf": {
+                "type": "object",
+                "required": [
+                  "offers"
+                ]
+              }
+            }
+          }
         }
       ]
     },
@@ -3879,6 +4182,93 @@ Source: spec/v0.4/event.schema.json — JSON Schema for a single event — the n
         }
       }
     },
+    "speakers": {
+      "description": "Who gives the talk(s). Kept deliberately small, like organizers: a name, and where to find them.",
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/speaker"
+      }
+    },
+    "speaker": {
+      "type": "object",
+      "required": [
+        "name"
+      ],
+      "$comment": "sameAs is HTTP(S) only, not a DID / AT-URI / acct: handle: schema.org sameAs is a Web-page URL, and a decentralised identifier is an identifier, not a page — emit the public profile URL instead. speakers is deliberately NOT in the recommended profile: an .ics importer never has speaker data, and most events in a community feed are meetups whose speaker is often the organiser anyway.",
+      "properties": {
+        "name": {
+          "description": "Display name of the speaker. A proper noun: never translated.",
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S",
+          "examples": [
+            "Ada Lovelace",
+            "Grace Hopper"
+          ]
+        },
+        "url": {
+          "description": "The speaker's canonical page — their own site, or their main profile. One URL. Same rules as organizers[].url. Other profiles go in sameAs.",
+          "type": "string",
+          "format": "iri",
+          "pattern": "^https?://",
+          "not": {"pattern": "^https?://[^/?#]*@"},
+          "examples": [
+            "https://ada.example"
+          ]
+        },
+        "sameAs": {
+          "description": "Other profile pages for this SAME person — Mastodon, LinkedIn, GitHub, a personal site distinct from url. A list; order not significant; only exact repeats rejected. Maps to schema.org Person.sameAs. HTTP(S) only: not a DID or handle. Google's Event rich-result docs do not document a nested performer.sameAs — the value is generic schema.org consumers and OTE directories.",
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "format": "iri",
+            "pattern": "^https?://",
+            "not": {"pattern": "^https?://[^/?#]*@"}
+          },
+          "examples": [
+            [
+              "https://fosstodon.org/@ada",
+              "https://www.linkedin.com/in/ada-lovelace"
+            ]
+          ]
+        },
+        "type": {
+          "description": "Person or organisation. A translator picks a schema.org @type either way, and Person is the tolerant choice for a speaker.",
+          "enum": [
+            "person",
+            "organization"
+          ],
+          "default": "person",
+          "examples": [
+            "person",
+            "organization"
+          ]
+        }
+      }
+    },
+    "contributing": {
+      "description": "URL for reporting or proposing a data change — an issue tracker, a form, an OTE editor deep link (?repo=…), or a mailto: role address. Accepts an HTTP(S) IRI OR a mailto: URI with exactly one bare address and no mail headers. A mailto: carries the same discipline as organizers[].email: a role address (hello@, corrections@), never a personal mailbox, and never populated from a source that is not itself publicly published. The first field of this spec to accept a non-HTTP scheme — see DECISIONS.md.",
+      "type": "string",
+      "anyOf": [
+        {
+          "format": "iri",
+          "pattern": "^https?://",
+          "not": {"pattern": "^https?://[^/?#]*@"}
+        },
+        {
+          "pattern": "^mailto:[^\\s?@,#/\\[\\]]+@[^\\s?@,#/\\[\\]]+$"
+        }
+      ],
+      "examples": [
+        "https://github.com/pyalmeria/eventos/issues/new",
+        "https://tools.opentechevents.org/editor/?repo=rustmadrid/events",
+        "mailto:hello@dev.events"
+      ]
+    },
     "partOf": {
       "description": "A reference to the whole this occurrence belongs to. Identity only — no dates: the occurrence already carries them.",
       "type": "object",
@@ -3938,6 +4328,27 @@ Source: spec/v0.4/event.schema.json — JSON Schema for a single event — the n
                 "name": "Sesión semanal de programación"
               }
             }
+          ]
+        },
+        "offers": {
+          "description": "New in v0.5. The SHARED admission of a multi-part event — the price of attending the whole set — written identically on every part that carries it, so a consumer holding a single part document can price it without resolving the parent. Same shape as event.offers ($defs/offers). A part that omits its own offers, in a document that carries partOf.offers, is COVERED by this admission — the one place an absent offers list means something other than unknown. Across the parts of one set (same partOf.id) these blocks must be equal by value — see feed.schema.json's sharedOffersConsistent. Tier-specific coverage, per-day passes, bundles and coupons are out of scope for v0.5 (see DECISIONS.md).",
+          "$ref": "#/$defs/offers",
+          "examples": [
+            [
+              {
+                "name": "Early bird",
+                "price": 180,
+                "currency": "EUR",
+                "url": "https://trgcon.example/tickets",
+                "closesAt": "2026-09-01T23:59:59+02:00"
+              },
+              {
+                "name": "General",
+                "price": 240,
+                "currency": "EUR",
+                "url": "https://trgcon.example/tickets"
+              }
+            ]
           ]
         }
       }
@@ -4250,6 +4661,100 @@ Source: spec/v0.4/event.schema.json — JSON Schema for a single event — the n
         }
       }
     },
+    "recordings": {
+      "description": "Published recordings of the event, added AFTER it happened (same id, new updatedAt). NOT location.onlineUrl (that is the live link) and NOT image (that is the poster). A list — a talk may be on more than one platform, or split into parts. Two item forms, like image: a bare HTTP(S) IRI, or an object that adds a title. NOT recommended: most events have no recording, a live event has none yet, and the spec has no 'is in the past' predicate.",
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "oneOf": [
+          {
+            "type": "string",
+            "format": "iri",
+            "pattern": "^https?://",
+            "not": {"pattern": "^https?://[^/?#]*@"}
+          },
+          {
+            "$ref": "#/$defs/recordingEntry"
+          }
+        ]
+      }
+    },
+    "recordingEntry": {
+      "description": "One recording with its title. Same shape reasoning as imageEntry.",
+      "type": "object",
+      "required": [
+        "url"
+      ],
+      "properties": {
+        "url": {
+          "description": "Absolute HTTP(S) IRI where the recording can be watched. A watch page (YouTube, PeerTube) is fine here — unlike image, this need not be the media file itself.",
+          "type": "string",
+          "format": "iri",
+          "pattern": "^https?://",
+          "not": {"pattern": "^https?://[^/?#]*@"},
+          "examples": [
+            "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+          ]
+        },
+        "title": {
+          "description": "What this recording is, when the list has more than one ('Q&A', 'Full session', 'Lightning talks'). Noise when there is only one. Free text, in the document's textLanguage, translated by this entry's own translations map — like image[].alt.",
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S",
+          "examples": [
+            "Q&A",
+            "Full session"
+          ]
+        },
+        "translations": {
+          "description": "This recording's title in other languages. Local to the entry, never a positional mirror. Requires the document's textLanguage, like every other translations map.",
+          "$ref": "#/$defs/recordingTranslations",
+          "examples": [
+            {
+              "es": {
+                "title": "Preguntas y respuestas"
+              }
+            }
+          ]
+        }
+      },
+      "dependentRequired": {
+        "translations": [
+          "title"
+        ]
+      }
+    },
+    "recordingTranslations": {
+      "description": "This recording's title in other languages. Only title is translated: the url is a link, and a link has no language.",
+      "type": "object",
+      "allOf": [
+        {
+          "$ref": "#/$defs/languageMap"
+        }
+      ],
+      "additionalProperties": {
+        "$ref": "#/$defs/recordingTranslation"
+      }
+    },
+    "recordingTranslation": {
+      "description": "One language's version of a recording's title.",
+      "type": "object",
+      "required": [
+        "title"
+      ],
+      "properties": {
+        "title": {
+          "description": "This recording's title in this language.",
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S",
+          "examples": [
+            "Preguntas y respuestas"
+          ]
+        }
+      }
+    },
     "offers": {
       "description": "Ways of attending, with their price. A list because an event may sell several kinds of ticket, and because the answer to \"is it free?\" has to survive an event that is free for students and paid for everyone else.",
       "type": "array",
@@ -4262,6 +4767,17 @@ Source: spec/v0.4/event.schema.json — JSON Schema for a single event — the n
       "description": "One way of attending: a price, a place to get it, or both. Maps 1:1 onto a schema.org Offer, which is what Google reads to show a price. It models the ticket, not the ticketing: no capacity, no seats left, no per-ticket registration state.",
       "type": "object",
       "properties": {
+        "scope": {
+          "description": "New in v0.5. What this offer means relative to the set's shared admission (partOf.offers). Only meaningful when the document has partOf. 'admission' (what an absent scope is read as): a complete way to attend this part — sold standalone, or a restatement of the set admission. 'add-on': an ADDITIONAL charge on top of the set admission — total is a priced partOf.offers entry plus this entry's price when both carry a number, otherwise 'an additional charge, total unknown' (URL-only offers stay valid). An 'add-on' offer requires partOf AND partOf.offers to be present in the same document — see the document's constraints. 'admission' covers ALL admission tiers; 'this add-on only applies to the Pro tier' is out of scope for v0.5.",
+          "enum": [
+            "admission",
+            "add-on"
+          ],
+          "examples": [
+            "admission",
+            "add-on"
+          ]
+        },
         "name": {
           "description": "What this ticket is called (\"General admission\", \"Estudiantes\"). Worth writing when there is more than one offer, noise when there is only one.",
           "type": "string",
@@ -4516,12 +5032,12 @@ Source: spec/v0.4/event.schema.json — JSON Schema for a single event — the n
 
 ## feed.schema.json
 
-Source: spec/v0.4/feed.schema.json — JSON Schema for a feed of events.
+Source: spec/v0.5/feed.schema.json — JSON Schema for a feed of events.
 
 ```json
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://opentechevents.org/schema/v0.4/feed.schema.json",
+  "$id": "https://opentechevents.org/schema/v0.5/feed.schema.json",
   "title": "OTE Feed",
   "description": "A collection of OTE events published at a stable URL. An exchange format, not an API.",
   "type": "object",
@@ -4534,9 +5050,9 @@ Source: spec/v0.4/feed.schema.json — JSON Schema for a feed of events.
   "properties": {
     "specVersion": {
       "description": "Version of OTE Spec this feed adheres to. Applies to every event in it.",
-      "const": "0.4.0",
+      "const": "0.5.0",
       "examples": [
-        "0.4.0"
+        "0.5.0"
       ]
     },
     "title": {
@@ -4567,7 +5083,7 @@ Source: spec/v0.4/feed.schema.json — JSON Schema for a feed of events.
     },
     "textLanguage": {
       "description": "Language this feed's own free text is written in — title and description — and the default every event inherits when it omits its own. What makes it cheap: a monolingual publisher declares it once for the whole file and no event repeats it. Not the same as organizers: an aggregator whose events don't share one language must leave this out, exactly as it must leave out organizers, so each event states its own instead of inheriting the wrong one. Absent means unknown, never English and never the language of the HTTP response.",
-      "$ref": "https://opentechevents.org/schema/v0.4/event.schema.json#/$defs/languageTag",
+      "$ref": "https://opentechevents.org/schema/v0.5/event.schema.json#/$defs/languageTag",
       "examples": [
         "es",
         "ca"
@@ -4575,7 +5091,7 @@ Source: spec/v0.4/feed.schema.json — JSON Schema for a feed of events.
     },
     "organizers": {
       "description": "Who runs the events in this feed. Not the same as title/url, which name whoever publishes the feed: an aggregator publishes events it does not organise, and must leave this out so each event states its own.",
-      "$ref": "https://opentechevents.org/schema/v0.4/event.schema.json#/$defs/organizers",
+      "$ref": "https://opentechevents.org/schema/v0.5/event.schema.json#/$defs/organizers",
       "examples": [
         [
           {
@@ -4587,7 +5103,7 @@ Source: spec/v0.4/feed.schema.json — JSON Schema for a feed of events.
     },
     "license": {
       "description": "License for the feed's contents, and the default every event inherits when it omits its own. Optional only for an aggregator whose events carry different licenses: if this is absent, every event in the feed must declare its own license — no valid OTE document, standalone or inside any feed, may resolve to an unknown license. SPDX identifier (full list at https://spdx.org/licenses/) or URL.",
-      "$ref": "https://opentechevents.org/schema/v0.4/event.schema.json#/$defs/license",
+      "$ref": "https://opentechevents.org/schema/v0.5/event.schema.json#/$defs/license",
       "examples": [
         "CC-BY-4.0",
         "CC0-1.0"
@@ -4605,14 +5121,14 @@ Source: spec/v0.4/feed.schema.json — JSON Schema for a feed of events.
     },
     "updatedAt": {
       "description": "When this feed was generated. Never earlier than any event's own updatedAt — a feed cannot contain a revision that, by its own timestamps, didn't exist yet when it was generated.",
-      "$ref": "https://opentechevents.org/schema/v0.4/event.schema.json#/$defs/instant",
+      "$ref": "https://opentechevents.org/schema/v0.5/event.schema.json#/$defs/instant",
       "examples": [
         "2026-07-06T10:00:00Z"
       ]
     },
     "translations": {
       "description": "This feed's own title and description in other languages. Its EVENTS are not translated here: each one carries its own translations, and unlike license or textLanguage this field is never inherited — a feed's title is not an event's name. Requires textLanguage, like an event's translations do — see the document's constraints.",
-      "$ref": "https://opentechevents.org/schema/v0.4/event.schema.json#/$defs/feedTranslations",
+      "$ref": "https://opentechevents.org/schema/v0.5/event.schema.json#/$defs/feedTranslations",
       "examples": [
         {
           "en": {
@@ -4622,11 +5138,76 @@ Source: spec/v0.4/feed.schema.json — JSON Schema for a feed of events.
         }
       ]
     },
+    "alternates": {
+      "description": "New in v0.5. Where this same collection is published in other formats — RSS, iCalendar, schema.org JSON-LD. The JSON form of an HTML <link rel=\"alternate\"> / the Link: rel=\"alternate\" HTTP header, for feeds with no HTML page in front of them. INFORMATIONAL: OTE does not guarantee the linked resources are generated from this feed or kept in sync with it — a consumer MUST NOT assume exact sync, completeness or derivation; a producer SHOULD generate them from the same source, or otherwise intend them to describe the same collection.",
+      "$ref": "#/$defs/alternates",
+      "examples": [
+        [
+          {
+            "mediaType": "application/rss+xml",
+            "url": "https://pyalmeria.example/events.rss"
+          },
+          {
+            "mediaType": "text/calendar",
+            "url": "https://pyalmeria.example/events.ics"
+          }
+        ]
+      ]
+    },
+    "contributing": {
+      "description": "New in v0.5. URL for reporting or proposing a data change in this feed's records — the default every event inherits when it omits its own (default-value inheritance, like license: a declared scalar replaces the inherited one). It exists because an aggregator must leave organizers out, and source points upstream, not at the aggregator's copy. Accepts an HTTP(S) IRI or a mailto: role address; see event.contributing and DECISIONS.md.",
+      "$ref": "https://opentechevents.org/schema/v0.5/event.schema.json#/$defs/contributing",
+      "examples": [
+        "https://github.com/pyalmeria/eventos/issues/new"
+      ]
+    },
     "events": {
       "description": "Events in this feed. Each one inherits the feed's specVersion and license unless it declares its own. No two may share an id — see the document's constraints.",
       "type": "array",
       "items": {
-        "$ref": "https://opentechevents.org/schema/v0.4/event.schema.json#/$defs/event"
+        "$ref": "https://opentechevents.org/schema/v0.5/event.schema.json#/$defs/event"
+      }
+    }
+  },
+  "$defs": {
+    "alternates": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/alternate"
+      }
+    },
+    "alternate": {
+      "type": "object",
+      "required": [
+        "mediaType",
+        "url"
+      ],
+      "$comment": "mediaType is a bare, lowercase media-type token — no parameters (application/rss+xml, not 'application/rss+xml; charset=utf-8'). Two entries MAY share a mediaType (RSS mirrors); they SHOULD then be mirrors or equivalent choices, not semantically different feeds that would need a human label. No title: a client renders 'RSS'/'iCalendar' in the reader's language from the media type, the same 'an enum is multilingual for free' reasoning as status.",
+      "properties": {
+        "mediaType": {
+          "description": "IANA media type of the alternate representation. A loose shape check, not a closed list — new feed formats appear.",
+          "type": "string",
+          "pattern": "^[a-z]+/[a-z0-9][a-z0-9!#$&^_.+-]*$",
+          "examples": [
+            "application/rss+xml",
+            "application/atom+xml",
+            "application/feed+json",
+            "text/calendar",
+            "application/ld+json"
+          ]
+        },
+        "url": {
+          "description": "Absolute HTTP(S) IRI of the alternate representation. No embedded credentials.",
+          "type": "string",
+          "format": "iri",
+          "pattern": "^https?://",
+          "not": {"pattern": "^https?://[^/?#]*@"},
+          "examples": [
+            "https://pyalmeria.example/events.rss"
+          ]
+        }
       }
     }
   },
@@ -4634,6 +5215,7 @@ Source: spec/v0.4/feed.schema.json — JSON Schema for a feed of events.
   "uniqueEventIds": true,
   "eventsNotNewerThanFeed": true,
   "eventsRespectInheritedTextLanguage": true,
+  "sharedOffersConsistent": true,
   "allOf": [
     {
       "description": "Same rule as an event: a map of translations is unusable without knowing which language the primary text is in. A feed that translates its title must say what language that title is in.",
@@ -4681,19 +5263,19 @@ Source: spec/v0.4/feed.schema.json — JSON Schema for a feed of events.
 
 ## event.recommended.schema.json
 
-Source: spec/v0.4/event.recommended.schema.json — Profile: what makes an event findable and filterable. Failing it is a warning, never an error.
+Source: spec/v0.5/event.recommended.schema.json — Profile: what makes an event findable and filterable. Failing it is a warning, never an error.
 
 ```json
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://opentechevents.org/schema/v0.4/event.recommended.schema.json",
+  "$id": "https://opentechevents.org/schema/v0.5/event.recommended.schema.json",
   "title": "OTE Event — recommended profile",
   "description": "A quality profile, NOT a validity profile. An event that fails this schema is still a valid OTE event: event.schema.json decides what is valid, and it is deliberately permissive because most published .ics files carry neither URL nor description. This schema decides something else — whether the event can actually be discovered, filtered and subscribed to. Tools SHOULD report failures here as warnings and MUST NOT reject a document for them. It applies both to a standalone event and to one inside a feed: it references #/$defs/event, so it never asks for specVersion or license.",
   "type": "object",
   "languagesCoveredByText": true,
   "allOf": [
     {
-      "$ref": "https://opentechevents.org/schema/v0.4/event.schema.json#/$defs/event"
+      "$ref": "https://opentechevents.org/schema/v0.5/event.schema.json#/$defs/event"
     },
     {
       "description": "Without these, the event is published but not findable: url is the only link RSS/Atom has, description is what every destination shows, image is what makes the event visible where it is listed (Google recommends it for the Event rich result, and every platform studied already emits one), organizers is who is trusted for it, attendanceMode and location answer 'can I go?', tags and languages are what someone filters by, and updatedAt is what lets a subscriber sync incrementally instead of refetching everything.",
@@ -4739,7 +5321,7 @@ Source: spec/v0.4/event.recommended.schema.json — Profile: what makes an event
         ],
         "properties": {
           "startDate": {
-            "$ref": "https://opentechevents.org/schema/v0.4/event.schema.json#/$defs/dateTime"
+            "$ref": "https://opentechevents.org/schema/v0.5/event.schema.json#/$defs/dateTime"
           }
         }
       },
@@ -4757,7 +5339,7 @@ Source: spec/v0.4/event.recommended.schema.json — Profile: what makes an event
         "license": {
           "anyOf": [
             {
-              "$ref": "https://opentechevents.org/schema/v0.4/event.schema.json#/$defs/dataLicense"
+              "$ref": "https://opentechevents.org/schema/v0.5/event.schema.json#/$defs/dataLicense"
             },
             {
               "type": "string",
@@ -4944,17 +5526,17 @@ Source: spec/v0.4/event.recommended.schema.json — Profile: what makes an event
 
 ## feed.recommended.schema.json
 
-Source: spec/v0.4/feed.recommended.schema.json — Profile: what makes a feed subscribable.
+Source: spec/v0.5/feed.recommended.schema.json — Profile: what makes a feed subscribable.
 
 ```json
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://opentechevents.org/schema/v0.4/feed.recommended.schema.json",
+  "$id": "https://opentechevents.org/schema/v0.5/feed.recommended.schema.json",
   "title": "OTE Feed — recommended profile",
   "description": "A quality profile, NOT a validity profile. A feed that fails this schema is still a valid OTE feed. Tools SHOULD report failures here as warnings and MUST NOT reject a document for them. Deliberately short: a feed's job is to carry events, so nearly all of the quality lives in event.recommended.schema.json — which a checker applies to each entry of `events` separately.",
   "allOf": [
     {
-      "$ref": "https://opentechevents.org/schema/v0.4/feed.schema.json"
+      "$ref": "https://opentechevents.org/schema/v0.5/feed.schema.json"
     },
     {
       "description": "url is where the publisher lives, and it is what a consumer shows to say where these events came from. description is what a directory lists the feed under. `organizers` is NOT recommended, on purpose: an aggregator MUST leave it out so each event states its own, and a warning that pushes an aggregator to claim events it does not organise would corrupt the very data the field exists to protect.",
@@ -5020,11 +5602,11 @@ SECTION: Examples
 
 ## event-all-day.json
 
-Source: spec/v0.4/examples/event-all-day.json — Validated documents, one per real case. These pass `npm run validate`.
+Source: spec/v0.5/examples/event-all-day.json — Validated documents, one per real case. These pass `npm run validate`.
 
 ```json
 {
-  "specVersion": "0.4.0",
+  "specVersion": "0.5.0",
   "id": "https://devfest-levante.example/2026",
   "url": "https://devfest-levante.example/2026",
   "name": "DevFest Levante 2026",
@@ -5058,11 +5640,11 @@ Source: spec/v0.4/examples/event-all-day.json — Validated documents, one per r
 
 ## event-co-organized.json
 
-Source: spec/v0.4/examples/event-co-organized.json — Validated documents, one per real case. These pass `npm run validate`.
+Source: spec/v0.5/examples/event-co-organized.json — Validated documents, one per real case. These pass `npm run validate`.
 
 ```json
 {
-  "specVersion": "0.4.0",
+  "specVersion": "0.5.0",
   "id": "https://gdgmadrid.example/eventos/2026-09-devfest-warmup",
   "url": "https://gdgmadrid.example/eventos/2026-09-devfest-warmup",
   "name": "DevFest Warm-up — GDG Madrid × Python Madrid",
@@ -5107,11 +5689,11 @@ Source: spec/v0.4/examples/event-co-organized.json — Validated documents, one 
 
 ## event-conference-cfp.json
 
-Source: spec/v0.4/examples/event-conference-cfp.json — Validated documents, one per real case. These pass `npm run validate`.
+Source: spec/v0.5/examples/event-conference-cfp.json — Validated documents, one per real case. These pass `npm run validate`.
 
 ```json
 {
-  "specVersion": "0.4.0",
+  "specVersion": "0.5.0",
   "id": "https://devfest-levante.example/2026",
   "url": "https://devfest-levante.example/2026",
   "name": "DevFest Levante 2026",
@@ -5193,13 +5775,49 @@ Source: spec/v0.4/examples/event-conference-cfp.json — Validated documents, on
 }
 ```
 
-## event-from-ics.json
+## event-contributing.json
 
-Source: spec/v0.4/examples/event-from-ics.json — Validated documents, one per real case. These pass `npm run validate`.
+Source: spec/v0.5/examples/event-contributing.json — Validated documents, one per real case. These pass `npm run validate`.
 
 ```json
 {
-  "specVersion": "0.4.0",
+  "specVersion": "0.5.0",
+  "id": "https://eventos.example/ote/events/codemotion-2027",
+  "url": "https://eventos.example/events/2027/codemotion-madrid",
+  "name": "Codemotion Madrid 2027",
+  "description": "Agregado a partir de la web de Codemotion.",
+  "image": ["https://eventos.example/img/codemotion-2027.png"],
+  "organizers": [
+    { "name": "Codemotion", "type": "organization" }
+  ],
+  "startDate": "2027-05-12T09:00",
+  "endDate": "2027-05-13T18:30",
+  "timezone": "Europe/Madrid",
+  "attendanceMode": "in-person",
+  "location": { "venue": "La Nave, Madrid", "address": { "locality": "Madrid", "country": "ES" } },
+  "tags": ["tech"],
+  "languages": ["es"],
+  "textLanguage": "es",
+  "license": "CC-BY-4.0",
+
+  "_comment_source_vs_contributing": "source apunta a DE DÓNDE vino el dato (la web de Codemotion). contributing apunta a DÓNDE SE CORRIGE este registro — incluido un fallo de mapeo del agregador, que arreglar en el origen no soluciona. Campos distintos; a menudo aparecen los dos.",
+  "source": {
+    "name": "Codemotion",
+    "url": "https://codemotion.com/madrid-2027",
+    "retrievedAt": "2026-09-01T04:00:00Z"
+  },
+  "updatedAt": "2026-09-01T04:00:00Z",
+  "contributing": "https://github.com/eventos-example/feed/issues/new"
+}
+```
+
+## event-from-ics.json
+
+Source: spec/v0.5/examples/event-from-ics.json — Validated documents, one per real case. These pass `npm run validate`.
+
+```json
+{
+  "specVersion": "0.5.0",
   "id": "https://calendar.example/ics/rust-madrid#a1b2c3d4-uid-from-the-ics",
   "name": "Rust Madrid — June meetup",
   "description": "Talks on WASM and Rust tooling.",
@@ -5231,11 +5849,11 @@ Source: spec/v0.4/examples/event-from-ics.json — Validated documents, one per 
 
 ## event-hackathon.json
 
-Source: spec/v0.4/examples/event-hackathon.json — Validated documents, one per real case. These pass `npm run validate`.
+Source: spec/v0.5/examples/event-hackathon.json — Validated documents, one per real case. These pass `npm run validate`.
 
 ```json
 {
-  "specVersion": "0.4.0",
+  "specVersion": "0.5.0",
   "id": "https://hackalmeria.example/2026",
   "url": "https://hackalmeria.example/2026",
   "name": "HackAlmería 2026 — 36 horas de código",
@@ -5275,11 +5893,11 @@ Source: spec/v0.4/examples/event-hackathon.json — Validated documents, one per
 
 ## event-iri-url.json
 
-Source: spec/v0.4/examples/event-iri-url.json — Validated documents, one per real case. These pass `npm run validate`.
+Source: spec/v0.5/examples/event-iri-url.json — Validated documents, one per real case. These pass `npm run validate`.
 
 ```json
 {
-  "specVersion": "0.4.0",
+  "specVersion": "0.5.0",
   "id": "https://eventos.wiki/events/2025/pycamp-españa",
   "url": "https://eventos.wiki/events/2025/pycamp-españa",
   "name": "PyCamp España 2025",
@@ -5314,11 +5932,11 @@ Source: spec/v0.4/examples/event-iri-url.json — Validated documents, one per r
 
 ## event-meetup.json
 
-Source: spec/v0.4/examples/event-meetup.json — Validated documents, one per real case. These pass `npm run validate`.
+Source: spec/v0.5/examples/event-meetup.json — Validated documents, one per real case. These pass `npm run validate`.
 
 ```json
 {
-  "specVersion": "0.4.0",
+  "specVersion": "0.5.0",
   "id": "https://rustmadrid.example/meetups/2026-06",
   "url": "https://rustmadrid.example/meetups/2026-06",
   "name": "Rust Madrid — Meetup de junio",
@@ -5369,11 +5987,11 @@ Source: spec/v0.4/examples/event-meetup.json — Validated documents, one per re
 
 ## event-minimal.json
 
-Source: spec/v0.4/examples/event-minimal.json — Validated documents, one per real case. These pass `npm run validate`.
+Source: spec/v0.5/examples/event-minimal.json — Validated documents, one per real case. These pass `npm run validate`.
 
 ```json
 {
-  "specVersion": "0.4.0",
+  "specVersion": "0.5.0",
   "id": "https://pyalmeria.example/eventos/2026-06-async",
   "name": "PyAlmería — Introducción a async/await",
   "startDate": "2026-06-11T18:30",
@@ -5384,11 +6002,11 @@ Source: spec/v0.4/examples/event-minimal.json — Validated documents, one per r
 
 ## event-online.json
 
-Source: spec/v0.4/examples/event-online.json — Validated documents, one per real case. These pass `npm run validate`.
+Source: spec/v0.5/examples/event-online.json — Validated documents, one per real case. These pass `npm run validate`.
 
 ```json
 {
-  "specVersion": "0.4.0",
+  "specVersion": "0.5.0",
   "id": "https://rustgirona.example/sessions/2026-07-31",
   "url": "https://rustgirona.example/sessions/2026-07-31",
   "name": "Sessió setmanal de codificació — Rust Girona",
@@ -5456,13 +6074,51 @@ Source: spec/v0.4/examples/event-online.json — Validated documents, one per re
 }
 ```
 
-## event-recurring.json
+## event-recording.json
 
-Source: spec/v0.4/examples/event-recurring.json — Validated documents, one per real case. These pass `npm run validate`.
+Source: spec/v0.5/examples/event-recording.json — Validated documents, one per real case. These pass `npm run validate`.
 
 ```json
 {
-  "specVersion": "0.4.0",
+  "specVersion": "0.5.0",
+  "id": "https://rustmadrid.example/meetups/2026-05",
+  "url": "https://rustmadrid.example/meetups/2026-05",
+  "name": "Rust Madrid — Meetup de mayo",
+  "description": "Charla sobre lifetimes y una sesión de preguntas.",
+  "image": ["https://rustmadrid.example/img/2026-05.png"],
+  "organizers": [
+    { "name": "Rust Madrid", "url": "https://rustmadrid.example" }
+  ],
+  "startDate": "2026-05-28T19:00",
+  "endDate": "2026-05-28T21:00",
+  "timezone": "Europe/Madrid",
+  "attendanceMode": "in-person",
+  "location": { "venue": "Impact Hub, Madrid", "address": { "locality": "Madrid", "country": "ES" } },
+  "tags": ["rust"],
+  "languages": ["es"],
+  "textLanguage": "es",
+  "license": "CC-BY-4.0",
+  "updatedAt": "2026-06-02T10:00:00Z",
+
+  "_comment_recordings": "El evento ya ocurrió. La grabación se enlaza AHORA, con el mismo `id` y un `updatedAt` nuevo. Dos entradas: la charla en YouTube (URL pelada) y las preguntas en la instancia PeerTube de la comunidad, con `title` porque hay más de una.",
+  "recordings": [
+    "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+    {
+      "url": "https://tube.rustmadrid.example/w/abc123",
+      "title": "Preguntas y respuestas",
+      "translations": { "en": { "title": "Q&A" } }
+    }
+  ]
+}
+```
+
+## event-recurring.json
+
+Source: spec/v0.5/examples/event-recurring.json — Validated documents, one per real case. These pass `npm run validate`.
+
+```json
+{
+  "specVersion": "0.5.0",
   "id": "https://rustmadrid.example/meetups/2026-06",
   "url": "https://rustmadrid.example/meetups/2026-06",
   "name": "Rust Madrid — Meetup de junio",
@@ -5506,13 +6162,171 @@ Source: spec/v0.4/examples/event-recurring.json — Validated documents, one per
 }
 ```
 
-## feed-community.json
+## event-with-speakers.json
 
-Source: spec/v0.4/examples/feed-community.json — Validated documents, one per real case. These pass `npm run validate`.
+Source: spec/v0.5/examples/event-with-speakers.json — Validated documents, one per real case. These pass `npm run validate`.
 
 ```json
 {
-  "specVersion": "0.4.0",
+  "specVersion": "0.5.0",
+  "id": "https://pyalmeria.example/talks/2026-09-async",
+  "url": "https://pyalmeria.example/talks/2026-09-async",
+  "name": "PyAlmería — Panel: el futuro de async en Python",
+  "description": "Mesa redonda sobre el estado de asyncio, trio y anyio, con preguntas del público.",
+  "image": [
+    { "url": "https://pyalmeria.example/img/2026-09-async.png", "alt": "Cartel: tres ponentes sobre fondo azul y el título del panel" }
+  ],
+  "organizers": [
+    { "name": "PyAlmería", "url": "https://pyalmeria.example" }
+  ],
+
+  "_comment_speakers": "speakers NO es organizers: quien da la charla no la organiza. Es una lista porque un panel es lo normal. `url` es la página canónica de cada ponente; `sameAs` son sus otros perfiles. speakers no está en el perfil recomendado: quien importa un .ics nunca lo tiene.",
+  "speakers": [
+    {
+      "name": "Ada Lovelace",
+      "url": "https://ada.example",
+      "sameAs": ["https://fosstodon.org/@ada", "https://www.linkedin.com/in/ada-lovelace"]
+    },
+    { "name": "Grace Hopper" },
+    { "type": "organization", "name": "El equipo de anyio" }
+  ],
+  "startDate": "2026-09-24T19:00",
+  "endDate": "2026-09-24T20:30",
+  "timezone": "Europe/Madrid",
+  "attendanceMode": "in-person",
+  "location": {
+    "venue": "El Cable, Almería",
+    "address": { "locality": "Almería", "country": "ES" }
+  },
+  "tags": ["python", "async"],
+  "languages": ["es"],
+  "textLanguage": "es",
+  "license": "CC-BY-4.0",
+  "updatedAt": "2026-09-01T09:00:00Z"
+}
+```
+
+## event-workshop-addon.json
+
+Source: spec/v0.5/examples/event-workshop-addon.json — Validated documents, one per real case. These pass `npm run validate`.
+
+```json
+{
+  "specVersion": "0.5.0",
+  "id": "https://trgcon.example/2026/workshops/testing",
+  "url": "https://trgcon.example/2026/workshops/testing",
+  "name": "TRG Conf 2026 — Taller de testing en Python",
+  "description": "Taller práctico de tres horas. Parte de TRG Conf 2026.",
+  "image": [
+    "https://trgcon.example/img/2026-workshop.png"
+  ],
+  "organizers": [
+    {
+      "name": "TRG Conf",
+      "url": "https://trgcon.example"
+    }
+  ],
+  "startDate": "2026-10-14T09:30",
+  "endDate": "2026-10-14T12:30",
+  "timezone": "Europe/Madrid",
+  "attendanceMode": "in-person",
+  "location": {
+    "venue": "La Nave, Madrid",
+    "address": {
+      "locality": "Madrid",
+      "country": "ES"
+    }
+  },
+  "tags": [
+    "python",
+    "testing"
+  ],
+  "languages": [
+    "es"
+  ],
+  "_comment_partof": "El taller es una PARTE de la conferencia (partOf.type multipart). partOf.offers lleva la entrada compartida — el ticket de la conferencia — escrita igual en cada parte. La oferta propia del taller es un add-on: coste total = entrada (240) + taller (60).",
+  "offers": [
+    {
+      "name": "Taller de testing",
+      "price": 60,
+      "currency": "EUR",
+      "scope": "add-on",
+      "url": "https://trgcon.example/tickets#workshops"
+    }
+  ],
+  "partOf": {
+    "id": "https://trgcon.example/2026",
+    "name": "TRG Conf 2026",
+    "url": "https://trgcon.example/2026",
+    "type": "multipart",
+    "offers": [
+      {
+        "name": "General",
+        "price": 240,
+        "currency": "EUR",
+        "url": "https://trgcon.example/tickets"
+      }
+    ]
+  },
+  "license": "CC-BY-4.0",
+  "updatedAt": "2026-09-01T09:00:00Z"
+}
+```
+
+## feed-alternates.json
+
+Source: spec/v0.5/examples/feed-alternates.json — Validated documents, one per real case. These pass `npm run validate`.
+
+```json
+{
+  "specVersion": "0.5.0",
+  "title": "Eventos de PyAlmería",
+  "description": "Meetups y charlas mensuales de Python en Almería.",
+  "url": "https://pyalmeria.example",
+  "textLanguage": "es",
+  "organizers": [
+    { "name": "PyAlmería", "url": "https://pyalmeria.example" }
+  ],
+  "license": "CC-BY-4.0",
+  "updatedAt": "2026-09-01T10:00:00Z",
+
+  "_comment_alternates": "Este feed se sirve como JSON suelto, sin página HTML delante — así que alternates es el único sitio donde decir «la misma colección también está en RSS y en iCal aquí». Es INFORMATIVO: la spec no garantiza que esas versiones estén sincronizadas.",
+  "alternates": [
+    { "mediaType": "application/rss+xml", "url": "https://pyalmeria.example/events.rss" },
+    { "mediaType": "text/calendar", "url": "https://pyalmeria.example/events.ics" }
+  ],
+  "contributing": "mailto:hola@pyalmeria.example",
+  "events": [
+    {
+      "id": "https://pyalmeria.example/talks/2026-09-async",
+      "url": "https://pyalmeria.example/talks/2026-09-async",
+      "name": "PyAlmería — Panel: el futuro de async en Python",
+      "description": "Mesa redonda sobre asyncio, trio y anyio.",
+      "image": ["https://pyalmeria.example/img/2026-09-async.png"],
+      "speakers": [
+        { "name": "Ada Lovelace", "url": "https://ada.example" },
+        { "name": "Grace Hopper" }
+      ],
+      "startDate": "2026-09-24T19:00",
+      "endDate": "2026-09-24T20:30",
+      "timezone": "Europe/Madrid",
+      "attendanceMode": "in-person",
+      "location": { "venue": "El Cable, Almería" },
+      "tags": ["python", "async"],
+      "languages": ["es"],
+      "updatedAt": "2026-09-01T09:00:00Z"
+    }
+  ]
+}
+```
+
+## feed-community.json
+
+Source: spec/v0.5/examples/feed-community.json — Validated documents, one per real case. These pass `npm run validate`.
+
+```json
+{
+  "specVersion": "0.5.0",
   "title": "Eventos de PyAlmería",
   "description": "Meetups mensuales de Python en Almería.",
   "url": "https://pyalmeria.example",
@@ -5591,13 +6405,120 @@ Source: spec/v0.4/examples/feed-community.json — Validated documents, one per 
 }
 ```
 
-## feed-multipart.json
+## feed-multipart-pricing.json
 
-Source: spec/v0.4/examples/feed-multipart.json — Validated documents, one per real case. These pass `npm run validate`.
+Source: spec/v0.5/examples/feed-multipart-pricing.json — Validated documents, one per real case. These pass `npm run validate`.
 
 ```json
 {
-  "specVersion": "0.4.0",
+  "specVersion": "0.5.0",
+  "title": "TRG Conf 2026",
+  "description": "Las charlas y talleres de TRG Conf 2026, como documentos independientes.",
+  "url": "https://trgcon.example",
+  "textLanguage": "es",
+  "organizers": [
+    {
+      "name": "TRG Conf",
+      "url": "https://trgcon.example"
+    }
+  ],
+  "license": "CC-BY-4.0",
+  "updatedAt": "2026-09-01T10:00:00Z",
+  "events": [
+    {
+      "id": "https://trgcon.example/2026/talks/keynote",
+      "url": "https://trgcon.example/2026/talks/keynote",
+      "name": "Keynote de apertura",
+      "description": "Charla inaugural.",
+      "image": [
+        "https://trgcon.example/img/keynote.png"
+      ],
+      "_comment": "Sin offers propio: esta charla está CUBIERTA por partOf.offers. Coste = 240.",
+      "startDate": "2026-10-14T09:00",
+      "endDate": "2026-10-14T09:45",
+      "timezone": "Europe/Madrid",
+      "attendanceMode": "in-person",
+      "location": {
+        "venue": "La Nave, Madrid"
+      },
+      "tags": [
+        "tech"
+      ],
+      "languages": [
+        "es"
+      ],
+      "partOf": {
+        "id": "https://trgcon.example/2026",
+        "name": "TRG Conf 2026",
+        "type": "multipart",
+        "offers": [
+          {
+            "name": "General",
+            "price": 240,
+            "currency": "EUR",
+            "url": "https://trgcon.example/tickets"
+          }
+        ]
+      },
+      "updatedAt": "2026-09-01T09:00:00Z"
+    },
+    {
+      "id": "https://trgcon.example/2026/workshops/testing",
+      "url": "https://trgcon.example/2026/workshops/testing",
+      "name": "Taller de testing en Python",
+      "description": "Taller práctico de tres horas.",
+      "image": [
+        "https://trgcon.example/img/workshop.png"
+      ],
+      "_comment": "Mismo partOf.offers, escrito IGUAL (sharedOffersConsistent lo exige). Su offers propio es un add-on: 240 + 60.",
+      "startDate": "2026-10-14T09:30",
+      "endDate": "2026-10-14T12:30",
+      "timezone": "Europe/Madrid",
+      "attendanceMode": "in-person",
+      "location": {
+        "venue": "La Nave, Madrid"
+      },
+      "tags": [
+        "python"
+      ],
+      "languages": [
+        "es"
+      ],
+      "offers": [
+        {
+          "name": "Taller de testing",
+          "price": 60,
+          "currency": "EUR",
+          "scope": "add-on",
+          "url": "https://trgcon.example/tickets#workshops"
+        }
+      ],
+      "partOf": {
+        "id": "https://trgcon.example/2026",
+        "name": "TRG Conf 2026",
+        "type": "multipart",
+        "offers": [
+          {
+            "name": "General",
+            "price": 240,
+            "currency": "EUR",
+            "url": "https://trgcon.example/tickets"
+          }
+        ]
+      },
+      "updatedAt": "2026-09-01T09:00:00Z"
+    }
+  ]
+}
+```
+
+## feed-multipart.json
+
+Source: spec/v0.5/examples/feed-multipart.json — Validated documents, one per real case. These pass `npm run validate`.
+
+```json
+{
+  "specVersion": "0.5.0",
   "title": "Eventos de PyAlmería",
   "description": "Meetups y formación de Python en Almería.",
   "url": "https://pyalmeria.example",
@@ -5703,11 +6624,11 @@ Source: spec/v0.4/examples/feed-multipart.json — Validated documents, one per 
 
 ## feed.json
 
-Source: spec/v0.4/examples/feed.json — Validated documents, one per real case. These pass `npm run validate`.
+Source: spec/v0.5/examples/feed.json — Validated documents, one per real case. These pass `npm run validate`.
 
 ```json
 {
-  "specVersion": "0.4.0",
+  "specVersion": "0.5.0",
   "title": "Open Tech Events Spain",
   "description": "Eventos de comunidades técnicas en España.",
   "url": "https://opentechevents.org",
@@ -6317,10 +7238,11 @@ A change to the spec is **not just editing a `.md`**. The current version has fo
 
 | Piece | File |
 | --- | --- |
-| The executable schema | `spec/v0.4/event.schema.json` / `feed.schema.json` |
-| The normative prose (what a validator cannot check) | `spec/v0.4/README.md` |
-| The examples, including those that **must fail** | `spec/v0.4/examples/` and `examples/invalid/` |
+| The executable schema | `spec/v0.5/event.schema.json` / `feed.schema.json` |
+| The normative prose (what a validator cannot check) | `spec/v0.5/README.md` |
+| The examples, including those that **must fail** | `spec/v0.5/examples/` and `examples/invalid/` |
 | The example's entry in the website gallery (EN + translations) | `spec/<version>/examples/catalog/` → `npm run build-examples` |
+| The Spanish reference translation for any new field | `spec/<version>/i18n/es.json` → `npm run build-reference -- --check` |
 | The published copies (the `$id`s must resolve) | `docs/schema/` → `npm run publish-schemas` |
 
 Before submitting: `npm run validate`. **If the change does not come with an example demonstrating it, it is not finished** — and if it relaxes a rule, remove the example in `invalid/` that must no longer fail.
@@ -6328,6 +7250,8 @@ Before submitting: `npm run validate`. **If the change does not come with an exa
 **A new field is declared where it belongs.** The order in which the schema declares its `properties` is the canonical field order: the generated reference and the editor's autocompletion inherit it, and the examples must follow it (`npm run validate` fails otherwise). It is explained, with its blocks and the reasoning, in ["Field order"](spec/v0.4/README.md#field-order-is-not-normative-but-there-is-one). Putting it at the end "because it's new" is the one thing that does not work.
 
 **Adding a field does not require changing the schema.** The schemas do not forbid additional fields: if your community needs `tags` or `cfp` today, you add them and your document stays valid. The spec grows with **fields somebody already really uses**, not with fields we imagine will be needed. Bring the real usage and we'll talk about standardising it.
+
+**The candidates already being watched** are on the [suggested extensions page](https://opentechevents.org/extensions/), backed by `docs/data/suggested-extensions.json`. Each has a recommended shape to copy and an adoption count that `npm run scan-extensions` writes from the registered adopter feeds — **the count is never hand-edited**. To propose a new candidate, add an entry (everything except `observedAdoption`) in a PR. A field moves from `gathering-evidence` to `proposed-for` only via a normal spec-change PR, and to `graduated` only when it ships in a version. The maintainer owns the file; CI owns the number.
 
 ### Versioning
 
@@ -6450,6 +7374,67 @@ Each published version lives frozen in its own folder (`spec/v0.1/`, `spec/v0.2/
 and under its own `$id` (`https://opentechevents.org/schema/vX.Y/…`). A document declares
 which one it adheres to with `specVersion`, so **nothing breaks when a new
 version is published**: `0.1.0` documents keep validating against `spec/v0.1/`.
+
+## [0.5.0] — 2026-09-01
+
+**BREAKING** (deliberately — the spec is `0.x` and says it can break without
+warning). Six new fields, and one model that reshapes how multi-part events
+carry a price.
+
+### Added
+
+- **`speakers`** (`array`, min. 1) on the event — who gives the talk(s), a list
+  of `{ name, url?, sameAs?, type? }`, modelled on `organizers`. `url` is one
+  canonical page; `sameAs` is the list of other profile URLs, mapping to
+  schema.org `Person.sameAs` (HTTP(S) only — not a DID or handle). Not
+  recommended-tier.
+- **`recordings`** (`array`, min. 1) on the event — published recordings, linked
+  after the event (same `id`, new `updatedAt`). A bare HTTP(S) IRI or
+  `{ url, title?, translations? }`, the `image[]` string-or-object pattern. Not
+  recommended-tier.
+- **`contributing`** (`string`) on the **event and the feed** — a URL for
+  reporting or proposing a data fix, inherited feed→event like `license`.
+  Accepts an HTTP(S) IRI **or a `mailto:` role address** — the first field in the
+  spec to accept a non-HTTP scheme. See DECISIONS.md D033.
+- **`feed.alternates`** (`array`, min. 1) — where the same collection is
+  published in other formats (`{ mediaType, url }`), the JSON form of an HTML
+  `<link rel="alternate">`, for feeds with no HTML page. **Informational**: no
+  sync guarantee.
+- **`partOf.offers`** — the shared admission of a multi-part event, written
+  identically on every part (reuses `$defs/offers`).
+- **`offers[].scope`** (`enum`: `admission` | `add-on`) — what an offer means
+  relative to `partOf.offers`. An `add-on` offer requires `partOf.offers` in the
+  same document.
+
+### Changed / breaking
+
+- **Multi-part event pricing (P037 / DECISIONS.md D032).** A part that omits its
+  own `offers`, in a document that carries `partOf.offers`, is now **covered by
+  the set admission** — the one place an absent `offers` list means something
+  other than "unknown". The "a consumer that ignores `partOf` still sees correct
+  events" guarantee is **relaxed for pricing**: a consumer that needs the price
+  of a multi-part event MUST also read `partOf.offers`. Ignoring it yields
+  *incomplete* pricing, never *wrong* pricing.
+- **New feed-root validator error `sharedOffersConsistent`**: the parts of one
+  multi-part set (same `partOf.id`) that carry `partOf.offers` must carry the
+  same block, compared by value.
+- **Unprefixed-extension collision.** `speakers`, `recordings`, `contributing`,
+  `alternates`, `partOf.offers` and `offers[].scope` now have a normative
+  meaning. A producer already shipping any of those exact keys as an unprefixed
+  extension with a *different* shape must adjust — this is why `0.5.0` is a MAJOR
+  bump within `0.x`.
+
+### Migration from 0.4.0
+
+1. Change `specVersion` to `"0.5.0"` and validate against `spec/v0.5/`.
+2. If you used none of the six new key names, nothing else changes — the fields
+   are additive and the pricing rule only fires on `partOf.offers`, which no
+   `0.4.0` document contains.
+3. If you shipped `partOf.offers` / `offers[].scope` / `speakers` / `recordings`
+   / `contributing` / `alternates` as an unprefixed extension, check your shape
+   against the v0.5 `$defs`; adopt it, or move to a prefixed name.
+4. Tier-specific coverage, per-day passes, bundles and coupons are still out of
+   scope — see DECISIONS.md D032 ("Model B").
 
 ## [0.4.0] — 2026-08-28
 

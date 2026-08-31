@@ -1,0 +1,290 @@
+{
+  "$comment": "DRAFT schema fragments for the v0.5 proposal — NOT part of any published spec. STATUS: P035 speakers { name, url?, sameAs?, type? } — sameAs added to CORE at hhkaos's call (R10), over Codex's R9 recommendation to keep it in P038, same override pattern as recordings; P036 recordings; P037 pricing (Model A, breaking 0.5.0); P038 extensions page (speakers affiliation/jobTitle/bio/image stay here, per-subfield status); P039 feed.alternates (#25); P040 contributing (#26). All into v0.5. Reproduce: node proposals/validate-fragments.mjs.",
+  "propertyAdditions": {
+    "event.properties.speakers": {
+      "description": "Who gives the talk(s) — NOT who runs the event (that is organizers) and NOT where the data came from (source). A list in DISPLAY / preference order (first survives to single-value destinations), the same rule organizers and image state. Co-talks and panels are normal. Kept as small as organizers: a name, optionally where to find them. One document is one occurrence, so in a multipart conference the speakers of a given talk live on that talk's document, not on the parent. Only exact repeats are rejected; distinct entries are never deduplicated by inferred identity.",
+      "$ref": "#/$defs/speakers",
+      "examples": [
+        [{ "name": "Ada Lovelace", "url": "https://ada.example" }],
+        [
+          { "name": "Grace Hopper" },
+          { "type": "organization", "name": "The Rust Survey Team" }
+        ]
+      ]
+    },
+    "event.properties.recordings": {
+      "description": "Published recordings of the event, added AFTER it happened (same id, new updatedAt). NOT location.onlineUrl (the live link) and NOT image (the poster). A list — a talk may be on more than one platform, or split into parts.",
+      "$ref": "#/$defs/recordings",
+      "examples": [
+        ["https://www.youtube.com/watch?v=dQw4w9WgXcQ"],
+        [
+          "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+          { "url": "https://tube.rustmadrid.example/w/abc123", "title": "Q&A" }
+        ]
+      ]
+    },
+    "partOf.properties.offers": {
+      "description": "P037. The shared admission price of a multipart set, written identically on every part so a consumer holding one part document can price it without resolving the parent. Reuses $defs/offers verbatim. IMPLEMENTATION NOTE: adopting this also requires updating four other rule sites so partOf.offers[].translations is policed like every other nested translations map — the base textLanguage requirement enumeration, the distinctTranslationLanguages keyword, the D030 offers[].name warning, generated reference paths, and the invalid-example corpus. Accepted cost (breaking changes are on the table).",
+      "$ref": "#/$defs/offers",
+      "examples": [
+        [
+          { "name": "Early bird", "price": 180, "currency": "EUR", "url": "https://trgcon.example/tickets", "closesAt": "2026-09-01T23:59:59+02:00" },
+          { "name": "General", "price": 240, "currency": "EUR", "url": "https://trgcon.example/tickets" }
+        ]
+      ]
+    },
+    "offer.properties.scope": {
+      "description": "P037. What this offer entry means relative to the set's shared admission (partOf.offers). Only meaningful when the document has partOf. `admission` (what an absent scope is read as): a complete way to attend this part — sold standalone, or a restatement of the set admission. `add-on`: an ADDITIONAL charge on top of the set admission; total = a priced partOf.offers entry + this entry's price WHEN BOTH carry a number, otherwise 'additional charge, total unknown' (URL-only offers are valid — v0.4 allows price-or-url). The schema enforces `if any offer scope == 'add-on' then partOf AND partOf.offers are required`. Recommended-tier warns if scope 'add-on' is present but no partOf.offers entry has a price. `admission` covers ALL admission tiers; 'this add-on only applies to the Pro tier' is OUT OF SCOPE for v0.5 (Model B).",
+      "enum": ["admission", "add-on"],
+      "examples": ["admission", "add-on"]
+    },
+    "feed.properties.alternates": {
+      "description": "P039 (#25). feed.schema.json only. Where this same collection is published in other formats (RSS, iCalendar, schema.org JSON-LD). The JSON form of an HTML <link rel='alternate'> / the Link: HTTP header, for feeds with no HTML page. INFORMATIONAL — OTE does not guarantee the linked resources are generated from this feed or kept in sync with it.",
+      "$ref": "#/$defs/alternates",
+      "examples": [
+        [
+          { "mediaType": "application/rss+xml", "url": "https://pyalmeria.example/events.rss" },
+          { "mediaType": "text/calendar", "url": "https://pyalmeria.example/events.ics" }
+        ]
+      ]
+    },
+    "event.$defs.contributing": {
+      "$comment": "P040 (#26). Round 7: a SHARED $def in spec/v0.5/event.schema.json#/$defs — the feed schema $refs it cross-schema by $id, exactly as feed.license/textLanguage/updatedAt do. Round 8: accepts an HTTP(S) IRI OR a mailto: URI (real producer dev.events points at hello@dev.events). A mailto: carries the SAME role-address discipline as organizers[].email: a role address (hello@, corrections@), never someone's personal mailbox, and never populated from a non-public source.",
+      "type": "string",
+      "anyOf": [
+        {
+          "description": "An HTTP(S) IRI — an issue tracker, a form, an OTE editor deep link (?repo=...).",
+          "format": "iri",
+          "pattern": "^https?://",
+          "not": { "pattern": "^https?://[^/?#]*@" }
+        },
+        {
+          "description": "A mailto: URI with ONE bare role address — no headers (?...), no second recipient (,), no fragment (#), and no raw RFC 6068 gen-delims (/ [ ]) that the RFC says must be percent-encoded.",
+          "pattern": "^mailto:[^\\s?@,#/\\[\\]]+@[^\\s?@,#/\\[\\]]+$"
+        }
+      ],
+      "examples": [
+        "https://github.com/pyalmeria/eventos/issues/new",
+        "https://tools.opentechevents.org/editor/?repo=rustmadrid/events",
+        "mailto:hello@dev.events"
+      ]
+    },
+    "feed.properties.contributing": {
+      "description": "P040 (#26). URL for reporting or proposing a data change in this feed's records. The default every event inherits when it omits its own (default-value inheritance, like license — a declared scalar replaces the inherited one). Exists because an aggregator must omit organizers and source.url points upstream, not at the aggregator's copy.",
+      "$ref": "https://opentechevents.org/schema/v0.5/event.schema.json#/$defs/contributing",
+      "examples": ["https://github.com/pyalmeria/eventos/issues/new"]
+    },
+    "event.properties.contributing": {
+      "description": "P040 (#26). URL for reporting or proposing a data change in this record — including an aggregator's own mapping error. Inherited from feed.contributing unless declared here. Like cfp it travels to no destination format; its value is inside the OTE ecosystem (a reading tool's 'suggest a correction' button). NOT recommended-tier.",
+      "$ref": "https://opentechevents.org/schema/v0.5/event.schema.json#/$defs/contributing",
+      "x-inheritsFrom": "feed.contributing",
+      "examples": [
+        "https://tools.opentechevents.org/editor/?repo=rustmadrid/events"
+      ]
+    }
+  },
+  "documentConstraints": {
+    "$comment": "P037. Added to the standalone-event top-level allOf AND to $defs/event (so it also applies to feed-embedded events). An add-on charge is meaningless without the set admission it sits on top of, and the add-on total is only computable when partOf.offers is present IN THE SAME DOCUMENT (resolving partOf.id -> parent is not relied on). So: any offer with scope 'add-on' requires partOf AND partOf.offers.",
+    "addOnRequiresSetAdmission": {
+      "if": {
+        "type": "object",
+        "properties": {
+          "offers": {
+            "type": "array",
+            "contains": {
+              "type": "object",
+              "properties": { "scope": { "const": "add-on" } },
+              "required": ["scope"]
+            }
+          }
+        },
+        "required": ["offers"]
+      },
+      "then": {
+        "type": "object",
+        "required": ["partOf"],
+        "properties": {
+          "partOf": { "type": "object", "required": ["offers"] }
+        }
+      }
+    }
+  },
+  "feedRootKeywords": {
+    "$comment": "P037. Same mechanism/rationale as D011 uniqueEventIds — only the feed root sees sibling documents. NEEDS ITS OWN DECISIONS.md ENTRY because the equality relation is over nested JSON, not one id string.",
+    "sharedOffersConsistent": {
+      "rule": "For every group of feed events sharing a partOf.id, the partOf.offers arrays that ARE present must be equal by value. Events in the group that omit partOf.offers are allowed (a part may be described before its price is set); WARNING if some siblings carry it and others do not, once P037's recommended-profile pricing-completeness check exists.",
+      "equality": "Array order is significant (offers are an ordered list, like image[] and organizers[]). Object member order is NOT significant, including inside a nested translations map. Numeric equality is JSON-value equality (45 === 45.0). String equality is exact (no case folding, no URI normalisation) — same discipline as D011. null is treated as absent ({price: null} === {}).",
+      "referenceImpl": "proposals/validate-fragments.mjs has deepEqualJson + sharedOffersConsistent and four feed-level test cases (identical with swapped member order -> consistent; differing price -> inconsistent; array order differs -> inconsistent; one sibling omits -> allowed).",
+      "fallback": "If a hard feed-root error is judged too heavy: a recommended-tier warning instead. It must not be left undefined."
+    }
+  },
+  "$defs": {
+    "alternates": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/alternate" }
+    },
+    "alternate": {
+      "type": "object",
+      "required": ["mediaType", "url"],
+      "properties": {
+        "mediaType": {
+          "description": "IANA media type of the alternate representation. A loose shape check, not a closed list.",
+          "type": "string",
+          "pattern": "^[a-z]+/[a-z0-9][a-z0-9!#$&^_.+-]*$",
+          "examples": ["application/rss+xml", "text/calendar", "application/ld+json"]
+        },
+        "url": {
+          "description": "Absolute HTTP(S) IRI of the alternate representation. No embedded credentials.",
+          "type": "string",
+          "format": "iri",
+          "pattern": "^https?://",
+          "not": { "pattern": "^https?://[^/?#]*@" },
+          "examples": ["https://pyalmeria.example/events.rss"]
+        }
+      }
+    },
+    "speakers": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/speaker" }
+    },
+    "speaker": {
+      "type": "object",
+      "required": ["name"],
+      "properties": {
+        "name": {
+          "description": "Display name of the speaker. A proper noun: never translated.",
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S",
+          "examples": ["Ada Lovelace", "Grace Hopper"]
+        },
+        "url": {
+          "description": "The speaker's canonical page — their own site, or their main profile. One URL. Same rules as organizers[].url. For OTHER profiles, use sameAs.",
+          "type": "string",
+          "format": "iri",
+          "pattern": "^https?://",
+          "not": { "pattern": "^https?://[^/?#]*@" },
+          "examples": ["https://ada.example", "https://fosstodon.org/@grace"]
+        },
+        "sameAs": {
+          "description": "R9/R10. Other profile pages for this SAME person — Mastodon, LinkedIn, GitHub, a personal site distinct from `url`. A list; order not significant; only exact repeats rejected. Maps to schema.org Person.sameAs (identity reconciliation). NOTE: Google's Event rich-result docs do not document nested performer.sameAs — the value is generic schema.org consumers and OTE-ecosystem directories, not a Google rich result. URLs, so no translation.",
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "format": "iri",
+            "pattern": "^https?://",
+            "not": { "pattern": "^https?://[^/?#]*@" }
+          },
+          "examples": [["https://fosstodon.org/@ada", "https://www.linkedin.com/in/ada-lovelace"]]
+        },
+        "type": {
+          "description": "Person or organisation. A translator picks a schema.org @type either way, and Person is the tolerant choice for a speaker.",
+          "enum": ["person", "organization"],
+          "default": "person",
+          "examples": ["person", "organization"]
+        }
+      }
+    },
+    "recordings": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "oneOf": [
+          {
+            "type": "string",
+            "format": "iri",
+            "pattern": "^https?://",
+            "not": { "pattern": "^https?://[^/?#]*@" }
+          },
+          { "$ref": "#/$defs/recordingEntry" }
+        ]
+      }
+    },
+    "recordingEntry": {
+      "type": "object",
+      "required": ["url"],
+      "properties": {
+        "url": {
+          "description": "Absolute HTTP(S) IRI where the recording can be watched. A watch page (YouTube, PeerTube) is fine here — unlike image, this does not have to be the media file itself.",
+          "type": "string",
+          "format": "iri",
+          "pattern": "^https?://",
+          "not": { "pattern": "^https?://[^/?#]*@" },
+          "examples": ["https://www.youtube.com/watch?v=dQw4w9WgXcQ"]
+        },
+        "title": {
+          "description": "What this recording is, when the list has more than one ('Q&A', 'Full session'). Noise when there is only one. Free text, in the document's textLanguage; translated by this entry's own translations map.",
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S",
+          "examples": ["Q&A", "Full session"]
+        },
+        "translations": {
+          "description": "This recording's title in other languages. Local to the entry, never a positional mirror. Requires the document's textLanguage; policed by the same rules as image[].translations (D010/D023/D030).",
+          "$ref": "#/$defs/recordingTranslations"
+        }
+      },
+      "dependentRequired": { "translations": ["title"] }
+    },
+    "recordingTranslations": {
+      "$comment": "mirrors $defs/imageTranslations in spec/v0.4/event.schema.json",
+      "type": "object",
+      "allOf": [{ "$ref": "#/$defs/languageMap" }],
+      "additionalProperties": { "$ref": "#/$defs/recordingTranslation" }
+    },
+    "recordingTranslation": {
+      "type": "object",
+      "required": ["title"],
+      "properties": {
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S",
+          "examples": ["Preguntas y respuestas"]
+        }
+      }
+    }
+  },
+  "suggestedExtensions": {
+    "$comment": "P038. NON-NORMATIVE recommended shapes for the suggested-extensions page — NOT part of any schema, NOT validated. Each sub-field is its own registry entry with independent adoption count + status. speakers[].sameAs moved to the P035 CORE (R10). event.sameAs (below) stays here on purpose: it steps into 'deduplication across sources', a stated non-goal.",
+    "event-sameAs": {
+      "appliesTo": "the event document",
+      "registryEntry": { "name": "sameAs", "scope": "event", "status": "gathering-evidence",
+        "graduationQuestion": "≥2 aggregators emit it pointing at a shared canonical URL, AND the 'dedup out of scope' non-goal is revisited (publisher hint vs heuristic)." },
+      "$comment": "URLs the publisher asserts describe the SAME event (organiser's canonical page, another OTE id, a well-known listing). Publisher assertion, NOT a consumer heuristic. Maps to schema.org Event.sameAs. Distinct from `id` (per-publisher stable identifier, for updates) and from `source.url` (provenance — 'I got this from here', already required for aggregated events).",
+      "type": "array", "minItems": 1, "uniqueItems": true,
+      "items": { "type": "string", "format": "iri", "pattern": "^https?://", "not": { "pattern": "^https?://[^/?#]*@" } }
+    },
+    "speakers-enrichment": {
+      "appliesTo": "each entry of speakers[] (P035)",
+      "note": "These are suggested-extension shapes. A translations map that appears inside one of them (e.g. speakers[].image[].translations) is NOT policed by the core D010/D023/D030 keywords — those enumerate a fixed set of sites and would only cover speakers[].* after a future normative adoption.",
+      "affiliation": {
+        "registryEntry": { "name": "speakers[].affiliation", "status": "gathering-evidence", "graduationQuestion": "≥3 producers emit it?" },
+        "$comment": "ONE organisation DISPLAY name, written once — a proper noun, not translated. Same 'choose the audience-recognisable spelling once' rule as organizers[].name and the locality-spellings note in the README. Maps to schema.org Person.affiliation (Organization by name).",
+        "type": "string", "minLength": 1, "pattern": "\\S"
+      },
+      "jobTitle": {
+        "registryEntry": { "name": "speakers[].jobTitle", "status": "gathering-evidence", "graduationQuestion": "≥3 producers, AND worth the translations-map cost?" },
+        "$comment": "free text, in the document's textLanguage. Maps to schema.org Person.jobTitle. Graduation touches D010/D023/D030 (needs a local translations map).",
+        "type": "string", "minLength": 1, "pattern": "\\S"
+      },
+      "bio": {
+        "registryEntry": { "name": "speakers[].bio", "status": "gathering-evidence", "graduationQuestion": "same as jobTitle, larger prose" },
+        "$comment": "free text prose, in the document's textLanguage. Maps to schema.org Person.description.",
+        "type": "string", "minLength": 1, "pattern": "\\S"
+      },
+      "image": {
+        "registryEntry": { "name": "speakers[].image", "status": "gathering-evidence", "graduationQuestion": "≥3 producers, AND worth reopening the image[].alt apparatus nested in speakers[]?" },
+        "$comment": "SAME shape as event image[] ($defs/images) — a string or { url, alt, translations }. Highest cost. speakers[].image[].translations is NOT core-validated as an extension (see the note above).",
+        "$ref": "https://opentechevents.org/schema/v0.5/event.schema.json#/$defs/images"
+      }
+    }
+  }
+}

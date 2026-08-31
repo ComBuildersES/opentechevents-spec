@@ -3,13 +3,13 @@ import { createRequire } from "node:module";
 const require = createRequire(import.meta.url);
 
 /** The spec version these schemas describe. Matches the `specVersion` field of a document. */
-export const specVersion = "0.4.0";
+export const specVersion = "0.5.0";
 
 /** JSON Schema (draft 2020-12) of a single OTE event. */
-export const eventSchema = require("./spec/v0.4/event.schema.json");
+export const eventSchema = require("./spec/v0.5/event.schema.json");
 
 /** JSON Schema (draft 2020-12) of an OTE feed. */
-export const feedSchema = require("./spec/v0.4/feed.schema.json");
+export const feedSchema = require("./spec/v0.5/feed.schema.json");
 
 /**
  * Both schemas, in the order a validator needs them: the feed references the event by $id,
@@ -23,8 +23,8 @@ export const schemas = [eventSchema, feedSchema];
  * Report their failures as warnings; never reject a document for them. Both reference the base
  * schemas by $id, so register `schemas` first.
  */
-export const eventRecommendedSchema = require("./spec/v0.4/event.recommended.schema.json");
-export const feedRecommendedSchema = require("./spec/v0.4/feed.recommended.schema.json");
+export const eventRecommendedSchema = require("./spec/v0.5/event.recommended.schema.json");
+export const feedRecommendedSchema = require("./spec/v0.5/feed.recommended.schema.json");
 export const recommendedSchemas = [eventRecommendedSchema, feedRecommendedSchema];
 
 /**
@@ -204,6 +204,27 @@ function translationMapsAreDistinct(maps, primary) {
   });
 }
 
+/**
+ * Value equality for the P037 `sharedOffersConsistent` keyword: array order significant, object
+ * member order NOT significant, numbers compared as JSON values (so `45` and `45.0` collapse the
+ * same way once parsed), strings exact, `null` treated as absent. Both inputs are already-parsed
+ * JSON — no functions, dates or cycles to worry about.
+ */
+function deepEqualJson(a, b) {
+  if (a === null || a === undefined) a = undefined;
+  if (b === null || b === undefined) b = undefined;
+  if (a === undefined || b === undefined) return a === b;
+  if (typeof a !== typeof b) return false;
+  if (typeof a !== "object") return a === b;
+  if (Array.isArray(a) !== Array.isArray(b)) return false;
+  if (Array.isArray(a)) {
+    return a.length === b.length && a.every((item, i) => deepEqualJson(item, b[i]));
+  }
+  const keysA = Object.keys(a).filter((k) => a[k] !== null && a[k] !== undefined).sort();
+  const keysB = Object.keys(b).filter((k) => b[k] !== null && b[k] !== undefined).sort();
+  return keysA.length === keysB.length && keysA.every((k, i) => k === keysB[i] && deepEqualJson(a[k], b[k]));
+}
+
 export const customKeywords = [
   {
     keyword: "orderedDates",
@@ -254,6 +275,8 @@ export const customKeywords = [
         data.partOf?.translations,
         ...(Array.isArray(data.offers) ? data.offers.map((o) => o?.translations) : []),
         ...(Array.isArray(data.image) ? data.image.map((i) => i?.translations) : []),
+        ...(Array.isArray(data.recordings) ? data.recordings.map((r) => r?.translations) : []),
+        ...(Array.isArray(data.partOf?.offers) ? data.partOf.offers.map((o) => o?.translations) : []),
       ].filter((map) => map && typeof map === "object");
       return translationMapsAreDistinct(maps, primary);
     },
@@ -341,8 +364,7 @@ export const customKeywords = [
      * against its EFFECTIVE language, `event.textLanguage ?? feed.textLanguage`
      * (`x-inheritsFrom`), which only the feed root can compute. This single keyword covers both
      * halves of that check for every embedded event: the effective language must exist wherever a
-     * translations map does (event's own, or nested in eligibility, partOf, each offers[] or each
-     * image[] — same five locations as `distinctTranslationLanguages`), and no such map's key may
+     * translations map does (event's own, or nested in eligibility, partOf, offers[], image[], recordings[] or partOf.offers[] — same five locations as `distinctTranslationLanguages`), and no such map's key may
      * equal it, case-insensitively (RFC 5646 §2.1.1) — nor may two keys of the SAME map name that
      * effective language in different case (P026): the inherited case is exactly as capable of
      * this contradiction as the local one `distinctTranslationLanguages` already covers, and
@@ -361,6 +383,8 @@ export const customKeywords = [
           event.partOf?.translations,
           ...(Array.isArray(event.offers) ? event.offers.map((o) => o?.translations) : []),
           ...(Array.isArray(event.image) ? event.image.map((i) => i?.translations) : []),
+          ...(Array.isArray(event.recordings) ? event.recordings.map((r) => r?.translations) : []),
+          ...(Array.isArray(event.partOf?.offers) ? event.partOf.offers.map((o) => o?.translations) : []),
         ].filter((map) => map && typeof map === "object");
 
         if (maps.length === 0) return true;
@@ -372,6 +396,43 @@ export const customKeywords = [
     error: {
       message:
         "every event's translations must have an effective textLanguage (own or inherited from the feed) and must not repeat it",
+    },
+  },
+  {
+    keyword: "sharedOffersConsistent",
+    type: "object",
+    schemaType: "boolean",
+    /**
+     * `feed`'s own constraint (P037, new in v0.5): `partOf.offers` is the shared admission of a
+     * multi-part event, written identically on every part that carries it — so a consumer holding
+     * one part document can price it without resolving the parent. If the parts of one set (same
+     * `partOf.id`) disagreed on that block, a consumer would price the same admission differently
+     * depending on which part it read. Same structural reason as `uniqueEventIds`/D011: only the
+     * feed root can see two sibling events at once.
+     *
+     * Compared by VALUE, not by serialized text (`deepEqualJson`): array order is significant
+     * (offers are an ordered list, like `image[]`/`organizers`), object member order is not,
+     * numbers compare as JSON values (`45` === `45.0` after parse), strings compare exactly (no
+     * case folding, no URI normalization — D011's discipline), and `null` is treated as absent.
+     * Parts that OMIT `partOf.offers` are allowed (a part may be described before its price is
+     * set); the recommended profile flags the "some carry it, some don't" case, this keyword only
+     * forbids an outright contradiction between the ones that DO carry it.
+     */
+    validate: (schemaValue, data) => {
+      if (!schemaValue || !Array.isArray(data.events)) return true;
+      const bySet = new Map();
+      for (const event of data.events) {
+        const setId = event?.partOf?.id;
+        const offers = event?.partOf?.offers;
+        if (typeof setId !== "string" || offers === undefined) continue;
+        if (!bySet.has(setId)) bySet.set(setId, offers);
+        else if (!deepEqualJson(bySet.get(setId), offers)) return false;
+      }
+      return true;
+    },
+    error: {
+      message:
+        "every part of a multi-part set (same partOf.id) that carries partOf.offers must carry the same block",
     },
   },
   {

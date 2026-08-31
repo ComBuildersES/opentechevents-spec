@@ -23,7 +23,7 @@ import addFormats from "ajv-formats";
 import { annotationKeywords, customFormats, customKeywords } from "../index.js";
 import { fieldsOf, loadSchemas } from "./schema-model.mjs";
 
-const VERSIONS = ["v0.1", "v0.2", "v0.3", "v0.4"];
+const VERSIONS = ["v0.1", "v0.2", "v0.3", "v0.4", "v0.5"];
 const SPEC_DIR = "spec";
 const LATEST = VERSIONS[VERSIONS.length - 1];
 

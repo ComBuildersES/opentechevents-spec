@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OTE Spec — suggested extensions</title>
+<meta name="description" content="Candidate fields not yet in the OTE core: a recommended shape to copy, and a measured adoption count. Using one is the evidence that graduates it.">
+<link rel="canonical" href="https://opentechevents.org/extensions/">
+<link rel="stylesheet" href="../styles.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧩</text></svg>">
+<style>
+  main.wrap { max-width: 780px; margin: 0 auto; padding: 2rem 1rem 5rem; }
+  .ext { border: 1px solid var(--border, #ddd); border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+  .ext h2 { margin: 0 0 .3rem; font-family: ui-monospace, Menlo, monospace; font-size: 1.05rem; }
+  .ext .meta { font-size: .8rem; color: var(--muted, #666); margin-bottom: .6rem; }
+  .ext .count { font-weight: 600; }
+  .ext dt { font-size: .72rem; letter-spacing: .06em; text-transform: uppercase; color: var(--muted, #666); margin-top: .6rem; }
+  .ext dd { margin: .15rem 0 0; }
+  .ext code, .ext .shape { font-family: ui-monospace, Menlo, monospace; font-size: .85em; }
+  .status { display: inline-block; font-size: .7rem; padding: 1px 6px; border: 1px solid currentColor; border-radius: 3px; }
+</style>
+</head>
+<body>
+<main class="wrap" id="main">
+  <p><a href="/">← OpenTechEvents</a></p>
+  <h1>Suggested extensions</h1>
+  <p>Fields that are <strong>not</strong> in the OTE core (yet). The schemas do not forbid additional
+  fields, so you can use any of these today and your document stays valid. Each has a
+  <strong>recommended shape</strong> so early adopters converge, and an <strong>adoption count</strong>
+  measured automatically from the <a href="/#adopt">registered adopter feeds</a> — never edited by hand.
+  A field graduates to the core through a normal proposal once its graduation question is answered.</p>
+  <p id="asof" class="meta"></p>
+  <div id="list"></div>
+</main>
+<script>
+fetch("../data/suggested-extensions.json").then(r => r.json()).then(reg => {
+  const list = document.getElementById("list");
+  let asOf = null;
+  for (const e of reg.extensions) {
+    asOf = e.observedAdoption.asOf || asOf;
+    const el = document.createElement("section");
+    el.className = "ext";
+    el.innerHTML = `
+      <h2>${e.name}</h2>
+      <p class="meta"><span class="status">${e.status}</span> · ${e.scope} ·
+        <span class="count">${e.observedAdoption.feeds}</span> adopter feed(s)</p>
+      <p>${e.purpose}</p>
+      <dl>
+        <dt>Recommended shape</dt><dd class="shape">${e.shape}</dd>
+        <dt>Graduates when</dt><dd>${e.graduationQuestion}</dd>
+      </dl>`;
+    list.appendChild(el);
+  }
+  if (asOf) document.getElementById("asof").textContent = "Adoption counts as of " + asOf + ".";
+});
+</script>
+</body>
+</html>
