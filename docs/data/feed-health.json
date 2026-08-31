@@ -1,6 +1,6 @@
 {
   "_comment": "Health of the registered adopter feeds, refreshed daily by scripts/check-feeds.mjs. Feeds are validated against the spec version they declare; `supported` false means older than the supported window, which is information, not a failure. `specVersion` and `licenses` are the last values seen, kept through an outage; `licenses` lists every licence a consumer ends up with, feed-level inheritance already resolved. `updated` is when this status last changed.",
-  "updated": "2026-08-30",
+  "updated": "2026-08-31",
   "latestSpecVersion": "0.4.0",
   "feeds": [
     {
@@ -24,6 +24,21 @@
       "feed": "https://eventos.wiki/events.json",
       "status": "ok",
       "specVersion": "0.4.0",
+      "supported": true,
+      "licenses": [
+        "CC-BY-4.0"
+      ],
+      "cors": true,
+      "failureKind": null,
+      "failingSince": null,
+      "error": null
+    },
+    {
+      "name": "CoruñaJUG",
+      "url": "https://corunajug.org/",
+      "feed": "https://corunajug.org/feed.json",
+      "status": "ok",
+      "specVersion": "0.3.0",
       "supported": true,
       "licenses": [
         "CC-BY-4.0"
