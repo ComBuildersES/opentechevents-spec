@@ -242,7 +242,7 @@ Every date and time in this spec, in any field, has to be **calendar-real** — 
 
 New in v0.3, optional. And the first thing to say is what it is **not**: **it is not a recurrence rule**.
 
-**One document = one occurrence. Whoever publishes expands.** A monthly meetup is not one document with a rule: it is twelve documents, each with its own `id`, its own dates and its own `status`. A study jam of three sessions on non-consecutive Saturdays is three documents. `partOf` only says **which set they belong to**:
+**One document = one occurrence. Whoever publishes expands.** A monthly meetup is not one document with a rule: it is twelve documents, each with its own `id`, its own dates and its own `status`. A study jam of three sessions on non-consecutive Saturdays is three documents. A two-day conference with parallel tracks is one document per talk — two talks at the same time are just two documents with overlapping dates and a different `location.venue` ([`examples/feed-conference-tracks.json`](examples/feed-conference-tracks.json)). `partOf` only says **which set they belong to**:
 
 ```json
 "partOf": {

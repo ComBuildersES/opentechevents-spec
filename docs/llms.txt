@@ -44,6 +44,7 @@ otherwise fetch the pieces you need from the list).
 - [event-workshop-addon.json](https://opentechevents.org/llms/event-workshop-addon.json): Validated documents, one per real case. These pass `npm run validate`.
 - [feed-alternates.json](https://opentechevents.org/llms/feed-alternates.json): Validated documents, one per real case. These pass `npm run validate`.
 - [feed-community.json](https://opentechevents.org/llms/feed-community.json): Validated documents, one per real case. These pass `npm run validate`.
+- [feed-conference-tracks.json](https://opentechevents.org/llms/feed-conference-tracks.json): Validated documents, one per real case. These pass `npm run validate`.
 - [feed-multipart-pricing.json](https://opentechevents.org/llms/feed-multipart-pricing.json): Validated documents, one per real case. These pass `npm run validate`.
 - [feed-multipart.json](https://opentechevents.org/llms/feed-multipart.json): Validated documents, one per real case. These pass `npm run validate`.
 - [feed.json](https://opentechevents.org/llms/feed.json): Validated documents, one per real case. These pass `npm run validate`.

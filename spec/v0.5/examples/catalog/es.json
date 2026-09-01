@@ -195,6 +195,16 @@
         "El taller repite el MISMO bloque `partOf.offers`, igual en significado — `sharedOffersConsistent` rechaza un feed donde dos partes de un conjunto discrepan.",
         "Esto relaja la garantía «un consumidor que ignora `partOf` sigue viendo eventos correctos» SOLO para el precio: ignorar `partOf.offers` da un precio incompleto, nunca un precio equivocado."
       ]
+    },
+    "feed-conference-tracks.json": {
+      "title": "Una conferencia de dos días con tracks en paralelo",
+      "summary": "Cinco sesiones en dos días, dos salas a la vez — cada una su propio documento, todas compartiendo un mismo partOf.",
+      "points": [
+        "Los tracks en paralelo no necesitan ningún campo nuevo: dos sesiones a la misma hora son dos documentos con fechas que se solapan y un location.venue distinto (Sala A / Sala B). Un documento es una ocurrencia.",
+        "Cada sesión lleva el MISMO bloque partOf.offers —la entrada de la conferencia— escrito igual. sharedOffersConsistent rechaza un feed donde dos partes de un conjunto discrepan.",
+        "La mayoría de sesiones no tiene offers propio: están cubiertas por partOf.offers. El taller de Pact lleva scope: \"add-on\" — el total para asistir es la entrada más 45.",
+        "La keynote de apertura es plenaria (sin track paralelo); el resto van por parejas. Cada sesión lista sus ponentes."
+      ]
     }
   }
 }

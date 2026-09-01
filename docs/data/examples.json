@@ -2731,6 +2731,343 @@
           15
         ]
       }
+    },
+    {
+      "file": "feed-conference-tracks.json",
+      "kind": "feed",
+      "repoUrl": "https://github.com/OpenTechEvents/opentechevents-spec/blob/main/spec/v0.5/examples/feed-conference-tracks.json",
+      "cases": [
+        "conference",
+        "multipart",
+        "feed"
+      ],
+      "fields": [
+        "event.partOf",
+        "event.partOf.type",
+        "event.partOf.offers",
+        "event.speakers",
+        "event.offers[].scope"
+      ],
+      "title": {
+        "en": "A two-day conference with parallel tracks",
+        "es": "Una conferencia de dos días con tracks en paralelo"
+      },
+      "summary": {
+        "en": "Five sessions over two days, two rooms running at once — each its own document, all sharing one partOf.",
+        "es": "Cinco sesiones en dos días, dos salas a la vez — cada una su propio documento, todas compartiendo un mismo partOf."
+      },
+      "points": {
+        "en": [
+          "Parallel tracks need no new field: two sessions at the same time are two documents with overlapping dates and a different location.venue (Sala A / Sala B). One document = one occurrence.",
+          "Every session carries the SAME partOf.offers block — the conference admission — written identically. sharedOffersConsistent rejects a feed where two parts of one set disagree.",
+          "Most sessions have no offers of their own: they are covered by partOf.offers. The Pact workshop has scope: \"add-on\" — total to attend it is the admission plus 45.",
+          "The opening keynote is plenary (no parallel track); the rest pair up. Each session lists its speakers."
+        ],
+        "es": [
+          "Los tracks en paralelo no necesitan ningún campo nuevo: dos sesiones a la misma hora son dos documentos con fechas que se solapan y un location.venue distinto (Sala A / Sala B). Un documento es una ocurrencia.",
+          "Cada sesión lleva el MISMO bloque partOf.offers —la entrada de la conferencia— escrito igual. sharedOffersConsistent rechaza un feed donde dos partes de un conjunto discrepan.",
+          "La mayoría de sesiones no tiene offers propio: están cubiertas por partOf.offers. El taller de Pact lleva scope: \"add-on\" — el total para asistir es la entrada más 45.",
+          "La keynote de apertura es plenaria (sin track paralelo); el resto van por parejas. Cada sesión lista sus ponentes."
+        ]
+      },
+      "source": "{\n  \"specVersion\": \"0.5.0\",\n  \"title\": \"DevFest Atlántico 2026\",\n  \"description\": \"El programa completo de DevFest Atlántico 2026 — dos días, dos tracks en paralelo — como documentos independientes.\",\n  \"url\": \"https://devfest-atlantico.example\",\n  \"textLanguage\": \"es\",\n  \"organizers\": [\n    {\n      \"name\": \"GDG Las Palmas\",\n      \"url\": \"https://gdg.example/las-palmas\"\n    }\n  ],\n  \"license\": \"CC-BY-4.0\",\n  \"updatedAt\": \"2026-10-15T09:00:00Z\",\n  \"events\": [\n    {\n      \"id\": \"https://devfest-atlantico.example/2026/sessions/keynote-apertura\",\n      \"url\": \"https://devfest-atlantico.example/2026/sessions/keynote-apertura\",\n      \"name\": \"DevFest Atlántico 2026 — Keynote de apertura\",\n      \"description\": \"Charla inaugural: hacia dónde va la plataforma web. Sesión plenaria, sin track paralelo.\",\n      \"image\": [\n        \"https://devfest-atlantico.example/img/keynote-apertura.png\"\n      ],\n      \"speakers\": [\n        {\n          \"name\": \"Ada Lovelace\",\n          \"url\": \"https://ada.example\",\n          \"sameAs\": [\n            \"https://fosstodon.org/@ada\"\n          ]\n        }\n      ],\n      \"startDate\": \"2026-11-14T09:15\",\n      \"endDate\": \"2026-11-14T10:00\",\n      \"timezone\": \"Atlantic/Canary\",\n      \"attendanceMode\": \"in-person\",\n      \"location\": {\n        \"venue\": \"Auditorio, Palacio de Congresos, Las Palmas de Gran Canaria\",\n        \"address\": {\n          \"locality\": \"Las Palmas de Gran Canaria\",\n          \"region\": \"Las Palmas\",\n          \"country\": \"ES\"\n        }\n      },\n      \"tags\": [\n        \"devfest\",\n        \"keynote\"\n      ],\n      \"languages\": [\n        \"es\"\n      ],\n      \"partOf\": {\n        \"id\": \"https://devfest-atlantico.example/2026\",\n        \"name\": \"DevFest Atlántico 2026\",\n        \"url\": \"https://devfest-atlantico.example/2026\",\n        \"type\": \"multipart\",\n        \"offers\": [\n          {\n            \"name\": \"General\",\n            \"price\": 320,\n            \"currency\": \"EUR\",\n            \"url\": \"https://devfest-atlantico.example/tickets\"\n          },\n          {\n            \"name\": \"Estudiante\",\n            \"price\": 120,\n            \"currency\": \"EUR\",\n            \"url\": \"https://devfest-atlantico.example/tickets\"\n          }\n        ]\n      },\n      \"updatedAt\": \"2026-10-15T08:00:00Z\"\n    },\n    {\n      \"id\": \"https://devfest-atlantico.example/2026/sessions/wasm-en-produccion\",\n      \"url\": \"https://devfest-atlantico.example/2026/sessions/wasm-en-produccion\",\n      \"name\": \"WebAssembly en producción: lo que aprendimos\",\n      \"description\": \"Track A. En paralelo con «Diseño de APIs que no odiarás» en la Sala B.\",\n      \"image\": [\n        \"https://devfest-atlantico.example/img/wasm-en-produccion.png\"\n      ],\n      \"speakers\": [\n        {\n          \"name\": \"Grace Hopper\"\n        }\n      ],\n      \"startDate\": \"2026-11-14T10:30\",\n      \"endDate\": \"2026-11-14T11:15\",\n      \"timezone\": \"Atlantic/Canary\",\n      \"attendanceMode\": \"in-person\",\n      \"location\": {\n        \"venue\": \"Sala A, Palacio de Congresos, Las Palmas de Gran Canaria\",\n        \"address\": {\n          \"locality\": \"Las Palmas de Gran Canaria\",\n          \"region\": \"Las Palmas\",\n          \"country\": \"ES\"\n        }\n      },\n      \"tags\": [\n        \"devfest\",\n        \"wasm\"\n      ],\n      \"languages\": [\n        \"es\"\n      ],\n      \"partOf\": {\n        \"id\": \"https://devfest-atlantico.example/2026\",\n        \"name\": \"DevFest Atlántico 2026\",\n        \"url\": \"https://devfest-atlantico.example/2026\",\n        \"type\": \"multipart\",\n        \"offers\": [\n          {\n            \"name\": \"General\",\n            \"price\": 320,\n            \"currency\": \"EUR\",\n            \"url\": \"https://devfest-atlantico.example/tickets\"\n          },\n          {\n            \"name\": \"Estudiante\",\n            \"price\": 120,\n            \"currency\": \"EUR\",\n            \"url\": \"https://devfest-atlantico.example/tickets\"\n          }\n        ]\n      },\n      \"updatedAt\": \"2026-10-15T08:00:00Z\"\n    },\n    {\n      \"id\": \"https://devfest-atlantico.example/2026/sessions/diseno-de-apis\",\n      \"url\": \"https://devfest-atlantico.example/2026/sessions/diseno-de-apis\",\n      \"name\": \"Diseño de APIs que no odiarás\",\n      \"description\": \"Track B. En paralelo con «WebAssembly en producción» en la Sala A.\",\n      \"image\": [\n        \"https://devfest-atlantico.example/img/diseno-de-apis.png\"\n      ],\n      \"speakers\": [\n        {\n          \"name\": \"Radia Perlman\",\n          \"url\": \"https://radia.example\"\n        }\n      ],\n      \"startDate\": \"2026-11-14T10:30\",\n      \"endDate\": \"2026-11-14T11:15\",\n      \"timezone\": \"Atlantic/Canary\",\n      \"attendanceMode\": \"in-person\",\n      \"location\": {\n        \"venue\": \"Sala B, Palacio de Congresos, Las Palmas de Gran Canaria\",\n        \"address\": {\n          \"locality\": \"Las Palmas de Gran Canaria\",\n          \"region\": \"Las Palmas\",\n          \"country\": \"ES\"\n        }\n      },\n      \"tags\": [\n        \"devfest\",\n        \"apis\"\n      ],\n      \"languages\": [\n        \"es\"\n      ],\n      \"partOf\": {\n        \"id\": \"https://devfest-atlantico.example/2026\",\n        \"name\": \"DevFest Atlántico 2026\",\n        \"url\": \"https://devfest-atlantico.example/2026\",\n        \"type\": \"multipart\",\n        \"offers\": [\n          {\n            \"name\": \"General\",\n            \"price\": 320,\n            \"currency\": \"EUR\",\n            \"url\": \"https://devfest-atlantico.example/tickets\"\n          },\n          {\n            \"name\": \"Estudiante\",\n            \"price\": 120,\n            \"currency\": \"EUR\",\n            \"url\": \"https://devfest-atlantico.example/tickets\"\n          }\n        ]\n      },\n      \"updatedAt\": \"2026-10-15T08:00:00Z\"\n    },\n    {\n      \"id\": \"https://devfest-atlantico.example/2026/sessions/panel-comunidades\",\n      \"url\": \"https://devfest-atlantico.example/2026/sessions/panel-comunidades\",\n      \"name\": \"Panel: sostener una comunidad técnica sin quemarse\",\n      \"description\": \"Track A, segundo día. En paralelo con el taller de testing en la Sala B.\",\n      \"image\": [\n        \"https://devfest-atlantico.example/img/panel-comunidades.png\"\n      ],\n      \"speakers\": [\n        {\n          \"name\": \"Ada Lovelace\",\n          \"url\": \"https://ada.example\"\n        },\n        {\n          \"name\": \"Grace Hopper\"\n        },\n        {\n          \"type\": \"organization\",\n          \"name\": \"GDG Las Palmas\"\n        }\n      ],\n      \"startDate\": \"2026-11-15T11:30\",\n      \"endDate\": \"2026-11-15T12:30\",\n      \"timezone\": \"Atlantic/Canary\",\n      \"attendanceMode\": \"in-person\",\n      \"location\": {\n        \"venue\": \"Sala A, Palacio de Congresos, Las Palmas de Gran Canaria\",\n        \"address\": {\n          \"locality\": \"Las Palmas de Gran Canaria\",\n          \"region\": \"Las Palmas\",\n          \"country\": \"ES\"\n        }\n      },\n      \"tags\": [\n        \"devfest\",\n        \"comunidad\"\n      ],\n      \"languages\": [\n        \"es\"\n      ],\n      \"partOf\": {\n        \"id\": \"https://devfest-atlantico.example/2026\",\n        \"name\": \"DevFest Atlántico 2026\",\n        \"url\": \"https://devfest-atlantico.example/2026\",\n        \"type\": \"multipart\",\n        \"offers\": [\n          {\n            \"name\": \"General\",\n            \"price\": 320,\n            \"currency\": \"EUR\",\n            \"url\": \"https://devfest-atlantico.example/tickets\"\n          },\n          {\n            \"name\": \"Estudiante\",\n            \"price\": 120,\n            \"currency\": \"EUR\",\n            \"url\": \"https://devfest-atlantico.example/tickets\"\n          }\n        ]\n      },\n      \"updatedAt\": \"2026-10-15T08:00:00Z\"\n    },\n    {\n      \"id\": \"https://devfest-atlantico.example/2026/sessions/taller-testing\",\n      \"url\": \"https://devfest-atlantico.example/2026/sessions/taller-testing\",\n      \"name\": \"Taller: testing de contratos con Pact\",\n      \"description\": \"Track B, segundo día, en paralelo con el panel. Plazas limitadas — es un ADD-ON: se paga aparte de la entrada.\",\n      \"image\": [\n        \"https://devfest-atlantico.example/img/taller-testing.png\"\n      ],\n      \"speakers\": [\n        {\n          \"name\": \"Barbara Liskov\",\n          \"url\": \"https://liskov.example\"\n        }\n      ],\n      \"startDate\": \"2026-11-15T11:30\",\n      \"endDate\": \"2026-11-15T14:30\",\n      \"timezone\": \"Atlantic/Canary\",\n      \"attendanceMode\": \"in-person\",\n      \"location\": {\n        \"venue\": \"Sala B, Palacio de Congresos, Las Palmas de Gran Canaria\",\n        \"address\": {\n          \"locality\": \"Las Palmas de Gran Canaria\",\n          \"region\": \"Las Palmas\",\n          \"country\": \"ES\"\n        }\n      },\n      \"tags\": [\n        \"devfest\",\n        \"testing\",\n        \"taller\"\n      ],\n      \"languages\": [\n        \"es\"\n      ],\n      \"offers\": [\n        {\n          \"name\": \"Taller de testing\",\n          \"price\": 45,\n          \"currency\": \"EUR\",\n          \"scope\": \"add-on\",\n          \"url\": \"https://devfest-atlantico.example/tickets#talleres\"\n        }\n      ],\n      \"partOf\": {\n        \"id\": \"https://devfest-atlantico.example/2026\",\n        \"name\": \"DevFest Atlántico 2026\",\n        \"url\": \"https://devfest-atlantico.example/2026\",\n        \"type\": \"multipart\",\n        \"offers\": [\n          {\n            \"name\": \"General\",\n            \"price\": 320,\n            \"currency\": \"EUR\",\n            \"url\": \"https://devfest-atlantico.example/tickets\"\n          },\n          {\n            \"name\": \"Estudiante\",\n            \"price\": 120,\n            \"currency\": \"EUR\",\n            \"url\": \"https://devfest-atlantico.example/tickets\"\n          }\n        ]\n      },\n      \"updatedAt\": \"2026-10-15T08:00:00Z\"\n    }\n  ]\n}",
+      "lines": {
+        "feed.specVersion": [
+          2
+        ],
+        "feed.title": [
+          3
+        ],
+        "feed.description": [
+          4
+        ],
+        "feed.url": [
+          5
+        ],
+        "feed.textLanguage": [
+          6
+        ],
+        "event.organizers[].name": [
+          9
+        ],
+        "event.organizers[].url": [
+          10
+        ],
+        "feed.organizers": [
+          7
+        ],
+        "feed.license": [
+          13
+        ],
+        "feed.updatedAt": [
+          14
+        ],
+        "event.id": [
+          17,
+          75,
+          129,
+          184,
+          246
+        ],
+        "event.url": [
+          18,
+          76,
+          130,
+          185,
+          247
+        ],
+        "event.name": [
+          19,
+          77,
+          131,
+          186,
+          248
+        ],
+        "event.description": [
+          20,
+          78,
+          132,
+          187,
+          249
+        ],
+        "event.image": [
+          21,
+          79,
+          133,
+          188,
+          250
+        ],
+        "event.speakers[].name": [
+          26,
+          84,
+          138,
+          193,
+          197,
+          201,
+          255
+        ],
+        "event.speakers[].url": [
+          27,
+          139,
+          194,
+          256
+        ],
+        "event.speakers[].sameAs": [
+          28
+        ],
+        "event.speakers": [
+          24,
+          82,
+          136,
+          191,
+          253
+        ],
+        "event.startDate": [
+          33,
+          87,
+          142,
+          204,
+          259
+        ],
+        "event.endDate": [
+          34,
+          88,
+          143,
+          205,
+          260
+        ],
+        "event.timezone": [
+          35,
+          89,
+          144,
+          206,
+          261
+        ],
+        "event.attendanceMode": [
+          36,
+          90,
+          145,
+          207,
+          262
+        ],
+        "event.location.venue": [
+          38,
+          92,
+          147,
+          209,
+          264
+        ],
+        "event.location.address.locality": [
+          40,
+          94,
+          149,
+          211,
+          266
+        ],
+        "event.location.address.region": [
+          41,
+          95,
+          150,
+          212,
+          267
+        ],
+        "event.location.address.country": [
+          42,
+          96,
+          151,
+          213,
+          268
+        ],
+        "event.location.address": [
+          39,
+          93,
+          148,
+          210,
+          265
+        ],
+        "event.location": [
+          37,
+          91,
+          146,
+          208,
+          263
+        ],
+        "event.tags": [
+          45,
+          99,
+          154,
+          216,
+          271
+        ],
+        "event.languages": [
+          49,
+          103,
+          158,
+          220,
+          276
+        ],
+        "event.partOf.id": [
+          53,
+          107,
+          162,
+          224,
+          289
+        ],
+        "event.partOf.name": [
+          54,
+          108,
+          163,
+          225,
+          290
+        ],
+        "event.partOf.url": [
+          55,
+          109,
+          164,
+          226,
+          291
+        ],
+        "event.partOf.type": [
+          56,
+          110,
+          165,
+          227,
+          292
+        ],
+        "event.partOf.offers[].name": [
+          59,
+          65,
+          113,
+          119,
+          168,
+          174,
+          230,
+          236,
+          295,
+          301
+        ],
+        "event.partOf.offers[].price": [
+          60,
+          66,
+          114,
+          120,
+          169,
+          175,
+          231,
+          237,
+          296,
+          302
+        ],
+        "event.partOf.offers[].currency": [
+          61,
+          67,
+          115,
+          121,
+          170,
+          176,
+          232,
+          238,
+          297,
+          303
+        ],
+        "event.partOf.offers[].url": [
+          62,
+          68,
+          116,
+          122,
+          171,
+          177,
+          233,
+          239,
+          298,
+          304
+        ],
+        "event.partOf.offers": [
+          57,
+          111,
+          166,
+          228,
+          293
+        ],
+        "event.partOf": [
+          52,
+          106,
+          161,
+          223,
+          288
+        ],
+        "event.updatedAt": [
+          72,
+          126,
+          181,
+          243,
+          308
+        ],
+        "event.speakers[].type": [
+          200
+        ],
+        "event.offers[].name": [
+          281
+        ],
+        "event.offers[].price": [
+          282
+        ],
+        "event.offers[].currency": [
+          283
+        ],
+        "event.offers[].scope": [
+          284
+        ],
+        "event.offers[].url": [
+          285
+        ],
+        "event.offers": [
+          279
+        ],
+        "feed.events": [
+          15
+        ]
+      }
     }
   ],
   "usage": {
@@ -2939,6 +3276,16 @@
           17,
           53
         ]
+      },
+      {
+        "file": "feed-conference-tracks.json",
+        "lines": [
+          17,
+          75,
+          129,
+          184,
+          246
+        ]
       }
     ],
     "event.name": [
@@ -3059,6 +3406,16 @@
         "lines": [
           19,
           55
+        ]
+      },
+      {
+        "file": "feed-conference-tracks.json",
+        "lines": [
+          19,
+          77,
+          131,
+          186,
+          248
         ]
       }
     ],
@@ -3181,6 +3538,16 @@
           24,
           60
         ]
+      },
+      {
+        "file": "feed-conference-tracks.json",
+        "lines": [
+          33,
+          87,
+          142,
+          204,
+          259
+        ]
       }
     ],
     "event.timezone": [
@@ -3301,6 +3668,16 @@
         "lines": [
           26,
           62
+        ]
+      },
+      {
+        "file": "feed-conference-tracks.json",
+        "lines": [
+          35,
+          89,
+          144,
+          206,
+          261
         ]
       }
     ],
@@ -3503,6 +3880,16 @@
           18,
           54
         ]
+      },
+      {
+        "file": "feed-conference-tracks.json",
+        "lines": [
+          18,
+          76,
+          130,
+          185,
+          247
+        ]
       }
     ],
     "event.description": [
@@ -3617,6 +4004,16 @@
         "lines": [
           20,
           56
+        ]
+      },
+      {
+        "file": "feed-conference-tracks.json",
+        "lines": [
+          20,
+          78,
+          132,
+          187,
+          249
         ]
       }
     ],
@@ -3767,6 +4164,16 @@
           21,
           57
         ]
+      },
+      {
+        "file": "feed-conference-tracks.json",
+        "lines": [
+          21,
+          79,
+          133,
+          188,
+          250
+        ]
       }
     ],
     "event.organizers[].name": [
@@ -3884,6 +4291,12 @@
         "lines": [
           9
         ]
+      },
+      {
+        "file": "feed-conference-tracks.json",
+        "lines": [
+          9
+        ]
       }
     ],
     "event.organizers[].url": [
@@ -3986,6 +4399,12 @@
       },
       {
         "file": "feed-multipart-pricing.json",
+        "lines": [
+          10
+        ]
+      },
+      {
+        "file": "feed-conference-tracks.json",
         "lines": [
           10
         ]
@@ -4197,6 +4616,16 @@
           25,
           61
         ]
+      },
+      {
+        "file": "feed-conference-tracks.json",
+        "lines": [
+          34,
+          88,
+          143,
+          205,
+          260
+        ]
       }
     ],
     "event.attendanceMode": [
@@ -4306,6 +4735,16 @@
           27,
           63
         ]
+      },
+      {
+        "file": "feed-conference-tracks.json",
+        "lines": [
+          36,
+          90,
+          145,
+          207,
+          262
+        ]
       }
     ],
     "event.location.venue": [
@@ -4414,6 +4853,16 @@
         "lines": [
           29,
           65
+        ]
+      },
+      {
+        "file": "feed-conference-tracks.json",
+        "lines": [
+          38,
+          92,
+          147,
+          209,
+          264
         ]
       }
     ],
@@ -4558,6 +5007,16 @@
         "lines": [
           23
         ]
+      },
+      {
+        "file": "feed-conference-tracks.json",
+        "lines": [
+          40,
+          94,
+          149,
+          211,
+          266
+        ]
       }
     ],
     "event.location.address.region": [
@@ -4577,6 +5036,16 @@
         "file": "event-conference-cfp.json",
         "lines": [
           25
+        ]
+      },
+      {
+        "file": "feed-conference-tracks.json",
+        "lines": [
+          41,
+          95,
+          150,
+          212,
+          267
         ]
       }
     ],
@@ -4721,6 +5190,16 @@
         "lines": [
           24
         ]
+      },
+      {
+        "file": "feed-conference-tracks.json",
+        "lines": [
+          42,
+          96,
+          151,
+          213,
+          268
+        ]
       }
     ],
     "event.location.address": [
@@ -4804,6 +5283,16 @@
         "file": "event-workshop-addon.json",
         "lines": [
           22
+        ]
+      },
+      {
+        "file": "feed-conference-tracks.json",
+        "lines": [
+          39,
+          93,
+          148,
+          210,
+          265
         ]
       }
     ],
@@ -5006,6 +5495,16 @@
           28,
           64
         ]
+      },
+      {
+        "file": "feed-conference-tracks.json",
+        "lines": [
+          37,
+          91,
+          146,
+          208,
+          263
+        ]
       }
     ],
     "event.tags": [
@@ -5120,6 +5619,16 @@
         "lines": [
           31,
           67
+        ]
+      },
+      {
+        "file": "feed-conference-tracks.json",
+        "lines": [
+          45,
+          99,
+          154,
+          216,
+          271
         ]
       }
     ],
@@ -5236,6 +5745,16 @@
           34,
           70
         ]
+      },
+      {
+        "file": "feed-conference-tracks.json",
+        "lines": [
+          49,
+          103,
+          158,
+          220,
+          276
+        ]
       }
     ],
     "event.offers[].price": [
@@ -5263,6 +5782,12 @@
         "file": "feed-multipart-pricing.json",
         "lines": [
           76
+        ]
+      },
+      {
+        "file": "feed-conference-tracks.json",
+        "lines": [
+          282
         ]
       }
     ],
@@ -5292,6 +5817,12 @@
         "lines": [
           79
         ]
+      },
+      {
+        "file": "feed-conference-tracks.json",
+        "lines": [
+          285
+        ]
       }
     ],
     "event.offers": [
@@ -5317,6 +5848,12 @@
         "file": "feed-multipart-pricing.json",
         "lines": [
           73
+        ]
+      },
+      {
+        "file": "feed-conference-tracks.json",
+        "lines": [
+          279
         ]
       }
     ],
@@ -5477,6 +6014,16 @@
           50,
           95
         ]
+      },
+      {
+        "file": "feed-conference-tracks.json",
+        "lines": [
+          72,
+          126,
+          181,
+          243,
+          308
+        ]
       }
     ],
     "event.capacity": [
@@ -5520,6 +6067,16 @@
           38,
           83
         ]
+      },
+      {
+        "file": "feed-conference-tracks.json",
+        "lines": [
+          53,
+          107,
+          162,
+          224,
+          289
+        ]
       }
     ],
     "event.partOf.name": [
@@ -5555,6 +6112,16 @@
           39,
           84
         ]
+      },
+      {
+        "file": "feed-conference-tracks.json",
+        "lines": [
+          54,
+          108,
+          163,
+          225,
+          290
+        ]
       }
     ],
     "event.partOf.url": [
@@ -5582,6 +6149,16 @@
         "file": "event-workshop-addon.json",
         "lines": [
           46
+        ]
+      },
+      {
+        "file": "feed-conference-tracks.json",
+        "lines": [
+          55,
+          109,
+          164,
+          226,
+          291
         ]
       }
     ],
@@ -5617,6 +6194,16 @@
         "lines": [
           37,
           82
+        ]
+      },
+      {
+        "file": "feed-conference-tracks.json",
+        "lines": [
+          52,
+          106,
+          161,
+          223,
+          288
         ]
       }
     ],
@@ -5864,6 +6451,12 @@
         "lines": [
           2
         ]
+      },
+      {
+        "file": "feed-conference-tracks.json",
+        "lines": [
+          2
+        ]
       }
     ],
     "feed.title": [
@@ -5893,6 +6486,12 @@
       },
       {
         "file": "feed-multipart-pricing.json",
+        "lines": [
+          3
+        ]
+      },
+      {
+        "file": "feed-conference-tracks.json",
         "lines": [
           3
         ]
@@ -5928,6 +6527,12 @@
         "lines": [
           4
         ]
+      },
+      {
+        "file": "feed-conference-tracks.json",
+        "lines": [
+          4
+        ]
       }
     ],
     "feed.url": [
@@ -5960,6 +6565,12 @@
         "lines": [
           5
         ]
+      },
+      {
+        "file": "feed-conference-tracks.json",
+        "lines": [
+          5
+        ]
       }
     ],
     "feed.organizers": [
@@ -5983,6 +6594,12 @@
       },
       {
         "file": "feed-multipart-pricing.json",
+        "lines": [
+          7
+        ]
+      },
+      {
+        "file": "feed-conference-tracks.json",
         "lines": [
           7
         ]
@@ -6018,6 +6635,12 @@
         "lines": [
           13
         ]
+      },
+      {
+        "file": "feed-conference-tracks.json",
+        "lines": [
+          13
+        ]
       }
     ],
     "feed.updatedAt": [
@@ -6050,6 +6673,12 @@
         "lines": [
           14
         ]
+      },
+      {
+        "file": "feed-conference-tracks.json",
+        "lines": [
+          14
+        ]
       }
     ],
     "event.partOf.type": [
@@ -6072,6 +6701,16 @@
         "lines": [
           40,
           85
+        ]
+      },
+      {
+        "file": "feed-conference-tracks.json",
+        "lines": [
+          56,
+          110,
+          165,
+          227,
+          292
         ]
       }
     ],
@@ -6105,6 +6744,12 @@
         "lines": [
           15
         ]
+      },
+      {
+        "file": "feed-conference-tracks.json",
+        "lines": [
+          15
+        ]
       }
     ],
     "event.offers[].name": [
@@ -6127,6 +6772,12 @@
         "lines": [
           75
         ]
+      },
+      {
+        "file": "feed-conference-tracks.json",
+        "lines": [
+          281
+        ]
       }
     ],
     "event.offers[].currency": [
@@ -6147,6 +6798,12 @@
         "file": "feed-multipart-pricing.json",
         "lines": [
           77
+        ]
+      },
+      {
+        "file": "feed-conference-tracks.json",
+        "lines": [
+          283
         ]
       }
     ],
@@ -6409,6 +7066,12 @@
         "lines": [
           6
         ]
+      },
+      {
+        "file": "feed-conference-tracks.json",
+        "lines": [
+          6
+        ]
       }
     ],
     "feed.licenseUrl": [
@@ -6440,6 +7103,18 @@
           37,
           41
         ]
+      },
+      {
+        "file": "feed-conference-tracks.json",
+        "lines": [
+          26,
+          84,
+          138,
+          193,
+          197,
+          201,
+          255
+        ]
       }
     ],
     "event.speakers[].url": [
@@ -6454,6 +7129,15 @@
         "lines": [
           38
         ]
+      },
+      {
+        "file": "feed-conference-tracks.json",
+        "lines": [
+          27,
+          139,
+          194,
+          256
+        ]
       }
     ],
     "event.speakers[].sameAs": [
@@ -6462,6 +7146,12 @@
         "lines": [
           23
         ]
+      },
+      {
+        "file": "feed-conference-tracks.json",
+        "lines": [
+          28
+        ]
       }
     ],
     "event.speakers[].type": [
@@ -6469,6 +7159,12 @@
         "file": "event-with-speakers.json",
         "lines": [
           32
+        ]
+      },
+      {
+        "file": "feed-conference-tracks.json",
+        "lines": [
+          200
         ]
       }
     ],
@@ -6483,6 +7179,16 @@
         "file": "feed-alternates.json",
         "lines": [
           35
+        ]
+      },
+      {
+        "file": "feed-conference-tracks.json",
+        "lines": [
+          24,
+          82,
+          136,
+          191,
+          253
         ]
       }
     ],
@@ -6588,6 +7294,12 @@
         "lines": [
           78
         ]
+      },
+      {
+        "file": "feed-conference-tracks.json",
+        "lines": [
+          284
+        ]
       }
     ],
     "event.partOf.offers[].name": [
@@ -6602,6 +7314,21 @@
         "lines": [
           43,
           88
+        ]
+      },
+      {
+        "file": "feed-conference-tracks.json",
+        "lines": [
+          59,
+          65,
+          113,
+          119,
+          168,
+          174,
+          230,
+          236,
+          295,
+          301
         ]
       }
     ],
@@ -6618,6 +7345,21 @@
           44,
           89
         ]
+      },
+      {
+        "file": "feed-conference-tracks.json",
+        "lines": [
+          60,
+          66,
+          114,
+          120,
+          169,
+          175,
+          231,
+          237,
+          296,
+          302
+        ]
       }
     ],
     "event.partOf.offers[].currency": [
@@ -6632,6 +7374,21 @@
         "lines": [
           45,
           90
+        ]
+      },
+      {
+        "file": "feed-conference-tracks.json",
+        "lines": [
+          61,
+          67,
+          115,
+          121,
+          170,
+          176,
+          232,
+          238,
+          297,
+          303
         ]
       }
     ],
@@ -6648,6 +7405,21 @@
           46,
           91
         ]
+      },
+      {
+        "file": "feed-conference-tracks.json",
+        "lines": [
+          62,
+          68,
+          116,
+          122,
+          171,
+          177,
+          233,
+          239,
+          298,
+          304
+        ]
       }
     ],
     "event.partOf.offers": [
@@ -6662,6 +7434,16 @@
         "lines": [
           41,
           86
+        ]
+      },
+      {
+        "file": "feed-conference-tracks.json",
+        "lines": [
+          57,
+          111,
+          166,
+          228,
+          293
         ]
       }
     ]

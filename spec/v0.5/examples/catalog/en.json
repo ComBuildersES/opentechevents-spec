@@ -428,6 +428,29 @@
         "The workshop repeats the SAME `partOf.offers` block, byte for byte in meaning — `sharedOffersConsistent` rejects a feed where two parts of one set disagree.",
         "This relaxes the 'a consumer that ignores partOf still sees correct events' guarantee for PRICING only: ignoring `partOf.offers` yields incomplete pricing, never wrong pricing."
       ]
+    },
+    {
+      "file": "feed-conference-tracks.json",
+      "cases": [
+        "conference",
+        "multipart",
+        "feed"
+      ],
+      "fields": [
+        "event.partOf",
+        "event.partOf.type",
+        "event.partOf.offers",
+        "event.speakers",
+        "event.offers[].scope"
+      ],
+      "title": "A two-day conference with parallel tracks",
+      "summary": "Five sessions over two days, two rooms running at once — each its own document, all sharing one partOf.",
+      "points": [
+        "Parallel tracks need no new field: two sessions at the same time are two documents with overlapping dates and a different location.venue (Sala A / Sala B). One document = one occurrence.",
+        "Every session carries the SAME partOf.offers block — the conference admission — written identically. sharedOffersConsistent rejects a feed where two parts of one set disagree.",
+        "Most sessions have no offers of their own: they are covered by partOf.offers. The Pact workshop has scope: \"add-on\" — total to attend it is the admission plus 45.",
+        "The opening keynote is plenary (no parallel track); the rest pair up. Each session lists its speakers."
+      ]
     }
   ]
 }
